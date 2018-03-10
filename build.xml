@@ -1,0 +1,99 @@
+<!-- Copyright (c) 2002 by ObjectLearn. All Rights Reserved. -->
+<project name="J" default="jar" basedir=".">
+
+
+	<!-- set global properties for this build -->
+	<property name="src" value="src" />
+	<property name="lib" value="WebContent/WEB-INF/lib" />
+	<property name="dist" value="dist" />
+	<property name="webapp" value="WebContent" />	
+	<property name="classes" value="WebContent/WEB-INF/classes" />
+	<property name="webroot" value="d:/tomcat/webapps/vselected_sso" />
+
+	<patternset id="resources">
+		<include name="**/*.jpe" />
+		<include name="**/*.jpeg" />
+		<include name="**/*.rmf" />
+		<include name="**/*.wav" />
+		<include name="**/*.midi" />
+		<include name="**/*.mid" />
+		<include name="**/*.au" />
+		<include name="**/*.gif" />
+		<include name="**/*.png" />
+		<include name="**/*.jpg" />
+		<include name="**/*.aiff" />
+		<include name="**/*.properties" />
+		<include name="**/*.txt" />
+		<include name="**/*.xml" />
+	</patternset>
+	<path id="classpath">
+		<pathelement location="${dist}" />
+		<fileset dir="${lib}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<target name="init">
+		<mkdir dir="${dist}" />
+		<mkdir dir="${classes}" />
+	</target>
+
+
+	<target name="resource">
+		<copy todir="${classes}">
+			<fileset dir="${src}">
+				<patternset refid="resources" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="clean">		
+		<delete dir="${classes}" />
+		<delete dir="${dist}" />
+	</target>	
+	
+	<target name="cleanwar">		
+		<delete dir="${webroot}/ROOT" />
+		<delete dir="WebContent/WEB-INF/classes/config" />
+		<delete file="WebContent/WEB-INF/web.xml" />
+		<copydir dest="WebContent/WEB-INF/classes/config" src="config"></copydir>
+	</target>	
+	
+
+	<target name="compile" depends="init">		
+		<javac classpathref="classpath" encoding="utf-8" debug="true" deprecation="false" destdir="${classes}" nowarn="true" target="1.7">
+			<src path="${src}" />
+		</javac>
+		<copydir dest="WebContent/WEB-INF/classes/config" src="config"></copydir>
+		<copydir dest="WebContent/WEB-INF/I18N" src="I18N"></copydir>
+		<copyfile dest="WebContent/WEB-INF/web.xml" src="config/web.xml"></copyfile>
+	</target>
+
+	<target name="jar" depends="resource,compile">
+		<jar compress="false" destfile="${dist}/j.jar">
+			<fileset dir="${classes}">
+				<include name="**/*.*" />
+				<exclude name="**/log4j.properties" />
+				<exclude name="config/**/*.*" />
+				<exclude name="I18N/**/*.*" />
+				<exclude name="**/test/**/*.*" />
+				<patternset refid="resources" />
+			</fileset>
+		</jar>
+	</target>
+	
+	<target name="war" depends="cleanwar,jar">
+		<war compress="false" destfile="${webroot}\ROOT.war" webxml="WebContent/WEB-INF/web.xml">
+			<fileset dir="${webapp}">
+				<include name="**/*.*" />
+				<include name="WEB-INF/db/IP" />
+				<include name="WEB-INF/db/Region" />
+				<exclude name="META-INF/**/*.*" />
+				<exclude name="WEB-INF/web.xml" />
+				<exclude name="WEB-INF/lib/j2ee.jar" />
+				<exclude name="WEB-INF/lib/oracle.jar" />
+				<exclude name="WEB-INF/lib/servlet-api.jar" />
+			</fileset>
+		</war>
+	</target>
+</project>
