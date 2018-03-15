@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>	
+    <handler path="/DataSource" path-pattern=".service" class="j.dao.DataSource" request-by="request">
+    	<action id="isAvail" method="isAvail" respond-with-string="true"/> 
+    	<action id="setAvail" method="setAvail" respond-with-string="true"/> 
+    	<action id="setReadable" method="setReadable" respond-with-string="true"/> 
+    	<action id="setUpdatable" method="setUpdatable" respond-with-string="true"/> 
+    	<action id="setInsertable" method="setInsertable" respond-with-string="true"/> 
+    </handler>
+</root>

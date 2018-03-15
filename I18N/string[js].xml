@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<group name="js" desc="">
+		<string key="notice">
+			<language code="zh-cn">提示</language>
+			<language code="zh-tw">提示</language>
+			<language code="en-us">Notice</language>
+		</string>
+		<string key="close">
+			<language code="zh-cn">关闭</language>
+			<language code="zh-tw">關閉</language>
+			<language code="en-us">Close</language>
+		</string>
+		<string key="clear">
+			<language code="zh-cn">清除</language>
+			<language code="zh-tw">清除</language>
+			<language code="en-us">Clear</language>
+		</string>
+		<string key="wait">
+			<language code="zh-cn">请稍候...</language>
+			<language code="zh-tw">請稍候...</language>
+			<language code="en-us">Please wait...</language>
+		</string>
+		<!--  -->
+		<string key="mon">
+			<language code="zh-cn">一</language>
+			<language code="zh-tw">一</language>
+			<language code="en-us">MON</language>
+		</string>
+		<string key="tue">
+			<language code="zh-cn">二</language>
+			<language code="zh-tw">二</language>
+			<language code="en-us">TUE</language>
+		</string>
+		<string key="wed">
+			<language code="zh-cn">三</language>
+			<language code="zh-tw">三</language>
+			<language code="en-us">WED</language>
+		</string>
+		<string key="thu">
+			<language code="zh-cn">四</language>
+			<language code="zh-tw">四</language>
+			<language code="en-us">THU</language>
+		</string>
+		<string key="fri">
+			<language code="zh-cn">五</language>
+			<language code="zh-tw">五</language>
+			<language code="en-us">FRI</language>
+		</string>
+		<string key="sat">
+			<language code="zh-cn">六</language>
+			<language code="zh-tw">六</language>
+			<language code="en-us">SAT</language>
+		</string>
+		<string key="sun">
+			<language code="zh-cn">日</language>
+			<language code="zh-tw">日</language>
+			<language code="en-us">SUN</language>
+		</string>
+		<!--  -->
+		<string key="monday">
+			<language code="zh-cn">星期一</language>
+			<language code="zh-tw">星期一</language>
+			<language code="en-us">Monday</language>
+		</string>
+		<string key="tuesday">
+			<language code="zh-cn">星期二</language>
+			<language code="zh-tw">星期二</language>
+			<language code="en-us">Tuesday</language>
+		</string>
+		<string key="wednesday">
+			<language code="zh-cn">星期三</language>
+			<language code="zh-tw">星期三</language>
+			<language code="en-us">Wednesday</language>
+		</string>
+		<string key="thursday">
+			<language code="zh-cn">星期四</language>
+			<language code="zh-tw">星期四</language>
+			<language code="en-us">Thursday</language>
+		</string>
+		<string key="friday">
+			<language code="zh-cn">星期五</language>
+			<language code="zh-tw">星期五</language>
+			<language code="en-us">Friday</language>
+		</string>
+		<string key="saturday">
+			<language code="zh-cn">星期六</language>
+			<language code="zh-tw">星期六</language>
+			<language code="en-us">Saturday</language>
+		</string>
+		<string key="sunday">
+			<language code="zh-cn">星期日</language>
+			<language code="zh-tw">星期日</language>
+			<language code="en-us">Sunday</language>
+		</string>
+		<string key="time">
+			<language code="zh-cn">时间</language>
+			<language code="zh-tw">時間</language>
+			<language code="en-us">Time</language>
+		</string>
+		<string key="请选择国家">
+			<language code="zh-cn">请选择国家</language>
+			<language code="zh-tw">請選擇國家</language>
+			<language code="en-us">Select Country</language>
+		</string>
+		<string key="请选择省份或国家">
+			<language code="zh-cn">请选择省份或国家</language>
+			<language code="zh-tw">請選擇省份或國家</language>
+			<language code="en-us">Select Province Or Country</language>
+		</string>
+		<string key="请选择城市">
+			<language code="zh-cn">请选择城市</language>
+			<language code="zh-tw">請選擇城市</language>
+			<language code="en-us">Select City</language>
+		</string>
+		<string key="请选择区县">
+			<language code="zh-cn">请选择区县</language>
+			<language code="zh-tw">請選擇區縣</language>
+			<language code="en-us">Select County</language>
+		</string>
+		<string key="请选择乡镇/街道">
+			<language code="zh-cn">请选择乡镇/街道</language>
+			<language code="zh-tw">請選擇鄉鎮/街道</language>
+			<language code="en-us">Select Street</language>
+		</string>
+		<string key="国内">
+			<language code="zh-cn">国内</language>
+			<language code="zh-tw">國內</language>
+			<language code="en-us">China</language>
+		</string>
+		<string key="全球">
+			<language code="zh-cn">全球</language>
+			<language code="zh-tw">全球</language>
+			<language code="en-us">Worldwide</language>
+		</string>
+	</group>
+</root>

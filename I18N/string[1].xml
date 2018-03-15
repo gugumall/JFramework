@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<group name="/index.jhtml" desc="首页">
+		<string key="备份数据">
+			<language code="zh-cn">备份数据</language>
+			<language code="zh-tw">備份數據</language>
+			<language code="en-us">Backup Data</language>
+		</string>
+		<string key="更新文件">
+			<language code="zh-cn">更新文件</language>
+			<language code="zh-tw">更新文件</language>
+			<language code="en-us">Update File</language>
+		</string>
+		<string key="系统管理">
+			<language code="zh-cn">系统管理</language>
+			<language code="zh-tw">系統管理</language>
+			<language code="en-us">System</language>
+		</string>
+		<string key="员工管理">
+			<language code="zh-cn">员工管理</language>
+			<language code="zh-tw">員工管理</language>
+			<language code="en-us">Staffs</language>
+		</string>
+		<string key="系统设置">
+			<language code="zh-cn">系统设置</language>
+			<language code="zh-tw">系統設置</language>
+			<language code="en-us">System Config</language>
+		</string>
+		<string key="常规日志">
+			<language code="zh-cn">常规日志</language>
+			<language code="zh-tw">常規日誌</language>
+			<language code="en-us">Action Logs</language>
+		</string>
+		<string key="业务日志">
+			<language code="zh-cn">业务日志</language>
+			<language code="zh-tw">業務日誌</language>
+			<language code="en-us">Business Logs</language>
+		</string>
+		<string key="登陆密码">
+			<language code="zh-cn">登陆密码</language>
+			<language code="zh-tw">登陸密碼</language>
+			<language code="en-us">Password</language>
+		</string>
+		<string key="账户管理">
+			<language code="zh-cn">账户管理</language>
+			<language code="zh-tw">賬戶管理</language>
+			<language code="en-us">Accounts</language>
+		</string>
+		<string key="数据源监控与管理">
+			<language code="zh-cn">数据源监控与管理</language>
+			<language code="zh-tw">数据源監控與管理</language>
+			<language code="en-us">Datasources Monitor</language>
+		</string>
+		<string key="现金账户">
+			<language code="zh-cn">现金账户</language>
+			<language code="zh-tw">現金賬戶</language>
+			<language code="en-us">Cash Accounts</language>
+		</string>
+		<string key="积分类型">
+			<language code="zh-cn">积分类型</language>
+			<language code="zh-tw">積分類型</language>
+			<language code="en-us">Point Types</language>
+		</string>
+		<string key="积分账户">
+			<language code="zh-cn">积分账户</language>
+			<language code="zh-tw">積分賬戶</language>
+			<language code="en-us">Point Accounts</language>
+		</string>
+		<string key="财务管理">
+			<language code="zh-cn">财务管理</language>
+			<language code="zh-tw">財務管理</language>
+			<language code="en-us">Financing</language>
+		</string>
+		<string key="第三方支付公司">
+			<language code="zh-cn">第三方支付公司</language>
+			<language code="zh-tw">第三方支付公司</language>
+			<language code="en-us">Payment Companies</language>
+		</string>
+		<string key="第三方支付账号">
+			<language code="zh-cn">第三方支付账号</language>
+			<language code="zh-tw">第三方支付賬號</language>
+			<language code="en-us">Payment Interfaces</language>
+		</string>
+		<string key="全部充值记录">
+			<language code="zh-cn">全部充值记录</language>
+			<language code="zh-tw">全部充值記錄</language>
+			<language code="en-us">All Deposits</language>
+		</string>
+		<string key="在线充值记录">
+			<language code="zh-cn">在线充值记录</language>
+			<language code="zh-tw">在線充值記錄</language>
+			<language code="en-us">Deposits Online</language>
+		</string>
+		<string key="转账充值记录">
+			<language code="zh-cn">转账充值记录</language>
+			<language code="zh-tw">轉賬充值記錄</language>
+			<language code="en-us">Deposits Offline</language>
+		</string>
+		<string key="提款记录">
+			<language code="zh-cn">提款记录</language>
+			<language code="zh-tw">提款記錄</language>
+			<language code="en-us">Withdraws</language>
+		</string>
+		<string key="交易明细">
+			<language code="zh-cn">交易明细</language>
+			<language code="zh-tw">交易明細</language>
+			<language code="en-us">Statements</language>
+		</string>
+		<string key="财务报表">
+			<language code="zh-cn">财务报表</language>
+			<language code="zh-tw">財務報表</language>
+			<language code="en-us">Deposits Offline</language>
+		</string>
+		<string key="基础数据">
+			<language code="zh-cn">基础数据</language>
+			<language code="zh-tw">基礎數據</language>
+			<language code="en-us">Basic Data</language>
+		</string>
+		<string key="汇率">
+			<language code="zh-cn">汇率</language>
+			<language code="zh-tw">匯率</language>
+			<language code="en-us">Exchange Rate</language>
+		</string>
+		<string key="银行">
+			<language code="zh-cn">银行</language>
+			<language code="zh-tw">銀行</language>
+			<language code="en-us">Banks</language>
+		</string>
+		<string key="收款银行卡">
+			<language code="zh-cn">收款银行卡</language>
+			<language code="zh-tw">收款銀行卡</language>
+			<language code="en-us">Accounts 4 Deposit</language>
+		</string>
+		<string key="支付接口">
+			<language code="zh-cn">支付接口</language>
+			<language code="zh-tw">支付接口</language>
+			<language code="en-us">Payment Interfaces</language>
+		</string>
+	</group>
+	<group name="/overview.jhtml" desc="欢迎页">
+		<string key="欢迎光临">
+			<language code="zh-cn">欢迎光临</language>
+			<language code="zh-tw">歡迎光臨</language>
+			<language code="en-us">Welcome</language>
+		</string>
+		<string key="概况">
+			<language code="zh-cn">概况</language>
+			<language code="zh-tw">概況</language>
+			<language code="en-us">Overview</language>
+		</string>
+	</group>
+</root>

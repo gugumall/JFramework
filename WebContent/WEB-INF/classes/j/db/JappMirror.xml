@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- <!DOCTYPE hibernate-mapping PUBLIC
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >-->
+<hibernate-mapping>
+<class name="j.db.JappMirror"  table="j_app_mirror">
+<id name="appMirrorCode" type="java.lang.String" column="APP_MIRROR_CODE">
+	<generator class="assigned" />
+</id>
+
+<property name="appMirrorCode" type="java.lang.String" column="APP_MIRROR_CODE" not-null="true" length="64"/>
+
+<property name="appCode" type="java.lang.String" column="APP_CODE" not-null="false" length="64"/>
+
+<property name="appserverCode" type="java.lang.String" column="APPSERVER_CODE" not-null="false" length="64"/>
+
+<property name="appMirrorName" type="java.lang.String" column="APP_MIRROR_NAME" not-null="false" length="90"/>
+
+<property name="commInterface" type="java.lang.String" column="COMM_INTERFACE" not-null="false" length="128"/>
+
+<property name="commKey" type="java.lang.String" column="COMM_KEY" not-null="false" length="128"/>
+
+<property name="appMirrorStat" type="java.lang.String" column="APP_MIRROR_STAT" not-null="false" length="3"/>
+
+<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" length="21845"/>
+
+</class>
+</hibernate-mapping>

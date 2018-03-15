@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- <!DOCTYPE hibernate-mapping PUBLIC
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >-->
+<hibernate-mapping>
+<class name="j.db.JserviceMirror"  table="j_service_mirror">
+<id name="serviceMirrorCode" type="java.lang.String" column="SERVICE_MIRROR_CODE">
+	<generator class="assigned" />
+</id>
+
+<property name="serviceMirrorCode" type="java.lang.String" column="SERVICE_MIRROR_CODE" not-null="true" length="64"/>
+
+<property name="serviceCode" type="java.lang.String" column="SERVICE_CODE" not-null="false" length="64"/>
+
+<property name="appMirrorCode" type="java.lang.String" column="APP_MIRROR_CODE" not-null="false" length="64"/>
+
+<property name="serviceMirrorName" type="java.lang.String" column="SERVICE_MIRROR_NAME" not-null="false" length="90"/>
+
+<property name="commInterface" type="java.lang.String" column="COMM_INTERFACE" not-null="false" length="128"/>
+
+<property name="commKey" type="java.lang.String" column="COMM_KEY" not-null="false" length="128"/>
+
+<property name="serviceMirrorStat" type="java.lang.String" column="SERVICE_MIRROR_STAT" not-null="false" length="3"/>
+
+<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" length="21845"/>
+
+</class>
+</hibernate-mapping>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<enabled>true</enabled>
+	<cookieEnabled>false</cookieEnabled>
+	<showUnknownTag>true</showUnknownTag>
+	<showUnknownTagIfDefaultLang>false</showUnknownTagIfDefaultLang>
+	
+	<!--多语言配置（暂时未用到）-->
+	<languages default="en-us">
+		<language code="zh-tw" countries="TW,HK" name="中文（繁体）"/>	
+		<language code="zh-cn" countries="CN" name="中文（简体）"/>
+		<language code="en-us" countries="US,UK" name="English(USA)"/>	
+	</languages>	
+	
+	<!--多种语言文本的存放文件（按一定的规则）-->
+	<modules>
+		<module remark="jframework.js">string[js].xml</module>
+		<module remark="全局资源">string[0].xml</module>
+		<module remark="管理后台">string[1].xml</module>
+	</modules>	
+	
+	<!--哪些url需要进行i18n处理-->
+	<urls>
+		<url extension="" pattern="/" match="equals">
+		</url>
+		<url extension=".htm" pattern="/help/*.htm" match="alike">
+			<exclude>tech.htm</exclude>
+		</url>
+		<url extension=".handler" pattern="/AdminUser.handler" match="alike">
+			<exclude>tech.htm</exclude>
+		</url>
+		<url extension=".js" pattern="/*.js" match="alike">
+		</url>
+		<url extension=".jhtml" pattern="/*.jhtml" match="alike">
+			<exclude>/sso/plugins/alipay/index.jhtml</exclude>
+		</url>
+	</urls>
+</root>

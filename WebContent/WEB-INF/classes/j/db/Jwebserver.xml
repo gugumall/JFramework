@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- <!DOCTYPE hibernate-mapping PUBLIC
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >-->
+<hibernate-mapping>
+<class name="j.db.Jwebserver"  table="j_webserver">
+<id name="webserverCode" type="java.lang.String" column="WEBSERVER_CODE">
+	<generator class="assigned" />
+</id>
+
+<property name="webserverCode" type="java.lang.String" column="WEBSERVER_CODE" not-null="true" length="64"/>
+
+<property name="serverCode" type="java.lang.String" column="SERVER_CODE" not-null="false" length="64"/>
+
+<property name="webserverName" type="java.lang.String" column="WEBSERVER_NAME" not-null="false" length="90"/>
+
+<property name="webserverStat" type="java.lang.String" column="WEBSERVER_STAT" not-null="false" length="3"/>
+
+<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" length="21845"/>
+
+</class>
+</hibernate-mapping>

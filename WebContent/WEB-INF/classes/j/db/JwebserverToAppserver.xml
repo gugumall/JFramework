@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!-- <!DOCTYPE hibernate-mapping PUBLIC
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >-->
+<hibernate-mapping>
+<class name="j.db.JwebserverToAppserver"  table="j_webserver_to_appserver">
+<id name="uuid" type="java.lang.String" column="UUID">
+	<generator class="assigned" />
+</id>
+
+<property name="uuid" type="java.lang.String" column="UUID" not-null="true" length="64"/>
+
+<property name="appserverCode" type="java.lang.String" column="APPSERVER_CODE" not-null="false" length="64"/>
+
+<property name="webserverCode" type="java.lang.String" column="WEBSERVER_CODE" not-null="false" length="64"/>
+
+<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" length="21845"/>
+
+</class>
+</hibernate-mapping>

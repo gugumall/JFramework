@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>网页快照</title>
+<script language="javascript" src="/js/lib/jframework.js"></script>
+<script language="javascript">
+function snapshot(){
+	top.Loading.title='提示';
+	top.Loading.open(-1,-1,200,-1,null,window,'dialog');
+	top.Loading.setMsg('正在生成快照,请稍候...');
+	
+	var ajax=new Ajax();
+	ajax.send('GET',doSnapshot,'/snapshot.handler?request=snapshot&url='+encodeURIComponent($('url').value));
+}
+function doSnapshot(ajax){
+	if(ajax.getReadyState()==4&&ajax.getStatus()==200){
+		var result=ajax.getResponseText();
+
+		top.Loading.setMsg('<a href="/snapshot/'+result+'.jpg" target="_blank">快照已经生成（点击查看）</a>');
+	}
+}
+</script>
+</head>
+<body>
+<center>
+	请输入网址：<input type="text" id="url" value="" style="width:300px;"/>
+	<br/>
+	<br/>
+	<input type="button" id="btn" value="生成快照" onclick="snapshot();" style="cursor:pointer;"/>
+</center>
+</body>
+</html>

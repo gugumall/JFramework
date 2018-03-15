@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!-- <!DOCTYPE hibernate-mapping PUBLIC
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >-->
+<hibernate-mapping>
+<class name="j.db.JserviceRouter"  table="j_service_router">
+<id name="routerCode" type="java.lang.String" column="ROUTER_CODE">
+	<generator class="assigned" />
+</id>
+
+<property name="routerCode" type="java.lang.String" column="ROUTER_CODE" not-null="true" length="64"/>
+
+<property name="appMirrorCode" type="java.lang.String" column="APP_MIRROR_CODE" not-null="false" length="64"/>
+
+<property name="routerName" type="java.lang.String" column="ROUTER_NAME" not-null="false" length="90"/>
+
+<property name="commInterface" type="java.lang.String" column="COMM_INTERFACE" not-null="false" length="128"/>
+
+<property name="commKey" type="java.lang.String" column="COMM_KEY" not-null="false" length="128"/>
+
+<property name="routerStat" type="java.lang.String" column="ROUTER_STAT" not-null="false" length="3"/>
+
+<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" length="21845"/>
+
+</class>
+</hibernate-mapping>

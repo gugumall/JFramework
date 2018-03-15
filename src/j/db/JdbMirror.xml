@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!-- <!DOCTYPE hibernate-mapping PUBLIC
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >-->
+<hibernate-mapping>
+<class name="j.db.JdbMirror"  table="j_db_mirror">
+<id name="dbMirrorCode" type="java.lang.String" column="DB_MIRROR_CODE">
+	<generator class="assigned" />
+</id>
+
+<property name="dbMirrorCode" type="java.lang.String" column="DB_MIRROR_CODE" not-null="true" length="64"/>
+
+<property name="dbCode" type="java.lang.String" column="DB_CODE" not-null="false" length="64"/>
+
+<property name="dbsysCode" type="java.lang.String" column="DBSYS_CODE" not-null="false" length="64"/>
+
+<property name="serverCode" type="java.lang.String" column="SERVER_CODE" not-null="false" length="64"/>
+
+<property name="dbMirrorName" type="java.lang.String" column="DB_MIRROR_NAME" not-null="false" length="90"/>
+
+<property name="beRead" type="java.lang.String" column="BE_READ" not-null="false" length="1"/>
+
+<property name="beUpdated" type="java.lang.String" column="BE_UPDATED" not-null="false" length="1"/>
+
+<property name="beInserted" type="java.lang.String" column="BE_INSERTED" not-null="false" length="1"/>
+
+<property name="commInterface" type="java.lang.String" column="COMM_INTERFACE" not-null="false" length="128"/>
+
+<property name="commKey" type="java.lang.String" column="COMM_KEY" not-null="false" length="128"/>
+
+<property name="dbMirrorStat" type="java.lang.String" column="DB_MIRROR_STAT" not-null="false" length="3"/>
+
+<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" length="21845"/>
+
+</class>
+</hibernate-mapping>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<something-else-entirely>
+	<proxool>
+		<alias>DBPool</alias>
+		<driver-url></driver-url>
+		<driver-class>o</driver-class>
+
+		<driver-properties>
+			<property name="user" value="" />
+			<property name="password" value="" />
+		</driver-properties>
+		<maximum-connection-count>20</maximum-connection-count>
+	</proxool>
+</something-else-entirely>

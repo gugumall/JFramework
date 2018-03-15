@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<!-- <!DOCTYPE hibernate-mapping PUBLIC
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >-->
+<hibernate-mapping>
+<class name="j.db.Juser"  table="j_user">
+<id name="uid" type="java.lang.String" column="U_ID">
+	<generator class="assigned" />
+</id>
+
+<property name="uid" type="java.lang.String" column="U_ID" not-null="true" length="64"/>
+
+<property name="asvrId" type="java.lang.String" column="A_SVR_ID" not-null="false" length="32"/>
+
+<property name="asysId" type="java.lang.String" column="A_SYS_ID" not-null="false" length="32"/>
+
+<property name="adomain" type="java.lang.String" column="A_DOMAIN" not-null="false" length="64"/>
+
+<property name="unum" type="java.lang.String" column="U_NUM" not-null="false" length="64"/>
+
+<property name="ustat" type="java.lang.String" column="U_STAT" not-null="false" length="3"/>
+
+<property name="spw" type="java.lang.String" column="S_PW" not-null="false" length="64"/>
+
+<property name="smail" type="java.lang.String" column="S_MAIL" not-null="false" length="64"/>
+
+<property name="smailVerified" type="java.lang.String" column="S_MAIL_VERIFIED" not-null="false" length="1"/>
+
+<property name="sphone" type="java.lang.String" column="S_PHONE" not-null="false" length="32"/>
+
+<property name="sphoneVerified" type="java.lang.String" column="S_PHONE_VERIFIED" not-null="false" length="1"/>
+
+<property name="stwoDimensionCodes" type="java.lang.String" column="S_TWO_DIMENSION_CODES" not-null="false" length="1024"/>
+
+<property name="sloginGuard" type="java.lang.String" column="S_LOGIN_GUARD" not-null="false" length="1"/>
+
+<property name="unick" type="java.lang.String" column="U_NICK" not-null="false" length="30"/>
+
+<property name="uname" type="java.lang.String" column="U_NAME" not-null="false" length="150"/>
+
+<property name="ucert" type="java.lang.String" column="U_CERT" not-null="false" length="1"/>
+
+<property name="comName" type="java.lang.String" column="COM_NAME" not-null="false" length="150"/>
+
+<property name="comCert" type="java.lang.String" column="COM_CERT" not-null="false" length="1"/>
+
+<property name="regVia" type="java.lang.String" column="REG_VIA" not-null="false" length="3"/>
+
+<property name="regIp" type="java.lang.String" column="REG_IP" not-null="false" length="128"/>
+
+<property name="regTime" type="java.sql.Timestamp" column="REG_TIME" not-null="false" length="19"/>
+
+<property name="loginIp" type="java.lang.String" column="LOGIN_IP" not-null="false" length="128"/>
+
+<property name="loginTime" type="java.sql.Timestamp" column="LOGIN_TIME" not-null="false" length="19"/>
+
+<property name="previousLoginIp" type="java.lang.String" column="PREVIOUS_LOGIN_IP" not-null="false" length="128"/>
+
+<property name="previousLoginTime" type="java.sql.Timestamp" column="PREVIOUS_LOGIN_TIME" not-null="false" length="19"/>
+
+<property name="loginCount" type="java.lang.Integer" column="LOGIN_COUNT" not-null="false" length="11"/>
+
+</class>
+</hibernate-mapping>

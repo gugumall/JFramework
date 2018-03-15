@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<!-- group为分组，可自由分组，以好管理、好识别为原则，分组名不能使用逗号，当找不到与指定分组名、key对应的资源时，尝试查找全局资源-->
+	<!-- 在需要使用多语言的地方（js/jsp/htm文件中）使用I{分组名,key}，对于全局资源使用I{key}-->
+	<group name="" desc="全局资源">
+		<!-- key不要使用逗号 -->
+		<string key="退出">
+			<language code="zh-cn">退出</language>
+			<language code="zh-tw">退出</language>
+			<language code="en-us">Exit</language>
+		</string>
+		<string key="我的支付中心">
+			<language code="zh-cn">我的支付中心</language>
+			<language code="zh-tw">我的支付中心</language>
+			<language code="en-us">My Paycenter</language>
+		</string>
+		<string key="管理中心">
+			<language code="zh-cn">管理中心</language>
+			<language code="zh-tw">管理中心</language>
+			<language code="en-us">Management</language>
+		</string>
+		<string key="刷新">
+			<language code="zh-cn">刷新</language>
+			<language code="zh-tw">刷新</language>
+			<language code="en-us">Refresh</language>
+		</string>
+		<string key="底部">
+			<language code="zh-cn">底部</language>
+			<language code="zh-tw">底部</language>
+			<language code="en-us">Bottom</language>
+		</string>
+	</group>
+</root>

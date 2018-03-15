@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!-- <!DOCTYPE hibernate-mapping PUBLIC
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >-->
+<hibernate-mapping>
+<class name="j.db.Jtest"  table="j_test">
+<id name="aa" type="java.lang.Long" column="AA">
+	<generator class="assigned" />
+</id>
+
+<property name="aa" type="java.lang.Long" column="AA" not-null="true" length="20"/>
+
+<property name="bb" type="java.lang.String" column="BB" not-null="false" length="1"/>
+
+<property name="cc" type="java.sql.Date" column="CC" not-null="false" length="10"/>
+
+<property name="dd" type="java.math.BigDecimal" column="DD" not-null="false" length="11"/>
+
+<property name="ee" type="java.lang.Double" column="EE" not-null="false" length="22"/>
+
+<property name="ff" type="java.lang.Double" column="FF" not-null="false" length="22"/>
+
+<property name="gg" type="java.lang.Double" column="GG" not-null="false" length="12"/>
+
+<property name="hh" type="java.lang.Integer" column="HH" not-null="false" length="11"/>
+
+<property name="ii" type="java.lang.Integer" column="II" not-null="false" length="11"/>
+
+<property name="jj" type="java.io.InputStream" column="JJ" not-null="false" length="2147483647"/>
+
+<property name="kk" type="java.lang.String" column="KK" not-null="false" length="715827882"/>
+
+<property name="ll" type="java.math.BigDecimal" column="LL" not-null="false" length="11"/>
+
+<property name="mm" type="java.lang.Double" column="MM" not-null="false" length="22"/>
+
+<property name="nn" type="java.io.InputStream" column="NN" not-null="false" length="65535"/>
+
+<property name="oo" type="java.lang.Short" column="OO" not-null="false" length="6"/>
+
+<property name="pp" type="java.lang.String" column="PP" not-null="false" length="21845"/>
+
+<property name="qq" type="java.sql.Time" column="QQ" not-null="false" length="8"/>
+
+<property name="rr" type="java.sql.Timestamp" column="RR" not-null="true" length="19"/>
+
+<property name="ss" type="java.lang.Short" column="SS" not-null="false" length="4"/>
+
+<property name="tt" type="java.lang.String" column="TT" not-null="false" length="32"/>
+
+</class>
+</hibernate-mapping>

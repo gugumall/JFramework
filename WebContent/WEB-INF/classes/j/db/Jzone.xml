@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!-- <!DOCTYPE hibernate-mapping PUBLIC
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >-->
+<hibernate-mapping>
+<class name="j.db.Jzone"  table="j_zone">
+<id name="zoneId" type="java.lang.String" column="ZONE_ID">
+	<generator class="assigned" />
+</id>
+
+<property name="zoneId" type="java.lang.String" column="ZONE_ID" not-null="true" length="16"/>
+
+<property name="countyId" type="java.lang.String" column="COUNTY_ID" not-null="false" length="16"/>
+
+<property name="cityId" type="java.lang.String" column="CITY_ID" not-null="false" length="16"/>
+
+<property name="provinceId" type="java.lang.String" column="PROVINCE_ID" not-null="false" length="16"/>
+
+<property name="countryId" type="java.lang.String" column="COUNTRY_ID" not-null="false" length="16"/>
+
+<property name="continentId" type="java.lang.String" column="CONTINENT_ID" not-null="true" length="16"/>
+
+<property name="zoneName" type="java.lang.String" column="ZONE_NAME" not-null="false" length="60"/>
+
+<property name="zoneNameTw" type="java.lang.String" column="ZONE_NAME_TW" not-null="false" length="60"/>
+
+<property name="zoneNameEn" type="java.lang.String" column="ZONE_NAME_EN" not-null="false" length="150"/>
+
+<property name="areaCode" type="java.lang.String" column="AREA_CODE" not-null="false" length="8"/>
+
+<property name="timeZone" type="java.lang.Double" column="TIME_ZONE" not-null="false" length="3"/>
+
+<property name="postalCode" type="java.lang.String" column="POSTAL_CODE" not-null="false" length="16"/>
+
+<property name="isAvail" type="java.lang.String" column="IS_AVAIL" not-null="false" length="1"/>
+
+</class>
+</hibernate-mapping>

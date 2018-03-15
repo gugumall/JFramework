@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!-- <!DOCTYPE hibernate-mapping PUBLIC
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >-->
+<hibernate-mapping>
+<class name="j.db.Jserver"  table="j_server">
+<id name="serverCode" type="java.lang.String" column="SERVER_CODE">
+	<generator class="assigned" />
+</id>
+
+<property name="serverCode" type="java.lang.String" column="SERVER_CODE" not-null="true" length="64"/>
+
+<property name="serverName" type="java.lang.String" column="SERVER_NAME" not-null="false" length="90"/>
+
+<property name="idcName" type="java.lang.String" column="IDC_NAME" not-null="false" length="90"/>
+
+<property name="zoneId" type="java.lang.String" column="ZONE_ID" not-null="true" length="16"/>
+
+<property name="countyId" type="java.lang.String" column="COUNTY_ID" not-null="false" length="16"/>
+
+<property name="cityId" type="java.lang.String" column="CITY_ID" not-null="false" length="16"/>
+
+<property name="provinceId" type="java.lang.String" column="PROVINCE_ID" not-null="false" length="16"/>
+
+<property name="countryId" type="java.lang.String" column="COUNTRY_ID" not-null="false" length="16"/>
+
+<property name="continentId" type="java.lang.String" column="CONTINENT_ID" not-null="true" length="16"/>
+
+<property name="addr" type="java.lang.String" column="ADDR" not-null="true" length="150"/>
+
+<property name="startupTime" type="java.sql.Timestamp" column="STARTUP_TIME" not-null="false" length="19"/>
+
+<property name="shutdownTime" type="java.sql.Timestamp" column="SHUTDOWN_TIME" not-null="false" length="19"/>
+
+<property name="wanIp" type="java.lang.String" column="WAN_IP" not-null="false" length="128"/>
+
+<property name="lanIp" type="java.lang.String" column="LAN_IP" not-null="false" length="128"/>
+
+<property name="cpu" type="java.lang.String" column="CPU" not-null="false" length="90"/>
+
+<property name="disk" type="java.lang.Integer" column="DISK" not-null="false" length="11"/>
+
+<property name="ram" type="java.lang.Integer" column="RAM" not-null="false" length="11"/>
+
+<property name="os" type="java.lang.String" column="OS" not-null="false" length="90"/>
+
+<property name="inUse" type="java.lang.String" column="IN_USE" not-null="false" length="1"/>
+
+<property name="serverStat" type="java.lang.String" column="SERVER_STAT" not-null="false" length="3"/>
+
+<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" length="21845"/>
+
+</class>
+</hibernate-mapping>
