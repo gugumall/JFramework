@@ -983,6 +983,82 @@ public class JHttp{
 	
 	
 	/**
+	 * 测试
+	 * @param args
+	 * @throws Exception
+	 */
+	public static void main(String[] args)throws Exception{
+		System.out.println("begin");
+		
+		JHttp http=JHttp.getInstance();
+		HttpClient client=http.createClient();
+		JHttpContext context=new JHttpContext();
+		context.setAllowedErrorCodes(new String[]{"all"});
+		
+		String url="http://www.knlotto.kr/keno.aspx?method=kenoWinNoList";
+		String response="";
+		
+		http.getStream(context, client, url);
+		if(context.getStatus()==503){
+			InputStream is=context.getResponseStream();
+			response=JUtilInputStream.string(is);
+			
+			if(response.indexOf("jschl_vc\" value=\"")<0
+					||response.indexOf("pass\" value=\"")<0){
+				System.out.println("fail!");
+				System.exit(0);
+			}
+			
+			int startx=response.indexOf("jschl_vc\" value=\"")+"jschl_vc\" value=\"".length();
+			int endx=response.indexOf("\"",startx);
+			String jschl_vc=response.substring(startx,endx);
+			
+			startx=response.indexOf("pass\" value=\"")+"pass\" value=\"".length();
+			endx=response.indexOf("\"",startx);
+			String pass=response.substring(startx,endx);
+			String domain=JUtilString.getHost(url);
+			
+			String _js="function _hey(){";
+			
+			//System.out.println("response:"+response);
+			
+			response=response.replaceAll(" ", "");
+			startx=response.indexOf("vars,t,o,p");
+			endx=response.indexOf(";",startx);
+			_js+=response.substring(startx,endx)+";";
+			
+			startx=response.indexOf("challenge-form');")+"challenge-form');".length();
+			endx=response.indexOf("+t.length",startx);
+			_js+=response.substring(startx+2,endx)+";";
+			
+			_js=JUtilString.replaceAll(_js, "a.value=", "var hey=");
+			_js=JUtilString.replaceAll(_js, "vars,t,o,p", "var s,t,o,p");
+			_js=JUtilString.replaceAll(_js, ";", ";\r\n");
+			_js+="return hey;}";
+			//System.out.println("_js:"+_js);
+			
+			JavaScriptBridge js=JavaScriptBridge.getInstanceOfJsString(JUtilMD5.MD5EncodeToHex(_js), _js);
+			
+			Double jschl_answer=(Double) js.call("_hey");
+			int _jschl_answer=jschl_answer.intValue()+domain.length();
+			
+			String passUrl="http://"+domain+"/cdn-cgi/l/chk_jschl?jschl_vc="+jschl_vc+"&pass="+pass+"&jschl_answer="+_jschl_answer;
+			//System.out.println("passUrl:"+passUrl);
+			
+			context.addRequestHeader("Referer", "http://"+domain+"/");
+			http.getResponse(context, client, passUrl);
+			
+			response=http.getResponse(context, client, url,"EUC-KR");
+			//System.out.println("1:"+response);
+		}else{
+			InputStream is=context.getResponseStream();
+			response=JUtilInputStream.string(is,"EUC-KR");
+			//System.out.println("2:"+response);
+		}
+		System.exit(0);
+	}
+	
+	/**
 	 * 
 	 * @param to
 	 * @param content

@@ -758,8 +758,75 @@ public final class JUtilImage implements ImageObserver {
          }
      }
 
+	/**
+	 * 批量处理加水印，递归处理各级目录中文件
+	 * 
+	 * @param args
+	 * @throws Exception
+	 */
+	private static int all = 10000;
 
+	public static void main(String[] args) throws Exception {
+		JUtilImage im = new JUtilImage();
+		im.setQuality(1f);
+		
+		int index=227;
+		
+		File dir = new File("F:\\images\\时光(足迹) II\\temp");
+		File[] fs=dir.listFiles();
+		for(int i=0;i<fs.length;i++){
+			if(fs[i].getName().toLowerCase().endsWith(".jpg")
+					||fs[i].getName().toLowerCase().endsWith(".jpeg")){
+				System.out.println(fs[i].getAbsolutePath());
+				
+				String newName=index+"";
+				while(newName.length()<6) newName="0"+newName;
+				
+				im.zoomToSize(fs[i], new File("F:\\images\\时光(足迹) II\\"+newName+".jpg"), 1200, JUtilImage.FORMAT_JPEG);
+				
+				index++;
+			}
+		}
+		
+//		im.zoomToSize(new File("F:\\work\\商城\\衣服\\狼爪\\1388\\1388A.gif"), new File("F:\\work\\商城\\衣服\\狼爪\\1388\\temp.gif"), 300, "JPEG");
 
+//		processLogo(im,
+//				new File("F:\\gugu\\products\\多肉\\maskx.png"),
+//				new File("F:\\gugu\\products\\多肉\\"),
+//				"products\\多肉",
+//				"products\\多肉X");
+		
+//		java.awt.Font[] fonts = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();  
+//	    for (java.awt.Font f : fonts) {  
+//	        System.out.println("Name:" + f.getFontName());  
+//	    } 
+//	    
+//	    java.awt.Font font=new java.awt.Font(Font.SANS_SERIF,java.awt.Font.BOLD,20);
+//		im.logoWithTitle(new File("F:\\work\\JShop_v2.0\\WebContent\\img\\QRCODE_BG.png"),
+//				new File("F:\\work\\JShop_v2.0\\WebContent\\img\\shop_default.png"),
+//				new File("F:\\work\\JShop_v2.0\\WebContent\\img\\QRCODE_BGx.png"),0,0,"png",JUtilImage.POS_CE,
+//				"ERGOWEAR BOXER 我是一个好人 我是一个好人我是一个好人",font,new Color(0,0,0),JUtilImage.POS_CT,0,100);
+		
+	    
+		System.exit(0);
+	}
+
+	public static void merge(JUtilImage img, File file) throws Exception {
+		if (file.getAbsolutePath().indexOf("全部") > 0)
+			return;
+
+		if (file.isDirectory()) {
+			File[] fs = file.listFiles();
+			for (int i = 0; i < fs.length; i++) {
+				merge(img, fs[i]);
+			}
+		} else if (!file.getName().toLowerCase().endsWith("jpg")) {
+			return;
+		} else {
+			img.zoomToSizeIfLarger(file, new File("E:\\images\\全部\\" + (all++)+ ".jpg"), 1600, JUtilImage.FORMAT_JPG);
+			System.out.println(file.getAbsolutePath());
+		}
+	}
 
 	/**
 	 * 批量处理加水印，递归处理各级目录中文件

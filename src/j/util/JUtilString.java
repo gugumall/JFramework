@@ -1388,4 +1388,58 @@ public class JUtilString extends JUtilSorter {
 		
 		return sb.toString();
 	}
+	
+	/**
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args){
+//		String s=JDFSFile.read(new File("C:\\Users\\one\\Desktop\\aaa.js"),"UTF-8");
+//		JDFSFile.saveString("C:\\Users\\one\\Desktop\\aaax.js",JUtilString.decodeUnicode(s),false,"UTF-8");
+//		StringBuffer sb=new StringBuffer();
+//		for(int i=1;i<=100;i++){
+//			String id="";
+//			if(i<10) id="00"+i;
+//			else if(i<100) id="0"+i;
+//			else id=""+i;
+//			sb.append("\r\nINSERT INTO w_user (U_ID,U_NAME,U_NICK,U_PWD,U_PWD_DE,U_EMAIL,U_REG_IP,U_REG_TIME,U_LOGIN_IP,U_LOGIN_TIME,U_TYPE,U_STAT,DRAW_PWD) VALUES ('fabiao"+id+"','哈哈','哈哈','1(-.0*','cvskpsaasffsxcsdx','someone@some.com','127.0.0.1','2008-08-08 08:08:08','127.0.0.1','2008-08-08 08:08:08','1','1','110110');");
+//			sb.append("\r\nINSERT INTO w_role_of_user(USER_ROLE_UUID,U_ID,ROLE_CODE,START_TIME) VALUES ('fabiao"+id+"_1','fabiao"+id+"','ROLE_USER','2008-01-01 01:01:01');");
+//			sb.append("\r\nINSERT INTO w_role_of_user(USER_ROLE_UUID,U_ID,ROLE_CODE,START_TIME) VALUES ('fabiao"+id+"_2','fabiao"+id+"','SELF_USER','2008-01-01 01:01:01');");
+//			sb.append("\r\nINSERT INTO w_bill VALUES ('fabiao"+id+"',0,0,0,0,0,0,0,0,0,1,'');");
+//		}
+//		
+//		sb.append("\r\n");
+//		
+//		for(int i=1;i<=100;i++){
+//			String id="";
+//			if(i<10) id="00"+i;
+//			else if(i<100) id="0"+i;
+//			else id=""+i;
+//			sb.append("\r\nINSERT INTO w_user (U_ID,U_NAME,U_NICK,U_PWD,U_PWD_DE,U_EMAIL,U_REG_IP,U_REG_TIME,U_LOGIN_IP,U_LOGIN_TIME,U_TYPE,U_STAT,DRAW_PWD) VALUES ('putong"+id+"','哈哈','哈哈','1(-.0*','cvskpsaasffsxcsdx','someone@some.com','127.0.0.1','2008-08-08 08:08:08','127.0.0.1','2008-08-08 08:08:08','1','1','110110');");
+//			sb.append("\r\nINSERT INTO w_role_of_user(USER_ROLE_UUID,U_ID,ROLE_CODE,START_TIME) VALUES ('putong"+id+"_1','putong"+id+"','ROLE_USER','2008-01-01 01:01:01');");
+//			sb.append("\r\nINSERT INTO w_role_of_user(USER_ROLE_UUID,U_ID,ROLE_CODE,START_TIME) VALUES ('putong"+id+"_2','putong"+id+"','SELF_USER','2008-01-01 01:01:01');");
+//			sb.append("\r\nINSERT INTO w_bill VALUES ('putong"+id+"',0,0,0,0,0,0,0,0,0,1,'');");
+//		}
+//		
+//		sb.append("\r\n");
+//		
+//		for(int i=1;i<=100;i++){
+//			String id="";
+//			if(i<10) id="00"+i;
+//			else if(i<100) id="0"+i;
+//			else id=""+i;
+//			sb.append("\r\nINSERT INTO w_user (U_ID,U_NAME,U_NICK,U_PWD,U_PWD_DE,U_EMAIL,U_REG_IP,U_REG_TIME,U_LOGIN_IP,U_LOGIN_TIME,U_TYPE,U_STAT,DRAW_PWD) VALUES ('zhuajia"+id+"','哈哈','哈哈','1(-.0*','cvskpsaasffsxcsdx','someone@some.com','127.0.0.1','2008-08-08 08:08:08','127.0.0.1','2008-08-08 08:08:08','1','1','110110');");
+//			sb.append("\r\nINSERT INTO w_role_of_user(USER_ROLE_UUID,U_ID,ROLE_CODE,START_TIME) VALUES ('zhuajia"+id+"_1','putong"+id+"','ROLE_USER','2008-01-01 01:01:01');");
+//			sb.append("\r\nINSERT INTO w_role_of_user(USER_ROLE_UUID,U_ID,ROLE_CODE,START_TIME) VALUES ('zhuajia"+id+"_2','putong"+id+"','SELF_USER','2008-01-01 01:01:01');");
+//			sb.append("\r\nINSERT INTO w_bill VALUES ('zhuajia"+id+"',0,0,0,0,0,0,0,0,0,1,'');");
+//		}
+//		
+//		JDFSFile.saveString("F://temp//temp.sql",sb.toString(),false,"UTF-8");
+		System.out.println("111\\\"");
+		
+		String src=JDFSFile.read(new File("f:/temp/s.txt"),"UTF-8");
+		src=JUtilString.replaceAll(src,"\\\"","\"");
+		src=JUtilString.decodeUnicode(src);
+		System.out.println(src);
+	}
 }

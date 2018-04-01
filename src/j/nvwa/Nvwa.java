@@ -1,6 +1,6 @@
 package j.nvwa;
 
-import j.Properties;
+import j.common.JProperties;
 import j.util.ConcurrentList;
 import j.util.ConcurrentMap;
 import j.util.JUtilDom4j;
@@ -140,7 +140,7 @@ public class Nvwa implements Runnable {
 			Class clazz=Class.forName(customClassLoaderName);
 			customClassLoader=(NvwaClassLoader)clazz.getConstructor().newInstance();
 		}
-		customClassLoader.setClasspath(Properties.getClassPath(),Properties.getJarPath());
+		customClassLoader.setClasspath(JProperties.getClassPath(),JProperties.getJarPath());
 		return customClassLoader;
 	}
 
@@ -270,12 +270,12 @@ public class Nvwa implements Runnable {
 			
 			
 			//文件是否存在
-			File file = new File(Properties.getConfigPath()+"nvwa.xml");
+			File file = new File(JProperties.getConfigPath()+"nvwa.xml");
 	        if(!file.exists()){
 	        	throw new Exception("找不到配置文件："+file.getAbsolutePath());
 	        }
 			
-			Document document=JUtilDom4j.parse(Properties.getConfigPath()+"nvwa.xml","UTF-8");			
+			Document document=JUtilDom4j.parse(JProperties.getConfigPath()+"nvwa.xml","UTF-8");			
 			Element root=document.getRootElement();
 			
 			Element customClassLoaderEle=root.element("custom-classloader");
@@ -399,7 +399,7 @@ public class Nvwa implements Runnable {
 			
 
 			//配置文件最近修改时间
-			File configFile=new File(Properties.getConfigPath()+"nvwa.xml");
+			File configFile=new File(JProperties.getConfigPath()+"nvwa.xml");
 			configLastModified=configFile.lastModified();
 			configFile=null;
 
@@ -443,7 +443,7 @@ public class Nvwa implements Runnable {
 				Thread.sleep(5000);
 			}catch(Exception e){}
 
-			File configFile=new File(Properties.getConfigPath()+"nvwa.xml");
+			File configFile=new File(JProperties.getConfigPath()+"nvwa.xml");
 			if(configLastModified<configFile.lastModified()){
 				System.out.println(JUtilTimestamp.timestamp()+" j.nvwa.Nvwa nvwa.xml has been modified, so reload it.");
 				load();

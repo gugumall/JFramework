@@ -158,13 +158,20 @@ public class Server{
 			}
 			
 			if(jsession.resultString==null
+					&&jsession.jresponse==null
 					&&jsession.result==null
 					&&navigateUrl==null){
 				SysUtil.outHttpResponse(response,"");
 				return;//无处理结果
 			}
 			
-			if(jsession.resultString!=null){//如果是直接输出
+			if(jsession.jresponse!=null){//如果是直接输出
+				if(!handler.getSingleton()&&jHandler!=null) jHandler=null;
+				
+				if(toLog) logger.after(action,session,requestUuid,jsession.resultString);
+				SysUtil.outHttpResponse(response,jsession.jresponse.toString());//print返回内容给用户
+				return;
+			}else if(jsession.resultString!=null){//如果是直接输出
 				if(!handler.getSingleton()&&jHandler!=null) jHandler=null;
 				
 				if(toLog) logger.after(action,session,requestUuid,jsession.resultString);
