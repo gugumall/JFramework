@@ -9,10 +9,17 @@ public class JUtilKeyValue {
 	private Object key;
 	private Object value;
 	private Object desc;
+	private int no=0;
 	
 	public JUtilKeyValue(Object key,Object value){
 		this.setKey(key);
 		this.setValue(value);
+	}
+	
+	public JUtilKeyValue(Object key,Object value,int no){
+		this.key=key;
+		this.value=value;
+		this.no=no;
 	}
 	
 	public JUtilKeyValue(Object key,Object value,Object desc){
@@ -30,6 +37,9 @@ public class JUtilKeyValue {
 	public void setExtra(Object desc){
 		this.desc=desc;
 	}
+	public void setNo(int no){
+		this.no=no;
+	}
 	
 	public Object getKey(){
 		return this.key;
@@ -39,5 +49,8 @@ public class JUtilKeyValue {
 	}
 	public Object getDesc(){
 		return this.desc;
+	}
+	public int getNo(){
+		return this.no;
 	}
 }

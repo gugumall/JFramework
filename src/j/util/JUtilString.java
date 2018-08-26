@@ -40,7 +40,7 @@ public class JUtilString extends JUtilSorter {
 	public static String[] irregularChars =new String[]{""+(char)65533,""+(char)65279};//乱码
 	
 	public static final String RegExpHttpUrl="^(?i)\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:\\'\".,<>?«»“”‘’]))$";
-	public static final String RegExpEmail="^[\\w\\.]{1,}@{1}[\\w\\.]{1,}$";
+	public static final String RegExpEmail="^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z0-9]{2,6}$";
 	public static final String RegExpMobilePhone="^((\\+86)|(86))?1[3-8]+\\d{9}$";
 	public static final String RegExpMobilePhoneWorldwide="^(\\+{0,1}\\d{2,3})?[0-9\\-]{3,16}$";
 	public static final String RegExpTelephone="^(0[0-9]{2,3}\\-)?([2-9][0-9]{6,7})+(\\-[0-9]{1,4})?$";
@@ -706,6 +706,30 @@ public class JUtilString extends JUtilSorter {
 	 */
 	public static final String getProtocal(String url) {
 		return url.substring(0, url.indexOf(":")).toLowerCase();
+	}
+	
+	/**
+	 * 得到网址根地址
+	 * @param url
+	 */
+	public static String getUrlBase(String url){
+		int i=url.indexOf("/",8);
+		if(i<0) return url;
+		else return url.substring(0,i+1);
+	}
+	
+	/**
+	 * 
+	 * @param url
+	 * @return
+	 */
+	public static String getUri(String url){
+		if(url!=null&&url.startsWith("http")){
+			url=url.substring(8);
+			url=url.substring(url.indexOf("/"));
+			if(url.indexOf("?")>0) url=url.substring(0,url.indexOf("?"));
+		}
+		return url;
 	}
 	//====================网络地址处理 end=========================//
 	

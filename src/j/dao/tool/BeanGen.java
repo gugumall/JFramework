@@ -47,7 +47,7 @@ public class BeanGen {
 		DBMS_DRIVER.put("HSQL server","org.hsqldb.jdbcDriver");
 		DBMS_DRIVER.put("HSQL webserver","org.hsqldb.jdbcDriver");
 
-		DBMS_URL_PATTERN.put("MySQL","jdbc:mysql://HOST/DATABASE");
+		DBMS_URL_PATTERN.put("MySQL","jdbc:mysql://HOST/DATABASE?useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Hongkong");
 		DBMS_URL_PATTERN.put("SQLITE","jdbc:sqlite:DATABASE");
 		DBMS_URL_PATTERN.put("IBM DB2(net)","jdbc:db2://HOST/DATABASE");
 		DBMS_URL_PATTERN.put("IBM DB2(jcc)","jdbc:db2://HOST/DATABASE");

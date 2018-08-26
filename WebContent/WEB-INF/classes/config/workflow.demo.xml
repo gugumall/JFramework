@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<!-- 业务流程处理引擎（新业务流程的入口） -->
+	<engine name="" desc="">
+		<!-- 处理类, j.ext.workflow.JWFEngine的子类/实现类  -->
+		<class>j.ext.workflow.demo.TheEngine</class>
+		
+		<!-- 任务处理线程数 -->
+		<threads>2</threads>
+	</engine>
+	
+	<!-- 业务流程中的一个任务处理节点，每个业务处理节点必须有一个uuid，在同一个业务流程定义里唯一 -->
+	<task uuid="T000" name="" desc="">
+		<!-- 是否起始节点 -->
+		<first>true</first>
+		
+		<!-- 处理类 , j.ext.workflow.JWFTask的子类/实现类-->
+		<class>j.ext.workflow.demo.TheTask000</class>
+		
+		<!-- 当本节点的处理结果为ok时，转向下一个uuid为T100和T100X的任务节点(即可以多分叉) -->
+		<next condition="ok" uuid="T100,T100X"/>
+		
+		<!-- 当本节点的处理结果为err时，转向下一个uuid为T101的任务节点 -->
+		<next condition="err" uuid="T101"/>
+		
+		<!-- 如果处理结果不是ok或err就找不到下一个处理节点，就代表整个业务流程结束 -->
+	</task>
+	
+	<task uuid="T100" name="" desc="">
+		<first>false</first>
+		<class>j.ext.workflow.demo.TheTask100</class>
+		<next condition="ok" uuid="T200"/>
+	</task>
+	
+	<task uuid="T100X" name="" desc="">
+		<first>false</first>
+		<class>j.ext.workflow.demo.TheTask100X</class>
+	</task>
+	
+	<task uuid="T101" name="" desc="">
+		<first>false</first>
+		<class>j.ext.workflow.demo.TheTask101</class>
+	</task>
+	
+	<task uuid="T200">
+		<first>false</first>
+		<class>j.ext.workflow.demo.TheTask200</class>
+	</task>
+	
+	<!-- 以上配置的流程如果用图表示就是：http://www.jframework.com/demo/workflow.jpg -->
+</root>

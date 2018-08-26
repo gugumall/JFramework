@@ -1,8 +1,9 @@
 package j.log;
 
-import j.Properties;
 import j.app.webserver.JHandler;
+import j.app.webserver.JResponse;
 import j.app.webserver.JSession;
+import j.common.JProperties;
 import j.dao.DAO;
 import j.dao.DB;
 import j.db.Jlog;
@@ -41,7 +42,7 @@ public class JLogger extends JHandler implements Runnable{
 
 	
 	static{
-		for(int i=0;i<Properties.getLoggers();i++){
+		for(int i=0;i<JProperties.getLoggers();i++){
 			JLogger jlog=new JLogger("LOGGER_"+i);
 			Thread thread=new Thread(jlog,jlog.getSn());
 			thread.start();
@@ -224,7 +225,7 @@ public class JLogger extends JHandler implements Runnable{
 		
 		DAO dao=null;
 		try{			
-			dao=DB.connect(Properties.getLogDatabase(),JLogger.class);
+			dao=DB.connect(JProperties.getLogDatabase(),JLogger.class);
 			
 			List list=dao.find("j_log",sql+" order by event_time desc",rpp,pn);
 			int total=dao.getRecordCnt("j_log",sql);
@@ -296,7 +297,8 @@ public class JLogger extends JHandler implements Runnable{
 		
 		DAO dao=null;
 		try{			
-			dao=DB.connect(Properties.getLogDatabase(),JLogger.class);
+			dao=DB.connect(JProperties.getLogDatabase(),JLogger.class);
+			dao.beginTransaction();
 			
 			if("T".equalsIgnoreCase(destroy)){
 				if("".equals(sql)){
@@ -312,19 +314,23 @@ public class JLogger extends JHandler implements Runnable{
 				}
 			}
 			
+			dao.commit();
 			dao.close();
 			dao=null;
 			
-			jsession.resultString="1";
+			jsession.jresponse=new JResponse(true,"1","I{.删除成功}");
 		}catch(Exception e){
 			logger.log(e,Logger.LEVEL_ERROR);
 			if(dao!=null){
+				try{
+					dao.rollback();
+				}catch(Exception ex){}
 				try{
 					dao.close();
 					dao=null;
 				}catch(Exception ex){}
 			}
-			jsession.resultString="ERR";
+			jsession.jresponse=new JResponse(false,"ERR","I{.系统错误}");
 		}
 	}
 	
@@ -383,7 +389,7 @@ public class JLogger extends JHandler implements Runnable{
 			Jlog log=null;
 			try{
 				if(dao==null||dao.isClosed()){
-					dao=DB.connect(Properties.getLogDatabase(),this.getClass(),3600000);
+					dao=DB.connect(JProperties.getLogDatabase(),this.getClass(),3600000);
 				}
 				
 				while(!this.events.isEmpty()){

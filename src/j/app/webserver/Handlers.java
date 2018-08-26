@@ -1,6 +1,7 @@
 package j.app.webserver;
 
 
+import j.common.JProperties;
 import j.log.Logger;
 import j.nvwa.Nvwa;
 import j.util.ConcurrentList;
@@ -176,7 +177,7 @@ public class Handlers implements Runnable{
 			globalNavigates.clear();
 			
 			//文件是否存在
-			File file = new File(j.Properties.getConfigPath()+"actions.xml");
+			File file = new File(JProperties.getConfigPath()+"actions.xml");
 	        if(!file.exists()){
 	        	throw new Exception("找不到配置文件："+file.getAbsolutePath());
 	        }
@@ -216,7 +217,7 @@ public class Handlers implements Runnable{
 	      	}
 			
 			for(int x=0;x<actionDefinitionFileNames.size();x++){
-				file = new File(j.Properties.getConfigPath()+actionDefinitionFileNames.get(x));
+				file = new File(JProperties.getConfigPath()+actionDefinitionFileNames.get(x));
 		        if(!file.exists()){
 		        	throw new Exception("找不到配置文件："+file.getAbsolutePath());
 		        }
@@ -362,7 +363,7 @@ public class Handlers implements Runnable{
 			try{
 				boolean changed=false;
 	
-				File file = new File(j.Properties.getConfigPath()+"actions.xml");
+				File file = new File(JProperties.getConfigPath()+"actions.xml");
 				Long configLastModified=(Long)lastModifiedOfFiles.get(file.getAbsolutePath());
 				if(configLastModified==null){
 					log.log(file.getAbsolutePath()+" is a newly added file.",-1);
@@ -380,7 +381,7 @@ public class Handlers implements Runnable{
 				      	for(int i=0;i<modules.size();i++){
 				      		Element module=(Element)modules.get(i);
 				      		
-				      		file=new File(j.Properties.getConfigPath()+module.getText());
+				      		file=new File(JProperties.getConfigPath()+module.getText());
 				      		configLastModified=(Long)lastModifiedOfFiles.get(file.getAbsolutePath());
 				      		if(configLastModified==null){
 								log.log(file.getAbsolutePath()+" is a newly added file.",-1);

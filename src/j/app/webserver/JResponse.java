@@ -1,9 +1,12 @@
 package j.app.webserver;
 
 import j.I18N.I18N;
+import j.util.JUtilBean;
 import j.util.JUtilKeyValue;
+import j.util.JUtilMath;
 import j.util.JUtilString;
 
+import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,26 +18,26 @@ import javax.servlet.http.HttpSession;
  *
  */
 public class JResponse{
-	private boolean succuss;
+	private boolean success;
 	private String code;
 	private String message;
 	private List<JUtilKeyValue> datas=new LinkedList();
 	
-	public JResponse(boolean succuss,String code,String message){
-		this.succuss=succuss;
+	public JResponse(boolean success,String code,String message){
+		this.success=success;
 		this.code=code;
 		this.message=message;
 	}
 	
 	/**
 	 * 
-	 * @param succuss
+	 * @param success
 	 * @param code
 	 * @param message
 	 * @param session
 	 */
-	public JResponse(boolean succuss,String code,String message,HttpSession session){
-		this.succuss=succuss;
+	public JResponse(boolean success,String code,String message,HttpSession session){
+		this.success=success;
 		this.code=code;
 		message=I18N.convert(message,I18N.getCurrentLanguage(session));
 		this.message=message;
@@ -50,6 +53,38 @@ public class JResponse{
 		datas.add(new JUtilKeyValue(key,value));
 	}
 	
+	/**
+	 * 
+	 * @param code
+	 */
+	public void setCode(String code){
+		this.code=code;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getCode(){
+		return this.code;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getMessage(){
+		return this.message;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List getDatas(){
+		return this.datas;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -58,16 +93,35 @@ public class JResponse{
 		if(code==null) code="";
 		if(message==null) message="";
 		
-		String s="{\"succuss\":\""+succuss+"\",";
-		s+="\"code\":\""+format(code)+"\",";
-		s+="\"message\":\""+format(message)+"\",\"datas\":{";
+		StringBuffer s=new StringBuffer();
+		s.append("{\"success\":\""+success+"\",");
+		s.append("\"code\":\""+format(code)+"\",");
+		s.append("\"message\":\""+format(message)+"\",\"datas\":{");
 		for(int i=0;i<datas.size();i++){
 			JUtilKeyValue data=datas.get(i);
-			s+="\""+data.getKey()+"\":\""+format(data.getValue().toString())+"\",";
+			if(data==null) continue;
+			
+			s.append("\""+data.getKey()+"\":");
+			if(data.getValue() instanceof List){
+				s.append(JUtilBean.beans2Json((List)data.getValue()));
+			}else if(data.getValue() instanceof String){
+				s.append("\""+format(data.getValue().toString())+"\"");
+			}else if(data.getValue() instanceof Integer){
+				s.append("\""+data.getValue().toString()+"\"");
+			}else if(data.getValue() instanceof Long){
+				s.append("\""+data.getValue().toString()+"\"");
+			}else if(data.getValue() instanceof Double){
+				s.append("\""+JUtilMath.formatPrintWithoutZero((double)data.getValue(),20)+"\"");
+			}else if(data.getValue() instanceof Timestamp){
+				s.append("\""+data.getValue().toString()+"\"");
+			}else{
+				s.append(JUtilBean.bean2Json(data.getValue()));
+			}
+			s.append(",");
 		}
-		if(s.endsWith(",")) s=s.substring(0,s.length()-1);
-		s+="}}";
-		return s;
+		if(s.charAt(s.length()-1)==',') s=s.deleteCharAt(s.length()-1);
+		s.append("}}");
+		return s.toString();
 	}
 	
 	private String format(String s){

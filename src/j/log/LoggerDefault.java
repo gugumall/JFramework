@@ -1,6 +1,6 @@
 package j.log;
 
-import j.Properties;
+import j.common.JProperties;
 import j.sys.SysConfig;
 import j.util.JUtilTimestamp;
 
@@ -17,13 +17,15 @@ public class LoggerDefault extends Logger{
 	private Log log;
 	
 	static{
-		String temp=Properties.getLogLevel();
-		if("LEVEL_DEBUG_ADV".equalsIgnoreCase(temp)) logLevel=Logger.LEVEL_DEBUG_ADV;
-		else if("LEVEL_DEBUG".equalsIgnoreCase(temp)) logLevel=Logger.LEVEL_DEBUG;
-		else if("LEVEL_INFO".equalsIgnoreCase(temp)) logLevel=Logger.LEVEL_INFO;
-		else if("LEVEL_WARNING".equalsIgnoreCase(temp)) logLevel=Logger.LEVEL_WARNING;
-		else if("LEVEL_ERROR".equalsIgnoreCase(temp)) logLevel=Logger.LEVEL_ERROR;
-		else if("LEVEL_FATAL".equalsIgnoreCase(temp)) logLevel=Logger.LEVEL_FATAL;
+		try{
+			String temp=JProperties.getLogLevel();
+			if("LEVEL_DEBUG_ADV".equalsIgnoreCase(temp)) logLevel=Logger.LEVEL_DEBUG_ADV;
+			else if("LEVEL_DEBUG".equalsIgnoreCase(temp)) logLevel=Logger.LEVEL_DEBUG;
+			else if("LEVEL_INFO".equalsIgnoreCase(temp)) logLevel=Logger.LEVEL_INFO;
+			else if("LEVEL_WARNING".equalsIgnoreCase(temp)) logLevel=Logger.LEVEL_WARNING;
+			else if("LEVEL_ERROR".equalsIgnoreCase(temp)) logLevel=Logger.LEVEL_ERROR;
+			else if("LEVEL_FATAL".equalsIgnoreCase(temp)) logLevel=Logger.LEVEL_FATAL;
+		}catch(Exception e){}
 		
 		System.out.println(JUtilTimestamp.timestamp()+" log level is "+logLevel);
 	}

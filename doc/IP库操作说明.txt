@@ -1,0 +1,154 @@
+见JUtilIPDB代码，如下：
+package j.util;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+
+import j.dao.DAO;
+import j.dao.DAOCreator;
+import j.log.Logger;
+
+/**
+ * 
+ * @author JStudio
+ *
+ */
+public final class JUtilIPDB {
+	private static Logger log=Logger.create(JUtilIPDB.class);
+	private static ConcurrentMap cache=new ConcurrentMap();
+	
+	/**
+	 * 得到IP所在地点名称
+	 * @param ip
+	 * @param dao
+	 * @param closeDAO
+	 * @param fresh
+	 * @return
+	 */
+	public static String getLocation(String ip,DAOCreator daoCreator,Class caller,boolean closeDAO,boolean fresh){
+		if(ip==null||!ip.matches("^\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}$")) return "-";
+		String[] ipCells=JUtilString.getTokens(ip,".");
+		if(Integer.parseInt(ipCells[0])<0
+				||Integer.parseInt(ipCells[0])>255
+				||Integer.parseInt(ipCells[1])<0
+				||Integer.parseInt(ipCells[1])>255
+				||Integer.parseInt(ipCells[2])<0
+				||Integer.parseInt(ipCells[2])>255
+				||Integer.parseInt(ipCells[3])<0
+				||Integer.parseInt(ipCells[3])>255){
+			return "-";
+		}
+		
+		String location=getLocation(ip,fresh);
+		if(daoCreator==null||location!=null) return location;
+		
+		if(location==null){
+			DAO dao=null;
+			try{				
+				long ipl=calIntValue(ipCells);
+				location="-";
+				
+				dao=daoCreator.create(caller);
+				j.dao.StmtAndRs sr=dao.find("select IP_ADDR from roar_ips where IP_START<="+ipl+" AND IP_END>="+ipl);
+				java.sql.ResultSet rs=sr.resultSet();
+				while(rs!=null&&rs.next()){
+					location=rs.getString("IP_ADDR");
+					break;
+				}
+				sr.close();
+				
+				if(closeDAO){
+					dao.close();
+				}
+				
+				if(!"-".equals(location)) cache.put(ip,location);
+				
+			}catch(Exception e){
+				if(closeDAO){
+					try{
+						dao.close();
+					}catch(Exception ex){}
+				}
+				log.log(e,Logger.LEVEL_ERROR);
+				location="-";
+			}
+		}
+		
+		return location;
+	}	
+	
+	/**
+	 * 
+	 * @param ip
+	 * @param fresh
+	 * @return
+	 */
+	private static String getLocation(String ip,boolean fresh){
+		if(cache.containsKey(ip)&&!fresh){
+			return (String)cache.get(ip);
+		}else{
+			return null;
+		}
+	}	
+	
+	/**
+	 * 将ip地址转换成数值
+	 * @param ipCells
+	 * @return
+	 */
+	private static long calIntValue(String[] ipCells){
+		String ip="";
+		for(int i=0;i<4;i++){
+			while(ipCells[i].length()<3){
+				ipCells[i]="0"+ipCells[i];
+			}
+			ip+=ipCells[i];
+		}
+		return Long.parseLong(ip);
+	}
+	
+	/**
+	 * 第一步 下载"纯真IP数据库最新版"
+	 * 第二步 利用纯真IP数据库自带功能解压出IP文本
+	 * 第三步 运行以下程序生成sql文件
+	 * @param args
+	 * @throws Exception
+	 */
+	public static void main(String[] args)throws Exception{
+//		System.out.println("127.3.3333.3".matches("^\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}$"));
+		
+		JUtilTextWriter log=new JUtilTextWriter(new File("F:\\work\\9R\\doc\\ips.sql"),"UTF-8");
+		BufferedReader read=new BufferedReader(new InputStreamReader(new FileInputStream(new File("F:\\work\\9R\\doc\\ips.txt")),"gbk"));
+		log.addLine("use bet2;");
+		
+		String line=read.readLine();
+    	int i=1;
+    	while(line!=null){	        		
+    		line=read.readLine();
+    		
+    		if(line.indexOf(" ")<0||line.indexOf("日IP数据")>0) break;
+    		
+    		while(line.indexOf("  ")>0){
+    			line=line.replaceAll("  "," ");
+    		}
+    
+    		String s=line.substring(0,line.indexOf(" "));
+    		line=line.substring(line.indexOf(" ")+1);
+    		String e=line.substring(0,line.indexOf(" "));
+    		line=line.substring(line.indexOf(" ")+1);
+    		line=line.replaceAll("  CZ88.NET","");
+    		line=line.replaceAll(" CZ88.NET","");
+    		
+    		String[] ss=JUtilString.getTokens(s,".");
+    		String[] ee=JUtilString.getTokens(e,".");
+    		line=JUtilString.replaceAll(line,"'","\\'");
+    		System.out.println(i+", insert into roar_ips values ("+i+","+calIntValue(ss)+","+calIntValue(ee)+",'"+line+"');");
+    		log.addLine("insert into roar_ips values ("+i+","+calIntValue(ss)+","+calIntValue(ee)+",'"+line+"');");
+    		i++;
+    	}
+    	log.close();
+    	read.close();
+	}
+}

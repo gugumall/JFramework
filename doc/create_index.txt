@@ -1,0 +1,43 @@
+创建索引的语法是:
+CREATE [UNIQUE|FULLTEXT|SPATIAL] INDEX index_name
+    [USING index_type]
+    ON tbl_name (index_col_name,...)
+ 
+index_col_name:
+    col_name [(length)] [ASC | DESC]
+对于CHAR和VARCHAR列，只用一列的一部分就可创建索引。创建索引时，使用col_name(length)语法，对前缀编制索引。前缀包括每列值的前length个字符。BLOB和TEXT列也可以编制索引，但是必须给出前缀长度。
+此处展示的语句用于创建一个索引，索引使用列名称的前10个字符。
+CREATE INDEX part_of_name ON customer (name(10));
+因为多数名称的前10个字符通常不同，所以此索引不会比使用列的全名创建的索引速度慢很多。另外，使用列的一部分创建索引可以使索引文件大大减小，从而节省了大量的磁盘空间，有可能提高INSERT操作的速度。
+前缀最长为255字节。对于MyISAM和InnoDB表，前缀最长为1000字节。注意前缀的限长以字节计，而CREATE INDEX语句中的前缀长度指的是字符的数目。对于使用多字节字符集的列，在指定列的前缀长度时，要考虑这一点。
+在MySQL中：
+·         只有当您正在使用MyISAM, InnoDB或BDB表类型时，您可以向有NULL值的列中添加索引。
+·         只有当您正在使用MyISAM, BDB或InnoDB表类型时，您可以向BLOB或TEXT列中添加索引。
+一个index_col_name规约可以以ASC或DESC为结尾。这些关键词将来可以扩展，用于指定递增或递减索引值存储。目前，这些关键词被分析，但是被忽略；索引值均以递增顺序存储。
+部分储存引擎允许在创建索引时指定索引类型。index_type指定语句的语法是USING type_name。不同的储存引擎所支持的type_name值已显示在下表中。如果列有多个索引类型，当没有指定index_type时，第一个类型是默认值。
+存储引擎
+允许的索引类型
+MyISAM
+BTREE
+InnoDB
+BTREE
+MEMORY/HEAP
+HASH, BTREE
+示例：
+CREATE TABLE lookup (id INT) ENGINE = MEMORY;
+CREATE INDEX id_index USING BTREE ON lookup (id);
+TYPE type_name可以作为USING type_name的同义词，用于指定索引类型。但是，USING是首选的格式。另外，在索引规约语法中，位于索引类型前面的索引名称不能使用TYPE。这是因为，与USING不同，TYPE不是保留词，因此会被认为是一个索引名称。
+如果您指定的索引类型在给定的储存引擎中不合法，但是有其它的索引类型适合引擎使用，并且不会影响查询功能，则引擎应使用此类型。
+FULLTEXT索引只能对CHAR, VARCHAR和TEXT列编制索引，并且只能在MyISAM表中编制。
+SPATIAL索引只能对空间列编制索引，并且只能在MyISAM表中编制。
+使用alter的方法创建索引
+alter table table_name add index index_name (column_list) ;
+alter table table_name add unique (column_list) ;
+alter table table_name add primary key (column_list) ;
+查询索引
+SHOW INDEX FROM table_name;
+删除索引
+drop index index_name on table_name ;
+alter table table_name drop index index_name ;
+alter table table_name drop primary key ;
+其中，在前面的两条语句中，都删除了table_name中的索引index_name。而在最后一条语句中，只在删除PRIMARY KEY索引中使用，因为一个表只可能有一个PRIMARY KEY索引，因此不需要指定索引名。

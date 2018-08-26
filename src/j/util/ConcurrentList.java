@@ -140,8 +140,12 @@ public class ConcurrentList implements List, Serializable {
 	 * @see java.util.List#get(int)
 	 */
 	public Object get(int index) {
-		synchronized(lock){
-			return container.get(index);
+		try{
+			synchronized(lock){
+				return container.get(index);
+			}
+		}catch(Exception e){
+			return null;
 		}
 	}
 
@@ -210,9 +214,13 @@ public class ConcurrentList implements List, Serializable {
 	 * @see java.util.List#remove(int)
 	 */
 	public Object remove(int index) {
-		synchronized(lock){
-			Object r= container.remove(index);
-			return r;
+		try{
+			synchronized(lock){
+				Object r= container.remove(index);
+				return r;
+			}
+		}catch(Exception e){
+			return null;
 		}
 	}
 

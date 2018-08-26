@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sys-config>
+	<logger-on>true</logger-on>
+	<loggers>1</loggers>
+	<action-timeout>60000</action-timeout>
+	
+	<!--action请求路径模式-->
+	<action-path-pattern>.handler</action-path-pattern>
+	<action-path-pattern>.service</action-path-pattern>
+	
+	<!--action配置文件-->
+	<actions>
+		<module desc="sso">actions.sso.xml</module>
+		<module desc="范例">actions.demo.xml</module>
+		<module desc="工具">actions.tool.xml</module>
+		<module desc="日志">actions.log.xml</module>
+		<module desc="">actions.service.xml</module>
+		<module desc="">actions.JCache.xml</module>
+		<module desc="">actions.JDAO.xml</module>
+		<module desc="">actions.JFS.xml</module>
+		<module desc="">actions.VerifyCode.xml</module>
+	</actions>
+</sys-config>

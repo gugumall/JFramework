@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>	
+    <handler path="/VerifyCode" path-pattern=".service" class="j.security.VerifyCodeServiceImpl" request-by="request">
+    	<action id="auth" method="auth" respond-with-string="true"/> 
+    	<action id="heartbeat" method="heartbeat" respond-with-string="true"/>
+    	
+    	<action id="g" method="g" respond-with-string="true"/> 
+    	<action id="c" method="c" respond-with-string="true"/> 
+    	<action id="exists" method="exists" respond-with-string="true"/> 
+    </handler>
+</root>

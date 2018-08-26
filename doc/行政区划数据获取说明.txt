@@ -1,0 +1,5 @@
+1, 淘宝订单提交页面编辑地址，通过js，获得国家及区县以上地址
+2，通过淘宝以下地址获取街道地址：
+http://lsp.wuliu.taobao.com/locationservice/addr/output_address_town.do?l1=110000&l2=110100&l3=110112&_ksTS=1396014988093_459&callback=jsonp460
+3，从以下网址获得邮编：
+http://map.dmw.gov.cn/html1.html

@@ -109,6 +109,45 @@ public class JUtilMath {
 	}
 	
 	/**
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	public static boolean equals(Integer v1,Integer v2){
+		if(v1==null&&v2!=null) return false;
+		if(v1!=null&&v2==null) return false;
+		if(v1==null&&v2==null) return true;
+		return v1.equals(v2);
+	}
+	
+	/**
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	public static boolean equals(Long v1,Long v2){
+		if(v1==null&&v2!=null) return false;
+		if(v1!=null&&v2==null) return false;
+		if(v1==null&&v2==null) return true;
+		return v1.equals(v2);
+	}
+	
+	/**
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	public static boolean equals(Double v1,Double v2){
+		if(v1==null&&v2!=null) return false;
+		if(v1!=null&&v2==null) return false;
+		if(v1==null&&v2==null) return true;
+		return v1.equals(v2);
+	}
+	
+	/**
 	 * 格式化数字，precision位小数，四舍五入
 	 * @param src
 	 * @param precision

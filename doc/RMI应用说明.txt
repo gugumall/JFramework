@@ -1,0 +1,57 @@
+﻿#代码实现
+
+======j.rmi内的功能 ======
+1，编写实际的业务处理类，实现接口RMITransfer。
+2，在被调用一端的应用中注册远程对象：RMIManager.register(RMITransfer transfer,String name,String host)。
+3，在调用一端的应用中用：RMIManager.lookup(String name,String host)获取远程对象，调用doRMI()方法。
+======j.rmi内的功能 ======
+
+
+======j.service 服务框架 ======
+1，编写接口类，接口类必须继承j.service.server.ServiceBaseInterface。
+2，为实现类编写一个抽象父类( public abstract class JHelloAbstract extends ServiceBaseImpl implements JHello,Serializable)，
+抽象类不需实现任何功能，目的是为了将实现类托管给Nvwa实现热加载（如果不加抽象父类，在使用rmi-iiop模式时，Tie将无法实现类型转换，这是由于ClassLoader相关机制导致的）。
+3，编写实现类实现类，继承第2步编写的抽象类。
+4，在service.*.xml中按规范配置相关信息，如使用http接口，还需在actions.service.xml中配置对应的Handler
+======j.service 服务框架 ======
+
+
+4，生成skel和stub：
+   打开windows命令窗口，进入到类文件所在根目录（也可用-classpath F:\work\JFramework\WebContent\WEB-INF\classes），然后如下：
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.service.hello.JHelloAbstract
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.service.router.JRouterAbstract
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.fs.JDFSServiceAbstract
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.cache.JDCacheServiceAbstract
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.dao.DBServiceAbstract
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.tool.ip.IPServiceAbstract
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.tool.region.RegionServiceAbstract
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.tool.log.LogServiceAbstract
+
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -nowrite j.service.hello.JHelloAbstract
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -nowrite j.service.router.JRouterAbstract
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -nowrite j.fs.JDFSServiceAbstract
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -nowrite j.cache.JDCacheServiceAbstract
+rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -nowrite j.dao.DBServiceAbstract
+rmic -classpath F:\work\JShop_v1.1\WebContent\WEB-INF\lib\*;. -d F:\work\JShop_v1.1\src -keep -nowrite j.shop.message.MailSendServiceAbstract
+
+5，部署应用时，将生成的skel、stub与业务处理类放在同一目录。
+
+
+#运行环境
+1，在path环境变量中包含jdk的bin目录。
+
+2，在classpath环境变量中包含你的类文件存放的根目录或jar包路径。
+d:\tomcat\lib\*;d:\tomcat\webapps\jstudio\WEB-INF\lib\*;d:\tomcat\webapps\jstudio\WEB-INF\classes
+
+3，启动rmi服务
+linux中用命令:
+nohup rmiregistry 1099 &
+nohup orbd -ORBInitialHost somedomain -ORBInitialPort 1060 &
+
+windows中用命令:
+rmiregistry 1099
+orbd -ORBInitialHost somedomain -ORBInitialPort 1060
+
+重点：
+linux中orbd启动出问题时，去掉hosts文件中绑定的域名somedomain（原因？未知）
+

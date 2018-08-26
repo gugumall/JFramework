@@ -1,0 +1,14 @@
+CREATE USER 'repl'@'%' IDENTIFIED BY '20081016';
+GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
+
+
+STOP SLAVE; -- if replication was running
+START SLAVE; -- if you want to restart replication
+
+
+CHANGE MASTER TO
+MASTER_HOST='...',
+MASTER_USER='repl',
+MASTER_PASSWORD='20081016',
+MASTER_AUTO_POSITION=1,
+MASTER_CONNECT_RETRY=5;

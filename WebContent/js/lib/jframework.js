@@ -63,6 +63,12 @@ function _$(id){
 		}
 	}
 	
+	try{
+		if(!obj&&top.location.href!=location.href){
+			obj=top._$(id);
+		}
+	}catch(e){}
+	
 	return obj;
 }
 
@@ -93,6 +99,11 @@ function _$cls(clsName,tagName){
 		}
 		return _nodes;
 	}
+}
+
+//
+function _$n(name){
+	return document.getElementsByName(name);
 }
 
 //动态加载JS
@@ -180,34 +191,205 @@ var Toast={
 	}
 }
 
-//模仿android的Toast提示条
-var Alert={	
-	show:function(txt){		
-		if(_$('ALERT_GLOBAL')){
-			this.setContent(txt);
-			return;
-		}	
+//取色器
+var ColorPicker={
+	callback:null,
+	R:0,
+	G:0,
+	B:0,
+	show:function(callback,initaValue){
+		if(callback) this.callback=callback;
+		else this.callback=null;
 		
-		var str='<div id="ALERT_GLOBAL_BG"><iframe src="about:blank" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>';
-		str+='<div id="ALERT_GLOBAL" style="visibility:hidden;">';
-		str+='	<div id="ALERT_GLOBAL_TEXT">'+txt+'</div>';
-		str+='	<div id="ALERT_GLOBAL_BTN"><div id="ALERT_GLOBAL_CLOSE" onclick="Alert.hide();">I{js,确定}</div></div>';
-		str+='</div>';
-		if(document.body.insertAdjacentHTML){
-			document.body.insertAdjacentHTML('afterBegin', str);
-		}else{
-			document.body.innerHTML=str+document.body.innerHTML;
+		if(initaValue){
+			if(initaValue.indexOf('#')==0) initaValue=initaValue.substring(1);
+			if(initaValue.length==3){
+				var r=initaValue.substring(0,1)+initaValue.substring(0,1);
+				var g=initaValue.substring(1,2)+initaValue.substring(1,2);
+				var b=initaValue.substring(2,3)+initaValue.substring(2,3);
+				this.R=parseInt(r,16);
+				this.G=parseInt(g,16);
+				this.B=parseInt(b,16);
+			}else if(initaValue.length=6){
+				var r=initaValue.substring(0,2);
+				var g=initaValue.substring(2,4);
+				var b=initaValue.substring(4,6);
+				this.R=parseInt(r,16);
+				this.G=parseInt(g,16);
+				this.B=parseInt(b,16);
+			}
 		}
+		
+		if(!_$('ColorPicker')){
+			var str=new Array();
+			str.push('<div id="ColorPickerBg"><iframe src="about:blank" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>');
+			str.push('<div id="ColorPicker">');
+			str.push('	<div id="ColorPickerSliders">');
+			str.push('		<div class="ColorPickerSlider">');
+			str.push('			<div class="ColorPickerSliderLeft noselect" onclick="ColorPicker.reduce(\'R\',10);">&lt;&lt;</div>');
+			str.push('			<div class="ColorPickerSliderLeft noselect marginL10" onclick="ColorPicker.reduce(\'R\',1);">&lt;</div>');
+			str.push('			<div class="ColorPickerSliderColor" id="ColorPickerSliderR" onclick="ColorPicker.set(event,this,\'R\');"><div class="ColorPickerSliderLine" id="ColorPickerSliderLineR" style="margin-left:'+Math.floor(this.R/2)+'px;"></div></div>');
+			str.push('			<div class="ColorPickerSliderRight noselect marginL10" onclick="ColorPicker.add(\'R\',1);">&gt;</div>');
+			str.push('			<div class="ColorPickerSliderRight noselect marginL10" onclick="ColorPicker.add(\'R\',10);">&gt;&gt;</div>');
+			str.push('		</div>');
+			str.push('		<div class="ColorPickerSlider">');
+			str.push('			<div class="ColorPickerSliderLeft noselect" onclick="ColorPicker.reduce(\'G\',10);">&lt;&lt;</div>');
+			str.push('			<div class="ColorPickerSliderLeft noselect marginL10" onclick="ColorPicker.reduce(\'G\',1);">&lt;</div>');
+			str.push('			<div class="ColorPickerSliderColor" id="ColorPickerSliderG" onclick="ColorPicker.set(event,this,\'G\');"><div class="ColorPickerSliderLine" id="ColorPickerSliderLineG" style="margin-left:'+Math.floor(this.G/2)+'px;"></div></div>');
+			str.push('			<div class="ColorPickerSliderRight noselect marginL10" onclick="ColorPicker.add(\'G\',1);">&gt;</div>');
+			str.push('			<div class="ColorPickerSliderRight noselect marginL10" onclick="ColorPicker.add(\'G\',10);">&gt;&gt;</div>');
+			str.push('		</div>');
+			str.push('		<div class="ColorPickerSlider">');
+			str.push('			<div class="ColorPickerSliderLeft noselect" onclick="ColorPicker.reduce(\'B\',10);">&lt;&lt;</div>');
+			str.push('			<div class="ColorPickerSliderLeft noselect marginL10" onclick="ColorPicker.reduce(\'B\',1);">&lt;</div>');
+			str.push('			<div class="ColorPickerSliderColor" id="ColorPickerSliderB" onclick="ColorPicker.set(event,this,\'B\');"><div class="ColorPickerSliderLine" id="ColorPickerSliderLineB" style="margin-left:'+Math.floor(this.B/2)+'px;"></div></div>');
+			str.push('			<div class="ColorPickerSliderRight noselect marginL10" onclick="ColorPicker.add(\'B\',1);">&gt;</div>');
+			str.push('			<div class="ColorPickerSliderRight noselect marginL10" onclick="ColorPicker.add(\'B\',10);">&gt;&gt;</div>');
+			str.push('		</div>');
+			str.push('		<div id="ColorPickerSliderPicked">&nbsp;</div>');
+			str.push('	</div>');
+			str.push('	<div id="ColorPickerBtns">');
+			str.push('		<div class="btnSmall65Light" onclick="ColorPicker.done();"><input type="button" value="I{js,确定}"/></div>');
+			str.push('		<div class="btnSmall65" onclick="ColorPicker.hide();"><input type="button" value="I{js,取消}"/></div>');
+			str.push('	</div>');
+			str.push('</div>');
+			if(document.body.insertAdjacentHTML){
+				document.body.insertAdjacentHTML('afterBegin', str.join(''));
+			}else{
+				document.body.innerHTML=str.join('')+document.body.innerHTML;
+			}
+			str=null;
+		}	
 
-		_$('ALERT_GLOBAL_BG').style.height=(W.h()-0)+'px';
-		_$('ALERT_GLOBAL_BG').style.width='100%';
-		_$('ALERT_GLOBAL_BG').style.top='0px';
-		_$('ALERT_GLOBAL_BG').style.left='0px';	
-		_$('ALERT_GLOBAL_BG').style.visibility='visible';	
+		_$('ColorPickerBg').style.height=(W.h()-0)+'px';
+		_$('ColorPickerBg').style.width='100%';
+		_$('ColorPickerBg').style.top='0px';
+		_$('ColorPickerBg').style.left='0px';	
+		_$('ColorPickerBg').style.visibility='visible';	
 
-		_$('ALERT_GLOBAL').style.top=Math.ceil((W.vh()-W.elementHeight(_$('ALERT_GLOBAL')))/2)+'px';
-		_$('ALERT_GLOBAL').style.left=Math.ceil((W.vw()-W.elementWidth(_$('ALERT_GLOBAL')))/2)+'px';	
-		_$('ALERT_GLOBAL').style.visibility='visible';
+		_$('ColorPicker').style.top=getLoadingTop(0)+'px';
+		_$('ColorPicker').style.left=Math.ceil((W.vw()-W.elementWidth(_$('ColorPicker')))/2)+'px';	
+		_$('ColorPicker').style.visibility='visible';
+		
+		_$('ColorPickerSliderPicked').style.backgroundColor='#'+this.toHex();
+	},
+	
+	reduce:function(c,amount){
+		if(c=='R'){
+			this.R-=amount;
+			if(this.R<0) this.R=0;
+			_$('ColorPickerSliderLineR').style.marginLeft=Math.floor(this.R/2)+'px';
+		}else if(c=='G'){
+			this.G-=amount;
+			if(this.G<0) this.G=0;
+			_$('ColorPickerSliderLineG').style.marginLeft=Math.floor(this.G/2)+'px';
+		}else if(c=='B'){
+			this.B-=amount;
+			if(this.B<0) this.B=0;
+			_$('ColorPickerSliderLineB').style.marginLeft=Math.floor(this.B/2)+'px';
+		}
+		_$('ColorPickerSliderPicked').style.backgroundColor='#'+this.toHex();
+	},
+	
+	add:function(c,amount){
+		if(c=='R'){
+			this.R+=amount;
+			if(this.R>255) this.R=255;
+			_$('ColorPickerSliderLineR').style.marginLeft=Math.floor(this.R/2)+'px';
+		}else if(c=='G'){
+			this.G+=amount;
+			if(this.G>255) this.G=255;
+			_$('ColorPickerSliderLineG').style.marginLeft=Math.floor(this.G/2)+'px';
+		}else if(c=='B'){
+			this.B+=amount;
+			if(this.B>255) this.B=255;
+			_$('ColorPickerSliderLineB').style.marginLeft=Math.floor(this.B/2)+'px';
+		}
+		_$('ColorPickerSliderPicked').style.backgroundColor='#'+this.toHex();
+	},
+	
+	set:function(event,obj,c){
+		var x=0;
+		if(event.clientX){
+			x=event.clientX;
+		}else if(event.pageX){
+			x=event.pageX;
+		}
+		x-=W.elementLeft(obj);
+		
+		if(c=='R'){
+			this.R=x*2;
+			if(this.R>255) this.R=255;
+			_$('ColorPickerSliderLineR').style.marginLeft=Math.floor(this.R/2)+'px';
+		}else if(c=='G'){
+			this.G=x*2;
+			if(this.G>255) this.G=255;
+			_$('ColorPickerSliderLineG').style.marginLeft=Math.floor(this.G/2)+'px';
+		}else if(c=='B'){
+			this.B=x*2;
+			if(this.B>255) this.B=255;
+			_$('ColorPickerSliderLineB').style.marginLeft=Math.floor(this.B/2)+'px';
+		}
+		_$('ColorPickerSliderPicked').style.backgroundColor='#'+this.toHex();
+	},
+	
+	toHex:function(){
+		var hex='';
+		var temp=this.R.toString(16);
+		if(temp.length==1) temp='0'+temp;
+		hex+=temp;
+		
+		temp=this.G.toString(16);
+		if(temp.length==1) temp='0'+temp;
+		hex+=temp;
+		
+		temp=this.B.toString(16);
+		if(temp.length==1) temp='0'+temp;
+		hex+=temp;
+		
+		return hex;
+	},
+	
+	hide:function(){
+		_$('ColorPickerBg').parentNode.removeChild(_$('ColorPickerBg'));
+		_$('ColorPicker').parentNode.removeChild(_$('ColorPicker'));
+	},
+	
+	done:function(){
+		this.hide();
+		this.callback(this.toHex());
+	}
+}
+
+//提示框
+var Alert={	
+	show:function(txt){	
+		alert(txt);
+		//if(_$('ALERT_GLOBAL')){
+		//	this.setContent(txt);
+		//	return;
+		//}	
+		
+		//var str='<div id="ALERT_GLOBAL_BG"><iframe src="about:blank" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		//str+='<div id="ALERT_GLOBAL" style="visibility:hidden;">';
+		//str+='	<div id="ALERT_GLOBAL_TEXT">'+txt+'</div>';
+		//str+='	<div id="ALERT_GLOBAL_BTN"><div id="ALERT_GLOBAL_CLOSE" onclick="Alert.hide();">I{js,确定}</div></div>';
+		//str+='</div>';
+		//if(document.body.insertAdjacentHTML){
+		//	document.body.insertAdjacentHTML('afterBegin', str);
+		//}else{
+		//	document.body.innerHTML=str+document.body.innerHTML;
+		//}
+
+		//_$('ALERT_GLOBAL_BG').style.height=(W.h()-0)+'px';
+		//_$('ALERT_GLOBAL_BG').style.width='100%';
+		//_$('ALERT_GLOBAL_BG').style.top='0px';
+		//_$('ALERT_GLOBAL_BG').style.left='0px';	
+		//_$('ALERT_GLOBAL_BG').style.visibility='visible';	
+
+		//_$('ALERT_GLOBAL').style.top=Math.ceil((W.vh()-W.elementHeight(_$('ALERT_GLOBAL')))/2)+'px';
+		//_$('ALERT_GLOBAL').style.left=Math.ceil((W.vw()-W.elementWidth(_$('ALERT_GLOBAL')))/2)+'px';	
+		//_$('ALERT_GLOBAL').style.visibility='visible';
 	},
 	
 	hide:function(){
@@ -217,6 +399,53 @@ var Alert={
 	
 	setContent:function(txt){
 		_$('ALERT_GLOBAL').innerHTML=txt;
+	}
+}
+
+//单选组件
+function Picker(id,input,values,names,initValue,height,editable,callback){
+	this.id=id;
+	this.input=input;
+	this.values=values;
+	this.names=names;
+	this.initValue=initValue;
+	this.editable=editable;
+	this.callback=callback;
+	
+	var htm=new Array();
+	htm.push('<div id="'+id+'" class="Picker" style="height:'+height+'px;">');
+	for(var i=0;i<values.length;i++){
+		htm.push('<div id="'+id+'_'+i+'" style="height:'+height+'px; line-height:'+height+'px;" class="PickerValue'+(initValue==values[i]?'Picked':'')+(i==0?'Left':'')+'" onclick="Pickers.pick(\''+id+'\','+i+');">'+this.names[i]+'</div>');
+	}
+	htm.push('</div>');
+	
+	document.write(htm.join(''));
+
+	Pickers.instances[id]=this;
+}
+var Pickers={
+	instances:new Array(),
+	
+	pick:function(id,picked){
+		var picker=this.instances[id];
+		if(!picker) return;
+		
+		if(!picker.editable){
+			top.Alert.show('I{js,不可修改}');
+			return;
+		}
+		
+		for(var i=0;i<picker.values.length;i++){
+			var v=_$(id+'_'+i);
+			v.className='PickerValue'+(i==0?'Left':'');
+		}
+		
+		var v=_$(id+'_'+picked);
+		v.className='PickerValuePicked'+(picked==0?'Left':'');
+		
+		_$(picker.input).value=picker.values[picked];
+		
+		if(picker.callback) picker.callback(picked,picker.values[picked],picker.names[picked],picker.id,picker.input);
 	}
 }
 
@@ -387,15 +616,15 @@ var Utils={
 	},
 	
 	setBgError:function(id){
-		if(_$(id)) _$(id).style.color='#FBB0B8';
+		if(_$(id)) _$(id).style.backgroundColor='#FEEDEF';
 	},
 	
 	setBgOk:function(id){
-		if(_$(id)) _$(id).style.color='#D6F1D9';
+		if(_$(id)) _$(id).style.backgroundColor='#EFFAF0';
 	},
 	
 	setBgCommon:function(id){
-		if(_$(id)) _$(id).style.color='';
+		if(_$(id)) _$(id).style.backgroundColor='';
 	},
 	
 	getEventTarget:function(event){
@@ -573,6 +802,142 @@ var MathUtil={
 		return this._addComma(num*1);
 	},
 }
+
+//显示/隐藏密码
+var PasswordViewers=new Array();
+function PasswordViewer(id,pwd){
+	this.id=id;
+	this.status='hidden';
+	
+	this.pwd=pwd;
+	
+	this.show=document.createElement('input');
+	this.show.id=this.id+'_show';
+	this.show.className='PasswordViewer';
+	this.show.style.width=W.elementWidth(this.pwd)+'px';
+	this.show.style.height=W.elementHeight(this.pwd)+'px';
+	this.show.style.borderStyle=this.pwd.style.borderStyle;
+	this.show.style.borderWidth=this.pwd.style.borderWidth;
+	this.show.style.borderColor=this.pwd.style.borderColor;
+	this.show.style.backgroundColor=this.pwd.style.backgroundColor;
+	this.show.style.lineHeight=this.pwd.style.lineHeight;
+	this.show.style.color=this.pwd.style.color;
+	this.show.style.fontSize=this.pwd.style.fontSize;
+	this.show.style.fontWeight=this.pwd.style.fontWeight;
+	this.show.style.textAlign=this.pwd.style.textAlign;
+	this.show.style.padding=this.pwd.style.padding;
+	this.show.onkeyup=function(){
+		var _id=this.id.substring(0,this.id.length-5);
+		var val=PasswordViewers[_id].show.value;
+		val=Str.replaceAll(val,' ','');
+		PasswordViewers[_id].show.value=val;
+		PasswordViewers[_id].pwd.value=val;
+	};
+	if(Utils.att(this.pwd,'placeholder')){
+		Utils.setAtt(this.show,'placeholder',Utils.att(this.pwd,'placeholder'));
+	}
+	this.show.style.display='none';
+	
+	this.pwd.parentNode.appendChild(this.show);
+	
+
+	this.eye=document.createElement('div');
+	this.eye.id=this.id+'_eye';
+	this.eye.className='PasswordViewerEye color999';
+	this.eye.innerHTML='<div class="iconfont icon-attention_light" onclick="PasswordViewers[\''+this.id+'\'].view();"></div>';
+
+	this.pwd.parentNode.insertBefore(this.eye,this.pwd);
+	
+	//var eyeObj=_$(this.id+'_eye');
+	//eyeObj.style.left=(W.elementWidth(this.pwd)-W.elementWidth(eyeObj)-3)+'px';
+	//eyeObj.style.top=(Math.floor((W.elementHeight(this.pwd)+W.elementHeight(eyeObj))/2))+'px';
+	
+	var eyeObj=_$(this.id+'_eye');
+	eyeObj.style.left=(W.elementLeft(this.pwd)+W.elementWidth(this.pwd)-W.elementWidth(eyeObj)-3)+'px';
+	eyeObj.style.top=(W.elementTop(this.pwd)+Math.floor((W.elementHeight(this.pwd)-W.elementHeight(eyeObj))/2))+'px';
+	
+	PasswordViewers[this.id]=this;
+}
+PasswordViewer.prototype.view=function(){
+	if(this.status=='hidden'){		
+		this.pwd.style.display='none';
+		this.show.style.display='';
+		this.show.value=this.pwd.value;
+		this.show.focus();
+		
+		_$(this.id+'_eye').className='PasswordViewerEye red';
+		
+		this.status='visible'
+	}else{		
+		this.show.style.display='none';
+		this.pwd.style.display='';
+		this.pwd.value=this.show.value;
+		this.pwd.focus();
+		
+		_$(this.id+'_eye').className='PasswordViewerEye color999';
+		
+		this.status='hidden'
+	}
+}
+PasswordViewer.prototype.move=function(relative){
+	//if(this.show.style.display!='none'&&this.show.parentNode.style.display!='none') relative=this.show;
+	//else if(this.pwd.style.display!='none'&&this.show.parentNode.style.display!='none') relative=this.pwd;
+		
+	//var eyeObj=_$(this.id+'_eye');
+	//eyeObj.style.left=(W.elementLeft(relative)+W.elementWidth(relative)-W.elementWidth(eyeObj)-3)+'px';
+	//eyeObj.style.top=(W.elementTop(relative)+Math.floor((W.elementHeight(relative)-W.elementHeight(eyeObj))/2))+'px';
+}
+
+//扫码处理
+var Scanner={
+	scan:function(){
+		if(thisDomain.startsWith("app.")){
+			HTMLInterface.scan('Scanner.callback');
+		}else if(thisDomain.startsWith("ios.")){
+			
+		}else{
+			top.Loading.setMsg('I{header,请在APP内使用扫一扫功能}');
+		}
+	},
+	
+	callback:function(code,message){
+		if(code==0){
+			top.Alert.show('I{js,扫码失败}');
+		}else{
+			if(message.indexOf('http')==0){
+				location.href=(message);
+			}else{
+				var qrcode=JSON.parse(message);
+				if(!qrcode||!qrcode.processor){
+					top.Loading.setMsg('I{js,扫码结果}:'+message);
+				}else{
+					top.Loading.setMsg('<img src="/img/loadingGreen.gif"/>');
+					
+					var url='/scanner.handler?request=scan&processor='+qrcode.processor+'&qrcode='+encodeURIComponent(message);
+					
+					var ajax=new Ajax();
+					ajax.send('GET',Scanner.doCallback,url);
+				}
+			}
+		}
+	},
+	
+	doCallback:function(ajax){
+		if(ajax.getReadyState()==4&&ajax.getStatus()==200){
+			try{
+				var resp=ajax.getResponseJson();
+				if(resp.code=='1'){
+					top.Loading.setMsgOk(resp.message);
+				}else{
+					top.Loading.setMsgErr(resp.message);
+				}
+			}catch(e){
+				top.Loading.setMsgErr('I{.未知错误}');
+			}
+		}
+	}
+}
+//扫码处理  end
 
 //媒体播放器
 function PlayerConfig(containerId,src,width,height,mute,auto,controls,poster,repeat,skin){
@@ -877,97 +1242,90 @@ Paras.init();
 
 //币种
 var Currency={
-		p:'currency',
-		currencyId:'1',
-		currencies:new Array(),
-		listHtm:'',
-		_getCurrency:function(id){
-			if(!id) id=this.currencyId;
-			for(var i=0;i<this.currencies.length;i++){
-				if(this.currencies[i][0]==id) return this.currencies[i];
-			}
-			return null;
-		},
-		_initCurrencySelector:function(){
-			var htm='<div id="currencySelector" onclick="Currency._showCurrencySelector();" onmouseout="Currency._out();"><div class="left"></div><div class="txt">'+Currency._getCurrency()[3]+'</div><div class="right"></div></div>';
-			this.listHtm='';
-			this.listHtm+='<div id="currencySelectorList">';
-			for(var i=0;i<this.currencies.length;i++){
-				this.listHtm+='<div class="currencyItem"'+(i==0?' style="border-top:none !important;"':'')+' onmouseover="Currency._over(this);" onmouseout="Currency._out(this);" onclick="Currency._change(\''+this.currencies[i][0]+'\');">'+this.currencies[i][3]+'</div>';
-			}
-			this.listHtm+='</div>';
-			document.write(htm);
-		},
-		_showCurrencySelector:function(){
-			Lang._hideLangSelector();
-			if(this.hideCurrencySelectorTimer){
-				clearTimeout(this.hideCurrencySelectorTimer);
-				this.hideCurrencySelectorTimer=null;
-			}
-			var t=W.elementTop(_$('currencySelector'));
-			var l=W.elementLeft(_$('currencySelector'));
-			
-			//if(thisDomain.indexOf('w.')!=0
-			//		&&thisDomain.indexOf('m.')!=0
-			//		&&thisDomain.indexOf('app.')!=0){
-			//	_$('currencySelectorList').style.top=(t+30)+'px';
-			//	_$('currencySelectorList').style.left=(l-10)+'px';
-			//}else{
-			//	_$('currencySelectorList').style.top='30px';
-			//	_$('currencySelectorList').style.left=(l+3)+'px';
-			//}
-			//_$('currencySelectorList').style.visibility='visible';
-			
-			top.Loading.canClose=true;
-			top.Loading.padding=0;
-			top.Loading.open(-1,-1,200,-1,null,window,'dialog');
-			top.Loading.setTitle('I{js,请选择币种}');
-			top.Loading.setMsg(this.listHtm);
-			
-			//this.hideCurrencySelectorTimer=setTimeout(Currency._hideCurrencySelector,3000);
-		},
-		_hideCurrencySelector:function(){
-			//if(_$('currencySelectorList')){
-			//	_$('currencySelectorList').style.visibility='hidden';
-			//}
-			top.Loading.canClose=true;
-			top.Loading.close();
-		},
-		_change:function(currency){
-			var loc=top.location.href;
-			if(currencyPara){
-				if(loc.indexOf('?')>0) loc=loc.substring(0,loc.indexOf('?'));
-				var ps=Paras.getParasEx('currency');
-				loc+=ps;
-				if(loc.indexOf('?')<0) loc+='?currency='+currency;
-				else loc+='&currency='+currency;
-			}else{
-				if(loc.indexOf('?')<0) loc+='?currency='+currency;
-				else loc+='&currency='+currency;
-			}
-			top.location.href=loc;
-		},
-		_over:function(obj){
-			if(this.hideCurrencySelectorTimer){
-				clearTimeout(this.hideCurrencySelectorTimer);
-				this.hideCurrencySelectorTimer=null;
-			}
-			obj.className='currencyItemOver';
-		},
-		_out:function(obj){
-			if(obj) obj.className='currencyItem';
-			if(this.hideCurrencySelectorTimer){
-				clearTimeout(this.hideCurrencySelectorTimer);
-				this.hideCurrencySelectorTimer=null;
-			}
-			//this.hideCurrencySelectorTimer=setTimeout(Currency._hideCurrencySelector,1000);
-		},
-
-		s:function(c){
-			this.currencyId=c;
-			Cookie.del(this.p);
-			Cookie.set(this.p,c);
+	p:'currency',
+	currencyId:'1',
+	currencies:new Array(),
+	listHtm:'',
+	hideCurrencySelectorTimer:null,	
+		
+	_getCurrency:function(id){
+		if(!id) id=this.currencyId;
+		for(var i=0;i<this.currencies.length;i++){
+			if(this.currencies[i][0]==id) return this.currencies[i];
 		}
+		return null;
+	},
+	_initCurrencySelector:function(container){
+		var htm='<div id="currencySelector" onclick="Currency._showCurrencySelector();"><div class="left"></div><div class="txt">'+Currency._getCurrency()[3]+'</div><div class="right iconfont icon-moreunfold"></div></div>';
+		this.listHtm='';
+		this.listHtm+='<div id="currencySelectorList" onmouseleave="Currency._hideCurrencySelector();">';
+		for(var i=0;i<this.currencies.length;i++){
+			this.listHtm+='<div class="currencyItem"'+(i==0?' style="border-top:none !important;"':'')+' onmouseover="Currency._over(this);" onmouseout="Currency._out(this);" onclick="Currency._change(\''+this.currencies[i][0]+'\');">'+this.currencies[i][3]+'</div>';
+		}
+		this.listHtm+='</div>';
+		if(container) container.innerHTML=htm;
+		else document.write(htm);
+	},
+	_showCurrencySelector:function(){
+		if(!_$('currencySelectorList')){
+			if(document.body.insertAdjacentHTML){
+				document.body.insertAdjacentHTML('afterBegin', this.listHtm);
+			}else{
+				document.body.innerHTML=this.listHtm+document.body.innerHTML;
+			}
+		}
+		
+		Lang._hideLangSelector();
+		if(this.hideCurrencySelectorTimer){
+			clearTimeout(this.hideCurrencySelectorTimer);
+			this.hideCurrencySelectorTimer=null;
+		}
+		var t=W.elementTop(_$('currencySelector'));
+		var l=W.elementLeft(_$('currencySelector'));
+		
+		if(Utils.isMobile()){
+			_$('currencySelectorList').style.left=(l+2)+'px';
+			_$('currencySelectorList').style.top=(t+30)+'px';
+		}else{
+			_$('currencySelectorList').style.top=(t+30)+'px';
+			_$('currencySelectorList').style.left=(l-9)+'px';
+		}
+		_$('currencySelectorList').style.visibility='visible';
+		
+		this.hideCurrencySelectorTimer=setTimeout(Currency._hideCurrencySelector,1000);
+	},
+	_hideCurrencySelector:function(){
+		if(_$('currencySelectorList')){
+			_$('currencySelectorList').style.visibility='hidden';
+		}
+	},
+	_change:function(currency){
+		var loc=top.location.href;
+		if(currencyPara){
+			if(loc.indexOf('?')>0) loc=loc.substring(0,loc.indexOf('?'));
+			var ps=Paras.getParasEx('currency');
+			loc+=ps;
+			if(loc.indexOf('?')<0) loc+='?currency='+currency;
+			else loc+='&currency='+currency;
+		}else{
+			if(loc.indexOf('?')<0) loc+='?currency='+currency;
+			else loc+='&currency='+currency;
+		}
+		top.location.href=loc;
+	},
+	_over:function(obj){
+		if(this.hideCurrencySelectorTimer) clearTimeout(this.hideCurrencySelectorTimer);
+		obj.className='currencyItemOver';
+	},
+	_out:function(obj){
+		if(obj) obj.className='currencyItem';
+	},
+
+	s:function(c){
+		this.currencyId=c;
+		Cookie.del(this.p);
+		Cookie.set(this.p,c);
+	}	
 }
 var currencyPara=Paras.getPara('currency');
 if(currencyPara){
@@ -1032,7 +1390,6 @@ function CurrencyTransfer(_index,_container,_source,_sourceType,_currencyId,_cur
 		list.id='currencyTransferList'+this.index;
 		list.style.left='0px';
 		list.style.top='0px';
-
 
 		htm='';
 		if(_currencies){
@@ -1175,17 +1532,26 @@ var Lang={
 		Cookie.del(this.p);
 		Cookie.set(this.p,lang);
 	},
-	_initLangSelector:function(){
-		var htm='<div id="langSelector" onclick="Lang._showLangSelector();" onmouseout="Lang._outLang(this);"><div class="left"></div><div class="txt">'+this.ln()+'</div><div class="right"></div></div>';
+	_initLangSelector:function(container){
+		var htm='<div id="langSelector" onclick="Lang._showLangSelector();"><div class="left"></div><div class="txt">'+this.ln()+'</div><div class="right iconfont icon-moreunfold"></div></div>';
 		this.listHtm='';
-		this.listHtm+='<div id="langSelectorList">';
+		this.listHtm+='<div id="langSelectorList" onmouseleave="Lang._hideLangSelector();">';
 		for(var i=0;i<this.langs.length;i++){
 			this.listHtm+='<div class="langItem"'+(i==0?' style="border-top:none !important;"':'')+' onmouseover="Lang._overLang(this);" onmouseout="Lang._outLang(this);" onclick="Lang._changeLang(\''+this.langs[i]+'\');"> '+this.langNames[i]+'</div>';
 		}
 		this.listHtm+='</div>';
-		document.write(htm);
+		if(container) container.innerHTML=htm;
+		else document.write(htm);
 	},
 	_showLangSelector:function(){
+		if(!_$('langSelectorList')){
+			if(document.body.insertAdjacentHTML){
+				document.body.insertAdjacentHTML('afterBegin', this.listHtm);
+			}else{
+				document.body.innerHTML=this.listHtm+document.body.innerHTML;
+			}
+		}
+		
 		Currency._hideCurrencySelector();
 		if(this.hideLangSelectorTimer){
 			clearTimeout(this.hideLangSelectorTimer);
@@ -1194,58 +1560,37 @@ var Lang={
 		var t=W.elementTop(_$('langSelector'));
 		var l=W.elementLeft(_$('langSelector'));
 		
-		//if(thisDomain.indexOf('w.')!=0
-		//		&&thisDomain.indexOf('m.')!=0
-		//		&&thisDomain.indexOf('app.')!=0){
-		//	_$('langSelectorList').style.left=(l-8)+'px';
-		//	_$('langSelectorList').style.top=(t+30)+'px';
-		//}else{
-		//	_$('langSelectorList').style.top='30px';
-		//	_$('langSelectorList').style.left=(l+1)+'px';
-		//}
-		//_$('langSelectorList').style.visibility='visible';
+		if(Utils.isMobile()){
+			_$('langSelectorList').style.left=(l+1)+'px';
+			_$('langSelectorList').style.top=(t+30)+'px';
+		}else{
+			_$('langSelectorList').style.top=(t+30)+'px';
+			_$('langSelectorList').style.left=(l-9)+'px';
+		}
+		_$('langSelectorList').style.visibility='visible';
 		
-		top.Loading.canClose=true;
-		top.Loading.padding=0;
-		top.Loading.open(-1,-1,200,-1,null,window,'dialog');
-		top.Loading.setTitle('I{js,请选择语言}');
-		top.Loading.setMsg(this.listHtm);
-		
-		//this.hideLangSelectorTimer=setTimeout(Lang._hideLangSelector,3000);
+		this.hideLangSelectorTimer=setTimeout(Lang._hideLangSelector,1000);
 	},
 	_hideLangSelector:function(){
-		//if(_$('langSelectorList')){
-		//	_$('langSelectorList').style.visibility='hidden';
-		//}
-		top.Loading.canClose=true;
-		top.Loading.close();
+		if(_$('langSelectorList')){
+			_$('langSelectorList').style.visibility='hidden';
+		}
 	},
 	_changeLang:function(lang){
-		if(_goods_id&&_goods_of_langs[lang]){
-			var v=Paras.getPara('v');
-			
-			var loc='';
-			if(v) loc='/goods/snapshot.jhtml?id='+_goods_of_langs[lang]+'&lang='+lang+'&v='+v;
-			else loc='/goods/item.jhtml?id='+_goods_of_langs[lang]+'&lang='+lang;
-
-			this.s(lang);
-			top.location.href=loc;
+		var loc=Str.replaceAll(top.location.href,Lang.l(),lang);
+		if(langPara){
+			if(loc.indexOf('?')>0) loc=loc.substring(0,loc.indexOf('?'));
+			var ps=Paras.getParasEx('lang');
+			loc+=ps;
+			if(loc.indexOf('?')<0) loc+='?lang='+lang;
+			else loc+='&lang='+lang;
 		}else{
-			var loc=Str.replaceAll(top.location.href,Lang.l(),lang);
-			if(langPara){
-				if(loc.indexOf('?')>0) loc=loc.substring(0,loc.indexOf('?'));
-				var ps=Paras.getParasEx('lang');
-				loc+=ps;
-				if(loc.indexOf('?')<0) loc+='?lang='+lang;
-				else loc+='&lang='+lang;
-			}else{
-				if(loc.indexOf('?')<0) loc+='?lang='+lang;
-				else loc+='&lang='+lang;
-			}
-			
-			this.s(lang);
-			top.location.href=loc;
+			if(loc.indexOf('?')<0) loc+='?lang='+lang;
+			else loc+='&lang='+lang;
 		}
+		
+		this.s(lang);
+		top.location.href=loc;
 	},
 	openUrl:function(url){
 		var _pageUrl=url;
@@ -1256,19 +1601,11 @@ var Lang={
 		window.open(_pageUrl);
 	},
 	_overLang:function(obj){
-		if(this.hideLangSelectorTimer){
-			clearTimeout(this.hideLangSelectorTimer);
-			this.hideLangSelectorTimer=null;
-		}
+		if(this.hideLangSelectorTimer) clearTimeout(this.hideLangSelectorTimer);
 		obj.className='langItemOver';
 	},
 	_outLang:function(obj){
 		if(obj) obj.className='langItem';
-		if(this.hideLangSelectorTimer){
-			clearTimeout(this.hideLangSelectorTimer);
-			this.hideLangSelectorTimer=null;
-		}
-		//this.hideLangSelectorTimer=setTimeout(Lang._hideLangSelector,1000);
 	}
 }
 var langPara=Paras.getPara('lang');
@@ -1486,6 +1823,7 @@ var D={
 		posX-=W.elementWidth(obj);
 		posY+=W.elementHeight(obj)+5;
 		if(posX<10) posX=10;
+		if(posX+220>W.vw()) posX=W.vw()-230;
 		
 		Loading.cover=false;
 		Loading.open(posX,posY,-1,-1,null,window);
@@ -1637,6 +1975,21 @@ var D={
 var W={
 	t:function(){
 		return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+	},
+	
+	tTotal:function(){
+		var _t=W.t();
+		try{
+			var win=window;
+			var winParent=window.parent;
+			while(winParent&&winParent!=win){
+				_t=winParent.W.t();
+				
+				win=winParent;
+				winParent=win.parent;
+			}
+		}catch(e){}
+		return _t;
 	},
 	
 	l:function(){
@@ -2514,11 +2867,16 @@ var XML={
 //============================
 //Ajax
 //============================
-function Ajax(){	
+var currentAjax=null;
+function Ajax(setResult){
+	this.setResult=setResult?setResult:false;
+	
 	//XMLHttpRequest
 	this.request=null;
 	this.requestContentType=null;
 	this.requestHeaders=new Array();
+	this.url='';
+	currentAjax=this;
 }
 
 Ajax.prototype.getRequestContentType=function(){
@@ -2575,15 +2933,53 @@ Ajax.prototype.getResponseXML=function(){
 
 Ajax.prototype.getResponseText=function(){
 	try{
-		return this.request.responseText;
+		if(this.request.responseText
+				&&this.request.responseText.indexOf('"success":')>-1
+				&&this.request.responseText.indexOf('"code":')>-1
+				&&this.request.responseText.indexOf('"message":')>-1){
+			try{
+				return JSON.parse(this.request.responseText).code;
+			}catch(e){}
+		}
+		
+		if(this.request.responseText.indexOf('redirect.submit();')>-1){//需要登录
+			return '-login';
+		}else{//其它错误
+			return this.request.responseText;
+		}
 	}catch(e){}
 }
 
 Ajax.prototype.getResponseJson=function(){
 	try{
-		return JSON.parse(this.request.responseText);
+		var resp=JSON.parse(this.request.responseText);
+		if(resp&&resp.code){//返回正常
+			return resp;
+		}else if(this.request.responseText.indexOf('redirect.submit();')>-1){//需要登录
+			return JSON.parse('{"success":"false","code":"-login","message":"I{js,请登录系统}","datas":{}}');
+		}else if(this.request.responseText=='FORBIDDEN'){
+			if(this.url.indexOf('/seller/')>-1
+					||this.url.indexOf('/Seller')>-1){
+				return JSON.parse('{"success":"false","code":"FORBIDDEN","message":"I{js,您不是商户}","datas":{}}');
+			}else{
+				return JSON.parse('{"success":"false","code":"FORBIDDEN","message":"I{js,没有操作权限}","datas":{}}');
+			}
+		}else{//其它错误
+			return JSON.parse('{"success":"false","code":"ERR","message":"I{js,未知错误}","datas":{}}');
+		}
 	}catch(e){
-		return this.request.responseText;
+		if(this.request.responseText.indexOf('redirect.submit();')>-1){//需要登录
+			return JSON.parse('{"success":"false","code":"-login","message":"I{js,请登录系统}","datas":{}}');
+		}else if(this.request.responseText=='FORBIDDEN'){
+			if(this.url.indexOf('/seller/')>-1
+					||this.url.indexOf('/Seller')>-1){
+				return JSON.parse('{"success":"false","code":"FORBIDDEN","message":"I{js,您不是商户}","datas":{}}');
+			}else{
+				return JSON.parse('{"success":"false","code":"FORBIDDEN","message":"I{js,没有操作权限}","datas":{}}');
+			}
+		}else{//其它错误
+			return JSON.parse('{"success":"false","code":"ERR","message":"I{js,未知错误}","datas":{}}');
+		}
 	}
 }
 
@@ -2635,6 +3031,7 @@ Ajax.prototype.createXMLHttpRequest=function(){
 //创建XMLHttpRequest,发送请求
 //post时data的格式为 p1=v1&p2=v2&p3=v3...
 Ajax.prototype.send=function(method,callback,url,data){
+	this.url=url;
 	if(this.request!=null){	
 		try{		
 			this.request.abort();
@@ -2675,6 +3072,7 @@ Ajax.prototype.send=function(method,callback,url,data){
 	
 //创建XMLHttpRequest,发送请求
 Ajax.prototype.sendForm=function(_form,callback){
+	this.url=_form.action;
 	if(this.request!=null){	
 		try{		
 			this.request.abort();
@@ -2725,6 +3123,28 @@ Ajax.prototype.clear=function(){
 		this.abort();
 		Sys.clearObjects(this.request);
 	}catch(e){}
+}
+
+//通用处理
+Ajax.prototype.callbackDefault=function(){
+	if(this.getReadyState()==4&&this.getStatus()==200){
+		try{
+			var resp=this.getResponseJson();
+			if(this.setResult) result=resp.code;
+			if(resp.code=='1'){
+				if(top._$('loading')) top.Loading.setMsgOk(resp.message);
+				else Loading.setMsgOk(resp.message);
+			}else{
+				if(top._$('loading')) top.Loading.setMsgErr(resp.message);
+				else Loading.setMsgErr(resp.message);
+			}
+		}catch(e){
+			Loading.setMsgErr('I{.未知错误}');
+		}
+	}
+}
+function ajaxCallbackDefault(ajax){
+	ajax.callbackDefault();
 }
 
 
@@ -2969,6 +3389,10 @@ var LoadingFullPage={
 	padding:0,
 	initScrollTop:0,
 	
+	scrollTop:function(){
+		return _$('loadingFullPage')?_$('loadingFullPage').scrollTop:0;
+	},
+	
 	setHeight:function(){
 		try{			
 			if(_$('loadingFullPageFrame')){
@@ -3187,6 +3611,9 @@ var LoadingGoodsPage={
 	setHeightInterval:null,
 	initScrollTop:0,
 	
+	scrollTop:function(){
+		return _$('loadingGoodsPage')?_$('loadingGoodsPage').scrollTop:0;
+	},
 	
 	setHeight:function(){
 		try{			
@@ -3408,7 +3835,7 @@ var LoadingAllImages={
 	initY:0,//一个手指时的Y坐标
 	initDistance:0,//两个手指间的距离
 	clickTime:0,//最近一次点击时间（两次点击很近时实现双击还原图片尺寸的功能）
-	initScrollTop:0,
+	initScrollTop:0,	
 	
 	open:function(_onClose,_win,_images,addQrcode){
 		if(addQrcode&&addQrcode==true){
@@ -3968,9 +4395,11 @@ var Loading={
 	wMini:150,
 	hMini:18,
 	topMin:50,
-	title:null,
+	title:'I{js,提示}',
 	delay:0,
+	autoCloseDelay:0,
 	showTimeout:null,
+	closeTimeout:null,
 	bg:null,
 	algin:null,
 	valign:'middle',
@@ -3988,7 +4417,22 @@ var Loading={
 			clearTimeout(this.showTimeout);
 			this.showTimeout=null;
 		}
+		if(this.closeTimeout){
+			clearTimeout(this.closeTimeout);
+			this.closeTimeout=null;
+		}
+		
 		if(_l==undefined||_t==undefined||_w==undefined||_h==undefined) return;
+		
+		if((_w+'').indexOf('%')>0){
+			_w=_w.substring(0,_w.length-1);
+			_w=Math.ceil((W.w()*_w)/100);
+		}
+		
+		if((_h+'').indexOf('%')>0){
+			_h=_h.substring(0,_h.length-1);
+			_h=Math.ceil((W.vh()*_h)/100);
+		}
 		
 		if(!_type) _type='';
 		
@@ -4011,7 +4455,7 @@ var Loading={
 		if(this.delay>0) this.showTimeout=setTimeout("Loading.show("+_l+","+_t+","+_w+","+_h+")",this.delay);
 		else this.showTimeout=setTimeout("Loading.show("+_l+","+_t+","+_w+","+_h+")",250);//this.show(_l,_t);
 		
-		//LoadingUtilInterval=setInterval(LoadingUtil,200);	
+		LoadingUtilInterval=setInterval(LoadingUtil,200);	
 		makeMovable(null,null);
 	},
 	
@@ -4021,7 +4465,6 @@ var Loading={
 			clearTimeout(this.showTimeout);
 			this.showTimeout=null;
 		}
-		
 
 		if(this.cover){
 			_$('loadingBg').style.height=W.h()+'px';
@@ -4031,11 +4474,7 @@ var Loading={
 		}
 		
 		if(_w!=-1){
-			if((_w+'').indexOf('%')>0){
-				_$('loading').style.width=_w;
-			}else{
-				_$('loading').style.width=_w+'px';
-			}
+			_$('loading').style.width=_w+'px';
 		}
 		if(!this.cover) _$('loadingBg').style.width=W.elementWidth(_$('loading'))+'px';
 		
@@ -4056,17 +4495,7 @@ var Loading={
 			_$('loading').style.top=_t+'px';	
 			if(!this.cover) _$('loadingBg').style.top=_t+'px';	
 		}else{
-			var theTop=0;
-			if(_$('container')&&_$('container').scrollTop>0){
-				theTop=(_$('container').scrollTop+0)+Math.round((W.vh()-W.elementHeight(_$('loading')))/2);
-			}else if(parent._$('loadingFullPage')){
-				theTop=(parent._$('loadingFullPage').scrollTop+0)+Math.round((top.W.vh()-40-W.elementHeight(_$('loading')))/2);
-			}else if(parent._$('loadingGoodsPage')){
-				theTop=(parent._$('loadingGoodsPage').scrollTop+0)+Math.round((top.W.vh()-40-W.elementHeight(_$('loading')))/2);
-			}else{
-				theTop=W.t()+Math.round((W.vh()-W.elementHeight(_$('loading')))/2);
-			}
-			if(theTop<this.topMin) theTop=this.topMin;
+			var theTop=getLoadingTop(0);
 			
 			_$('loading').style.top=theTop+'px';
 			if(!this.cover) _$('loadingBg').style.top=theTop+'px';
@@ -4088,7 +4517,7 @@ var Loading={
 		
 		this.openType='';
 		this.cover=true;
-		this.title=null;
+		this.title='I{js,提示}';
 		this.delay=0;
 		this.align=null;
 		this.valign='middle';
@@ -4117,10 +4546,24 @@ var Loading={
 		this.win=null;
 	},
 	
+	closeDelay:function(_delay){
+		this.closeTimeout=setTimeout("Loading.close()",_delay);
+	},
+	
 	move:function(_l,_t,_w,_h){
 		if(_l==undefined||_t==undefined||_w==undefined||_h==undefined) return;
 		
 		if(!_$('loadingBg')||!_$('loading')) return;
+		
+		if((_w+'').indexOf('%')>0){
+			_w=_w.substring(0,_w.length-1);
+			_w=Math.ceil((W.w()*_w)/100);
+		}
+		
+		if((_h+'').indexOf('%')>0){
+			_h=_h.substring(0,_h.length-1);
+			_h=Math.ceil((W.vh()*_h)/100);
+		}
 		
 		if(this.cover){
 			_$('loadingBg').style.height=W.h()+'px';
@@ -4130,11 +4573,7 @@ var Loading={
 		}
 		
 		if(_w!=-1){
-			if((_w+'').indexOf('%')>0){
-				_$('loading').style.width=_w;
-			}else{
-				_$('loading').style.width=_w+'px';
-			}
+			_$('loading').style.width=_w+'px';
 		}
 		if(!this.cover) _$('loadingBg').style.width=W.elementWidth(_$('loading'))+'px';
 		
@@ -4155,17 +4594,7 @@ var Loading={
 			_$('loading').style.top=_t+'px';	
 			if(!this.cover) _$('loadingBg').style.top=_t+'px';	
 		}else{
-			var theTop=0;
-			if(_$('container')){
-				theTop=(_$('container').scrollTop+0)+Math.round((W.vh()-W.elementHeight(_$('loading')))/2);
-			}else if(parent._$('loadingFullPage')){
-				theTop=(parent._$('loadingFullPage').scrollTop+0)+Math.round((top.W.vh()-40-W.elementHeight(_$('loading')))/2);
-			}else if(parent._$('loadingGoodsPage')){
-				theTop=(parent._$('loadingGoodsPage').scrollTop+0)+Math.round((top.W.vh()-40-W.elementHeight(_$('loading')))/2);
-			}else{
-				theTop=W.t()+Math.round((W.vh()-W.elementHeight(_$('loading')))/2);
-			}
-			if(theTop<this.topMin) theTop=this.topMin;
+			var theTop=getLoadingTop(0);
 			
 			_$('loading').style.top=theTop+'px';
 			if(!this.cover) _$('loadingBg').style.top=theTop+'px';
@@ -4189,7 +4618,6 @@ var Loading={
 	},
 	
 	setBg:function(_bg){ 
-		if(!_$('loadingBg')) return;
 		if(_bg) loadingFrame.location.href=_bg;
 	},
 	
@@ -4212,7 +4640,9 @@ var Loading={
 	},
 	
 	setMsg:function(msg,_bg){ 
-		if(!_$('loadingMsg')) return;
+		if(!_$('loadingBg')){
+			top.Loading.open(-1,-1,-1,-1,null,window,'dialog');
+		}
 		
 		if(msg.indexOf('loadingDialogTitle')>0){
 			Utils.setAtt(_$('loadingMsg'),'valign','top');
@@ -4226,6 +4656,10 @@ var Loading={
 	},
 	
 	setMsgOk:function(msg,_bg){
+		if(this.autoCloseDelay>0){
+			this.closeDelay(this.autoCloseDelay);
+			this.autoCloseDelay=0;
+		}
 		msg='<div class="okColor">'+msg+'</div>';
 		this.setMsg(msg,_bg);
 	},
@@ -4319,9 +4753,9 @@ var Loading={
 			return;
 		}	
 		
-		var str='<div style="position:absolute; z-index:1000; filter:alpha(opacity=80); -moz-opacity:.8; opacity:.8; overflow:hidden; visibility:hidden;" id="loadingBg" align="center"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		var str='<div style="position:absolute; z-index:3999; filter:alpha(opacity=80); -moz-opacity:.8; opacity:.8; overflow:hidden; visibility:hidden;" id="loadingBg" align="center"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
 		str+='<div id="loading" class="loading"'+(this.bgColor?(' style="background-color:'+this.bgColor+'"'):'')+'>';
-		str+='	<div id="loadingTitle" class="loadingTitle" onmousedown="startDrag(event);" onmouseup="endDrag(event)" onmouseout="endDrag(event)" onmousemove="moving(event);"><div id="loadingTitleText" class="loadingTitleText"></div><div onclick="Loading.close();" id="loadingCloseIcon" class="loadingCloseIcon"></div></div>';
+		str+='	<div id="loadingTitle" class="loadingTitle" onmousedown="startDrag(event);" onmouseup="endDrag(event)" onmouseout="endDrag(event)" onmousemove="moving(event);"><div id="loadingTitleText" class="loadingTitleText">'+this.title+'</div><div onclick="Loading.close();" id="loadingCloseIcon" class="loadingCloseIcon iconfont icon-close"></div></div>';
 		str+='	<div id="loadingContent" class="loadingContent">';
 		str+='		<table class="loadingTable"><tr><td align="center" valign="'+this.valign+'" id="loadingMsg" class="loadingMsg"'+(this.padding>-1?(' style="padding:'+this.padding+'px !important;"'):'')+'></td></tr></table>';
 		str+='	</div>';
@@ -4332,6 +4766,22 @@ var Loading={
 			document.body.innerHTML=str+document.body.innerHTML;
 		}
 	}
+}
+function getLoadingTop(offset){
+	var theTop=0;
+	if(location.href==top.location.href){
+		theTop=W.tTotal()+Math.round((top.W.vh()-W.elementHeight(_$('loading')))/2);
+	}else{
+		if(!offset||offset==0){
+			if(top._$('header')) offset=top.W.elementHeight(top._$('header'));
+			else offset=0;
+		}
+		theTop=top.W.t()-offset;
+		if(theTop<=0) theTop=0;
+		theTop+=50;
+	}
+	if(theTop<this.topMin) theTop=this.topMin;
+	return theTop;
 }
 function _notice(msg,align){
 	top.Toast.show(msg);
@@ -5525,13 +5975,13 @@ var Countries={
 			htm.push('	<div class="mobilePhoneInputCountry">');
 			htm.push('		<select id="mobilePhoneInputCountry_'+id+'" onchange="Countries.mobileInputChange(\''+id+'\');">');
 			for(var i=0;i<this.exports.length;i++){
-				htm.push('			<option value="'+this.exports[i].value+'">'+this.exports[i].mobileCode+'(+'+this.exports[i].cnName+')</option>');
+				htm.push('			<option value="'+this.exports[i].value+'">+'+this.exports[i].mobileCode+'('+this.exports[i].cnName+')</option>');
 			}
 			htm.push('		<select>');
 			htm.push('	</div>');
 			htm.push('	<div class="mobilePhoneInputNumber">-</div>');
 			htm.push('	<div class="mobilePhoneInputNumber">');
-			htm.push('		<input type="text" class="input" style="width:118px;" maxlength="16" id="mobilePhoneInputNumber1_'+id+'" value="I{js,手机号码}" onkeyup="Countries.mobileInputChange(\''+id+'\');" onfocus="Utils.hideInputPrompt(this,\'I{js,手机号码}\');" onblur="Countries.mobileInputChange(\''+id+'\'); Utils.showInputPrompt(this,\'I{js,手机号码}\');"/>');
+			htm.push('		<input type="text" autocomplete="off" tabindex="1" class="input" style="width:118px;" maxlength="16" id="mobilePhoneInputNumber1_'+id+'" placeholder="I{js,手机号码}" onkeyup="Countries.mobileInputChange(\''+id+'\');" onblur="Countries.mobileInputChange(\''+id+'\');"/>');
 			htm.push('	</div>');
 			htm.push('</div>');
 			
@@ -5559,7 +6009,7 @@ var Countries={
 			htm.push('	<div class="mobilePhoneInputCountry2 hidden">');
 			htm.push('		<select style="width:'+inputWidth+';" id="mobilePhoneInputCountry_'+id+'" onchange="Countries.mobileInputChange(\''+id+'\');">');
 			for(var i=0;i<this.exports.length;i++){
-				htm.push('			<option value="'+this.exports[i].value+'">'+this.exports[i].mobileCode+'(+'+this.exports[i].cnName+')</option>');
+				htm.push('			<option value="'+this.exports[i].value+'">+'+this.exports[i].mobileCode+'('+this.exports[i].cnName+')</option>');
 			}
 			htm.push('		<select>');
 			htm.push('	</div>');
@@ -5568,7 +6018,7 @@ var Countries={
 			htm.push('		<div class="mobilePhoneInputCountry2Selector iconfont icon-more"></div>');
 			htm.push('	</div>');
 			htm.push('	<div style="width:'+inputWidth+';" class="mobilePhoneInputNumber2">');
-			htm.push('		<input type="text" class="input" maxlength="16" id="mobilePhoneInputNumber1_'+id+'" value="I{js,手机号码}" onkeyup="Countries.mobileInputChange(\''+id+'\');" onfocus="Utils.hideInputPrompt(this,\'I{js,手机号码}\');" onblur="Countries.mobileInputChange(\''+id+'\'); Utils.showInputPrompt(this,\'I{js,手机号码}\');"/>');
+			htm.push('		<input type="text" autocomplete="off" tabindex="1" class="input" maxlength="16" id="mobilePhoneInputNumber1_'+id+'" placeholder="I{js,手机号码}" onkeyup="Countries.mobileInputChange(\''+id+'\');" onblur="Countries.mobileInputChange(\''+id+'\');"/>');
 			htm.push('	</div>');
 			htm.push('</div>');
 			
@@ -5589,21 +6039,21 @@ var Countries={
 			htm.push('	<div class="mobilePhoneInputCountry">');
 			htm.push('		<select id="mobilePhoneInputCountry_'+id+'" onchange="Countries.telInputChange(\''+id+'\');">');
 			for(var i=0;i<this.exports.length;i++){
-				htm.push('			<option value="'+this.exports[i].value+'">'+this.exports[i].mobileCode+'(+'+this.exports[i].cnName+')</option>');
+				htm.push('			<option value="'+this.exports[i].value+'">+'+this.exports[i].mobileCode+'('+this.exports[i].cnName+')</option>');
 			}
 			htm.push('		<select>');
 			htm.push('	</div>');
 			htm.push('	<div class="mobilePhoneInputNumber">-</div>');
 			htm.push('	<div class="mobilePhoneInputNumber">');
-			htm.push('		<input type="text" class="input w50" maxlength="6" id="mobilePhoneInputNumber1_'+id+'" value="I{js,区号}" onkeyup="Countries.telInputChange(\''+id+'\');" onfocus="Utils.hideInputPrompt(this,\'I{js,区号}\');" onblur="Countries.telInputChange(\''+id+'\'); Utils.showInputPrompt(this,\'I{js,区号}\');"/>');
+			htm.push('		<input type="text" autocomplete="off" tabindex="1" class="input w50" maxlength="6" id="mobilePhoneInputNumber1_'+id+'" placeholder="I{js,区号}" onkeyup="Countries.telInputChange(\''+id+'\');" onblur="Countries.telInputChange(\''+id+'\');"/>');
 			htm.push('	</div>');
 			htm.push('	<div class="mobilePhoneInputNumber">-</div>');
 			htm.push('	<div class="mobilePhoneInputNumber">');
-			htm.push('		<input type="text" class="input w80" maxlength="10" id="mobilePhoneInputNumber2_'+id+'" value="I{js,电话号码}" onkeyup="Countries.telInputChange(\''+id+'\');" onfocus="Utils.hideInputPrompt(this,\'I{js,电话号码}\');" onblur="Countries.telInputChange(\''+id+'\'); Utils.showInputPrompt(this,\'I{js,电话号码}\');"/>');
+			htm.push('		<input type="text" autocomplete="off" tabindex="1" class="input w80" maxlength="10" id="mobilePhoneInputNumber2_'+id+'" placeholder="I{js,电话号码}" onkeyup="Countries.telInputChange(\''+id+'\');" onblur="Countries.telInputChange(\''+id+'\');"/>');
 			htm.push('	</div>');
 			htm.push('	<div class="mobilePhoneInputNumber">-</div>');
 			htm.push('	<div class="mobilePhoneInputNumber">');
-			htm.push('		<input type="text" class="input w50" maxlength="6" id="mobilePhoneInputNumber3_'+id+'" value="I{js,分机号}" onkeyup="Countries.telInputChange(\''+id+'\');" onfocus="Utils.hideInputPrompt(this,\'I{js,分机号}\');" onblur="Countries.telInputChange(\''+id+'\'); Utils.showInputPrompt(this,\'I{js,分机号}\');"/>');
+			htm.push('		<input type="text" autocomplete="off" tabindex="1" class="input w50" maxlength="6" id="mobilePhoneInputNumber3_'+id+'" placeholder="I{js,分机号}" onkeyup="Countries.telInputChange(\''+id+'\');" onblur="Countries.telInputChange(\''+id+'\');"/>');
 			htm.push('	</div>');
 			htm.push('</div>');
 			
@@ -5631,7 +6081,7 @@ var Countries={
 			htm.push('	<div class="mobilePhoneInputCountry2 hidden">');
 			htm.push('		<select style="width:'+inputWidth+';" id="mobilePhoneInputCountry_'+id+'" onchange="Countries.telInputChange(\''+id+'\');">');
 			for(var i=0;i<this.exports.length;i++){
-				htm.push('			<option value="'+this.exports[i].value+'">'+this.exports[i].mobileCode+'(+'+this.exports[i].cnName+')</option>');
+				htm.push('			<option value="'+this.exports[i].value+'">+'+this.exports[i].mobileCode+'('+this.exports[i].cnName+')</option>');
 			}
 			htm.push('		<select>');
 			htm.push('	</div>');
@@ -5640,13 +6090,13 @@ var Countries={
 			htm.push('		<div class="mobilePhoneInputCountry2Selector iconfont icon-more"></div>');
 			htm.push('	</div>');
 			htm.push('	<div style="width:'+inputWidth+';" class="mobilePhoneInputNumber2">');
-			htm.push('		<input type="text" class="input" maxlength="6" id="mobilePhoneInputNumber1_'+id+'" value="I{js,区号}" onkeyup="Countries.telInputChange(\''+id+'\');" onfocus="Utils.hideInputPrompt(this,\'I{js,区号}\');" onblur="Countries.telInputChange(\''+id+'\'); Utils.showInputPrompt(this,\'I{js,区号}\');"/>');
+			htm.push('		<input type="text" autocomplete="off" tabindex="1" class="input" maxlength="6" id="mobilePhoneInputNumber1_'+id+'" placeholder="I{js,区号}" onkeyup="Countries.telInputChange(\''+id+'\');" onblur="Countries.telInputChange(\''+id+'\');"/>');
 			htm.push('	</div>');
 			htm.push('	<div style="width:'+inputWidth+';" class="mobilePhoneInputNumber2">');
-			htm.push('		<input type="text" class="input" maxlength="10" id="mobilePhoneInputNumber2_'+id+'" value="I{js,电话号码}" onkeyup="Countries.telInputChange(\''+id+'\');" onfocus="Utils.hideInputPrompt(this,\'I{js,电话号码}\');" onblur="Countries.telInputChange(\''+id+'\'); Utils.showInputPrompt(this,\'I{js,电话号码}\');"/>');
+			htm.push('		<input type="text" autocomplete="off" tabindex="1" class="input" maxlength="10" id="mobilePhoneInputNumber2_'+id+'" placeholder="I{js,电话号码}" onkeyup="Countries.telInputChange(\''+id+'\');" onblur="Countries.telInputChange(\''+id+'\');"/>');
 			htm.push('	</div>');
 			htm.push('	<div style="width:'+inputWidth+';" class="mobilePhoneInputNumber2">');
-			htm.push('		<input type="text" class="input" maxlength="6" id="mobilePhoneInputNumber3_'+id+'" value="I{js,分机号}" onkeyup="Countries.telInputChange(\''+id+'\');" onfocus="Utils.hideInputPrompt(this,\'I{js,分机号}\');" onblur="Countries.telInputChange(\''+id+'\'); Utils.showInputPrompt(this,\'I{js,分机号}\');"/>');
+			htm.push('		<input type="text" autocomplete="off" tabindex="1" class="input" maxlength="6" id="mobilePhoneInputNumber3_'+id+'" placeholder="I{js,分机号}" onkeyup="Countries.telInputChange(\''+id+'\');" onblur="Countries.telInputChange(\''+id+'\');"/>');
 			htm.push('	</div>');
 			htm.push('</div>');
 			
@@ -5685,7 +6135,7 @@ var Countries={
 			}
 			
 			var n='';
-			if(number1&&number1.match(/^\d{1,16}$/)!=null){
+			if(number1){
 				n+='+'+c.mobileCode;
 				n+='-'+number1;
 			}
@@ -5721,14 +6171,12 @@ var Countries={
 			}
 
 			var n='';
-			if(number1&&number1.match(/^\d{1,16}$/)!=null){
+			if(number1.match(/^\d{1,4}$/)!=null&&number2.match(/^\d{1,16}$/)!=null){
 				n+='+'+c.mobileCode;
 				n+='-'+number1;
-				if(number2&&number2.match(/^\d{1,16}$/)!=null){
-					n+='-'+number2;
-					if(number3&&number3.match(/^\d{1,16}$/)!=null){
-						n+='-'+number3;
-					}
+				n+='-'+number2;
+				if(number3.match(/^\d{1,6}$/)!=null){
+					n+='-'+number3;
 				}
 			}
 			
@@ -5760,6 +6208,28 @@ var Region={
 	initZoneId:null,
 	initAddress:null,
 	
+	//本次调用传递的参数
+	paramsCalling:new Object(),
+	
+	jsLoaded:function(){
+		if(Region.paramsCalling._container){
+			Region.showx(Region.paramsCalling._container,
+					Region.paramsCalling._callback,
+					Region.paramsCalling.initProvinceId,
+					Region.paramsCalling.initCityId,
+					Region.paramsCalling.initCountyId,
+					Region.paramsCalling.initZoneId,
+					Region.paramsCalling.initAddress);
+		}else{
+			Region.show(Region.paramsCalling._callback,
+					Region.paramsCalling.initProvinceId,
+					Region.paramsCalling.initCityId,
+					Region.paramsCalling.initCountyId,
+					Region.paramsCalling.initZoneId,
+					Region.paramsCalling.initAddress);
+		}
+	},
+	
 	depth:2,
 	show:function(_callback,
 			initProvinceId,
@@ -5767,20 +6237,33 @@ var Region={
 			initCountyId,
 			initZoneId,
 			initAddress){
+		this.paramsCalling=new Object();
+		if(_callback) this.paramsCalling._callback=_callback;
+		if(initProvinceId) this.paramsCalling.initProvinceId=initProvinceId;
+		if(initCityId) this.paramsCalling.initCityId=initCityId;
+		if(initCountyId) this.paramsCalling.initCountyId=initCountyId;
+		if(initZoneId) this.paramsCalling.initZoneId=initZoneId;
+		if(initAddress) this.paramsCalling.initAddress=initAddress;
+		
+		if((typeof top.regions)=='undefined'&&(typeof regions)=='undefined'){//未加载region.js
+			loadJS({src:'/js/region/region.js', charset:'utf-8', callback:Region.jsLoaded});
+			return;
+		}
+		
 		currentWindow=window;
 		if(_callback) this.callback=_callback;
 		else this.callback=null;
 		if(!_$('regionsSelector')){
 			var str=new Array();
-			str.push('<div style="position:absolute; z-index:101; filter:alpha(opacity=20); -moz-opacity:.2; opacity:.2; overflow:hidden; visibility:hidden;" id="regionsBg" align="center"><iframe id="regionsFrame" name="regionsFrame" src="/blank.htm" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>');
+			str.push('<div style="position:absolute; z-index:101; filter:alpha(opacity=50); -moz-opacity:.5; opacity:.5; overflow:hidden; visibility:hidden;" id="regionsBg" align="center"><iframe id="regionsFrame" name="regionsFrame" src="/blank.htm" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>');
 			str.push('<div id="regionsSelector">');
 			str.push('	<div id="regionsTitle" onmousedown="if(!Utils.isMobile()) startDrag(event,\'regionsSelector\');" onmouseup="if(!Utils.isMobile()) endDrag(event)" onmouseout="if(!Utils.isMobile()) endDrag(event)" onmousemove="if(!Utils.isMobile()) moving(event,\'regionsSelector\');">');
 			str.push('		<div id="regionsTitleText">I{选择地点}</div>');
-			str.push('		<div onclick="currentWindow.Region.close();" id="regionsCloseIcon"></div>');
+			str.push('		<div onclick="currentWindow.Region.close();" id="regionsCloseIcon" class="iconfont icon-close"></div>');
 			str.push('	</div>');
 			str.push('	<div id="regionsContent">');
 			str.push('		<div id="regionsL1">');
-			var _regions=top.regions?top.regions:regions;
+			var _regions=(typeof top.regions)!='undefined'?top.regions:regions;
 			for(var i=0;i<_regions.list.length;i++){
 				var province=_regions.list[i];
 				var n=province[1];
@@ -5788,17 +6271,14 @@ var Region={
 				str.push('		<div id="regionsL1_'+province[0]+'" class="'+(province[0]*1>=20000001&&province[0]*1<=20000006?'regionsL1Red':'regionsL1')+'" onclick="currentWindow.Region.showChildren(\''+province[0]+'\'); currentWindow.Region.precallback(this,\'L1\',\''+province[0]+'\',\''+province[1]+'\');" title="'+province[1]+'">'+n+'</div>');
 			}
 			str.push('		</div>');
-			str.push('		<div id="regionsL2TOP" style="display:none;"></div>');
 			str.push('		<div id="regionsL2" style="display:none;"></div>');
-			str.push('		<div id="regionsL3TOP" style="display:none;"></div>');
 			str.push('		<div id="regionsL3" style="display:none;"></div>');
-			str.push('		<div id="regionsL4TOP" style="display:none;"></div>');
 			str.push('		<div id="regionsL4" style="display:none;"></div>');
 			str.push('	</div>');
 			str.push('	<div id="regionsSelected"><font class="errorColor">I{js,请点击地区名称进行选择}</font></div>');
-			str.push('	<div class="r alignC" style="margin-bottom:5px;">');
-			str.push('		<div class="btnSmall65"><input type="button" value="I{确定}" onclick="currentWindow.Region.done();"/></div>');
-			str.push('		<div class="btnSmall65 marginL10" id="regionsToParent" style="display:none;"><input type="button" value="I{返回}" onclick="currentWindow.Region.toParent();"/></div>');
+			str.push('	<div class="r alignC" style="margin-bottom:10px;">');
+			str.push('		<div class="btnLongLight marginT10"><input type="button" value="I{确定}" onclick="currentWindow.Region.done();"/></div>');
+			str.push('		<div class="btnLongDisabled marginT10 marginL5" id="regionsToParent" style="display:none;"><input type="button" value="I{返回}" onclick="currentWindow.Region.toParent();"/></div>');
 			str.push('	</div>');
 			str.push('</div>');
 			if(_$('regionContainer')){
@@ -5902,19 +6382,7 @@ var Region={
 		
 
 		_$('regionsSelector').style.left=Math.floor((W.vw()-W.elementWidth(_$('regionsSelector')))/2)+'px';
-		
-		var theTop=0;
-		if(_$('container')){
-			theTop=(_$('container').scrollTop+20);
-		}else if(parent._$('loadingFullPage')){
-			theTop=(parent._$('loadingFullPage').scrollTop+20)
-		}else if(parent._$('loadingGoodsPage')){
-			theTop=(parent._$('loadingGoodsPage').scrollTop+20);
-		}else{
-			theTop=W.t()+Math.round((W.vh()-W.elementHeight(_$('regionsSelector')))/2);
-		}
-		if(theTop<=0) theTop=10;
-		_$('regionsSelector').style.top=theTop+'px';
+		_$('regionsSelector').style.top=this.getTop()+'px';
 
 		_$('regionsBg').style.height='100%';
 		_$('regionsBg').style.width='100%';
@@ -5927,26 +6395,167 @@ var Region={
 		
 		makeMovable(null,null);
 	},
+	
+	showx:function(_container,
+			_callback,
+			initProvinceId,
+			initCityId,
+			initCountyId,
+			initZoneId,
+			initAddress){
+		this.paramsCalling=new Object();
+		if(_container) this.paramsCalling._container=_container;
+		if(_callback) this.paramsCalling._callback=_callback;
+		if(initProvinceId) this.paramsCalling.initProvinceId=initProvinceId;
+		if(initCityId) this.paramsCalling.initCityId=initCityId;
+		if(initCountyId) this.paramsCalling.initCountyId=initCountyId;
+		if(initZoneId) this.paramsCalling.initZoneId=initZoneId;
+		if(initAddress) this.paramsCalling.initAddress=initAddress;
+		
+		if((typeof top.regions)=='undefined'&&(typeof regions)=='undefined'){//未加载region.js
+			loadJS({src:'/js/region/region.js', charset:'utf-8', callback:Region.jsLoaded});
+			return;
+		}
+		
+		currentWindow=window;
+		if(_callback) this.callback=_callback;
+		else this.callback=null;
+		if(!_$('regionsSelectorX')){
+			var str=new Array();
+			str.push('<div id="regionsSelectorX">');
+			str.push('	<div id="regionsTitleX">');
+			str.push('		<div class="fl" id="regionsSelected"></div>');
+			str.push('		<div class="fr hand marginR10" onclick="currentWindow.Region.done();">I{确定}</div>');
+			str.push('		<div class="fr hand iconfont icon-selected marginR2" onclick="currentWindow.Region.done();"></div>');
+			
+			str.push('		<div class="fr hand marginR20" id="regionsToParentX" onclick="currentWindow.Region.toParent();" style="display:none;">I{返回}</div>');
+			str.push('		<div class="fr hand iconfont icon-back marginR2" id="regionsToParent" onclick="currentWindow.Region.toParent();" style="display:none;"></div>');
+			str.push('	</div>');
+			str.push('	<div id="regionsContentX">');
+			str.push('		<div id="regionsL1">');
+			var _regions=(typeof top.regions)!='undefined'?top.regions:regions;
+			for(var i=0;i<_regions.list.length;i++){
+				var province=_regions.list[i];
+				var n=province[1];
+				if(n.length>20) n=n.substring(0,17)+'...';
+				str.push('		<div id="regionsL1_'+province[0]+'" class="'+(province[0]*1>=20000001&&province[0]*1<=20000006?'regionsL1Red':'regionsL1')+'" onclick="currentWindow.Region.showChildren(\''+province[0]+'\'); currentWindow.Region.precallback(this,\'L1\',\''+province[0]+'\',\''+province[1]+'\');" title="'+province[1]+'">'+n+'</div>');
+			}
+			str.push('		</div>');
+			str.push('		<div id="regionsL2" style="display:none;"></div>');
+			str.push('		<div id="regionsL3" style="display:none;"></div>');
+			str.push('		<div id="regionsL4" style="display:none;"></div>');
+			str.push('	</div>');
+			str.push('</div>');
+			_container.innerHTML=str.join('');
+		}
+		
+		if(initAddress&&initAddress!=''&&initAddress!='null'){
+			initAddress=Str.replaceAll(initAddress,'  ',' ');
+			var initAddressCells=initAddress.split(' '); 
+			
+			if(initAddressCells.length>0&&initAddressCells[0]!=''){//按名字查找省份
+				var namedProvince=top.findProvince?top.findProvince(initAddressCells[0]):findProvince(initAddressCells[0]);
+				if(namedProvince&&namedProvince.length>0){
+					initProvinceId=namedProvince[0][0];
+					
+					if(initAddressCells.length>1&&initAddressCells[1]!=''){//按名字查找城市		
+						var namedCity=top.findCity?top.findCity(initProvinceId,initAddressCells[1]):findCity(initProvinceId,initAddressCells[1]);
+					
+						if(namedCity&&namedCity.length>0){
+							initCityId=namedCity[0][0];
+							
+							if(initAddressCells.length>2&&initAddressCells[2]!=''){//按名字查找区县
+								var namedCounty=top.findCounty?top.findCounty(initProvinceId,initCityId,initAddressCells[2]):findCounty(initProvinceId,initCityId,initAddressCells[2]);
+								
+								if(namedCounty&&namedCounty.length>0){
+									initCountyId=namedCounty[0][0];
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		
+		this.initProvinceId=initProvinceId;
+		this.initCityId=initCityId;
+		this.initCountyId=initCountyId;
+		this.initZoneId=initZoneId;
+		this.initAddress=initAddress;
+		
+		//初始化省份
+		if(initProvinceId&&initProvinceId!=''&&initProvinceId!='null'){
+			var province=top.findProvince?top.findProvince(initProvinceId):findProvince(initProvinceId);
+			
+			if(province&&province.length>0){
+				province=province[0];
+				
+				currentWindow.Region.showChildren(province[0]);
+				currentWindow.Region.precallback(currentWindow._$('regionsL1_'+province[0]),'L1',province[0],province[1]);
+				
+				//初始化城市
+				if(initCityId&&initCityId!=''&&initCityId!='null'){
+					var city=top.findCity?top.findCity(initProvinceId,initCityId):findCity(initProvinceId,initCityId);
+					
+					if(city&&city.length>0){
+						city=city[0];
+						if(this.levels<3){
+							currentWindow.Region.precallback(currentWindow._$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
+						}else{
+							var _regions=top.regions?top.regions:regions;
+							temp=_regions.cities[initProvinceId].counties[city[0]];
+							var counties=temp?temp.list:(new Array());
+							
+							if(counties.length==0){
+								currentWindow.Region.depth=2;
+								currentWindow.Region.precallback(currentWindow._$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
+							}else{
+								currentWindow.Region.depth=3;
+								currentWindow.Region.showChildrenLevel3(initProvinceId,initCityId); 
+								currentWindow.Region.precallback(currentWindow._$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
+							}
+						}
+
+						//初始化区县
+						if(initCountyId&&initCountyId!=''&&initCountyId!='null'){
+							var county=top.findCounty?top.findCounty(initProvinceId,initCityId,initCountyId):findCounty(initProvinceId,initCityId,initCountyId);
+							
+							if(county&&county.length>0){
+								county=county[0];
+								
+								if(this.levels<4){
+									currentWindow.Region.precallback(currentWindow._$('regionsL3_'+county[0]),'L3',null,null,null,null,county[0],county[1]);
+								}else{
+									currentWindow.Region.showChildrenLevel4(county[0]);
+									currentWindow.Region.precallback(currentWindow._$('regionsL3_'+county[0]),'L3',null,null,null,null,county[0],county[1]);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	
 	showChildren:function(parentId){
-		//_$('regionsL4TOP').style.display='none';	
 		_$('regionsL4').style.display='none';	
 		_$('regionsL4').innerHTML='';
 		this.selectedZoneId=null;
 		this.selectedZoneName=null;
 		
-		//_$('regionsL3TOP').style.display='none';	
 		_$('regionsL3').style.display='none';	
 		_$('regionsL3').innerHTML='';
 		this.selectedCountyId=null;
 		this.selectedCountyName=null;
 
-		//_$('regionsL2TOP').style.display='none';
 		_$('regionsL2').style.display='none';	
 		_$('regionsL2').innerHTML='';
 		this.selectedCityId=null;
 		this.selectedCityName=null;
 		
 		_$('regionsToParent').style.display='none';
+		if(_$('regionsToParentX')) _$('regionsToParentX').style.display='none';
 		
 		var str=new Array();
 		var _regions=top.regions?top.regions:regions;
@@ -5979,19 +6588,17 @@ var Region={
 		_$('regionsL1').style.display='none';
 		
 		_$('regionsL2').innerHTML=str.join('');
-		//_$('regionsL2TOP').style.display='';	
 		_$('regionsL2').style.display='';	
 		
 		_$('regionsToParent').style.display='';
+		if(_$('regionsToParentX')) _$('regionsToParentX').style.display='';
 	},
 	showChildrenLevel3:function(pparentId,parentId){
-		//_$('regionsL4TOP').style.display='none';	
 		_$('regionsL4').style.display='none';	
 		_$('regionsL4').innerHTML='';
 		this.selectedZoneId=null;
 		this.selectedZoneName=null;
 		
-		//_$('regionsL3TOP').style.display='none';	
 		_$('regionsL3').style.display='none';	
 		_$('regionsL3').innerHTML='';
 		this.selectedCountyId=null;
@@ -6022,13 +6629,12 @@ var Region={
 		_$('regionsL2').style.display='none';
 		
 		_$('regionsL3').innerHTML=str.join('');
-		//_$('regionsL3TOP').style.display='';	
 		_$('regionsL3').style.display='';	
 		
 		_$('regionsToParent').style.display='';
+		if(_$('regionsToParentX')) _$('regionsToParentX').style.display='';
 	},
 	showChildrenLevel4:function(parentId){
-		//_$('regionsL4TOP').style.display='none';	
 		_$('regionsL4').style.display='none';	
 		_$('regionsL4').innerHTML='';
 		this.selectedZoneId=null;
@@ -6037,10 +6643,10 @@ var Region={
 		_$('regionsL3').style.display='none';
 		
 		_$('regionsL4').innerHTML='<div style="width:100%; margin-top:20px; margin-bottom:20px; text-align:center;"><img src="/img/loadingGreen.gif"/></div>';
-		//_$('regionsL4TOP').style.display='';	
 		_$('regionsL4').style.display='';	
 		
 		_$('regionsToParent').style.display='';
+		if(_$('regionsToParentX')) _$('regionsToParentX').style.display='';
 		
 		top.getZones?top.getZones(parentId,currentWindow.Region.showZones):getZones(parentId,currentWindow.Region.showZones);
 	},
@@ -6100,7 +6706,6 @@ var Region={
 	},
 	toParent:function(){
 		if(_$('regionsL4').style.display==''){
-			//_$('regionsL4TOP').style.display='none';	
 			_$('regionsL4').style.display='none';	
 			_$('regionsL4').innerHTML='';
 			
@@ -6109,7 +6714,6 @@ var Region={
 			this.selectedZoneId=null;
 			this.selectedZoneName=null;
 		}else if(_$('regionsL3').style.display==''){
-			//_$('regionsL3TOP').style.display='none';	
 			_$('regionsL3').style.display='none';	
 			_$('regionsL3').innerHTML='';
 			
@@ -6118,7 +6722,6 @@ var Region={
 			this.selectedCountyId=null;
 			this.selectedCountyName=null;
 		}else if(_$('regionsL2').style.display==''){
-			//_$('regionsL2TOP').style.display='none';	
 			_$('regionsL2').style.display='none';	
 			_$('regionsL2').innerHTML='';
 			
@@ -6128,11 +6731,13 @@ var Region={
 			this.selectedCityName=null;
 			
 			_$('regionsToParent').style.display='none';
+			if(_$('regionsToParentX')) _$('regionsToParentX').style.display='none';
 		}
 		
-		var temp='<font class="errorColor">I{js,已选择地区}</font> '+this.selectedProvinceName;
+		var temp='<div class="fl iconfont icon-location_light"></div><div class="fl marginL3">'+this.selectedProvinceName;
 		if(this.selectedCityName) temp+='&nbsp;'+this.selectedCityName;
 		if(this.selectedCountyName) temp+='&nbsp;'+this.selectedCountyName;
+		temp+='</div>';
 		
 		_$('regionsSelected').innerHTML=temp;
 	},
@@ -6216,14 +6821,42 @@ var Region={
 			this.selectedProvinceName=null;
 		}
 		
-		var temp='<font class="errorColor">I{js,已选择地区}</font> '+this.selectedProvinceName;
+		var temp='<div class="fl iconfont icon-location_light"></div><div class="fl marginL3">'+this.selectedProvinceName;
 		if(this.selectedCityName) temp+='&nbsp;'+this.selectedCityName;
 		if(this.selectedCountyName) temp+='&nbsp;'+this.selectedCountyName;
 		if(this.selectedZoneName) temp+='&nbsp;'+this.selectedZoneName;
+		temp+='</div>';
 		
 		_$('regionsSelected').innerHTML=temp;
 	},
+	getTop:function(offset){
+		var theTop=0;
+		if(location.href==top.location.href){
+			theTop=W.tTotal()+Math.round((top.W.vh()-W.elementHeight(_$('regionsSelector')))/2);
+		}else{
+			if(!offset){
+				if(top._$('header')) offset=top.W.elementHeight(top._$('header'));
+				else offset=0;
+			}
+			theTop=top.W.t()-offset;
+			if(theTop<=0) theTop=0;
+			theTop+=50;
+		}
+		if(theTop<this.topMin) theTop=this.topMin;
+		return theTop;
+	},
+	move:function(theTop){
+		if(theTop<=0) theTop=10;
+		_$('regionsSelector').style.top=theTop+'px';
+	},
 	close:function(){
+		this.paramsCalling._callback=null;
+		this.paramsCalling.initProvinceId=null;
+		this.paramsCalling.initCityId=null;
+		this.paramsCalling.initCityId=null;
+		this.paramsCalling.initZoneId=null;
+		this.paramsCalling.initAddress=null;
+		
 		endDrag();
 		if(_$('regionsBg')) _$('regionsBg').parentNode.removeChild(_$('regionsBg'));
 		if(_$('regionsSelector')) _$('regionsSelector').parentNode.removeChild(_$('regionsSelector'));	
@@ -6244,6 +6877,361 @@ var Region={
 	}
 }
 
+
+//商品类目选择
+var Catalogs={
+	catalogs:new Array(),
+	callback:null,
+	exclude:null,
+	levels:5,
+	levelCurrent:1,
+	selected:null,
+	selectedLevel:0,
+	
+	//本次调用传递的参数
+	paramsCalling:new Object(),
+	
+	jsLoaded:function(){
+		Catalogs.show(Catalogs.paramsCalling.container,
+				Catalogs.paramsCalling.chainLevel,
+				Catalogs.paramsCalling._callback,
+				Catalogs.paramsCalling._levels);
+	},
+	
+	a:function(info){
+		this.catalogs.push(info);
+	},
+	
+	ofChainLevel:function(chainLevel,isTop){
+		chainLevel=catalogs_for_chain_levels[chainLevel+'']*1;
+		
+		var list=new Array();
+		
+		for(var i=0;i<this.catalogs.length;i++){
+			if(isTop&&this.catalogs[i][1]!=''&&this.catalogs[i][1]!='null') continue;
+			if(this.catalogs[i][2]==chainLevel) list.push(this.catalogs[i]);
+		} 
+		return list;
+	}, 
+	
+	ofParent:function(chainLevel,parentId){
+		chainLevel=catalogs_for_chain_levels[chainLevel+'']*1;
+		
+		var list=new Array();
+		var temp=this.ofChainLevel(chainLevel);
+		for(var i=0;i<temp.length;i++){
+			if(temp[i][1]==parentId) list.push(temp[i]);
+		}
+		return list;
+	},
+	
+	get:function(id){
+		for(var i=0;i<this.catalogs.length;i++){
+			if(this.catalogs[i][0]==id) return this.catalogs[i];
+		}
+		return null;
+	},
+	
+	show:function(container,chainLevel,_callback,_levels){
+		if(container) this.paramsCalling.container=container;
+		if(chainLevel) this.paramsCalling.chainLevel=chainLevel;
+		if(_callback) this.paramsCalling._callback=_callback;
+		if(_levels) this.paramsCalling._levels=_levels;
+		
+		if(this.catalogs.length==0){//未加载类目数据
+			loadJS({src:'/js/lib/catalogs.jhtml', charset:'utf-8', callback:Catalogs.jsLoaded});
+			return;
+		}
+		
+		if(_callback) this.callback=_callback;
+		else this.callback=null;
+		
+		if(_levels) this.levels=_levels;
+		else this.levels=5;
+		
+		this.exclude=null;
+		
+		this.selected=null;
+		this.selectedLevel=0;
+		
+		chainLevel=catalogs_for_chain_levels[chainLevel+'']*1;
+		
+		if(!_$('catalogsSelector')){
+			var str=new Array();
+			str.push('<div style="position:absolute; z-index:101; filter:alpha(opacity=50); -moz-opacity:.5; opacity:.5; overflow:hidden; visibility:hidden;" id="catalogsBg" align="center"><iframe id="catalogsFrame" name="catalogsFrame" src="/blank.htm" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>');
+			str.push('<div id="catalogsSelector">');
+			str.push('	<div id="catalogsTitle" onmousedown="if(!Utils.isMobile()) startDrag(event,\'catalogsSelector\');" onmouseup="if(!Utils.isMobile()) endDrag(event)" onmouseout="if(!Utils.isMobile()) endDrag(event)" onmousemove="if(!Utils.isMobile()) moving(event,\'catalogsSelector\');">');
+			str.push('		<div id="catalogsTitleText">I{js,选择分类}</div>');
+			str.push('		<div onclick="Catalogs.close();" id="catalogsCloseIcon" class="iconfont icon-close"></div>');
+			str.push('	</div>');
+			str.push('	<div id="catalogsContent">');
+			str.push('		<div id="catalogsL1"></div>');
+			str.push('		<div id="catalogsL2" style="display:none;"></div>');
+			str.push('		<div id="catalogsL3" style="display:none;"></div>');
+			str.push('		<div id="catalogsL4" style="display:none;"></div>');
+			str.push('		<div id="catalogsL5" style="display:none;"></div>');
+			str.push('	</div>');
+			str.push('	<div id="catalogsSelected"><font class="errorColor">I{js,请点击分类名称进行选择}</font></div>');
+			str.push('	<div class="r alignC" style="margin-bottom:10px;">');
+			str.push('		<div class="btnLongLight marginT10"><input type="button" value="I{确定}" onclick="Catalogs.done();"/></div>');
+			str.push('		<div class="btnLongDisabled marginT10 marginL5" id="catalogsToParent" style="display:none;"><input type="button" value="I{返回}" onclick="Catalogs.toParent();"/></div>');
+			str.push('	</div>');
+			str.push('</div>');
+			if(container){
+				container.innerHTML=str.join('');
+			}else{
+				if(document.body.insertAdjacentHTML){
+					document.body.insertAdjacentHTML('afterBegin', str.join(''));
+				}else{
+					document.body.innerHTML=str.join('')+document.body.innerHTML;
+				}
+			}
+		}
+		
+		_$('catalogsSelector').style.left=Math.floor((W.vw()-W.elementWidth(_$('catalogsSelector')))/2)+'px';
+		_$('catalogsSelector').style.top=this.getTop()+'px';
+
+		_$('catalogsBg').style.height='100%';
+		_$('catalogsBg').style.width='100%';
+		_$('catalogsBg').style.top='0px';
+		_$('catalogsBg').style.left='0px';
+		
+		
+		_$('catalogsBg').style.visibility='visible';	
+		_$('catalogsSelector').style.visibility='visible';
+		
+		makeMovable(null,null);
+		
+		var catalogsLevel1=this.ofChainLevel(chainLevel,true);
+		this.items(catalogsLevel1,1);
+	}, 
+	
+	items:function(cats,level){
+		if(level>this.levels) return '';
+		
+		for(var i=1;i<=5;i++) _$('catalogsL'+i).style.display='none';
+		var htm=new Array();
+		for(var i=0;i<cats.length;i++){
+			htm.push(this.item(cats[i],level));
+		}
+		_$('catalogsL'+level).innerHTML=htm.join('');
+		_$('catalogsL'+level).style.display='';
+		this.levelCurrent=level;
+	},
+	
+	item:function(info,level){
+		if(this.exclude&&this.exclude==info[0]) return '';
+		
+		var htm=new Array();
+		htm.push('<div class="catalogsL'+level+'" onclick="Catalogs.check(this,'+level+',\''+info[2]+'\',\''+info[0]+'\');">');
+		htm.push(info[3]);
+		htm.push('</div>');
+		
+		return htm.join('');
+	},
+	
+	selectedShow:function(){
+		var temp='<font class="errorColor">I{js,已选择分类}</font> ';
+		var chain=new Array();
+		var c=this.selected;
+		while(c){
+			chain.push(c);
+			c=this.get(c[1]);
+		}
+		for(var i=chain.length-1;i>=0;i--){
+			temp+=" &gt; "+chain[i][3];
+		}
+		
+		_$('catalogsSelected').innerHTML=temp;
+	},
+	
+	check:function(obj,level,chainLevel,id){
+		this.selected=this.get(id);
+		this.selectedLevel=level;
+		
+		var currentItems=_$cls('catalogsL'+level);
+		for(var i=0;i<currentItems.length;i++) currentItems[i].className='catalogsL'+level;
+		currentItems=_$cls('catalogsL'+level+'Selected');
+		for(var i=0;i<currentItems.length;i++) currentItems[i].className='catalogsL'+level;
+		
+		obj.className='catalogsL'+level+'Selected';
+		
+		var children=this.ofParent(chainLevel,id);
+		if(level<this.levels&&children.length>0){
+			this.items(children,level+1);
+			_$('catalogsToParent').style.display='';
+		}else{
+			if(this.selected[1]!=''&&this.selected[1]!='null'){
+				_$('catalogsToParent').style.display='';
+			}else{
+				_$('catalogsToParent').style.display='none';
+			}
+		}
+		this.selectedShow(); 
+	},
+	
+	toParent:function(){
+		if(!this.selected) return;
+		this.selected=this.get(this.selected[1]);
+		this.levelCurrent--;
+		for(var i=1;i<=5;i++) _$('catalogsL'+i).style.display='none';
+		_$('catalogsL'+this.levelCurrent).style.display='';
+		if(this.levelCurrent==1) _$('catalogsToParent').style.display='none';
+		this.selectedShow();
+	},
+	
+	getTop:function(offset){
+		var theTop=0;
+		if(location.href==top.location.href){
+			theTop=W.tTotal()+Math.round((top.W.vh()-W.elementHeight(_$('catalogsSelector')))/2);
+		}else{
+			if(!offset){
+				if(top._$('header')) offset=top.W.elementHeight(top._$('header'));
+				else offset=0;
+			}
+			theTop=top.W.t()-offset;
+			if(theTop<=0) theTop=0;
+			theTop+=50;
+		}
+		if(theTop<this.topMin) theTop=this.topMin;
+		return theTop;
+	},
+	move:function(theTop){
+		if(theTop<=0) theTop=10;
+		_$('catalogsSelector').style.top=theTop+'px';
+	},
+	close:function(){
+		this.paramsCalling.container=null;
+		this.paramsCalling.chainLevel=null;
+		this.paramsCalling._callback=null;
+		this.paramsCalling._levels=null;
+		
+		endDrag();
+		if(_$('catalogsBg')) _$('catalogsBg').parentNode.removeChild(_$('catalogsBg'));
+		if(_$('catalogsSelector')) _$('catalogsSelector').parentNode.removeChild(_$('catalogsSelector'));	
+	},
+	done:function(){
+		if(this.selected&&this.callback){
+			this.callback(this.selectedLevel,this.selected,null);
+		}
+		this.close();
+	}
+}
+
+//公告类目选择
+var NotifyCatalogs={
+	catalogs:new Array(),
+	callback:null,
+	exclude:null,
+	
+	a:function(info){
+		this.catalogs.push(info);
+	},
+	
+	ofChainLevel:function(isTop){		
+		var list=new Array();
+		
+		for(var i=0;i<this.catalogs.length;i++){
+			if(isTop&&this.catalogs[i][1]!=''&&this.catalogs[i][1]!='null') continue;
+			
+			list.push(this.catalogs[i]);
+		} 
+		return list;
+	}, 
+	
+	ofParent:function(parentId){
+		var list=new Array();
+		for(var i=0;i<this.catalogs.length;i++){
+			if(this.catalogs[i][1]==parentId) list.push(this.catalogs[i]);
+		}
+		return list;
+	},
+	
+	getParent:function(parentId){
+		if(parentId==''||parentId=='null') return null;
+		
+		for(var i=0;i<this.catalogs.length;i++){
+			if(this.catalogs[i][0]==parentId) return this.catalogs[i];
+		} 
+		return null;
+	},
+	
+	get:function(id){
+		for(var i=0;i<this.catalogs.length;i++){
+			if(this.catalogs[i][0]==id) return this.catalogs[i];
+		}
+		return null;
+	},
+	
+	show:function(container,checkEnabled,_callback,levels){
+		if(!levels) levels=3;
+		
+		if(_callback) this.callback=_callback;
+		else this.callback=null;
+		
+		var catalogsLevel1=this.ofChainLevel(true);
+		
+		var htm=new Array();
+		htm.push('<div class="catalogSelector">');
+		for(var i=0;i<catalogsLevel1.length;i++){
+			htm.push(this.item(catalogsLevel1[i], 1, checkEnabled,levels));
+		}
+		htm.push('</div>');
+		
+		container.innerHTML=htm.join('');
+	}, 
+	
+	item:function(info,level,checkEnabled,levels){
+		if(level>levels) return '';
+		
+		if(this.exclude&&this.exclude==info[0]) return '';
+		
+		var htm=new Array();
+		htm.push('<div class="catalogSelectorItemL'+level+'" onclick="NotifyCatalogs.check('+level+',\''+info[0]+'\');">');
+		if(checkEnabled){
+			htm.push('<div class="catalogSelectorItemCheck"><input name="catalogCheck" type="checkbox" class="checkbox" id="catalogSelectorItemCheck_'+info[0]+'"/></div>');
+		}
+		htm.push('<div class="catalogSelectorItemName">'+info[3]+'</div>');
+		htm.push('</div>');
+		
+		var children=this.ofParent(info[2],info[0]);
+		for(var i=0;i<children.length;i++){
+			htm.push(this.item(children[i],level+1,checkEnabled,levels));
+		}
+		
+		return htm.join('');
+	},
+	
+	check:function(level,id){
+		if(this.callback) this.callback(level,this.get(id),_$('catalogSelectorItemCheck_'+id));
+	},
+	
+	uncheckParents:function(info){
+		var p=this.getParent(info[1]);
+		while(p){
+			_$('catalogSelectorItemCheck_'+p[0]).checked=false;
+			p=this.getParent(p[1]);
+		}
+	},
+	
+	uncheckChildren:function(info){
+		var children=this.ofParent(info[2],info[0]);
+		for(var i=0;i<children.length;i++){
+			this.uncheck(children[i]);
+		}
+	},
+	
+	uncheck:function(info){
+		if(!_$('catalogSelectorItemCheck_'+info[0])) return;
+		
+		_$('catalogSelectorItemCheck_'+info[0]).checked=false;
+		
+		var children=this.ofParent(info[2],info[0]);
+		for(var i=0;i<children.length;i++){
+			this.uncheck(children[i]);
+		}
+	}
+}
 
 //图片轮播
 function Animation(id,width,height,photos,mediaTypes,mediaSizes,medias,links,action,speed,showNumbers,players){	
@@ -6277,6 +7265,8 @@ function Animation(id,width,height,photos,mediaTypes,mediaSizes,medias,links,act
 	}
 	
 	this.layout=4;
+	
+	this.callback=null;
 	
 	Animations.instances[id]=this;
 }
@@ -6411,6 +7401,8 @@ Animation.prototype.init=function(containerId){
 	}
 	
 	this.sliderTimeout=setTimeout("Animations.doSlider('"+this.id+"')",this.speed);
+	
+	if(this.callback) this.callback(0);
 }
 
 Animation.prototype.show=function(i){
@@ -6438,6 +7430,8 @@ Animation.prototype.show=function(i){
 	if(!this.pause){
 		this.sliderTimeout=setTimeout("Animations.doSlider('"+this.id+"')",this.speed);
 	}
+	
+	if(this.callback) this.callback(i);
 }
 
 Animation.prototype.showNext=function(){
@@ -6479,6 +7473,7 @@ Animation.prototype.slider=function(){
 				this.show(0);
 				return;
 			}
+			if(this.callback) this.callback(this.sliderIndex);
 			
 			for(var n=0;n<this.photos.length;n++){
 				if(_$(this.id+'.num.'+n)) _$(this.id+'.num.'+n).className='animationNumber';
@@ -6511,6 +7506,7 @@ Animation.prototype.slider=function(){
 				this.show(0);
 				return;
 			}
+			if(this.callback) this.callback(this.sliderIndex);
 			
 			for(var n=0;n<this.photos.length;n++){
 				if(_$(this.id+'.num.'+n)) _$(this.id+'.num.'+n).className='animationNumber';
@@ -6638,25 +7634,39 @@ function _login(event,isClick){
 	if((ssoLogin.sso_user_id.value.match(/^[\w\.]{1,}@{1}[\w\.]{1,}$/)==null||ssoLogin.sso_user_id.value.length>64)
 			&&!Countries.isMobileValid(ssoLogin.sso_user_id.value)
 			&&ssoLogin.sso_user_id.value.match(/^[a-z0-9]{1}[a-z0-9_.\-]{4,30}[a-z0-9]{1}$/)==null){
-		alert('I{js,请正确填写会员账号、邮箱或手机}');
+		top.Loading.setMsgErr('I{js,请正确填写会员账号、邮箱或手机}');
 		return false;
 	}
 	
 	if(_$('staffIdDiv1')
-			&&_$('staffIdDiv1').style.display!='none'
-			&&ssoLogin.staff_id.value.match(/^[0-9]{8}$/)==null){
-		alert('I{js,请输入8位数字的工号}');
-		return false;
+			&&_$('staffIdDiv1').style.display!='none'){
+		if(ssoLogin.staff_id.value.match(/^[0-9]{8}$/)==null){
+			top.Loading.setMsgErr('I{js,请输入8位数字的工号}');
+			return false;
+		}
+		ssoLogin.login_type.value='shop_staff';
+	}else if(ssoLogin.staff_id){
+		ssoLogin.staff_id.value='';
+		ssoLogin.login_type.value='';
 	}
 	
-	if(ssoLogin.sso_user_pwd.value.match(/^\S{6,32}$/)==null){
-		alert('I{js,密码必须是8~32位非空白字符}');
-		return false;
+	if(_$('smsDiv1')
+			&&_$('smsDiv1').style.display!='none'){//短信登录
+		if(_$('sms').value.match(/^[0-9]{6}$/)==null){
+			top.Loading.setMsgErr('I{.请正确输入短信验证码}');
+			return false;
+		}
+	}else{
+		if(_$('sms')) _$('sms').value='';
+		if(ssoLogin.sso_user_pwd.value.match(/^\S{6,32}$/)==null){
+			top.Loading.setMsgErr('I{js,密码必须是8~32位非空白字符}');
+			return false;
+		}
 	}
 	
 	
 	if(_$('sso_verifier_code')&&ssoLogin.sso_verifier_code.value.match(/^[a-zA-Z0-9]{4}$/)==null){
-		alert('I{.请正确填写4位验证码}');
+		top.Loading.setMsgErr('I{.请正确填写4位验证码}');
 		return false;
 	}
 	
@@ -6776,7 +7786,7 @@ var Message={
 			var str='<div id="chatting" class="chatting">';
 			str+='	<div id="chattingTitle" class="chattingTitle" onmousedown="startDrag(event,\'chatting\');" onmouseup="endDrag(event)" onmouseout="endDrag(event)" onmousemove="moving(event,\'chatting\');">';
 			str+='		<div id="chattingTitleText" class="chattingTitleText">'+_title+'</div>';
-			str+='		<div onclick="Message.close();" id="chattingCloseIcon" class="chattingCloseIcon"></div>';
+			str+='		<div onclick="Message.close();" id="chattingCloseIcon" class="chattingCloseIcon  iconfont icon-close"></div>';
 			str+='	</div>';
 			str+='	<div id="chattingContent" class="chattingContent">';
 			str+='		<iframe id="chattingFrame" name="chattingFrame" src="'+_url+'" width="100%"  height="'+(thisDomain.indexOf('m.')==0||thisDomain.indexOf('p.')==0?282:526)+'" frameborder="0" scrolling="no"></iframe>';
@@ -6923,6 +7933,7 @@ function _message(goodsId,sellerId,orderId,depositId,drawId){
 		top.Message.showFullPage(window);
 	}else{		
 		top.Message.show();
+		chattingFrame.initTalkWith();
 	}
 }
 
@@ -7046,9 +8057,6 @@ function toTop(toUrl){
 	}
 }
 
-
-var _goods_id=null;
-var _goods_of_langs=new Array();//一个商品的各语言商品ID
 var _referer='';
 function getReferer(){
 	if(_referer!=''){
@@ -7215,7 +8223,7 @@ var Share={
 		}
 				
 		var url='https://connect.qq.com/widget/shareqq/index.html?'+s.join('&');
-		window.open(url);
+		window.location.href=(url);
 	},
 	_shareQZone:function(event,obj){
 		var p={
@@ -7242,7 +8250,7 @@ var Share={
 		}
 				
 		var url='https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?'+s.join('&');
-		window.open(url);
+		window.location.href=(url);
 	},
 	_shareTWb:function(event,obj){
 		var _url=encodeURIComponent(this.sharedLink);
@@ -7253,7 +8261,7 @@ var Share={
 		_t=encodeURI(_t);
 
 		var url='https://share.v.t.qq.com/index.php?c=share&a=index&url='+_url+'&appkey='+_appkey+'&pic='+_pic+'&assname='+_assname+'&title='+_t;
-		window.open(url,'', 'width=700, height=680, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, location=yes, resizable=no, status=no');
+		window.location.href=(url);
 	},
 	_shareSinaWb:function(event,obj){
 		var url='http://service.weibo.com/share/share.php?url='+encodeURIComponent(sharedLink);
@@ -7265,7 +8273,7 @@ var Share={
 		url+='&title='+encodeURIComponent('【'+this.sharedTitle+'】'+this.sharedDesc);
 		url+='&searchPic=false';
 		url+='&style=simple';
-		window.open(url);
+		window.location.href=(url);
 	},
 	_shareWeixinZone:function(event,obj){
 		var htm='<div>';
@@ -7352,18 +8360,22 @@ var Share={
 //通用分页
 var Pages={
 	noRecordShow:'',
+	gotoPageDefined:null,
 	init:function(){
 		if(this.noRecordShow==''){
 			this.noRecordShow='<div class="Pages_No_Record">I{js,无符合条件的记录}</div>';
 		}
 	},
-	genPagesSelector:function(total,rpp,pn,pagesId,summaryId,showIfNoItems){
+	genPagesSelector:function(total,rpp,pn,pagesId,summaryId,showIfNoItems,__gotoPage){
 		this.init();
-		if(total==0){
-			if(_$(pagesId)){
-				_$(pagesId).parentNode.innerHTML=this.noRecordShow;
-			}
-			return;
+		if(__gotoPage){
+			this.gotoPageDefined=__gotoPage;
+		}else{
+			this.gotoPageDefined=null;
+		}
+		
+		if(total==0&&showIfNoItems!='hidden'){
+			if(_$(pagesId)) _$(pagesId).parentNode.innerHTML=this.noRecordShow;
 		}
 		
 		var pageSection=1;
@@ -7380,6 +8392,16 @@ var Pages={
 		}else{
 			totalPages=1;
 		}	
+		
+		if(totalPages<=1){
+			if(_$(pagesId)){
+				_$(pagesId).innerHTML='';
+				_$(pagesId).parentNode.style.display='none';
+			}
+			return;
+		}else{
+			if(_$(pagesId)) _$(pagesId).parentNode.style.display='';
+		}
 		
 		if(pn%5==0){
 			pageSection=(pn/5);
@@ -7442,7 +8464,7 @@ var Pages={
 		if(_$('pn').value*1>=totalPages){
 			_$('pn').value=totalPages;
 		}
-		this._scroll();
+		this.gotoPage(_$('pn').value*1);
 	},
 	
 	prePage:function(){
@@ -7450,20 +8472,142 @@ var Pages={
 		if(_$('pn').value*1<=0){
 			_$('pn').value='1';
 		}
-		this._scroll();
+		this.gotoPage(_$('pn').value*1);
 	},
 	
 	gotoPage:function(i){
-		_$('pn').value=i;
-		this._scroll();
+		if(this.gotoPageDefined){
+			this.gotoPageDefined(i);
+		}else{
+			_$('pn').value=i;
+			frm.submit();
+		}
+	}
+}
+
+var PagesNoForm={
+	noRecordShow:'',
+	gotoPageDefined:null,
+	pn:1,
+	init:function(){
+		if(this.noRecordShow==''){
+			this.noRecordShow='<div class="Pages_No_Record">I{js,无符合条件的记录}</div>';
+		}
+	},
+	genPagesSelector:function(total,rpp,pn,pagesId,summaryId,showIfNoItems,__gotoPage){
+		this.pn=pn;
+		if(__gotoPage){
+			this.gotoPageDefined=__gotoPage;
+		}else{
+			this.gotoPageDefined=null;
+		}
+		
+		if(total==0&&showIfNoItems!='hidden'){
+			if(_$(pagesId)) _$(pagesId).parentNode.innerHTML=this.noRecordShow;
+		}
+		
+		var pageSection=1;
+		var totalPages=0;
+		var firstOfnextPage=rpp+1;
+		var lastOfprePage=rpp;
+		
+		if(total>rpp){
+			if(total%rpp==0){
+				totalPages=total/rpp;
+			}else{
+				totalPages=Math.floor((total/rpp)+1);
+			}
+		}else{
+			totalPages=1;
+		}	
+		
+		if(totalPages<=1){
+			if(_$(pagesId)){
+				_$(pagesId).innerHTML='';
+				_$(pagesId).parentNode.style.display='none';
+			}
+			return;
+		}else{
+			if(_$(pagesId)) _$(pagesId).parentNode.style.display='';
+		}
+		
+		if(pn%5==0){
+			pageSection=(pn/5);
+		}else{
+			pageSection=Math.floor((pn/5)+1);
+		}
+		firstOfnextPage=pageSection*5+1;
+		lastOfprePage=(pageSection-1)*5;
+		
+		var pageSectionTotal=1;
+		if(totalPages%10==0){
+			pageSectionTotal=(totalPages/5);
+		}else{
+			pageSectionTotal=Math.floor((totalPages/5)+1);
+		}
+
+		var pageSelectorHtml='';	
+		var start=pn;
+		if(pn>2){
+			start=(pn-2);
+		}else{
+			start=1;
+		}
+		
+		var end=pn;
+		if(pn<=3){
+			if(totalPages<=5){
+				end=totalPages;
+			}else{
+				end=5;
+			}
+		}else{
+			if(totalPages-pn>=2){
+				end=pn+2;
+			}else{
+				end=totalPages;
+			}
+		}
+		
+		for(var i=start;i<=end;i++){
+			if(i==pn){
+				if(totalPages>1) pageSelectorHtml+='<div class="current">'+i+'</div>';
+			}else{
+				pageSelectorHtml+='<div onclick="PagesNoForm.gotoPage('+i+');" class="page">'+i+'</div>';
+			}
+		}	
+		if(pn<totalPages){
+			pageSelectorHtml+='<div onclick="PagesNoForm.nextPage('+totalPages+');" class="next">&nbsp;</div><div onclick="PagesNoForm.gotoPage('+totalPages+');" class="last">&nbsp;</div>';
+		}
+		if(pn>1){
+			pageSelectorHtml='<div onclick="PagesNoForm.gotoPage(1);" class="first">&nbsp;</div><div onclick="PagesNoForm.prePage();" class="previous">&nbsp;</div>'+pageSelectorHtml;
+		}		
+		
+		if(_$(pagesId)) _$(pagesId).innerHTML=pageSelectorHtml;
+		//if(_$(summaryId)) _$(summaryId).innerHTML=total+'I{order,个记录}';
 	},
 	
-	_scroll:function(){
-		frm.submit();
+	nextPage:function(totalPages){
+		this.pn=this.pn*1+1;
+		if(this.pn*1>=totalPages){
+			this.pn=totalPages;
+		}
+		this.gotoPage(this.pn);
 	},
-
-	_search:function(){
-		this.gotoPage(1);
+	
+	prePage:function(){
+		this.pn=this.pn*1-1;
+		if(this.pn*1<=0){
+			this.pn='1';
+		}
+		this.gotoPage(this.pn);
+	},
+	
+	gotoPage:function(i){
+		this.pn=i;
+		if(this.gotoPageDefined){
+			this.gotoPageDefined(i);
+		}
 	}
 }
 ///////////////////////////////common.js////////////////////////

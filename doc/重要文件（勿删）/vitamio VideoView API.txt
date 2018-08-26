@@ -1,0 +1,192 @@
+
+Vitamio API for Android: VideoView
+
+
+类概述 
+
+public class VideoView extends SurfaceView implements MediaController.MediaPlayerControl
+用于播放视频文件。VideoView可以加载各种来源的图像（如资源或ContentProvider），注意计算视频尺寸，以便在任意布局管理器中使用，它还提供了诸如缩放等显示选项。
+VideoView也提供封装了许多MediaPlayer的方法，例如getVideoWidth、setSubShown。
+
+常量 
+
+public static final int VIDEO_LAYOUT_ORIGIN
+缩放参数，原始画面大小。
+ 常量值：0
+
+public static final int VIDEO_LAYOUT_SCALE
+缩放参数，画面全屏。
+ 常量值：1
+
+public static final int VIDEO_LAYOUT_STRETCH
+缩放参数，画面拉伸。
+ 常量值：2
+
+public static final int VIDEO_LAYOUT_ZOOM
+缩放参数，画面裁剪。
+ 常量值：3
+
+公共方法 
+
+public void setVideoLayout(int layout, float aspectRatio)
+获取扫描视频的Uri。
+ 参数
+layout 缩放参数
+aspectRation 宽高比，为0将自动检测。
+
+public boolean isValid()
+ Surface是否有效。 参见Surface的isValid方法。
+
+public void setVideoPath(String path)
+设置视频路径。
+
+public void setVideoURI(Uri uri)
+设置视频URI。（可以是网络视频地址）
+
+public void stopPlayback()
+停止视频播放，并释放资源。
+
+public void setMediaController(MediaController controller)
+设置媒体控制器。
+ 参数
+controller 媒体控制器，注意是io.vov.vitamio.widget.MediaController。
+
+public void setOnPreparedListener(OnPreparedListener l)
+注册一个回调函数，在视频预处理完成后调用。在视频预处理完成后被调用。此时视频的宽度、高度、宽高比信息已经获取到，此时可调用seekTo让视频从指定位置开始播放。
+
+public void setOnCompletionListener(OnCompletionListener l)
+注册一个回调函数，视频播放完成后调用。
+
+public void setOnErrorListener(OnErrorListener l)
+注册一个回调函数，在异步操作调用过程中发生错误时调用。例如视频打开失败。
+
+public void setOnBufferingUpdateListener(OnBufferingUpdateListener l)
+注册一个回调函数，在网络视频流缓冲变化时调用。
+
+public void setOnSeekCompleteListener(OnSeekCompleteListener l)
+注册一个回调函数，在seek操作完成后调用。
+
+public void setOnSubtitleUpdateListener(OnSubtitleUpdateListener l)
+注册一个回调函数，在字幕需要显示时调用。
+
+public void setOnInfoListener(OnInfoListener l)
+注册一个回调函数，在有警告或错误信息时调用。例如：开始缓冲、缓冲结束、下载速度变化。
+
+public boolean onTouchEvent(MotionEvent ev)
+处理显示/隐藏MediaController。
+
+public void start()
+开始播放。
+
+public void pause()
+暂停播放。
+
+public void suspend()
+挂起（暂时没有实现功能）
+
+public void resume()
+恢复播放。
+
+public long getDuration()
+获取视频播放时长。
+
+public long getCurrentPosition()
+获取当前播放位置。
+
+public void seekTo(long msec)
+设置播放位置。
+ 参数
+msec 位置
+
+public boolean isPlaying()
+是否正在播放。
+
+public int getBufferPercentage()
+获取缓冲百分比。
+
+public void setVolume(float leftVolume, float rightVolume)
+设置音量。
+ 参数
+leftVolume 左声道
+rightVolume 右声道
+
+public int getVideoWidth()
+获取视频宽度。
+
+public int getVideoHeight()
+获取视频高度。
+
+public float getVideoAspectRatio()
+设置视频宽高比例。没有视频或者宽高不正确返回0。
+
+public void setVideoQuality(int quality)
+设置视频质量。
+ 参数
+quality 参见MediaPlayer的常量：VIDEOQUALITY_LOW（流畅）、VIDEOQUALITY_MEDIUM（普通）、VIDEOQUALITY_HIGH（高质）。
+
+public void setBufferSize(int bufSize)
+设置视频缓冲大小（默认1024KB）单位Byte。
+
+public boolean isBuffering()
+检测是否缓冲完毕。
+
+public void setMetaEncoding(String encoding)
+设置元数据编码。例如：UTF-8
+
+public String getMetaEncoding()
+获取元数据编码。
+
+public HashMap getAudioTrackMap(String encoding)
+获取视频中嵌入的音轨。例如：English
+
+public int getAudioTrack()
+设置播放音轨编号。
+
+public void setAudioTrack(int audioIndex)
+设置音轨编号，必须使用getAudioTrackMap的返回值。
+
+public void setSubShown(boolean shown)
+设置是否显示字幕。
+ 参数
+shown true表示显示字幕
+
+public void setSubEncoding(String encoding)
+设置字幕编码。
+ 参数
+encoding 字幕编码。如果为null将自动检测。
+
+public int getSubLocation()
+获取字幕位置类型。0为内嵌字幕，1为外挂字幕。
+
+public void setSubPath(String subPath)
+设置外挂字幕路径。必须是本地文件路径。
+
+public String getSubPath()
+获取外挂字幕路径。
+
+public void setSubTrack(int trackId)
+设置字幕编号。必须是getSubTrackMap的返回值。
+
+public int getSubTrack()
+获取字幕编号。
+
+public HashMap getSubTrackMap(String encoding)
+获取视频内嵌字幕集合。
+ 参数
+encoding 格式化字符串编码。如果为null将自动检测。
+ 返回值
+ 返回字幕名称和字幕编号组成的Map。
+
+public boolean canPause()
+是否可暂停。（暂时没有实现功能）
+
+public boolean canSeekBackward()
+（暂时没有实现功能）
+
+public boolean canSeekForward()
+（暂时没有实现功能）
+
+受保护方法 
+
+protected boolean isInPlaybackState()
+是否处于正在播放的状态。

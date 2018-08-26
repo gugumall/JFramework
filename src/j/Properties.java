@@ -96,7 +96,8 @@ public class Properties implements Runnable {
 					JFRAMEWORK_HOME=JUtilString.replaceAll(JFRAMEWORK_HOME,"%20"," ");
 				}
 			}catch(Exception e){
-				e.printStackTrace();
+				System.out.println("load properties error: "+e.getMessage());
+				//e.printStackTrace();
 			}
 			
 			ResourceBundle keyValuePairs = ResourceBundle.getBundle("config.jframework");
@@ -104,18 +105,29 @@ public class Properties implements Runnable {
 				String key=(String)it.next();
 				String value=(String)keyValuePairs.getObject(key);
 				value=new String(value.getBytes("iso-8859-1"),"UTF-8");
+				
 				if(JFRAMEWORK_HOME!=null
 						&&!"".equals(JFRAMEWORK_HOME)
 						&&value.indexOf("JFRAMEWORK_HOME")>-1){
 					value=JUtilString.replaceAll(value,"JFRAMEWORK_HOME", JFRAMEWORK_HOME);
 				}
 				
-				properties.put(key,value);
+				int no=0;
+				if(key.startsWith("<")){
+					int noEnd=key.indexOf(">");
+					if(noEnd>1){
+						String noString=key.substring(1,noEnd);
+						if(JUtilMath.isInt(noString)) no=Integer.parseInt(noString);
+						key=key.substring(noEnd+1);
+					}
+				}
+				
+				properties.put(key,new JUtilKeyValue(key,value,no));
 				System.out.println("key-value pair from system.properties: "+key+" = "+value); 
 			}
 		}catch(Exception e){
 			System.out.println("load properties error: "+e.getMessage());
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		loading=false;
 	}
@@ -128,7 +140,7 @@ public class Properties implements Runnable {
 		try{
 			java.util.Properties ps=new java.util.Properties();
 			ps.load(new InputStreamReader(new FileInputStream(getConfigPath()+"jframework.properties"),"UTF-8"));
-
+			
 			loading=true;
 			properties.clear();
 			groups.clear();
@@ -142,8 +154,19 @@ public class Properties implements Runnable {
 					value=JUtilString.replaceAll(value,"JFRAMEWORK_HOME", JFRAMEWORK_HOME);
 				}
 				
-				properties.put(key,value);
-				System.out.println("key-value pair from system.properties: "+key+" = "+value); 
+				int no=0;
+				if(key.startsWith("<")){
+					int noEnd=key.indexOf(">");
+					if(noEnd>1){
+						String noString=key.substring(1,noEnd);
+						if(JUtilMath.isInt(noString)) no=Integer.parseInt(noString);
+						key=key.substring(noEnd+1);
+					}
+				}
+				
+				properties.put(key,new JUtilKeyValue(key,value,no));
+				
+				System.out.println("reload key-value pair from system.properties: "+key+" = "+value); 
 			}
 		}catch(Exception e){
 			System.out.println("reload properties error: "+e.getMessage());
@@ -160,7 +183,8 @@ public class Properties implements Runnable {
 	 */
 	public static String getProperty(String propertyName){
 		waitWhileLoading();
-		return (String)properties.get(propertyName);
+		JUtilKeyValue p=(JUtilKeyValue)properties.get(propertyName);
+		return p==null?null:p.getValue().toString();
 	}
 	
 	/**
@@ -171,7 +195,8 @@ public class Properties implements Runnable {
 	 */
 	public static String getProperty(String groupName,String propertyName){
 		waitWhileLoading();
-		return (String)properties.get("["+groupName+"]"+propertyName);
+		JUtilKeyValue p=(JUtilKeyValue)properties.get("["+groupName+"]"+propertyName);
+		return p==null?null:p.getValue().toString();
 	}
 	
 	/**
@@ -309,7 +334,9 @@ public class Properties implements Runnable {
 				while(it.hasNext()){
 					String key=(String)it.next();
 					if(key.startsWith("["+group+"]")){
-						props.add(new JUtilKeyValue(key.substring(group.length()+2),getProperty(key)));
+						JUtilKeyValue kv=(JUtilKeyValue)properties.get(key);
+						key=key.substring(group.length()+2);
+						props.add(new JUtilKeyValue(key,kv.getValue(),kv.getNo()));
 					}
 				}
 				
@@ -357,7 +384,7 @@ public class Properties implements Runnable {
 			while(it.hasNext()){
 				String key=(String)it.next();
 				if(key.startsWith(prefix)){
-					props.add(new JUtilKeyValue(key,getProperty(key)));
+					props.add(properties.get(key));
 				}
 			}
 			
@@ -426,10 +453,16 @@ class PropertySorter extends JUtilSorter{
 		String beanPreId=(String)beanPre.getKey();
 		String beanAfterId=(String)beanAfter.getKey();
 		
-		if(beanPreId.compareTo(beanAfterId)>0){
+		if(beanPre.getNo()<beanAfter.getNo()){
+			return JUtilSorter.SMALLER;
+		}else if(beanPre.getNo()>beanAfter.getNo()){
 			return JUtilSorter.BIGGER;
 		}else{
-			return JUtilSorter.SMALLER;
+			if(beanPreId.compareTo(beanAfterId)>0){
+				return JUtilSorter.BIGGER;
+			}else{
+				return JUtilSorter.SMALLER;
+			}
 		}
 	}
 }

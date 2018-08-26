@@ -70,6 +70,19 @@ public class SMSManager implements Runnable{
 	
 	/**
 	 * 
+	 * @param senderId
+	 * @return
+	 */
+	public static SMSSenderConfig getSenderConfig(String senderId){
+		for(int i=0;i<configs.size();i++){
+			SMSSenderConfig config=(SMSSenderConfig)configs.get(i);
+			if(config.getId().equals(senderId)) return config;
+		}
+		return null;
+	}
+	
+	/**
+	 * 
 	 * @return
 	 */
 	public static ConcurrentMap getBusinesses(){
@@ -95,8 +108,15 @@ public class SMSManager implements Runnable{
 		if(senderId!=null
 				&&!"".equals(senderId)
 				&&senders.containsKey(senderId)){//指定ID
-			List works=(List)senders.get(senderId);
+			String region=MobileVerifier.valid(to);
+			if(region==null){//匹配不到
+				return false;
+			}
 			
+			SMSSenderConfig config=SMSManager.getSenderConfig(senderId);
+			if(!config.region.equals(region)) return false;
+			
+			List works=(List)senders.get(senderId);
 			if(works==null||works.size()==0){
 				return false;
 			}

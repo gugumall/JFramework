@@ -1,6 +1,5 @@
 package j.app.webserver;
 
-import j.Properties;
 import j.app.Constants;
 import j.app.sso.LoginStatus;
 import j.app.sso.User;
@@ -129,7 +128,7 @@ public class ActionLogger extends JHandler implements Runnable {
 		
 		DAO dao=null;
 		try{			
-			dao=DB.connect(Properties.getLogDatabase(),ActionLogger.class);
+			dao=DB.connect(JProperties.getLogDatabase(),ActionLogger.class);
 			
 			List list=dao.find("j_action_log",sql+" order by event_time desc",rpp,pn);
 			int total=dao.getRecordCnt("j_action_log",sql);
@@ -167,7 +166,7 @@ public class ActionLogger extends JHandler implements Runnable {
 		StmtAndRs sr=null; 
 		try {
 			Map result=new LinkedHashMap();			
-			sr=QueryPool.getPool(Properties.getLogDatabase()).query(null,sql);			
+			sr=QueryPool.getPool(JProperties.getLogDatabase()).query(null,sql);			
 			rs=sr.resultSet();
 			while(rs.next()){
 				String userId=rs.getString(1);
@@ -181,12 +180,10 @@ public class ActionLogger extends JHandler implements Runnable {
 			}
 			sr.close();
 			rs=null;
-			sr=null;		
-			sql=null;
+			sr=null;	
 			
 			request.setAttribute("ip",result);
 		} catch (Exception ex) {
-			sql=null;
 			logger.log(ex, Logger.LEVEL_ERROR);
 		}
 	}
@@ -243,6 +240,7 @@ public class ActionLogger extends JHandler implements Runnable {
 		DAO dao=null;
 		try{			
 			dao=DB.connect(JProperties.getLogDatabase(),ActionLogger.class);
+			dao.beginTransaction();
 			
 			if("T".equalsIgnoreCase(destroy)){
 				if("".equals(sql)){
@@ -258,10 +256,11 @@ public class ActionLogger extends JHandler implements Runnable {
 				}
 			}
 			
+			dao.commit();
 			dao.close();
 			dao=null;
 			
-			jsession.resultString="1";
+			jsession.jresponse=new JResponse(true,"1","I{.删除成功}");
 		}catch(Exception e){
 			logger.log(e,Logger.LEVEL_ERROR);
 			if(dao!=null){
@@ -269,8 +268,7 @@ public class ActionLogger extends JHandler implements Runnable {
 					dao.close();
 					dao=null;
 				}catch(Exception ex){}
-			}
-			jsession.resultString="ERR";
+			}jsession.jresponse=new JResponse(false,"ERR","I{.系统错误}");
 		}
 	}
 
@@ -519,7 +517,7 @@ public class ActionLogger extends JHandler implements Runnable {
 							log.setActionResult(log.getActionResult().substring(0,1024));
 						}
 						
-						QueryPool.getPool(j.Properties.getLogDatabase()).insert(null,log);
+						QueryPool.getPool(JProperties.getLogDatabase()).insert(null,log);
 						log = null;
 					}
 				}

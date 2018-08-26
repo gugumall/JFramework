@@ -757,6 +757,21 @@ public final class JUtilImage implements ImageObserver {
              e.printStackTrace();
          }
      }
+	
+	public static void webp2jpg(){
+		File file1= new File("F:\\gugu\\products\\nike\\04 Nike Shift One\\001.webp");  
+		File file2= new File("F:\\gugu\\products\\nike\\04 Nike Shift One\\001.jpg");  
+		
+		          
+		System.out.println(System.getProperty("java.library.path"));  
+		          
+		try {  		          
+		    BufferedImage im = ImageIO.read(file1);   
+		    ImageIO.write(im, "jpg", file2);  
+		} catch (IOException e) {  
+		    e.printStackTrace();  
+		} 
+	}
 
 	/**
 	 * 批量处理加水印，递归处理各级目录中文件
@@ -767,26 +782,27 @@ public final class JUtilImage implements ImageObserver {
 	private static int all = 10000;
 
 	public static void main(String[] args) throws Exception {
-		JUtilImage im = new JUtilImage();
-		im.setQuality(1f);
-		
-		int index=227;
-		
-		File dir = new File("F:\\images\\时光(足迹) II\\temp");
-		File[] fs=dir.listFiles();
-		for(int i=0;i<fs.length;i++){
-			if(fs[i].getName().toLowerCase().endsWith(".jpg")
-					||fs[i].getName().toLowerCase().endsWith(".jpeg")){
-				System.out.println(fs[i].getAbsolutePath());
-				
-				String newName=index+"";
-				while(newName.length()<6) newName="0"+newName;
-				
-				im.zoomToSize(fs[i], new File("F:\\images\\时光(足迹) II\\"+newName+".jpg"), 1200, JUtilImage.FORMAT_JPEG);
-				
-				index++;
-			}
-		}
+		webp2jpg();
+//		JUtilImage im = new JUtilImage();
+//		im.setQuality(1f);
+//		
+//		int index=278;
+//		
+//		File dir = new File("F:\\images\\时光(容颜)\\temp");
+//		File[] fs=dir.listFiles();
+//		for(int i=0;i<fs.length;i++){
+//			if(fs[i].getName().toLowerCase().endsWith(".jpg")
+//					||fs[i].getName().toLowerCase().endsWith(".jpeg")){
+//				System.out.println(fs[i].getAbsolutePath());
+//				
+//				String newName=index+"";
+//				while(newName.length()<6) newName="0"+newName;
+//				
+//				im.zoomToSize(fs[i], new File("F:\\images\\时光(容颜)\\"+newName+".jpg"), 1200, JUtilImage.FORMAT_JPEG);
+//				
+//				index++;
+//			}
+//		}
 		
 //		im.zoomToSize(new File("F:\\work\\商城\\衣服\\狼爪\\1388\\1388A.gif"), new File("F:\\work\\商城\\衣服\\狼爪\\1388\\temp.gif"), 300, "JPEG");
 

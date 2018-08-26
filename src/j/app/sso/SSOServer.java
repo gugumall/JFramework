@@ -1,6 +1,5 @@
 package j.app.sso;
 
-import j.I18N.I18N;
 import j.app.Constants;
 import j.app.webserver.JHandler;
 import j.app.webserver.JSession;
@@ -292,6 +291,8 @@ public class SSOServer extends JHandler implements Runnable{
 			return;
 		}
 		
+		//登录类型
+		String loginType=SysUtil.getHttpParameter(request,Constants.SSO_LOGIN_TYPE,"");	
 		
 		//是否SSO Client
 		String clientUrlPrefix=SysUtil.getHttpParameter(request,Constants.SSO_CLIENT);	
@@ -407,11 +408,14 @@ public class SSOServer extends JHandler implements Runnable{
 				}
 				
 				//该用户如在别处登录了，先注销
-				LoginStatus[] loginStatusOlds=SSOServer.findLoginStatusOfUserId(result.getUserId());
-				if(loginStatusOlds!=null){
-					for(int i=0;i<loginStatusOlds.length;i++){
-						if(loginFromDomain.equals(loginStatusOlds[i].getLoginFromDomain())){
-							logout(client,loginStatusOlds[i]);
+				if(!"none".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())){
+					LoginStatus[] loginStatusOlds=SSOServer.findLoginStatusOfUserId(result.getUserId());
+					if(loginStatusOlds!=null){
+						for(int i=0;i<loginStatusOlds.length;i++){
+							if("all".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())
+									||loginFromDomain.equals(loginStatusOlds[i].getLoginFromDomain())){
+								logout(client,loginStatusOlds[i]);
+							}
 						}
 					}
 				}
@@ -462,6 +466,7 @@ public class SSOServer extends JHandler implements Runnable{
 				}else{
 					loginPage+="?"+Constants.SSO_LOGIN_RESULT_CODE+"="+result.getResult();
 				}
+				loginPage+="&"+Constants.SSO_LOGIN_TYPE+"="+loginType;
 				loginPage+="&"+Constants.SSO_BACK_URL+"="+JUtilString.encodeURI(back,SysConfig.sysEncoding);
 				if(loginPageDefined!=null){
 					loginPage+="&"+Constants.SSO_LOGIN_PAGE+"="+JUtilString.encodeURI(loginPageDefined,SysConfig.sysEncoding);
@@ -496,6 +501,7 @@ public class SSOServer extends JHandler implements Runnable{
 			}else{
 				loginPage+="?"+Constants.SSO_LOGIN_RESULT_CODE+"="+result.getResult();
 			}
+			loginPage+="&"+Constants.SSO_LOGIN_TYPE+"="+loginType;
 			loginPage+="&"+Constants.SSO_BACK_URL+"="+JUtilString.encodeURI(back,SysConfig.sysEncoding);
 			if(loginPageDefined!=null){
 				loginPage+="&"+Constants.SSO_LOGIN_PAGE+"="+JUtilString.encodeURI(loginPageDefined,SysConfig.sysEncoding);
@@ -536,11 +542,14 @@ public class SSOServer extends JHandler implements Runnable{
 			String ssoUserId=request.getParameter(Constants.SSO_USER_ID);
 			
 			//该用户如在别处登录了，先注销
-			LoginStatus[] loginStatusOlds=SSOServer.findLoginStatusOfUserId(ssoUserId);
-			if(loginStatusOlds!=null){
-				for(int i=0;i<loginStatusOlds.length;i++){
-					if(loginFromDomain.equals(loginStatusOlds[i].getLoginFromDomain())){
-						logout(client,loginStatusOlds[i]);
+			if(!"none".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())){
+				LoginStatus[] loginStatusOlds=SSOServer.findLoginStatusOfUserId(ssoUserId);
+				if(loginStatusOlds!=null){
+					for(int i=0;i<loginStatusOlds.length;i++){
+						if("all".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())
+								||loginFromDomain.equals(loginStatusOlds[i].getLoginFromDomain())){
+							logout(client,loginStatusOlds[i]);
+						}
 					}
 				}
 			}

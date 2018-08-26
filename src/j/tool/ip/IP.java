@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.DatabaseReader.Builder;
+import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.model.CountryResponse;
 
 /**
@@ -148,6 +149,32 @@ public final class IP{
 		    InetAddress ipAddress = InetAddress.getByName(ip);
 
 		    CountryResponse response = reader.country(ipAddress);
+
+		    return response;
+		}catch(Exception e){
+			log.log(e,Logger.LEVEL_ERROR);
+		    return null;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param ip
+	 * @return
+	 */
+	public static CityResponse geoIpGetCity(String ip){
+		if("127.0.0.1".equals(ip)) return null;
+		try{
+			synchronized(geoIpLock){
+				if(reader==null){
+					File database=new File(JProperties.getProperty("GeoIpDbPath"));
+					reader=(new Builder(database)).build();
+				}
+			}
+
+		    InetAddress ipAddress = InetAddress.getByName(ip);
+
+		    CityResponse response = reader.city(ipAddress);
 
 		    return response;
 		}catch(Exception e){

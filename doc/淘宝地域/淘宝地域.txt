@@ -1,0 +1,4 @@
+(Content)	divisionid=2
+POST 200	text/html;charset=GBK	http://buy.taobao.com/auction/json/get_postcode.do
+
+GET	200	text/plain;charset=UTF-8	http://lsp.wuliu.taobao.com/locationservice/addr/output_address_town.do?l1=110000&l2=110100&l3=110112&_ksTS=1396014988093_459&callback=jsonp460

@@ -267,7 +267,7 @@ public class AppConfig implements Runnable{
 			if(j.Properties.getConfigPath()==null) return;
 			File dir = new File(j.Properties.getConfigPath());
 			File[] files=dir.listFiles();
-			for(int i=0;i<files.length;i++){
+			for(int i=0;files!=null&&i<files.length;i++){
 				String fname=files[i].getName();
 				
 				if(fname.startsWith("para.")

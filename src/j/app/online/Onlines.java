@@ -650,16 +650,19 @@ public class Onlines implements Filter,Runnable{
 	
 			/////////////////////////////////////////安全控制////////////////////////////////////
 			if(!Onlines.pass(domain,urlWithoutDomain)){//域名限制
+				log.log("域名限制："+domain+","+urlWithoutDomain,Logger.LEVEL_ERROR);
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				return;
 			}
 			
 			if(black(ip)){//黑IP
+				log.log("黑名单IP："+ip,Logger.LEVEL_ERROR);
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				return;
 			}
 			
 			if(blackRegion(ip)){//黑地区
+				log.log("黑名单地区："+ip,Logger.LEVEL_ERROR);
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				return;
 			}
@@ -672,10 +675,12 @@ public class Onlines implements Filter,Runnable{
 					for(int i=0;i<forbiddenSpiders.length;i++){
 						if(forbiddenSpiders[i].startsWith("EQUALS")){
 							if(forbiddenSpiders[i].substring(6).equalsIgnoreCase(userAgent)){
+								log.log("被禁止的User-Agent："+userAgent,Logger.LEVEL_ERROR);
 								response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 								return;
 							}
 						}else if(userAgent.indexOf(forbiddenSpiders[i])>-1){
+							log.log("被禁止的User-Agent："+userAgent,Logger.LEVEL_ERROR);
 							response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 							return;
 						}
@@ -689,13 +694,14 @@ public class Onlines implements Filter,Runnable{
 					if(handler!=null){
 						handler.onManySessionsOnIp(ip);
 					}
-					log.log("ip "+ip+" 上共有  "+sessionsOfIp+" 个会话，超出限制 "+maxSessionsPerIp,Logger.LEVEL_WARNING);
+					log.log("ip "+ip+" 上共有  "+sessionsOfIp+" 个会话，超出限制 "+maxSessionsPerIp,Logger.LEVEL_ERROR);
 					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 					return;
 				}
 				
 				//是否允许通过
 				if(handler!=null&&!handler.canPass(session,request)){
+					log.log("被业务规则禁止访问："+handler.getClass().getCanonicalName(),Logger.LEVEL_ERROR);
 					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 					return;
 				}
@@ -737,20 +743,16 @@ public class Onlines implements Filter,Runnable{
 						}
 						
 						if(!allowed){
-							log.log("ip "+ip+" 未登录, 试图上传文件("+uri+") ，大小 "+contentLength+" ，已被禁止.", -1);
+							log.log("ip "+ip+" 未登录, 试图上传文件("+uri+") ，大小 "+contentLength+" ，已被禁止.", Logger.LEVEL_ERROR);
 							
-							//response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-							//SysUtil.forward(request,response, Constants.RESPONSE_FILE_NOT_LOGIN);
 							SysUtil.outHttpResponse(response, "-login");
 							return;
 						}
 					}
 					
 					if(contentLength<0||contentLength>maxUploadSize*1024){
-						log.log("ip "+ip+" 试图上传文件 ("+uri+")，大小 "+contentLength+" 超过 "+ (maxUploadSize*1024) +"("+maxUploadSize+"K)，已被禁止.", -1);
+						log.log("ip "+ip+" 试图上传文件 ("+uri+")，大小 "+contentLength+" 超过 "+ (maxUploadSize*1024) +"("+maxUploadSize+"K)，已被禁止.", Logger.LEVEL_ERROR);
 
-						//response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); 
-						//SysUtil.forward(request,response, Constants.RESPONSE_FILE_MAX_UPLOAD_SIZE);
 						SysUtil.outHttpResponse(response, "-max-upload-size-"+maxUploadSize);
 						return;
 					}
@@ -758,10 +760,8 @@ public class Onlines implements Filter,Runnable{
 						&&"POST".equalsIgnoreCase(method)
 						&&contentLength>maxPostSize*1024
 						&&!Permission.hasValidPassport(request)){
-					log.log("ip "+ip+" 发起POST请求("+uri+") ，大小 "+contentLength+" 超过 "+ (maxPostSize*1024) +"("+maxPostSize+"K)，已被禁止.", -1);
+					log.log("ip "+ip+" 发起POST请求("+uri+") ，大小 "+contentLength+" 超过 "+ (maxPostSize*1024) +"("+maxPostSize+"K)，已被禁止.", Logger.LEVEL_ERROR);
 					
-					//response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-					//SysUtil.forward(request,response, Constants.RESPONSE_FILE_MAX_POST_SIZE);
 					SysUtil.outHttpResponse(response, "-max-post-size-"+maxPostSize);
 					return;
 				}
@@ -771,7 +771,6 @@ public class Onlines implements Filter,Runnable{
 				//频繁访问
 				RequestCount count=(RequestCount)counts.get(ip);
 				if(count==null){
-					//log.log("开始监测ip "+ip+" 的频繁访问.", -1);
 					count=new RequestCount();
 					count.firstRequestTime=now;
 					count.latestRequestTime=now;
@@ -793,7 +792,8 @@ public class Onlines implements Filter,Runnable{
 				if(minutes<1) minutes=1;
 				double requestsPerMinute=Double.parseDouble(JUtilMath.formatPrint(count.requests/minutes,3));
 				if(requestsPerMinute>maxRequestsPerMinutes){
-					log.log("ip "+ip+" 共在线 "+minutes+" 分钟，请求  "+count.requests+" 次，平均每分钟 "+requestsPerMinute+" 次，超出限制 "+maxRequestsPerMinutes,Logger.LEVEL_WARNING);
+					log.log("ip "+ip+" 共在线 "+minutes+" 分钟，请求  "+count.requests+" 次，平均每分钟 "+requestsPerMinute+" 次，超出限制 "+maxRequestsPerMinutes,Logger.LEVEL_ERROR);
+
 					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 					return;
 				}
@@ -826,16 +826,7 @@ public class Onlines implements Filter,Runnable{
 				String ssoPutLoginStatus=request.getParameter(Constants.SSO_PUT_LOGIN_STATUS);
 				String globalSessionId=SysUtil.getHttpParameter(request,Constants.SSO_GLOBAL_SESSION_ID);
 				
-				//log.log("login from direct "+globalSessionId, -1);
-//				String back=SysUtil.getHttpParameter(request,Constants.SSO_BACK_URL);
-				String loginPage=SysUtil.getHttpParameter(request,Constants.SSO_LOGIN_PAGE);	
-//				if(back!=null){
-//					try{
-//						back=JUtilString.decodeURI(back,SysConfig.sysEncoding);
-//					}catch(Exception e){}
-//				}else{
-//					back=client.getHomePage();
-//				}
+				String loginPage=SysUtil.getHttpParameter(request,Constants.SSO_LOGIN_PAGE);
 				if(loginPage!=null){
 					try{
 						loginPage=JUtilString.decodeURI(loginPage,SysConfig.sysEncoding);
@@ -852,7 +843,6 @@ public class Onlines implements Filter,Runnable{
 				LoginStatus loginStatus=SSOClient.findLoginStatusOfSessionId(globalSessionId);
 				
 				if(loginStatus==null){//未登录，直接返回
-					//log.log("Login Status is not found.", -1);
 					if("true".equalsIgnoreCase(ssoPutLoginStatus)){
 						SysUtil.redirect(request,response,SysUtil.getRequestURLBase(request)+Constants.SSO_GET_LOGIN_STATUS_RESULT+"?ok=0");
 					}else{
@@ -880,7 +870,7 @@ public class Onlines implements Filter,Runnable{
 						}
 						return;
 					}else{
-						log.log("已经登录，但加载用户信息失败 - "+globalSessionId+","+loginStatus.getUserId()+","+loginStatus.getUserIp(),-1);
+						log.log("已经登录，但加载用户信息失败 - "+globalSessionId+","+loginStatus.getUserId()+","+loginStatus.getUserIp(),Logger.LEVEL_ERROR);
 						if("true".equalsIgnoreCase(ssoPutLoginStatus)){
 							SysUtil.redirect(request,response,SysUtil.getRequestURLBase(request)+Constants.SSO_GET_LOGIN_STATUS_RESULT+"?ok=0");
 						}else{
@@ -931,8 +921,7 @@ public class Onlines implements Filter,Runnable{
 			//查询登录状态 end
 			
 			//是否是需要认证的资源
-			Resource res=Permission.permission(request,user);	
-			//log.log("current url "+currentUrl+"\r\n"+res, -1);
+			Resource res=Permission.permission(request,user);
 			
 			//如果需要认证
 			if(res!=null){	
@@ -977,7 +966,6 @@ public class Onlines implements Filter,Runnable{
 			
 			/////////////////////////////////////////兼容性处理////////////////////////////////////
 			String compatibleResource=SysConfig.getCssCompatibleResource(uri,SysConfig.getUserAgentType(request));
-			//log.log("uri:"+uri+",SysConfig.getUserAgentType(request):"+SysConfig.getUserAgentType(request)+","+compatibleResource, -1);
 			if(compatibleResource!=null){
 				SysUtil.forwardI18N(request,response,compatibleResource);
 				return;

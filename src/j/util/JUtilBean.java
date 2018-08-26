@@ -1,5 +1,6 @@
 package j.util;
 
+import j.common.JProperties;
 import j.dao.DAOFactory;
 import j.db.JactionLog;
 import j.log.Logger;
@@ -9,6 +10,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -20,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.json.JSONObject;
 
 /**
  * @author JFramework
@@ -535,6 +538,107 @@ public class JUtilBean {
 	 * @param bean
 	 * @return
 	 */
+	public static String bean2Json(Object bean){
+		if(bean==null) return "{}";
+		
+		StringBuffer jsonString=new StringBuffer();
+		jsonString.append("{");
+		
+		Class beanClass = bean.getClass();
+		Field[] fields=beanClass.getDeclaredFields();
+		for(int i=0;i<fields.length;i++){
+			try{
+				String name=fields[i].getName();
+				Object o=JUtilBean.getPropertyValue(bean,name);
+				if(o==null){
+					jsonString.append("\""+name+"\":null,");
+				}else{
+					jsonString.append("\""+name+"\":\""+JUtilString.replaceAll(o.toString(),"\"","\\\"")+"\",");
+				}
+			} catch (Exception e){
+				log.log(e, Logger.LEVEL_ERROR);
+				return null;
+			}
+		}
+		
+		if(jsonString.length()>1){
+			jsonString.deleteCharAt(jsonString.length()-1);
+		}
+		jsonString.append("}");
+		
+		return jsonString.toString();
+	}
+	
+	/**
+	 * 
+	 * @param bean
+	 * @return
+	 */
+	public static String beans2Json(List beans){
+		if(beans==null||beans.isEmpty()) return "[]";
+		
+		StringBuffer jsonString=new StringBuffer();
+		jsonString.append("[");
+		
+		for(int b=0;b<beans.size();b++){
+			Object bean=beans.get(b);
+			if(bean==null){
+				jsonString.append("{},");
+			}else{
+				jsonString.append(bean2Json(bean)+",");
+			}
+		}
+		
+		if(jsonString.charAt(jsonString.length()-1)==','){
+			jsonString.deleteCharAt(jsonString.length()-1);
+		}
+		jsonString.append("]");
+		
+		return jsonString.toString();
+	}
+	
+	/**
+	 * 
+	 * @param datas
+	 * @return
+	 */
+	public static String map2Json(Map datas){
+		StringBuffer s=new StringBuffer();
+		s.append("{");
+		
+		
+		for(Iterator it=datas.keySet().iterator();it.hasNext();){
+			Object key=it.next();
+			Object val=datas.get(key);
+			
+			s.append("\""+key+"\":");
+			if(val instanceof List){
+				s.append(JUtilBean.beans2Json((List)val));
+			}else if(val instanceof String){
+				s.append("\""+JUtilString.replaceAll(val.toString(),"\"","\\\"")+"\"");
+			}else if(val instanceof Integer){
+				s.append("\""+val.toString()+"\"");
+			}else if(val instanceof Long){
+				s.append("\""+val.toString()+"\"");
+			}else if(val instanceof Double){
+				s.append("\""+JUtilMath.formatPrintWithoutZero((double)val,20)+"\"");
+			}else if(val instanceof Timestamp){
+				s.append("\""+val.toString()+"\"");
+			}else{
+				s.append(JUtilBean.bean2Json(val));
+			}
+			s.append(",");
+		}
+		if(s.charAt(s.length()-1)==',') s=s.deleteCharAt(s.length()-1);
+		s.append("}");
+		return s.toString();
+	}
+	
+	/**
+	 * 
+	 * @param bean
+	 * @return
+	 */
 	public static Map bean2MapString(Object bean){
 		Map map=new LinkedHashMap();
 		if(bean!=null){
@@ -613,9 +717,20 @@ public class JUtilBean {
 	 * @return
 	 */
 	public static String beans2Xml(List beans,String encoding){
-		if(beans==null) return null;
+		return beans2Xml(beans,encoding,null);
+	}
+	
+	/**
+	 * 
+	 * @param beans
+	 * @param encoding
+	 * @return
+	 */
+	public static String beans2Xml(List beans,String encoding,Class beanClass){
+		if(beans==null) return "";
 		
 		if(encoding==null||"".equals(encoding)) encoding="UTF-8";
+		
 
 		try{
 			Document doc=DocumentHelper.createDocument();
@@ -627,19 +742,25 @@ public class JUtilBean {
 				Object bean=beans.get(i);
 				if(bean==null) continue;
 				
-				Element b=root.addElement("bean");
-				b.addAttribute("clz",bean.getClass().getName());
+				Class _beanClass=beanClass==null?bean.getClass():beanClass;
 				
-				Class beanClass = bean.getClass();
-				Field[] fields=beanClass.getDeclaredFields();
+				Element b=root.addElement("bean");
+				b.addAttribute("clz",_beanClass.getName());
+				
+				Field[] fields=_beanClass.getDeclaredFields();
 				for(int f=0;f<fields.length;f++){
 					String name=fields[f].getName();
 					Object o=JUtilBean.getPropertyValue(bean,name);
+					if(o==null) continue;
+					
 					Element ele=b.addElement("field");
 					ele.addAttribute("name",name);
 					ele.addAttribute("type",fields[f].getType().getName());
 					
-					if(o!=null) ele.setText(o.toString());
+					ele.setText(o.toString());
+					
+					//if(o!=null) ele.setText(o.toString());
+					//else ele.setText("_N_U_L_L_");
 				}
 			}
 			
@@ -653,14 +774,26 @@ public class JUtilBean {
 	/**
 	 * 
 	 * @param xml
+	 * @param encoding
 	 * @return
 	 */
 	public static List xml2Beans(String xml,String encoding){
-		if(xml==null||"".equals(xml)) return null;
+		return xml2Beans(xml,encoding,null);
+	}
+	
+	/**=
+	 * 
+	 * @param xml
+	 * @param encoding
+	 * @param bean
+	 * @return
+	 */
+	public static List xml2Beans(String xml,String encoding,Class beanClass){
+		List beans=new LinkedList();
+		
+		if(xml==null||"".equals(xml)) return beans;
 		
 		if(encoding==null||"".equals(encoding)) encoding="UTF-8";
-		
-		List beans=new LinkedList();
 		
 		try{
 			Document doc=JUtilDom4j.parseString(xml,encoding);
@@ -669,9 +802,9 @@ public class JUtilBean {
 			for(int b=0;b<bs.size();b++){
 				Element be=(Element)bs.get(b);
 				
-				Class beanClass=Class.forName(be.attributeValue("clz"));
+				Class _beanClass=beanClass==null?Class.forName(be.attributeValue("clz")):beanClass;
 				
-				Object bean=beanClass.newInstance();
+				Object bean=_beanClass.newInstance();
 				
 				List fields=be.elements("field");
 				for(int f=0;f<fields.size();f++){
@@ -682,39 +815,39 @@ public class JUtilBean {
 					
 					Field field=null;
 					try{
-						field=beanClass.getDeclaredField(fieldName);
+						field=_beanClass.getDeclaredField(fieldName);
 					}catch (Exception e){
 						field=null;
 					}
-					if(field==null){
-						continue;
-					}
-
-					if(value==null||(value.equals("")&&!type.equals("java.lang.String"))){
+					if(field==null) continue;
+					
+					if(value==null
+							||value.equals("_N_U_L_L_")
+							||(value.equals("")&&!type.equals("java.lang.String"))){
 						continue;
 					}
 					
 					if(type.equals("java.lang.String")){
-						JUtilBean.getSetter(beanClass,fieldName,new Class[]{java.lang.String.class}).invoke(bean,new Object[]{value});
+						JUtilBean.getSetter(_beanClass,fieldName,new Class[]{java.lang.String.class}).invoke(bean,new Object[]{value});
 					}else if(type.equals("java.lang.Long")){
 						if(JUtilMath.isLong(value)){
-							JUtilBean.getSetter(beanClass,fieldName,new Class[]{java.lang.Long.class}).invoke(bean,new Object[]{new Long(value)});
+							JUtilBean.getSetter(_beanClass,fieldName,new Class[]{java.lang.Long.class}).invoke(bean,new Object[]{new Long(value)});
 						}
 					}else if(type.equals("java.lang.Integer")){
 						if(JUtilMath.isInt(value)){
-							JUtilBean.getSetter(beanClass,fieldName,new Class[]{java.lang.Integer.class}).invoke(bean,new Object[]{new Integer(value)});
+							JUtilBean.getSetter(_beanClass,fieldName,new Class[]{java.lang.Integer.class}).invoke(bean,new Object[]{new Integer(value)});
 						}
 					}else if(type.equals("java.lang.Short")){
 						if(JUtilMath.isShort(value)){
-							JUtilBean.getSetter(beanClass,fieldName,new Class[]{java.lang.Short.class}).invoke(bean,new Object[]{new Short(value)});
+							JUtilBean.getSetter(_beanClass,fieldName,new Class[]{java.lang.Short.class}).invoke(bean,new Object[]{new Short(value)});
 						}
 					}else if(type.equals("java.lang.Float")){
 						if(JUtilMath.isNumber(value)){
-							JUtilBean.getSetter(beanClass,fieldName,new Class[]{java.lang.Float.class}).invoke(bean,new Object[]{new Float(value)});
+							JUtilBean.getSetter(_beanClass,fieldName,new Class[]{java.lang.Float.class}).invoke(bean,new Object[]{new Float(value)});
 						}
 					}else if(type.equals("java.lang.Double")){
 						if(JUtilMath.isNumber(value)){
-							JUtilBean.getSetter(beanClass,fieldName,new Class[]{java.lang.Double.class}).invoke(bean,new Object[]{new Double(value)});
+							JUtilBean.getSetter(_beanClass,fieldName,new Class[]{java.lang.Double.class}).invoke(bean,new Object[]{new Double(value)});
 						}
 					}else if(type.equals("java.sql.Timestamp")){
 						value=value.trim();
@@ -727,7 +860,7 @@ public class JUtilBean {
 						}
 						
 						if(JUtilTimestamp.isTimestamp(value)){
-							JUtilBean.getSetter(beanClass,fieldName,new Class[]{java.sql.Timestamp.class}).invoke(bean,new Object[]{Timestamp.valueOf(value)});
+							JUtilBean.getSetter(_beanClass,fieldName,new Class[]{java.sql.Timestamp.class}).invoke(bean,new Object[]{Timestamp.valueOf(value)});
 						}
 					}
 				}
@@ -868,29 +1001,56 @@ public class JUtilBean {
 		return s;
 	}
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws Exception{
 		JactionLog log1=new JactionLog();
-		log1.setActionHandler("111");
+		log1.setActionHandler("1\"11");
 		log1.setEventTime(new Timestamp(SysUtil.getNow()));
 		
 		JactionLog log2=new JactionLog();
-		log2.setActionHandler("222");
+		log2.setActionHandler("3\"221");
 		log2.setEventTime(new Timestamp(SysUtil.getNow()));
 		
-		List beans=new LinkedList();
-		beans.add(log1);
-		beans.add(log2);
+		List temp=new LinkedList();
+		temp.add(log1);
+		temp.add(log2);
+		System.out.println(JUtilBean.beans2Json(temp));
 		
-		String xml=JUtilBean.beans2Xml(beans,null);
+		Map datas=new HashMap();
+		datas.put("total",100);
+		datas.put("list",temp);
 		
-		System.out.println(xml);
-		
-		List beans2=JUtilBean.xml2Beans(xml,null);
-		for(int i=0;i<beans2.size();i++){
-			JactionLog o=(JactionLog)beans2.get(i);
+		String s=map2Json(datas);
+		JSONObject js=new JSONObject(s);
 
-			System.out.println(o.getActionHandler());
-			System.out.println(o.getEventTime());
+		System.out.println(js.get("total"));
+		System.out.println(js.getJSONArray("list").length());
+		//System.out.println(js.get("asvrId"));
+		
+//		JactionLog log2=new JactionLog();
+//		log2.setActionHandler("222");
+//		log2.setEventTime(new Timestamp(SysUtil.getNow()));
+//		
+//		List beans=new LinkedList();
+//		beans.add(log1);
+//		beans.add(log2);
+//		
+//		String xml=JUtilBean.beans2Xml(beans,null);
+//		
+//		System.out.println(xml);
+//		
+//		List beans2=JUtilBean.xml2Beans(xml,null);
+//		for(int i=0;i<beans2.size();i++){
+//			JactionLog o=(JactionLog)beans2.get(i);
+//
+//			System.out.println(o.getActionHandler());
+//			System.out.println(o.getEventTime());
+//		}
+		
+		JUtilKeyValue[] kvs=JProperties.getPropertiesAsArray("event_status");
+		for(int i=0;i<kvs.length;i++){
+			System.out.println(kvs[i].getKey()+","+kvs[i].getValue());
 		}
+		
+		System.exit(0);
 	}
 }

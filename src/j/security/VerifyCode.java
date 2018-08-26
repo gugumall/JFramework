@@ -176,12 +176,12 @@ public class VerifyCode implements Runnable{
 			return null;
 		}
 		
-		VerifyCodeSendRecord record=(VerifyCodeSendRecord)records.get(uuid);
-		if(record!=null
-				&&(related==null||"".equals(related)||related.equals(record.related))
-				&&!record.removable()){
-				return record.code;
-		}
+		//VerifyCodeSendRecord record=(VerifyCodeSendRecord)records.get(uuid);
+		//if(record!=null
+		//		&&(related==null||"".equals(related)||related.equals(record.related))
+		//		&&!record.removable()){
+		//		return record.code;
+		//}
 		
 		if(can(uuid,interval)>0){
 			throw new Exception("too frequent to get verify code by uuid - "+uuid+",interval - "+interval);

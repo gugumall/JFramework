@@ -41,6 +41,7 @@ public class SSOConfig implements Runnable{
 	private static int sessionTimeout;//登录用户过期时间，即过多久没有与系统交互则视为会话超时，以秒为单位
 	private static int onlineActiveTime;//多久没有活动表示用户离线，以秒为单位
 	private static int notifiersPerClient=1;//对每个sso client，sso server启用多少个通知线程	
+	private static String logoutOtherSessions="domain";//登录时是否注销同一用户的其它session,all 表示全部注销，domain 表示同一域名，none表示不注销
 	private static ConcurrentList ssoClients=new ConcurrentList();//单点登录客户
 	private static ConcurrentList cosites=new ConcurrentList();//合作登录站点
 	private static ConcurrentMap ssoClientsKeyedById=new ConcurrentMap();//单点登录客户
@@ -104,6 +105,11 @@ public class SSOConfig implements Runnable{
 	public static int getNotifiersPerClient(){
 		waitWhileLoading();
 		return notifiersPerClient;
+	}
+	
+	public static String getLogoutOtherSessions(){
+		waitWhileLoading();
+		return logoutOtherSessions;
 	}
 	
 	public static ConcurrentList getSsoClients(){
@@ -496,6 +502,12 @@ public class SSOConfig implements Runnable{
 			//sso client notifiers
 			SSOConfig.notifiersPerClient=Integer.parseInt(root.elementText("notifiers-per-client"));
 			log.log("SSOConfig.notifiersPerClient:"+SSOConfig.notifiersPerClient, -1);
+
+			
+			//sso client notifiers
+			SSOConfig.logoutOtherSessions=root.elementText("logout-other-sessions");
+			log.log("SSOConfig.logoutOtherSessions:"+SSOConfig.logoutOtherSessions, -1);
+			
 			
 			//sso client 与 cosite 配置信息加载器
 			String clientsConfigLoader=root.elementText("clients-conf-loader");

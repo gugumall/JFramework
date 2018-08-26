@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>	
+	<!-- 默认通信方式 -->
+	<service-channel>http</service-channel>
+	
+	<!-- 对于临时缓存，对象多久没被使用将从缓存中移除 -->
+	<cache-timeout>30000</cache-timeout>
+	
+	<!-- 向每个镜像节点同步数据所使用的同步线程数 -->
+	<synchronizers>2</synchronizers>
+	
+	<!-- service-code为对应的服务编码，service-channel表示调用服务的方式（http或rmi)，os表示目标机器操作系统类型windows/linux-->
+	<!-- 
+	如果对同一份缓存启用多个节点进行互备，由于缓存往往需要极高的实时性和与数据源的高度一致性，这使得对节点间缓存同步提出苛刻的要求，
+	鉴于该复杂性，JDCache未实现同一份缓存启用多个节点进行互备，而只是将缓存分布式处理。 节点的可用性可采用底层服务来达到。
+	-->
+	<mapping selector="^jshop[\S ]{0,}$" service-code="JCache.jshop" service-channel="http" os="windows"></mapping>
+	<mapping selector="^jpay[\S ]{0,}$" service-code="JCache.jpay" service-channel="http" os="windows"></mapping>
+	<mapping selector="^[\S ]{0,}$" service-code="JCache" service-channel="http" os="windows"></mapping>
+</root>

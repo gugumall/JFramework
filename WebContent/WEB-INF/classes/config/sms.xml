@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <!-- 手机号码验证，获取所在地区，如果未匹配到任何地区，说明没有可以给该号码发短信的通道（接口） -->
+  <mobile-verifier>
+  	<!-- 通过正则表达式匹配 -->
+  	<rule region="cn">^((\+86)|(86))?1[3-8]+\d{9}$</rule>
+  </mobile-verifier>
+  
+  <!-- 一个sender是一个短信发送通道（接口），每个通道可以指定开启多少个并发的短信发送线程 -->
+  <sender>
+  	<!-- 通道ID，如果发送短信时指定了ID，则直接使用该通道发送 -->
+  	<!-- 如果发送短信时未指定通道ID，则根据其关联的业务、号码所属地区自动选择发送通道 -->
+    <id>verify-cn</id>
+    
+    <!-- 发送短信时必须指定其关联的业务，因为不同的通道会用于不同的业务 -->
+    <business>verify</business>
+    <business-name>验证码发送</business-name>
+    
+    <!-- 该通道用于给哪个地区的号码发送短信 -->
+    <region>cn</region>
+    
+    <!-- 根据业务、地域自动选择通道时，如有多个匹配，使用优先级最高（数字越大优先级越高） -->
+    <priority>1</priority>
+    
+    <!-- 短信通道实现类，因为不同提供商的短信接口调用方式可能不一样  -->
+    <channel-impl>j.sms.SMSChannelDefault</channel-impl>
+    
+    <!-- 如果将实现类托管给对象工厂管理，则指定关联的对象编码（从而实现动态增删短信通道，无需重启系统） -->
+    <!-- 另外发送通道接口的配置参数可以在对象工厂中配置 -->
+    <channel-nvwa-code>SMS-SENDER-VERIFY-CN</channel-nvwa-code>
+    
+    <!-- 显示发送号码 -->
+    <from>10086</from>
+    
+    <!-- 发送者名称，比如XX商城 -->
+    <from-name>中国</from-name>
+    
+    <!-- 启动多少个并发线程 -->
+    <threads>2</threads>
+    
+    <!-- 如果发送出错，短信发送最多尝试次数 -->
+    <max-tries>3</max-tries>
+  </sender>
+  
+  <sender>
+    <id>verify-cn-cmcc</id>
+    <priority>2</priority>
+    <region>cn-cmcc</region>
+    <business>verify</business>
+    <channel-impl>j.sms.SMSChannelDefault</channel-impl>
+    <channel-nvwa-code>SMS-SENDER-VERIFY-CN-CMCC</channel-nvwa-code>
+    <from>10010</from>
+    <from-name>中国移动</from-name>
+    <threads>2</threads>
+    <max-tries>3</max-tries>
+  </sender>
+</root>

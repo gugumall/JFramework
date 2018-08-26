@@ -2,6 +2,7 @@ package j.I18N;
 
 import j.app.Constants;
 import j.app.webserver.JHandler;
+import j.app.webserver.JResponse;
 import j.app.webserver.JSession;
 import j.common.JProperties;
 import j.dao.util.SQLUtil;
@@ -93,9 +94,9 @@ public class I18N extends JHandler implements Initializer,Runnable{
 	 * @param language
 	 * @return
 	 */
-	private static String getText(HttpServletRequest request,String key,String language){
-		return getText(request.getRequestURI(),key,language);
-	}
+	//private static String getText(HttpServletRequest request,String key,String language){
+	//	return getText(request.getRequestURI(),key,language);
+	//}
 	
 	
 	/**
@@ -157,9 +158,9 @@ public class I18N extends JHandler implements Initializer,Runnable{
 	 * @param language
 	 * @return
 	 */
-	private static String getTextIgnoreGlobal(HttpServletRequest request,String key,String language){
-		return getTextIgnoreGlobal(request.getRequestURI(),key,language);
-	}
+	//private static String getTextIgnoreGlobal(HttpServletRequest request,String key,String language){
+	//	return getTextIgnoreGlobal(request.getRequestURI(),key,language);
+	//}
 	
 	
 	/**
@@ -559,6 +560,17 @@ public class I18N extends JHandler implements Initializer,Runnable{
 	 * @return
 	 */
 	public static String convert(String _content,HttpServletRequest request,HttpSession session){
+		return convert(_content,request.getRequestURI(),session);
+	}
+	
+	/**
+	 * 
+	 * @param _content
+	 * @param request
+	 * @param session
+	 * @return
+	 */
+	public static String convert(String _content,String uri,HttpSession session){
 		if(_content==null||_content.indexOf("")<0) return _content;
 		
 		StringBuffer content=new StringBuffer(_content);
@@ -583,9 +595,9 @@ public class I18N extends JHandler implements Initializer,Runnable{
 				theKey=key;
 			}
 			
-			String alt=getTextIgnoreGlobal(request,theKey,lang);//强制优先获取针对本网页定义的多语言资源
+			String alt=getTextIgnoreGlobal(uri,theKey,lang);//强制优先获取针对本网页定义的多语言资源
 			if(alt==null){
-				if(key.startsWith(".")) alt=getText(request,theKey,lang);
+				if(key.startsWith(".")) alt=getText(uri,theKey,lang);
 				else alt=getText(key,lang);
 			}
 			
@@ -738,12 +750,12 @@ public class I18N extends JHandler implements Initializer,Runnable{
 	public void addFile(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response)throws Exception{
 		String name=SysUtil.getHttpParameter(request, "name","");
 		if(!name.matches("^[a-zA-Z0-9\\u4E00-\\u9FA5_.\\-]{1,90}$")){
-			jsession.resultString="invalid_file_name";
+			jsession.jresponse=new JResponse(false,"invalid_file_name","I{.文件名称格式错误}");
 		}
 		
 		String remark=SysUtil.getHttpParameter(request, "remark","");
 		if(!remark.matches("^[a-zA-Z0-9\\u4E00-\\u9FA5_.\\-]{1,90}$")){
-			jsession.resultString="invalid_remark";
+			jsession.jresponse=new JResponse(false,"invalid_remark","I{.备注格式错误}");
 		}
 		
 		if(!name.endsWith(".xml")){
@@ -757,10 +769,14 @@ public class I18N extends JHandler implements Initializer,Runnable{
       		s+="</root>\r\n";
       		
       		JDFSFile.saveString(JProperties.getI18NPath()+name,s,false,"UTF-8");
-          	
-      		jsession.resultString=(addModule(name,remark)?"1":"add_module_failed");
+      		
+      		if(addModule(name,remark)){
+    			jsession.jresponse=new JResponse(true,"1","I{.添加成功}");
+      		}else{
+    			jsession.jresponse=new JResponse(false,"add_module_failed","I{.添加失败}");
+      		}
       	}else{
-			jsession.resultString="exists";
+			jsession.jresponse=new JResponse(false,"exists","I{.文件已存在}");
       	}
 	}
 	
@@ -775,14 +791,18 @@ public class I18N extends JHandler implements Initializer,Runnable{
 	public void delFile(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response)throws Exception{
 		String name=SysUtil.getHttpParameter(request, "name","");
 		if(!name.matches("^[a-zA-Z0-9\\u4E00-\\u9FA5_.\\-]{1,90}$")){
-			jsession.resultString="invalid_file_name";
+			jsession.jresponse=new JResponse(false,"invalid_file_name","I{.文件名称格式错误}");
 		}
 		
 		if(!name.endsWith(".xml")){
 			name+=".xml";
 		}
 		
-		jsession.resultString=(delModule(name)?"1":"del_module_failed");
+		if(delModule(name)){
+			jsession.jresponse=new JResponse(true,"1","I{.删除成功}");
+  		}else{
+			jsession.jresponse=new JResponse(false,"del_module_failed","I{.删除失败}");
+  		}
 	}
 	
 	/**
@@ -797,17 +817,17 @@ public class I18N extends JHandler implements Initializer,Runnable{
 		try{
 			String name=SysUtil.getHttpParameter(request, "name","");
 			if(!name.matches("^[a-zA-Z0-9\\u4E00-\\u9FA5_.\\-]{1,90}$")){
-				jsession.resultString="invalid_file_name";
+				jsession.jresponse=new JResponse(false,"invalid_file_name","I{.文件名称格式错误}");
 			}
 			
 			String group=SQLUtil.deleteCriminalChars(SysUtil.getHttpParameter(request, "group",""));
 			if(!group.matches("^[\\S ]{0,128}$")){
-				jsession.resultString="invalid_group";
+				jsession.jresponse=new JResponse(false,"invalid_group","I{.分组名称格式错误}");
 			}
 			
 			String desc=SQLUtil.deleteCriminalChars(SysUtil.getHttpParameter(request, "desc",""));
 			if(!desc.matches("^[\\S ]{1,90}$")){
-				jsession.resultString="invalid_desc";
+				jsession.jresponse=new JResponse(false,"invalid_desc","I{.分组描述格式错误}");
 			}
 			
 			if(!name.endsWith(".xml")){
@@ -816,7 +836,7 @@ public class I18N extends JHandler implements Initializer,Runnable{
 			
 	      	File i18nConfigFile=new File(JProperties.getI18NPath()+name);
 	      	if(!i18nConfigFile.exists()){
-	      		jsession.resultString="file_not_exists";
+				jsession.jresponse=new JResponse(false,"file_not_exists","I{.文件不存在}");
 	      		return;
 	      	}
 			
@@ -830,11 +850,11 @@ public class I18N extends JHandler implements Initializer,Runnable{
 			groupElement.addAttribute("desc",desc);
 			
 			JUtilDom4j.save(doc,JProperties.getI18NPath()+name, "UTF-8");
-			
-			jsession.resultString="1";
+
+			jsession.jresponse=new JResponse(true,"1","I{.添加成功}");
 		}catch(Exception e){
 			log.log(e,Logger.LEVEL_ERROR);
-			jsession.resultString="ERR";
+			jsession.jresponse=new JResponse(false,"ERR","I{.系统错误}");
 		}
 	}
 	
@@ -850,12 +870,12 @@ public class I18N extends JHandler implements Initializer,Runnable{
 		try{
 			String name=SysUtil.getHttpParameter(request, "name","");
 			if(!name.matches("^[a-zA-Z0-9\\u4E00-\\u9FA5_.\\-]{1,90}$")){
-				jsession.resultString="invalid_file_name";
+				jsession.jresponse=new JResponse(false,"invalid_file_name","I{.文件名称格式错误}");
 			}
 			
 			String group=SQLUtil.deleteCriminalChars(SysUtil.getHttpParameter(request, "group",""));
 			if(!group.matches("^[\\S ]{0,128}$")){
-				jsession.resultString="invalid_group";
+				jsession.jresponse=new JResponse(false,"invalid_group","I{.分组名称格式错误}");
 			}
 			
 			if(!name.endsWith(".xml")){
@@ -864,7 +884,7 @@ public class I18N extends JHandler implements Initializer,Runnable{
 			
 	      	File i18nConfigFile=new File(JProperties.getI18NPath()+name);
 	      	if(!i18nConfigFile.exists()){
-	      		jsession.resultString="file_not_exists";
+				jsession.jresponse=new JResponse(false,"file_not_exists","I{.文件不存在}");
 	      		return;
 	      	}
 			
@@ -889,13 +909,13 @@ public class I18N extends JHandler implements Initializer,Runnable{
 				
 				process(i18nConfigFile);
 				
-				jsession.resultString="1";
+				jsession.jresponse=new JResponse(true,"1","I{.删除成功}");
 			}else{
-				jsession.resultString="group_not_exists";
+				jsession.jresponse=new JResponse(false,"group_not_exists","I{.分组不存在}");
 			}
 		}catch(Exception e){
 			log.log(e,Logger.LEVEL_ERROR);
-			jsession.resultString="ERR";
+			jsession.jresponse=new JResponse(false,"ERR","I{.系统错误}");
 		}
 	}
 	
@@ -956,7 +976,7 @@ public class I18N extends JHandler implements Initializer,Runnable{
 		
 		String fileName=SysUtil.getHttpParameter(request, "file");
 		JUtilDom4j.save(doc, JProperties.getI18NPath()+fileName, "UTF-8");
-		
-		jsession.resultString="1";
+
+		jsession.jresponse=new JResponse(true,"1","I{.保存成功}");
 	}
 }

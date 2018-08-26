@@ -8,7 +8,7 @@ import j.sys.SysUtil;
  * 
  * @author 肖炯
  *
- */
+ */ 
 public class OnlineRemover implements JCacheFilter{
 	private static final long serialVersionUID = 1L;
 

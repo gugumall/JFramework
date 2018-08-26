@@ -44,7 +44,14 @@ public class I18NFilter implements Filter{
 			request.getRequestDispatcher(requestedUri).include(request,wrapper);
 			
 			String content = wrapper.getContent();  
-			content=I18N.convert(content,httpRequest,session);
+			int start=content.indexOf("<div class=\"I18N-GROUP\">");
+			int end=content.indexOf("</div>",start);
+			if(start>0&&end>start){//页面中指定了多语言分组
+				String group=content.substring(start+"<div class=\"I18N-GROUP\">".length(),end);
+				content=I18N.convert(content,group,session);
+			}else{
+				content=I18N.convert(content,httpRequest,session);
+			}
 		       
 	    	//重置响应输出的内容长度
 			response.setContentLength(-1);

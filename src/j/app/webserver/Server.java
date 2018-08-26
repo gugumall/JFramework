@@ -1,6 +1,7 @@
 package j.app.webserver;
 
 
+import j.I18N.I18N;
 import j.app.Constants;
 import j.log.Logger;
 import j.nvwa.Nvwa;
@@ -168,11 +169,25 @@ public class Server{
 			if(jsession.jresponse!=null){//如果是直接输出
 				if(!handler.getSingleton()&&jHandler!=null) jHandler=null;
 				
-				if(toLog) logger.after(action,session,requestUuid,jsession.resultString);
-				SysUtil.outHttpResponse(response,jsession.jresponse.toString());//print返回内容给用户
+				String resultString=I18N.convert(jsession.jresponse.toString(),I18N.getCurrentLanguage(session));
+				String referer=request.getHeader("referer");
+				referer=JUtilString.getUri(referer);
+				if(referer!=null&&referer.startsWith("/")){
+					resultString=I18N.convert(resultString,referer,session);
+				}
+				
+				if(toLog) logger.after(action,session,requestUuid,resultString);
+				SysUtil.outHttpResponse(response,resultString);//print返回内容给用户
 				return;
 			}else if(jsession.resultString!=null){//如果是直接输出
 				if(!handler.getSingleton()&&jHandler!=null) jHandler=null;
+				
+				String resultString=jsession.resultString;
+				String referer=request.getHeader("referer");
+				referer=JUtilString.getUri(referer);
+				if(referer!=null&&referer.startsWith("/")){
+					resultString=I18N.convert(resultString,referer,session);
+				}
 				
 				if(toLog) logger.after(action,session,requestUuid,jsession.resultString);
 				SysUtil.outHttpResponse(response,jsession.resultString);//print返回内容给用户
@@ -204,6 +219,10 @@ public class Server{
 			if(!handler.getSingleton()&&jHandler!=null) jHandler=null;
 			
 			if(toLog) logger.after(action,session,requestUuid,navigateType,navigateUrl);
+			
+			if(navigateType==null){
+				throw new Exception("no defined view matches the result");
+			}
 			
 			if(navigateType.equalsIgnoreCase("forward")){//如果返回类型为forward		
 				SysUtil.forwardI18N(request,response,navigateUrl);

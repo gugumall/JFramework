@@ -457,6 +457,9 @@ public class RdbmsDao implements DAO {
 			tableName=factory.getTrueTblName(tableName);
 			
 			String tblClass=factory.getTblClass(tableName);
+			if(tblClass==null){
+				throw new Exception("class of table "+tableName+" not found");
+			}
 			Class cls=Class.forName(tblClass);
 			
 	        String sql = "select * from " + tableName;
@@ -714,6 +717,9 @@ public class RdbmsDao implements DAO {
 			Class[] classes=new Class[tblNames.length];
 			for(int i=0;i<tblNames.length;i++){
 				classes[i]=Class.forName(factory.getTblClass(tblNames[i]));
+				if(classes[i]==null){
+					throw new Exception("class of table "+classes[i]+" not found");
+				}
 			}//得到与数据库表名对应的类名 end
 			
 			List[] colsOfClasses=new ArrayList[classes.length];

@@ -89,10 +89,18 @@ public class BeanGenerator {
 		
 		
 		if(dialect.equals(DAO.DB_TYPE_MYSQL)){
-			if(useUtf8){
-				this.url+="?useUnicode=true&characterEncoding=utf-8";
+			if(this.url.indexOf("?")>0){
+				if(useUtf8){
+					this.url+="&useUnicode=true&characterEncoding=utf-8";
+				}else{
+					this.url+="&useUnicode=true&characterEncoding=gbk";
+				}
 			}else{
-				this.url+="?useUnicode=true&characterEncoding=gbk";
+				if(useUtf8){
+					this.url+="?useUnicode=true&characterEncoding=utf-8";
+				}else{
+					this.url+="?useUnicode=true&characterEncoding=gbk";
+				}
 			}
 		}else{
 			//

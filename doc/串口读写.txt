@@ -1,0 +1,41 @@
+http://www.oracle.com/technetwork/java/index-jsp-141752.html
+
+http://docs.oracle.com/cd/E17802_01/products/products/javacomm/reference/api/javax/comm/package-summary.html
+
+http://llk.media.mit.edu/projects/cricket/software/javaSerial.zip
+http://mdubuc.freeshell.org/Jolt/javacomm20-win32.zip
+
+comm.jar拷贝到c:\Program Files\Java\jre7\lib\ext;  
+javax.comm. properties拷贝到c:\Program Files\Java\jre7\lib;
+win32comm.dll拷贝到c:\Program Files\Java\jre7\bin; 
+
+或者(视运行环境而定)
+
+comm.jar拷贝到c:\Program Files\Java\jdk1.7.0_25\jre\lib\ext;  
+javax.comm. properties拷贝到c:\Program Files\Java\jdk1.7.0_25\jre\lib;
+win32comm.dll拷贝到c:\Program Files\Java\jdk1.7.0_25\jre\bin; 
+
+Java Communications API
+
+The Java Communications 3.0 API is a Java extension that facilitates developing platform-independent communications applications for technologies such as Smart Cards, embedded systems, and point-of-sale devices, financial services devices, fax, modems, display terminals, and robotic equipment.
+
+The Java Communications API (also known as javax.comm) provides applications access to RS-232 hardware (serial ports) and limited access to IEEE-1284 (parallel ports), SPP mode. 
+
+Implementations of the API are currently available for Solaris SPARC, Solaris x86, and Linux x86. Each of Oracle's available implementations works with the Sun Ray thin client product line, and include portmapping extensions to allow an administer to specify the locations of ports as well as their visibility, names, and in some cases annotated reference. 
+
+ 
+API serial features:
+
+Enumeration of ports (administrator and user configurable port mapping)
+Port configuration (baud rate, speed, stop bits, parity)
+Access to EIA232 standard DTR, CD, CTS, RTS and DSR signals
+Transfer of data over RS-232 ports
+Hardware and software flow-control options
+Receive-buffer threshold control
+Asynchronous event option for notification of:
+Data available on an RS-232 port
+Port hardware line level changes
+Port ownership changes within a single JVM
+ 
+
+Java communications API was initially released in 1997, prior to the Java Community Process, was 'grandfathered in' to the JCP (http://www.jcp.org) without having an associated JSR (Java Specification Request). 

@@ -1,0 +1,302 @@
+
+Vitamio API for Android : MediaPlayer
+
+
+类概述 
+
+public class MediaPlayer
+ MediaPlayer可控制播放音乐/视频和网络流。可以从VideoView找到使用这个类的方法。
+ 这个类与android.media.MediaPlayer的作用大部分相同。请参阅开发者指南音频和视频使用MediaPlayer。
+
+常量 
+
+public static final int MEDIA_ERROR_UNKNOWN
+播放错误，未知错误。
+ 常量值：0
+
+public static final int MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK
+播放错误（一般视频播放比较慢或视频本身有问题会引发）。
+ 常量值：200
+
+public static final int MEDIA_INFO_VIDEO_TRACK_LAGGING
+视频过于复杂，无法解码：不能快速解码帧。此时可能只能正常播放音频。参见MediaPlayer.OnInfoListener。
+ 常量值：700
+
+public static final int MEDIA_INFO_BUFFERING_START
+ MediaPlayer暂停播放等待缓冲更多数据。
+ 常量值：701
+
+public static final int MEDIA_INFO_BUFFERING_END
+ MediaPlayer在缓冲完后继续播放。
+ 常量值：702
+
+public static final int MEDIA_INFO_NOT_SEEKABLE
+媒体不支持Seek，例如直播流。
+ 常量值：801
+
+public static final int MEDIA_INFO_DOWNLOAD_RATE_CHANGED
+ av_read_frame()的速度（KB/s）。
+ 常量值：901
+
+public static final int VIDEOQUALITY_LOW
+视频质量——流畅。
+ 常量值：-16
+
+public static final int VIDEOQUALITY_MEDIUM
+视频质量——普通。
+ 常量值：0
+
+public static final int VIDEOQUALITY_HIGH
+视频质量——高质。
+ 常量值：16
+
+public static final int SUBTITLE_INTERNAL
+字幕显示来自内置字幕。
+ 常量值：0
+
+public static final int SUBTITLE_EXTERNAL
+字幕显示来自外置字幕。
+ 常量值：1
+
+public static final String[] SUB_TYPES
+ Vitamio支持的外置字幕类型。
+ 常量值：{ “.srt”, “.ssa”, “.smi”, “.txt”, “.sub”, “.ass” }
+
+公共方法
+public static final boolean isLibraryLoaded()
+动态链接库(so)是否已经成功加载完成。
+
+public void setDisplay(SurfaceHolder sh)
+设置用于显示媒体视频的SurfaceHolder。这个调用是可选的。只显示音频而不显示视频时不调用这个方法（例如后台播放）。
+ 参数
+sh 用户显示视频的SurfaceHolder
+
+public void setDataSource(Context context, Uri uri)
+设置多媒体数据源，例如context Uri。（支持raw资源访问，例如：android.resource://com.your.package/R.raw.your_resource_id）
+ 参数
+context 获取ContentResolver时要使用的Context
+ uri 你要播放的uri
+异常
+IllegalArgumentException 状态无效时引发（uri或context为空时引发）
+
+public native void setDataSource(String path)
+设置数据源（文件路径或http/rtsp/mms URL）。
+
+public native void setDataSource(FileDescriptor fd)
+设置数据源（FileDescriptor）。调用者在调用后要自行关闭FileDescriptor，最安全的做法是一返回就马上关闭。
+
+public native void prepare()
+预处理播放器为播放做准备，方法是同步执行。
+ 设置完数据源和显示的Surface后，你需要调用prepare()或prepareAsync()。对于文件，你可以直到媒体播放器准备播放时再调用prepare。
+
+public native void prepareAsync()
+预处理播放器为播放做准备，方法是异步执行。
+ 设置完数据源和显示的Surface后，你需要调用prepare()或prepareAsync()。对于流，你应该调用prepareAsync()，立即返回，而不是阻塞，直到足够的数据被缓冲。
+
+public void start()
+开始或继续播放。如果此前已暂停播放，那么就从暂停的地方播放。如果已经停止播放或还未开始播放，播放将从头开始。
+
+public void stop()
+与pause()相同。
+
+public void pause()
+暂停播放。调用start()恢复。
+
+public void setWakeMode(Context context, int mode)
+设置MediaPlayer的底层电源管理。可以在MediaPlayer没有通过SurfaceHolder 设置setDisplay播放时使用，从而使用高级别的setScreenOnWhilePlaying特性。
+ 本方法在MediaPlayer访问低级别电源管理控制设备电源时使用。参数是一个android.os.PowerManager唤醒组合标识。使用这个方法需要WAKE_LOCK权限。默认情况下不使用以保持设备唤醒播放。
+ 参数
+context
+ mode 设置PowerManger电源/锁定模式
+
+public void setScreenOnWhilePlaying(boolean screenOn)
+控制是否使用附加SurfaceHolder保持屏幕高亮持续播放视频。本方法可能优于使用setWakeMode，因为它不需要应用程序访问底层唤醒锁的权限。
+ 参数
+screenOn 设置true将保持屏幕高亮，反之允许它关闭。
+
+public native int getVideoWidth()
+获取视频宽度。
+ 返回值
+ 返回视频的宽度，没有视频或宽度尚未确定时返回0。可以通过注册OnVideoSizeChangedListener当宽度有效时获得一个通知。
+
+public native int getVideoHeight()
+获取视频高度。
+ 返回值
+ 返回视频的高度，没有视频或高度尚未确定时返回0。可以通过注册OnVideoSizeChangedListener当高度有效时获得一个通知。
+
+public native boolean isPlaying()
+检测MediaPlayer是否正在播放。
+
+public native void seekTo(long msec)
+设置到指定时间位置播放。
+ 参数
+msec 从开始位置到msec的偏移量（以毫秒为单位）
+ 异常
+IllegalStateException 内部播放引擎未初始化引发
+
+public native long getCurrentPosition()
+获取当前播放位置。
+
+public native Bitmap getCurrentFrame()
+获取当前视频帧。（可用于截图）
+
+public native long getDuration()
+获取多媒体播放持续时间。
+
+public void release()
+释放与MediaPlayer相关的资源。当你使用完MediaPlayer完后调用此方法是一个好的编程习惯。
+
+public void reset()
+复位(reset)MediaPlayer至未初始化状态。调用此方法后，你需要再次设置数据源，并通过prepare()来初始化。
+
+public native void setVolume(float leftVolume, float rightVolume))
+设置音量。（范围0.0~1.0之间）
+
+public void setOnPreparedListener(OnPreparedListener listener))
+注册一个回调函数，在视频预处理完成后调用。
+
+public void setOnCompletionListener(OnCompletionListener l)
+注册一个回调函数，视频播放完成后调用。
+
+public void setOnErrorListener(OnErrorListener l)
+注册一个回调函数，在异步操作调用过程中发生错误时调用。例如视频打开失败。
+
+public void setOnBufferingUpdateListener(OnBufferingUpdateListener l)
+注册一个回调函数，在网络视频流缓冲变化时调用。
+
+public void setOnSeekCompleteListener(OnSeekCompleteListener l)
+注册一个回调函数，在seek操作完成后调用。
+
+public void setOnVideoSizeChangedListener(OnVideoSizeChangedListener listener)
+注册一个回调函数，在视频大小已知或更新后调用。
+
+public void setOnSubtitleUpdateListener(OnSubtitleUpdateListener l)
+注册一个回调函数，在字幕需要显示时调用。
+
+public void setOnInfoListener(OnInfoListener l)
+注册一个回调函数，在有警告或错误信息时调用。例如：开始缓冲、缓冲结束、下载速度变化。
+
+public void releaseDisplay()
+在播放音频的时候调用这个有效果。
+
+public native float getVideoAspectRatio()
+获取视频宽高比例。
+ 返回值
+ 返回视频的宽高比。没有视频或者宽高不正确返回0。参见VideoView.setVideoLayout。
+
+public native void setVideoQuality(int quality)
+设置视频质量。如果播放延迟比较严重，你可以尝试使用VIDEOQUALITY_LOW（流畅），默认VIDEOQUALITY_LOW（流畅）。
+ 参数
+quality 参见MediaPlayer的常量：VIDEOQUALITY_LOW（流畅）、VIDEOQUALITY_MEDIUM（普通）、VIDEOQUALITY_HIGH（高质）。
+
+public native void setDeinterlace(boolean deinterlace)
+设置视频反交错。
+
+public native void setBufferSize(int bufSize)
+设置视频缓冲大小（默认1024KB）单位Byte。
+
+public native boolean isBuffering()
+检测是否缓冲完毕。
+
+public native int getBufferProgress()
+参见OnBufferingUpdateListener。
+
+public native void setMetaEncoding(String encoding)
+设置元数据编码。例如：UTF-8
+
+public native String getMetaEncoding()
+获取元数据编码。
+
+public HashMap getAudioTrackMap(String encoding)
+获取视频中嵌入的音轨。例如：English
+
+public native int getAudioTrack()
+设置播放音轨编号。
+
+public native void setAudioTrack(int audioIndex)
+设置音轨编号，必须使用getAudioTrackMap的返回值。
+
+public void setInitialAudioTrack(int audioIndex)
+设置初始化音轨。
+
+public void setInitialSubTrack(int subIndex)
+设置初始化字幕。
+
+public native void setSubShown(boolean shown)
+设置是否显示字幕。
+ 参数
+shown true表示显示字幕
+
+public native void setSubEncoding(String encoding)
+设置字幕编码。
+ 参数
+encoding 字幕编码。如果为null将自动检测。
+
+public native int getSubLocation()
+获取字幕位置类型。0为内嵌字幕，1为外挂字幕。
+
+public native void setSubPath(String subPath)
+设置外挂字幕路径。必须是本地文件路径。
+
+public native String getSubPath()
+获取外挂字幕路径。
+
+public native void setSubTrack(int trackId)
+设置字幕编号。必须是getSubTrackMap的返回值。
+
+public native int getSubTrack()
+获取字幕编号。
+
+public HashMap getSubTrackMap(String encoding)
+获取视频内嵌字幕集合。
+ 参数
+encoding 格式化字符串编码。如果为null将自动检测。
+ 返回值
+ 返回字幕名称和字幕编号组成的Map。
+
+受保护方法 
+
+protected void finalize()
+调用了native_finalize。
+
+
+MediaPlayer内部接口 
+
+public interface OnBufferingUpdateListener
+ void onBufferingUpdate(MediaPlayer mp, int percent)
+更新流媒体缓存状态。
+ 参数
+mp 要更新的MediaPlayer
+ percent 已缓冲的百分比数（0 ~ 100）
+
+public interface OnErrorListener
+ boolean onError(MediaPlayer mp, int what, int extra)
+错误信息。
+ 参数
+mp 错误相关的MediaPlayer
+ what 错误类型，参见MEDIA_ERROR_UNKNOWN、MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK
+ extra 额外具体的错误code。通常依赖于实现。
+ 返回值
+ 如果处理了错误返回true，否则返回false。返回false或没有设置OnErrorListener将引发OnCompletionListener被调用。
+
+public interface OnInfoListener
+ boolean onInfo(MediaPlayer mp, int what, int extra)
+信息或警告。
+ 参数
+mp 信息相关的MediaPlayer
+ what 信息或警告类型，参见MEDIA_INFO_VIDEO_TRACK_LAGGING、MEDIA_INFO_BUFFERING_START、MEDIA_INFO_BUFFERING_END、MEDIA_INFO_NOT_SEEKABLE、MEDIA_INFO_DOWNLOAD_RATE_CHANGED
+ extra 额外具体的信息code。通常依赖于实现。
+
+ 返回值
+ 如果处理了错误返回true，否则返回false。返回false或没有设置OnInfoListener将丢弃信息或警告。
+
+public interface OnSubtitleUpdateListener
+ public void onSubtitleUpdate(String text)
+需要显示文字字幕。
+
+public void onSubtitleUpdate(byte[] pixels, int width, int height)
+需要显示图片字幕。
+ 参数
+pixels 图片字幕像素
+width 图片字幕宽度
+height 图片字幕高度

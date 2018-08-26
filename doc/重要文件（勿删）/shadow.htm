@@ -1,0 +1,122 @@
+<!DOCTYPE html>  
+<html>  
+  
+<head>  
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">  
+<title>CSS3属性：box-shadow测试</title>  
+<style type="text/css">  
+.box-shadow-1{  
+  -webkit-box-shadow: 3px 3px 3px;  
+  -moz-box-shadow: 3px 3px 3px;  
+  box-shadow: 3px 3px 3px;  
+}  
+.box-shadow-2{  
+  -webkit-box-shadow:0 0 10px #0CC;  
+  -moz-box-shadow:0 0 10px #0CC;  
+  box-shadow:0 0 10px #0CC;  
+}  
+.box-shadow-3{  
+  -webkit-box-shadow:0 0 10px rgba(0, 204, 204, .5);  
+  -moz-box-shadow:0 0 10px rgba(0, 204, 204, .5);  
+  box-shadow:0 0 10px rgba(0, 204, 204, .5);  
+}  
+.box-shadow-4{  
+  -webkit-box-shadow:0 0 10px 15px #0CC;  
+  -moz-box-shadow:0 0 10px 15px #0CC;  
+  box-shadow:0 0 10px 15px #0CC;  
+}  
+.box-shadow-5{  
+  -webkit-box-shadow:inset 0 0 10px #0CC;  
+  -moz-box-shadow:inset 0 0 10px #0CC;  
+  box-shadow:inset 0 0 10px #0CC;  
+}  
+.box-shadow-6{  
+    box-shadow:-10px 0 10px red, /*左边阴影*/  
+    10px 0 10px yellow, /*右边阴影*/  
+    0 -10px 10px blue, /*顶部阴影*/  
+    0 10px 10px green; /*底边阴影*/  
+}  
+.box-shadow-7{  
+    box-shadow:0 0 10px 5px black,  
+    0 0 10px 20px red;  
+}  
+.box-shadow-8{  
+    box-shadow:0 0 10px 20px red,  
+    0 0 10px 5px black;  
+}  
+.box-shadow-9{  
+    box-shadow: 0 0 0 1px red;  
+}  
+  
+  
+  
+.obj{  
+    width:100px;  
+    height:100px;  
+    margin:50px auto;  
+    background:#eee;      
+}  
+.outer{  
+    width: 100px;  
+    height: 100px;  
+    border: 1px solid red;  
+}  
+.inner{  
+    width: 60px;  
+    height: 60px;  
+    background-color: red;  
+    -webkit-box-shadow: 50px 50px blue;  
+    -moz-box-shadow: 50px 50px blue;  
+    box-shadow: 50px 50px blue;  
+  }  
+</style>  
+</head>  
+  
+<body>  
+<!-- 
+.box-shadow{    
+	//Firefox4.0-  
+	-moz-box-shadow:投影方式  X轴偏移量   Y轴偏移量   阴影模糊半径    阴影扩展半径    阴影颜色;   
+  
+	//Safariand Google chrome10.0-  
+	-webkit-box-shadow:投影方式  X轴偏移量   Y轴偏移量   阴影模糊半径    阴影扩展半径    阴影颜色;  
+  
+	//Firefox4.0+、 Google chrome 10.0+ 、 Oprea10.5+ and IE9  
+	box-shadow:投影方式  X轴偏移量   Y轴偏移量   阴影模糊半径    阴影扩展半径    阴影颜色;  
+	
+	阴影类型：此参数可选。如不设值，默认投影方式是外阴影；如取其唯一值“inset”，其投影为内阴影；
+
+	X-offset:阴影水平偏移量，其值可以是正负值。如果值为正值，则阴影在对象的右边，其值为负值时，阴影在对象的左边；
+	
+	Y-offset:阴影垂直偏移量，其值也可以是正负值。如果为正值，阴影在对象的底部，其值为负值时，阴影在对象的顶部；
+	
+	阴影模糊半径：此参数可选，，但其值只能是为正值，如果其值为0时，表示阴影不具有模糊效果，其值越大阴影的边缘就越模糊；
+	
+	阴影扩展半径：此参数可选，其值可以是正负值，如果值为正，则整个阴影都延展扩大，反之值为负值时，则缩小；
+	
+	阴影颜色：此参数可选。如不设定颜色，浏览器会取默认色，但各浏览器默认取色不一致，特别是在webkit内核下的safari和chrome浏览器下表现为透明色，在Firefox/Opera下表现为黑色（已验证），建议不要省略此参数。
+}  
+	
+	 -->
+    <div class="obj box-shadow-1"></div>  
+    <div class="outer">  
+        <div class="inner"></div>  
+    </div>  
+    <div class="obj  box-shadow-2" ></div>  
+    <div class="obj  box-shadow-3" ></div>  
+    <div class="obj  box-shadow-4" ></div>  
+    <div class="obj  box-shadow-5" ></div>  
+    <div class="obj  box-shadow-6" ></div>  
+    <div class="obj  box-shadow-7" ></div>  
+    <div class="obj  box-shadow-8" ></div>  
+    <div class="obj  box-shadow-9" ></div>  
+    <script type="text/javascript">  
+        $(document).ready(function(){  
+        if($.browser.msie) {  
+          $('.obj').boxShadow(-10,-10,5,"#0cc"); //obj元素使用了box-shadow  
+        }  
+      });  
+    </script>  
+  
+</body>  
+</html>  
