@@ -806,6 +806,7 @@ var MathUtil={
 //显示/隐藏密码
 var PasswordViewers=new Array();
 function PasswordViewer(id,pwd){
+	if(_$(id+'_show')) return;
 	this.id=id;
 	this.status='hidden';
 	
@@ -6244,6 +6245,7 @@ var Region={
 		if(initCountyId) this.paramsCalling.initCountyId=initCountyId;
 		if(initZoneId) this.paramsCalling.initZoneId=initZoneId;
 		if(initAddress) this.paramsCalling.initAddress=initAddress;
+		this.paramsCalling.x=false;
 		
 		if((typeof top.regions)=='undefined'&&(typeof regions)=='undefined'){//未加载region.js
 			loadJS({src:'/js/region/region.js', charset:'utf-8', callback:Region.jsLoaded});
@@ -6268,7 +6270,7 @@ var Region={
 				var province=_regions.list[i];
 				var n=province[1];
 				if(n.length>20) n=n.substring(0,17)+'...';
-				str.push('		<div id="regionsL1_'+province[0]+'" class="'+(province[0]*1>=20000001&&province[0]*1<=20000006?'regionsL1Red':'regionsL1')+'" onclick="currentWindow.Region.showChildren(\''+province[0]+'\'); currentWindow.Region.precallback(this,\'L1\',\''+province[0]+'\',\''+province[1]+'\');" title="'+province[1]+'">'+n+'</div>');
+				str.push('		<div id="regionsL1_'+province[0]+'" class="'+(province[0]*1>=20000001&&province[0]*1<=20000006?'regionsL1Red':'regionsL1')+'" onclick="currentWindow.Region.showChildren(\''+province[0]+'\'); currentWindow.Region.precallbackOnClick(this,\'L1\',\''+province[0]+'\',\''+province[1]+'\');" title="'+province[1]+'">'+n+'</div>');
 			}
 			str.push('		</div>');
 			str.push('		<div id="regionsL2" style="display:none;"></div>');
@@ -6411,6 +6413,7 @@ var Region={
 		if(initCountyId) this.paramsCalling.initCountyId=initCountyId;
 		if(initZoneId) this.paramsCalling.initZoneId=initZoneId;
 		if(initAddress) this.paramsCalling.initAddress=initAddress;
+		this.paramsCalling.x=true;
 		
 		if((typeof top.regions)=='undefined'&&(typeof regions)=='undefined'){//未加载region.js
 			loadJS({src:'/js/region/region.js', charset:'utf-8', callback:Region.jsLoaded});
@@ -6424,11 +6427,11 @@ var Region={
 			var str=new Array();
 			str.push('<div id="regionsSelectorX">');
 			str.push('	<div id="regionsTitleX">');
-			str.push('		<div class="fl" id="regionsSelected"></div>');
-			str.push('		<div class="fr hand marginR10" onclick="currentWindow.Region.done();">I{确定}</div>');
-			str.push('		<div class="fr hand iconfont icon-selected marginR2" onclick="currentWindow.Region.done();"></div>');
+			str.push('		<div class="fl" id="regionsSelected"><div class="fl iconfont icon-location_light"></div><div class="fl marginL3">I{js,全部地区}</div></div>');
+			str.push('		<div class="fr hand" onclick="currentWindow.Region.reset();">I{js,取消地区选择}</div>');
+			str.push('		<div class="fr hand iconfont icon-close marginR2" onclick="currentWindow.Region.reset();"></div>');
 			
-			str.push('		<div class="fr hand marginR20" id="regionsToParentX" onclick="currentWindow.Region.toParent();" style="display:none;">I{返回}</div>');
+			str.push('		<div class="fr hand marginR20" id="regionsToParentX" onclick="currentWindow.Region.toParent();" style="display:none;">I{js,返回}</div>');
 			str.push('		<div class="fr hand iconfont icon-back marginR2" id="regionsToParent" onclick="currentWindow.Region.toParent();" style="display:none;"></div>');
 			str.push('	</div>');
 			str.push('	<div id="regionsContentX">');
@@ -6438,7 +6441,7 @@ var Region={
 				var province=_regions.list[i];
 				var n=province[1];
 				if(n.length>20) n=n.substring(0,17)+'...';
-				str.push('		<div id="regionsL1_'+province[0]+'" class="'+(province[0]*1>=20000001&&province[0]*1<=20000006?'regionsL1Red':'regionsL1')+'" onclick="currentWindow.Region.showChildren(\''+province[0]+'\'); currentWindow.Region.precallback(this,\'L1\',\''+province[0]+'\',\''+province[1]+'\');" title="'+province[1]+'">'+n+'</div>');
+				str.push('		<div id="regionsL1_'+province[0]+'" class="'+(province[0]*1>=20000001&&province[0]*1<=20000006?'regionsL1Red':'regionsL1')+'" onclick="currentWindow.Region.showChildren(\''+province[0]+'\'); currentWindow.Region.precallbackOnClick(this,\'L1\',\''+province[0]+'\',\''+province[1]+'\');" title="'+province[1]+'">'+n+'</div>');
 			}
 			str.push('		</div>');
 			str.push('		<div id="regionsL2" style="display:none;"></div>');
@@ -6572,15 +6575,15 @@ var Region={
 			var n=city[1];
 			if(n.length>20) n=n.substring(0,17)+'...';
 			if(this.levels<3){
-				str.push('		<div id="regionsL2_'+city[0]+'" class="regionsL2" onclick="currentWindow.Region.precallback(this,\'L2\',null,null,\''+city[0]+'\',\''+city[1]+'\');" title="'+city[1]+'">'+n+'</div>');
+				str.push('		<div id="regionsL2_'+city[0]+'" class="regionsL2" onclick="currentWindow.Region.precallbackOnClick(this,\'L2\',null,null,\''+city[0]+'\',\''+city[1]+'\');" title="'+city[1]+'">'+n+'</div>');
 			}else{
 				var _regions=top.regions?top.regions:regions;
 				temp=_regions.cities[parentId].counties[city[0]];
 				var counties=temp?temp.list:(new Array());
 				if(counties.length==0){
-					str.push('		<div id="regionsL2_'+city[0]+'" class="regionsL2" onclick="currentWindow.Region.depth=2; currentWindow.Region.precallback(this,\'L2\',null,null,\''+city[0]+'\',\''+city[1]+'\');" title="'+city[1]+'">'+n+'</div>');
+					str.push('		<div id="regionsL2_'+city[0]+'" class="regionsL2" onclick="currentWindow.Region.depth=2; currentWindow.Region.precallbackOnClick(this,\'L2\',null,null,\''+city[0]+'\',\''+city[1]+'\');" title="'+city[1]+'">'+n+'</div>');
 				}else{
-					str.push('		<div id="regionsL2_'+city[0]+'" class="regionsL2" onclick="currentWindow.Region.depth=3; currentWindow.Region.showChildrenLevel3(\''+parentId+'\',\''+city[0]+'\'); currentWindow.Region.precallback(this,\'L2\',null,null,\''+city[0]+'\',\''+city[1]+'\');" title="'+city[1]+'">'+n+'</div>');
+					str.push('		<div id="regionsL2_'+city[0]+'" class="regionsL2" onclick="currentWindow.Region.depth=3; currentWindow.Region.showChildrenLevel3(\''+parentId+'\',\''+city[0]+'\'); currentWindow.Region.precallbackOnClick(this,\'L2\',null,null,\''+city[0]+'\',\''+city[1]+'\');" title="'+city[1]+'">'+n+'</div>');
 				}
 			}
 		}
@@ -6620,9 +6623,9 @@ var Region={
 			if(n.length>20) n=n.substring(0,17)+'...';
 			
 			if(this.levels<4){
-				str.push('		<div id="regionsL3_'+county[0]+'" class="regionsL3" onclick="currentWindow.Region.precallback(this,\'L3\',null,null,null,null,\''+county[0]+'\',\''+county[1]+'\');" title="'+county[1]+'">'+n+'</div>');
+				str.push('		<div id="regionsL3_'+county[0]+'" class="regionsL3" onclick="currentWindow.Region.precallbackOnClick(this,\'L3\',null,null,null,null,\''+county[0]+'\',\''+county[1]+'\');" title="'+county[1]+'">'+n+'</div>');
 			}else{
-				str.push('		<div id="regionsL3_'+county[0]+'" class="regionsL3" onclick="currentWindow.Region.showChildrenLevel4(\''+county[0]+'\'); currentWindow.Region.precallback(this,\'L3\',null,null,null,null,\''+county[0]+'\',\''+county[1]+'\');" title="'+county[1]+'">'+n+'</div>');
+				str.push('		<div id="regionsL3_'+county[0]+'" class="regionsL3" onclick="currentWindow.Region.showChildrenLevel4(\''+county[0]+'\'); currentWindow.Region.precallbackOnClick(this,\'L3\',null,null,null,null,\''+county[0]+'\',\''+county[1]+'\');" title="'+county[1]+'">'+n+'</div>');
 			}
 		}
 		
@@ -6665,7 +6668,7 @@ var Region={
 			var n=_zones[i][1];
 			if(n.length>20) n=n.substring(0,17)+'...';
 			
-			str.push('		<div id="regionsL4_'+_zones[i][0]+'" class="regionsL4" onclick="currentWindow.Region.precallback(this,\'L4\',null,null,null,null,null,null,\''+_zones[i][0]+'\',\''+_zones[i][1]+'\');" title="'+_zones[i][1]+'">'+n+'</div>');
+			str.push('		<div id="regionsL4_'+_zones[i][0]+'" class="regionsL4" onclick="currentWindow.Region.precallbackOnClick(this,\'L4\',null,null,null,null,null,null,\''+_zones[i][0]+'\',\''+_zones[i][1]+'\');" title="'+_zones[i][1]+'">'+n+'</div>');
 		}
 		_$('regionsL4').innerHTML=str.join('');
 		
@@ -6829,6 +6832,108 @@ var Region={
 		
 		_$('regionsSelected').innerHTML=temp;
 	},
+	precallbackOnClick:function(obj,level,proviceId,provinceName,cityId,cityName,countyId,countyName,zoneId,zoneName){
+		if(level=='L1'){
+			var parents=_$cls('regionsL1Red');
+			for(var i=0;i<parents.length;i++){
+				parents[i].style.backgroundColor='';
+			}
+
+			parents=_$cls('regionsL1');
+			for(var i=0;i<parents.length;i++){
+				parents[i].style.backgroundColor='';
+			}
+			
+			obj.style.backgroundColor='#FFFF66';
+		}else if(level=='L2'){
+			var parents=_$cls('regionsL2');
+			for(var i=0;i<parents.length;i++){
+				parents[i].style.backgroundColor='';
+			}
+			
+			obj.style.backgroundColor='#FFFF66';
+		}else if(level=='L3'){
+			var parents=_$cls('regionsL3');
+			for(var i=0;i<parents.length;i++){
+				parents[i].style.backgroundColor='';
+			}
+			
+			obj.style.backgroundColor='#FFFF66';
+		}else if(level=='L4'){
+			var parents=_$cls('regionsL4');
+			for(var i=0;i<parents.length;i++){
+				parents[i].style.backgroundColor='';
+			}
+			
+			obj.style.backgroundColor='#FFFF66';
+		}
+		
+		if(zoneId){
+			this.selectedZoneId=zoneId;
+			this.selectedZoneName=zoneName;
+		}else if(countyId){
+			this.selectedZoneId=null;
+			this.selectedZoneName=null;
+			
+			this.selectedCountyId=countyId;
+			this.selectedCountyName=countyName;
+		}else if(cityId){
+			this.selectedZoneId=null;
+			this.selectedZoneName=null;
+			
+			this.selectedCountyId=null;
+			this.selectedCountyName=null;
+			
+			this.selectedCityId=cityId;
+			this.selectedCityName=cityName;
+		}else if(proviceId){
+			this.selectedZoneId=null;
+			this.selectedZoneName=null;
+			
+			this.selectedCountyId=null;
+			this.selectedCountyName=null;
+			
+			this.selectedCityId=null;
+			this.selectedCityName=null;
+			
+			this.selectedProvinceId=proviceId;
+			this.selectedProvinceName=provinceName;
+		}else{
+			this.selectedZoneId=null;
+			this.selectedZoneName=null;
+			
+			this.selectedCountyId=null;
+			this.selectedCountyName=null;
+			
+			this.selectedCityId=null;
+			this.selectedCityName=null;
+			
+			this.selectedProvinceId=null;
+			this.selectedProvinceName=null;
+		}
+		
+		var temp='<div class="fl iconfont icon-location_light"></div><div class="fl marginL3">'+this.selectedProvinceName;
+		if(this.selectedCityName) temp+='&nbsp;'+this.selectedCityName;
+		if(this.selectedCountyName) temp+='&nbsp;'+this.selectedCountyName;
+		if(this.selectedZoneName) temp+='&nbsp;'+this.selectedZoneName;
+		temp+='</div>';
+		
+		_$('regionsSelected').innerHTML=temp;
+		
+		if(this.paramsCalling.x){
+			if(currentWindow.Region.callback){
+				currentWindow.Region.callback(this.selectedProvinceId,
+						this.selectedProvinceName,
+						this.selectedCityId,
+						this.selectedCityName,
+						this.selectedCountyId,
+						this.selectedCountyName,
+						this.selectedZoneId,
+						this.selectedZoneName,
+						this.depth);
+			}
+		}
+	},
 	getTop:function(offset){
 		var theTop=0;
 		if(location.href==top.location.href){
@@ -6871,6 +6976,20 @@ var Region={
 					this.selectedCountyName,
 					this.selectedZoneId,
 					this.selectedZoneName,
+					this.depth);
+		}
+		this.close();
+	},
+	reset:function(){
+		if(currentWindow.Region.callback){
+			currentWindow.Region.callback('',
+					'',
+					'',
+					'',
+					'',
+					'',
+					'',
+					'',
 					this.depth);
 		}
 		this.close();
@@ -8457,6 +8576,47 @@ var Pages={
 		
 		if(_$(pagesId)) _$(pagesId).innerHTML=pageSelectorHtml;
 		//if(_$(summaryId)) _$(summaryId).innerHTML=total+'I{order,个记录}';
+	},
+	
+	genPagesSelectorX:function(total,rpp,pn,pagesId,summaryId,showIfNoItems,__gotoPage){
+		this.init();
+		if(__gotoPage){
+			this.gotoPageDefined=__gotoPage;
+		}else{
+			this.gotoPageDefined=null;
+		}
+		
+		var pageSection=1;
+		var totalPages=0;
+		var firstOfnextPage=rpp+1;
+		var lastOfprePage=rpp;
+		
+		if(total>rpp){
+			if(total%rpp==0){
+				totalPages=total/rpp;
+			}else{
+				totalPages=Math.floor((total/rpp)+1);
+			}
+		}else{
+			totalPages=1;
+		}	
+		
+		var pageSelectorHtml='';
+		if(pn>1){
+			pageSelectorHtml+='<div onclick="Pages.prePage();" class="iconfont previous"></div>';
+		}else{
+			pageSelectorHtml+='<div class="iconfont previousDisabled"></div>';
+		}
+		
+		pageSelectorHtml+='<div class="page"><font class="red">'+pn+'</font>/'+totalPages+'</div>';
+		
+		if(pn<totalPages){
+			pageSelectorHtml+='<div onclick="Pages.nextPage('+totalPages+');" class="iconfont next"></div>';
+		}else{
+			pageSelectorHtml+='<div class="iconfont nextDisabled"></div>';
+		}	
+		
+		if(_$(pagesId)) _$(pagesId).innerHTML=pageSelectorHtml;
 	},
 	
 	nextPage:function(totalPages){
