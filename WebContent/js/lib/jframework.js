@@ -443,7 +443,7 @@ var Pickers={
 		var v=_$(id+'_'+picked);
 		v.className='PickerValuePicked'+(picked==0?'Left':'');
 		
-		_$(picker.input).value=picker.values[picked];
+		if(_$(picker.input)) _$(picker.input).value=picker.values[picked];
 		
 		if(picker.callback) picker.callback(picked,picker.values[picked],picker.names[picked],picker.id,picker.input);
 	}
@@ -593,6 +593,17 @@ var Utils={
 	
 	isMobile:function(){
 		var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+		var browser = navigator.userAgent.toLowerCase(); 
+		for (var i=0; i<mobileAgent.length; i++){ 
+			if (browser.indexOf(mobileAgent[i])!=-1){ 
+				return true;
+			}
+		} 
+		return false;
+	},
+	
+	isIOS:function(){
+		var mobileAgent = new Array("iphone", "ipod", "ipad");
 		var browser = navigator.userAgent.toLowerCase(); 
 		for (var i=0; i<mobileAgent.length; i++){ 
 			if (browser.indexOf(mobileAgent[i])!=-1){ 
@@ -1258,16 +1269,20 @@ var Currency={
 	},
 	_initCurrencySelector:function(container){
 		var htm='<div id="currencySelector" onclick="Currency._showCurrencySelector();"><div class="left"></div><div class="txt">'+Currency._getCurrency()[3]+'</div><div class="right iconfont icon-moreunfold"></div></div>';
+		
 		this.listHtm='';
-		this.listHtm+='<div id="currencySelectorList" onmouseleave="Currency._hideCurrencySelector();">';
+		this.listHtm+='<div class="dropDownBox" id="currencySelectorList">';
+		this.listHtm+='    <div class="dropDownBoxTitle paddingL2"><div class="dropDownBoxTitleTab paddingR10 fr" id="dropDownBoxTitleTab_CurrencySelector">'+Currency._getCurrency()[3]+'</div></div>';
+		this.listHtm+='    <div onmouseleave="Currency._hideCurrencySelector();" class="dropDownBoxContent alignR paddingT10">';
 		for(var i=0;i<this.currencies.length;i++){
-			this.listHtm+='<div class="currencyItem"'+(i==0?' style="border-top:none !important;"':'')+' onmouseover="Currency._over(this);" onmouseout="Currency._out(this);" onclick="Currency._change(\''+this.currencies[i][0]+'\');">'+this.currencies[i][3]+'</div>';
+			this.listHtm+='        <div class="currencyItem" onmouseover="Currency._over(this);" onmouseout="Currency._out(this);" onclick="Currency._change(\''+this.currencies[i][0]+'\');">'+this.currencies[i][3]+'</div>';
 		}
+		this.listHtm+='    </div>';
 		this.listHtm+='</div>';
+		
 		if(container) container.innerHTML=htm;
 		else document.write(htm);
-	},
-	_showCurrencySelector:function(){
+		
 		if(!_$('currencySelectorList')){
 			if(document.body.insertAdjacentHTML){
 				document.body.insertAdjacentHTML('afterBegin', this.listHtm);
@@ -1275,22 +1290,33 @@ var Currency={
 				document.body.innerHTML=this.listHtm+document.body.innerHTML;
 			}
 		}
-		
+		this._showCurrencySelector(true);
+	},
+	_showCurrencySelector:function(hidden){
 		Lang._hideLangSelector();
 		if(this.hideCurrencySelectorTimer){
 			clearTimeout(this.hideCurrencySelectorTimer);
 			this.hideCurrencySelectorTimer=null;
 		}
 		var t=W.elementTop(_$('currencySelector'));
-		var l=W.elementLeft(_$('currencySelector'));
+		var l=W.elementLeft(_$('currencySelector'))+W.elementWidth(_$('currencySelector'));
+	
+		_$('dropDownBoxTitleTab_CurrencySelector').style.width=(W.elementWidth(_$('currencySelector'))-(Utils.isMobile()?10:0))+'px';
+		_$('dropDownBoxTitleTab_CurrencySelector').style.textAlign='right';
+		
+		if(hidden){
+			_$('currencySelectorList').style.visibility='hidden';
+			return;
+		}
 		
 		if(Utils.isMobile()){
-			_$('currencySelectorList').style.left=(l+2)+'px';
-			_$('currencySelectorList').style.top=(t+30)+'px';
+			_$('currencySelectorList').style.top=(t-9)+'px';
+			_$('currencySelectorList').style.left=(l-W.elementWidth(_$('currencySelectorList')))+'px';
 		}else{
-			_$('currencySelectorList').style.top=(t+30)+'px';
-			_$('currencySelectorList').style.left=(l-9)+'px';
+			_$('currencySelectorList').style.top=(t-9)+'px';
+			_$('currencySelectorList').style.left=(l-W.elementWidth(_$('currencySelectorList')))+'px';
 		}
+
 		_$('currencySelectorList').style.visibility='visible';
 		
 		this.hideCurrencySelectorTimer=setTimeout(Currency._hideCurrencySelector,1000);
@@ -1536,38 +1562,52 @@ var Lang={
 	_initLangSelector:function(container){
 		var htm='<div id="langSelector" onclick="Lang._showLangSelector();"><div class="left"></div><div class="txt">'+this.ln()+'</div><div class="right iconfont icon-moreunfold"></div></div>';
 		this.listHtm='';
-		this.listHtm+='<div id="langSelectorList" onmouseleave="Lang._hideLangSelector();">';
+		this.listHtm+='<div class="dropDownBox" id="langSelectorList">';
+		this.listHtm+='    <div class="dropDownBoxTitle paddingL2"><div class="dropDownBoxTitleTab fr paddingR10" id="dropDownBoxTitleTab_LangSelector">'+this.ln()+'</div></div>';
+		this.listHtm+='    <div onmouseleave="Lang._hideLangSelector();" class="dropDownBoxContent alignR paddingT10">';
 		for(var i=0;i<this.langs.length;i++){
-			this.listHtm+='<div class="langItem"'+(i==0?' style="border-top:none !important;"':'')+' onmouseover="Lang._overLang(this);" onmouseout="Lang._outLang(this);" onclick="Lang._changeLang(\''+this.langs[i]+'\');"> '+this.langNames[i]+'</div>';
+			this.listHtm+='        <div class="langItem" onmouseover="Lang._overLang(this);" onmouseout="Lang._outLang(this);" onclick="Lang._changeLang(\''+this.langs[i]+'\');"> '+this.langNames[i]+'</div>';
 		}
+		this.listHtm+='    </div>';
 		this.listHtm+='</div>';
 		if(container) container.innerHTML=htm;
 		else document.write(htm);
-	},
-	_showLangSelector:function(){
+		
 		if(!_$('langSelectorList')){
 			if(document.body.insertAdjacentHTML){
 				document.body.insertAdjacentHTML('afterBegin', this.listHtm);
 			}else{
 				document.body.innerHTML=this.listHtm+document.body.innerHTML;
 			}
+			this._showLangSelector(true);
 		}
-		
+	},
+	_showLangSelector:function(hidden){		
 		Currency._hideCurrencySelector();
 		if(this.hideLangSelectorTimer){
 			clearTimeout(this.hideLangSelectorTimer);
 			this.hideLangSelectorTimer=null;
 		}
+		
 		var t=W.elementTop(_$('langSelector'));
-		var l=W.elementLeft(_$('langSelector'));
+		var l=W.elementLeft(_$('langSelector'))+W.elementWidth(_$('langSelector'));
+		
+		_$('dropDownBoxTitleTab_LangSelector').style.width=(W.elementWidth(_$('langSelector'))-(Utils.isMobile()?10:0))+'px';
+		_$('dropDownBoxTitleTab_LangSelector').style.textAlign='right';
+		
+		if(hidden){
+			_$('langSelectorList').style.visibility='hidden';
+			return;
+		}
 		
 		if(Utils.isMobile()){
-			_$('langSelectorList').style.left=(l+1)+'px';
-			_$('langSelectorList').style.top=(t+30)+'px';
+			_$('langSelectorList').style.top=(t-8)+'px';
+			_$('langSelectorList').style.left=(l-W.elementWidth(_$('langSelectorList')))+'px';
 		}else{
-			_$('langSelectorList').style.top=(t+30)+'px';
-			_$('langSelectorList').style.left=(l-9)+'px';
+			_$('langSelectorList').style.top=(t-8)+'px';
+			_$('langSelectorList').style.left=(l-W.elementWidth(_$('langSelectorList')))+'px';
 		}
+		
 		_$('langSelectorList').style.visibility='visible';
 		
 		this.hideLangSelectorTimer=setTimeout(Lang._hideLangSelector,1000);
@@ -3219,11 +3259,14 @@ Selector.prototype.write=function(){
 	if(this.itemsWidth>0) _style+='width:'+this.itemsWidth+'px;';
 	if(this.itemsWidthMin>0) _style+='min-width:'+this.itemsWidthMin+'px;';
 
-	htm.push('<div id="'+this.listId+'Bg" align="center" class="'+this.listStyle+'" style="z-index:3000; visibility:hidden;"><iframe src="/blank.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>');
-	htm.push('<div id="'+this.listId+'" class="'+this.listStyle+'" style="'+_style+'z-index:3001; visibility:hidden;">\n');
+	//htm.push('<div id="'+this.listId+'Bg" align="center" class="'+this.listStyle+'" style="z-index:3000; visibility:hidden;"><iframe src="/blank.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>');
+	htm.push('<div id="'+this.listId+'" class="dropDownBox '+this.listStyle+'" style="'+_style+'z-index:3001; visibility:hidden;">\n');
+	htm.push('<div class="dropDownBoxTitle paddingR2"><div class="dropDownBoxTitleTab fl paddingR5 paddingL5" id="selector_tab_'+this.listId+'"></div></div>\n');
+	htm.push('<div class="dropDownBoxContent" id="selector_list_'+this.listId+'">\n');
 	for(var i=this.startIndexToShow;i<this.items.length;i++){
 		htm.push('	<div class="'+this.itemStyle+'" onmouseover="SelectorKeepItems(\''+this.displayerId+'\');" onmouseout="SelectorHideItemsDelay(\''+this.displayerId+'\');" onclick="SelectorChooseItem(\''+this.displayerId+'\',\''+this.items[i][0]+'\',false);">'+this.items[i][1]+'</div>\n');
 	}
+	htm.push('</div>\n');
 	htm.push('</div>\n');
 	document.write(htm.join(''));
 }
@@ -3243,13 +3286,16 @@ Selector.prototype.insert=function(parentId){
 	_style='';
 	if(this.itemsWidth>0) _style+='width:'+this.itemsWidth+'px;';
 	if(this.itemsWidthMin>0) _style+='min-width:'+this.itemsWidthMin+'px;';
-	
+
 	htm=new Array();
-	htm.push('<div id="'+this.listId+'Bg" align="center" class="'+this.listStyle+'" style="z-index:3000; visibility:hidden;"><iframe src="/blank.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>');
-	htm.push('<div id="'+this.listId+'" class="'+this.listStyle+'" style="'+_style+'z-index:3001; visibility:hidden;">\n');
+	//htm.push('<div id="'+this.listId+'Bg" align="center" class="'+this.listStyle+'" style="z-index:3000; visibility:hidden;"><iframe src="/blank.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>');
+	htm.push('<div id="'+this.listId+'" class="dropDownBox '+this.listStyle+'" style="'+_style+'z-index:3001; visibility:hidden;">\n');
+	htm.push('<div class="dropDownBoxTitle paddingR2"><div class="dropDownBoxTitleTab fl paddingR5 paddingL5" id="selector_tab_'+this.listId+'"></div></div>\n');
+	htm.push('<div class="dropDownBoxContent" id="selector_list_'+this.listId+'">\n');
 	for(var i=this.startIndexToShow;i<this.items.length;i++){
 		htm.push('	<div class="'+this.itemStyle+'" onmouseover="SelectorKeepItems(\''+this.displayerId+'\');" onmouseout="SelectorHideItemsDelay(\''+this.displayerId+'\');" onclick="SelectorChooseItem(\''+this.displayerId+'\',\''+this.items[i][0]+'\',false);">'+this.items[i][1]+'</div>\n');
 	}
+	htm.push('</div>\n');
 	htm.push('</div>\n');
 	if(document.body.insertAdjacentHTML){
 		document.body.insertAdjacentHTML('afterBegin', htm.join(''));
@@ -3284,7 +3330,7 @@ Selector.prototype.buildList=function(){
 	for(var i=this.startIndexToShow;i<this.items.length;i++){
 		htm.push('<div class="'+this.itemStyle+'" onmouseover="SelectorKeepItems(\''+this.displayerId+'\');" onmouseout="SelectorHideItemsDelay(\''+this.displayerId+'\');" onclick="SelectorChooseItem(\''+this.displayerId+'\',\''+this.items[i][0]+'\',false);">'+this.items[i][1]+'</div>');
 	}
-	_$(this.listId).innerHTML=(htm.join(''));
+	_$('selector_list_'+this.listId).innerHTML=(htm.join(''));
 }
 Selector.prototype.setCurrent=function(_current){
 	this.itemCurrent=_current;
@@ -3306,17 +3352,18 @@ function SelectorShowItems(displayerId){
 		t-=_$('container').scrollTop;
 	}
 	var l=W.elementLeft(_$(displayerId));
-	var h=W.elementHeight(_$(displayerId));
-		
+	var h=0;//W.elementHeight(_$(displayerId));
+
+	_$('selector_tab_'+selector.listId).innerHTML=selector.itemCurrent[1];
 	_$(selector.listId).style.left=(l+selector.itemsLeftOffset)+'px';
 	_$(selector.listId).style.top=(t+h)+'px';
 	_$(selector.listId).style.visibility='visible';
 	
-	_$(selector.listId+'Bg').style.width=W.elementWidth(_$(selector.listId))+'px';
-	_$(selector.listId+'Bg').style.height=W.elementHeight(_$(selector.listId))+'px';
-	_$(selector.listId+'Bg').style.left=(l+selector.itemsLeftOffset)+'px';
-	_$(selector.listId+'Bg').style.top=(t+h)+'px';
-	_$(selector.listId+'Bg').style.visibility='visible';
+	//_$(selector.listId+'Bg').style.width=W.elementWidth(_$(selector.listId))+'px';
+	//_$(selector.listId+'Bg').style.height=W.elementHeight(_$(selector.listId))+'px';
+	//_$(selector.listId+'Bg').style.left=(l+selector.itemsLeftOffset)+'px';
+	//_$(selector.listId+'Bg').style.top=(t+h)+'px';
+	//_$(selector.listId+'Bg').style.visibility='visible';
 	
 	SelectorHideItemsDelay(displayerId);
 }
@@ -3324,14 +3371,14 @@ function SelectorHideItemsDelay(displayerId){
 	var selector=Selectors[displayerId];
 	if(!selector) return;
 	
-	selector.timer=setTimeout("SelectorHideItems('"+displayerId+"')",2000);
+	selector.timer=setTimeout("SelectorHideItems('"+displayerId+"')",3000);
 }
 function SelectorHideItems(displayerId){
 	var selector=Selectors[displayerId];
 	if(!selector) return;
 	
 	_$(selector.listId).style.visibility='hidden';
-	_$(selector.listId+'Bg').style.visibility='hidden';
+	//_$(selector.listId+'Bg').style.visibility='hidden';
 	if(selector.timer) clearTimeout(selector.timer);
 }
 function SelectorKeepItems(displayerId){
@@ -3354,7 +3401,7 @@ function SelectorChooseItem(displayerId,id,force){
 
 	if(selector.timer) clearTimeout(selector.timer);
 	_$(selector.listId).style.visibility='hidden';
-	_$(selector.listId+'Bg').style.visibility='hidden';
+	//_$(selector.listId+'Bg').style.visibility='hidden';
 	_$(selector.displayerId+'_text').innerHTML=text;
 	selector.itemCurrent=[id,text];
 	if(selector.onchange) selector.onchange(id,text);
@@ -3587,7 +3634,7 @@ var LoadingFullPage={
 		str+='	<div id="loadingFullPageClose2" onclick="LoadingFullPage.close();">';
 		str+='		<div id="loadingFullPageClose2Text" class="iconfont icon-close"></div>';
 		str+='	</div>';
-		str+='	<div id="loadingFullPageTitle" style="display:none;">'+this.pageName+'</div>';
+		str+='	<div id="loadingFullPageTitle" style="width:'+(W.vw()-100)+'px;">'+this.pageName+'</div>';
 		str+='</div>';
 		
 		str+='<div id="loadingFullPage" class="loadingFullPage" style="height:'+(W.vh()-40)+'px;">';
@@ -3805,7 +3852,7 @@ var LoadingGoodsPage={
 		str+='	<div id="loadingGoodsPageClose2" onclick="LoadingGoodsPage.close();">';
 		str+='		<div id="loadingGoodsPageClose2Text" class="iconfont icon-close"></div>';
 		str+='	</div>';
-		str+='	<div id="loadingGoodsPageTitle" style="display:none;">'+this.pageName+'</div>';
+		str+='	<div id="loadingGoodsPageTitle" style="width:'+(W.vw()-100)+'px;">'+this.pageName+'</div>';
 		str+='</div>';
 		
 		str+='<div id="loadingGoodsPage" class="loadingGoodsPage" style="height:'+(W.vh()-40)+'px;">';
@@ -4504,6 +4551,7 @@ var Loading={
 		
 		_$('loading').style.visibility='visible';
 		if(this.openType!='tip'||this.cover==true) _$('loadingBg').style.visibility='visible';
+		if(!Utils.isMobile()) _$('loadingFocus').focus();
 	},
 	
 	close:function(){//关闭
@@ -4755,17 +4803,33 @@ var Loading={
 		}	
 		
 		var str='<div style="position:absolute; z-index:3999; filter:alpha(opacity=80); -moz-opacity:.8; opacity:.8; overflow:hidden; visibility:hidden;" id="loadingBg" align="center"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
-		str+='<div id="loading" class="loading"'+(this.bgColor?(' style="background-color:'+this.bgColor+'"'):'')+'>';
+		str+='<div id="loading" class="loading"'+(this.bgColor?(' style="background-color:'+this.bgColor+'"'):'')+' onkeydown="if(event.keyCode==13) Loading.close();">';
 		str+='	<div id="loadingTitle" class="loadingTitle" onmousedown="startDrag(event);" onmouseup="endDrag(event)" onmouseout="endDrag(event)" onmousemove="moving(event);"><div id="loadingTitleText" class="loadingTitleText">'+this.title+'</div><div onclick="Loading.close();" id="loadingCloseIcon" class="loadingCloseIcon iconfont icon-close"></div></div>';
 		str+='	<div id="loadingContent" class="loadingContent">';
 		str+='		<table class="loadingTable"><tr><td align="center" valign="'+this.valign+'" id="loadingMsg" class="loadingMsg"'+(this.padding>-1?(' style="padding:'+this.padding+'px !important;"'):'')+'></td></tr></table>';
 		str+='	</div>';
+		str+='	<div><input type="text" id="loadingFocus" style="width:1px !important; height:1px !important; background:none; border:none;"/></div>';
 		str+='</div>';
 		if(document.body.insertAdjacentHTML){
 			document.body.insertAdjacentHTML('afterBegin', str);
 		}else{
 			document.body.innerHTML=str+document.body.innerHTML;
 		}
+	},
+	
+	showDialog:function(_l,_t,_w,_h,txt,txtAlign,btns){
+		this.close();
+		
+		var htm=new Array();
+		htm.push('<div class="r marginT10 '+txtAlign+'">'+txt+'</div>');
+		if(btns.length>0) htm.push('<div class="r alignC marginT20">');
+		for(var i=0;i<btns.length;i++) htm.push(btns[i]);
+		if(btns.length>0) htm.push('</div>');
+		htm.push('<div class="r">&nbsp;</div>');
+		
+		this.open(_l, _t, _w, _h, null, window, 'dialog');
+		this.setMsg(htm.join(''));
+		htm=null;
 	}
 }
 function getLoadingTop(offset){
@@ -7121,6 +7185,7 @@ var Catalogs={
 		
 		makeMovable(null,null);
 		
+		
 		var catalogsLevel1=this.ofChainLevel(chainLevel,true);
 		this.items(catalogsLevel1,1);
 	}, 
@@ -7444,15 +7509,19 @@ Animation.prototype.init=function(containerId){
 			}
 			this.inPlays[i]=true;
 		}else{
+			var hasLink=false;
 			if(this.links[i].indexOf('javascript')==0){
+				hasLink=true;
 				htm.push('<a href="javascript:_void();" onclick="'+this.links[i]+'">');
-			}else{
-				htm.push('<a href="'+this.links[i]+'" target="_blank">');
+			}else if(this.links[i]!=''){
+				hasLink=true;
+				if(Utils.isMobile()) htm.push('<a href="javascript:_void();" onclick="Animations.openUrl('+this.links[i]+');">');
+				else htm.push('<a href="'+this.links[i]+'" target="_blank">');
 			}
 
 			htm.push('	<img id="'+this.id+'.img.x_animation" src="/img/coverLoading.gif" height="'+this.height+'"/>');
 			htm.push('	<img id="'+this.id+'.img.x" _src="'+this.photos[i]+'" style="display:none;"/>');
-			htm.push('</a>');
+			if(hasLink) htm.push('</a>');
 		}
 		
 		htm.push('</div>');
@@ -7647,6 +7716,18 @@ Animation.prototype.doSlider=function(){
 var Animations={
 	instances:new Array(),
 	
+	openUrl:function(url,title){
+		if(Utils.isMobile()){
+			if(url.indexOf('/goods/item.jhtml')>-1){
+				LoadingGoodsPage.open(null,top,url,title,null);
+			}else{
+				location.href=url;
+			}
+		}else{
+			location.href=url;
+		}
+	},
+	
 	open:function(obj,id,i){
 		var animation=this.instances[id];
 		if(animation.mediaTypes[i]=='video'){				
@@ -7804,6 +7885,24 @@ function _login(event,isClick){
 	ssoLogin.submit();
 	
 	return true;
+}
+
+//提示未登录
+function showNotLoginMessage(){
+	top.Loading.showDialog(-1,-1,-1,-1,
+			'<font class="font16px errorColor">I{.请登录系统}</font>',
+			'center',
+			['<div class="btnLongDisabled"><input type="button" value="I{shopping,知道了}" onclick="top.Loading.close();"/></div>',
+			 '<div class="btnLong marginL10"><input type="button" value="I{shopping,立即登录}" onclick="top.location.href=\'/sso/login.jhtml?sso_back_url='+encodeURIComponent(location.href)+'\';"/></div>']);
+}
+
+//提示不是商户
+function showNotSellerMessage(){
+	top.Loading.showDialog(-1,-1,-1,-1,
+			'<font class="font16px errorColor">I{.您还不是商户}</font>',
+			'center',
+			['<div class="btnLongDisabled"><input type="button" value="I{shopping,知道了}" onclick="top.Loading.close();"/></div>',
+			 '<div class="btnLong marginL10"><input type="button" value="I{shopping,免费入驻}" onclick="top.location.href=\'/usr/index.jhtml?url=%2fusr%2fshop.jhtml\';"/></div>']);
 }
 
 //刷新页面
@@ -8213,6 +8312,12 @@ var Share={
 		return link;
 	},
 	init:function(_sharedImages,_sharedImage,_sharedTitle,_sharedDesc,_sharedLink,_sharedLinkForWeixin){
+		if(Str.startsWith(thisDomain,'w.')
+				&&location.href!=top.location.href){//微信需初调用顶层页面
+			top.Share.init(_sharedImages,_sharedImage,_sharedTitle,_sharedDesc,_sharedLink,_sharedLinkForWeixin);
+			return;
+		}
+		
 		_sharedLink=this.setReferer(_sharedLink);
 		_sharedLinkForWeixin=this.setReferer(_sharedLinkForWeixin);
 		
@@ -8342,7 +8447,7 @@ var Share={
 		}
 				
 		var url='https://connect.qq.com/widget/shareqq/index.html?'+s.join('&');
-		window.location.href=(url);
+		top.location.href=(url);
 	},
 	_shareQZone:function(event,obj){
 		var p={
@@ -8369,7 +8474,7 @@ var Share={
 		}
 				
 		var url='https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?'+s.join('&');
-		window.location.href=(url);
+		top.location.href=(url);
 	},
 	_shareTWb:function(event,obj){
 		var _url=encodeURIComponent(this.sharedLink);
@@ -8380,10 +8485,10 @@ var Share={
 		_t=encodeURI(_t);
 
 		var url='https://share.v.t.qq.com/index.php?c=share&a=index&url='+_url+'&appkey='+_appkey+'&pic='+_pic+'&assname='+_assname+'&title='+_t;
-		window.location.href=(url);
+		top.location.href=(url);
 	},
 	_shareSinaWb:function(event,obj){
-		var url='http://service.weibo.com/share/share.php?url='+encodeURIComponent(sharedLink);
+		var url='https://service.weibo.com/share/share.php?url='+encodeURIComponent(sharedLink);
 		url+='&type=button';
 		url+='&ralateUid=5756801511';
 		url+='&language=zh_cn';
@@ -8392,7 +8497,7 @@ var Share={
 		url+='&title='+encodeURIComponent('【'+this.sharedTitle+'】'+this.sharedDesc);
 		url+='&searchPic=false';
 		url+='&style=simple';
-		window.location.href=(url);
+		top.location.href=(url);
 	},
 	_shareWeixinZone:function(event,obj){
 		var htm='<div>';
