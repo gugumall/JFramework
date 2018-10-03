@@ -1,7 +1,10 @@
 package j.hp.thread;
 
+import java.util.List;
+
 import j.log.Logger;
 import j.util.ConcurrentList;
+import j.util.ConcurrentMap;
 
 /**
  * 
@@ -11,6 +14,7 @@ import j.util.ConcurrentList;
 public class ThreadRunner implements Runnable{
 	private static Logger log=Logger.create(ThreadRunner.class);
 	private ConcurrentList tasks=new ConcurrentList();
+	private ConcurrentMap results=new ConcurrentMap();
 	private ThreadPool inPool;
 	private boolean end=false;
 	
@@ -57,6 +61,10 @@ public class ThreadRunner implements Runnable{
 	 * @param task
 	 */
 	public boolean addTask(ThreadTask task){
+		if(end){
+			return false;
+		}
+		
 		if(!this.exists(task)){
 			tasks.add(task);
 			return true;
@@ -68,20 +76,29 @@ public class ThreadRunner implements Runnable{
 	 * 
 	 */
 	public void destroy(){
-		while(!this.tasks.isEmpty()){
-			try{
-				Thread.sleep(100);
-			}catch(Exception e){}
-		}
 		end=true;
 	}
 	
 	@Override
 	public void run(){
-		while(!end){
+		while(!end||tasks.size()>0){
 			try{
 				Thread.sleep(this.inPool.getInterval());
 			}catch(Exception e){}
+			
+			try{
+				List keys=results.listKeys();
+				for(int i=0;i<keys.size();i++){
+					String key=(String)keys.get(i);
+					ThreadTaskResult result=(ThreadTaskResult)results.get(i);
+					if(result.isTimeout()){
+						results.remove(key);
+						result=null;
+					}
+				}
+			}catch(Exception e){
+				log.log(e,Logger.LEVEL_ERROR);
+			}
 			
 			try{
 				if(!this.tasks.isEmpty()){
@@ -89,7 +106,12 @@ public class ThreadRunner implements Runnable{
 					int retries=0;
 					while(retries<=task.getRetries()){
 						try{
-							task.execute();
+							Object[] result=task.execute();
+							if(task.getUuid()!=null
+									&&!"".equals(task.getUuid())
+									&&result!=null){
+								results.put(task.getUuid(),new ThreadTaskResult(result,task.getResultTimeout()));
+							}
 							break;
 						}catch(Exception e){
 							retries++;

@@ -2,9 +2,9 @@ package j.app.webserver;
 
 import j.I18N.I18N;
 import j.util.JUtilBean;
+import j.util.JUtilJSON;
 import j.util.JUtilKeyValue;
 import j.util.JUtilMath;
-import j.util.JUtilString;
 
 import java.sql.Timestamp;
 import java.util.LinkedList;
@@ -73,6 +73,22 @@ public class JResponse{
 	 * 
 	 * @return
 	 */
+	public boolean isSuccess(){
+		return this.success;
+	}
+	
+	/**
+	 * 
+	 * @param message
+	 */
+	public void setMessage(String message){
+		this.message=message;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public String getMessage(){
 		return this.message;
 	}
@@ -95,8 +111,8 @@ public class JResponse{
 		
 		StringBuffer s=new StringBuffer();
 		s.append("{\"success\":\""+success+"\",");
-		s.append("\"code\":\""+format(code)+"\",");
-		s.append("\"message\":\""+format(message)+"\",\"datas\":{");
+		s.append("\"code\":\""+JUtilJSON.format(code)+"\",");
+		s.append("\"message\":\""+JUtilJSON.format(message)+"\",\"datas\":{");
 		for(int i=0;i<datas.size();i++){
 			JUtilKeyValue data=datas.get(i);
 			if(data==null) continue;
@@ -105,7 +121,7 @@ public class JResponse{
 			if(data.getValue() instanceof List){
 				s.append(JUtilBean.beans2Json((List)data.getValue()));
 			}else if(data.getValue() instanceof String){
-				s.append("\""+format(data.getValue().toString())+"\"");
+				s.append("\""+JUtilJSON.format(data.getValue().toString())+"\"");
 			}else if(data.getValue() instanceof Integer){
 				s.append("\""+data.getValue().toString()+"\"");
 			}else if(data.getValue() instanceof Long){
@@ -122,11 +138,6 @@ public class JResponse{
 		if(s.charAt(s.length()-1)==',') s=s.deleteCharAt(s.length()-1);
 		s.append("}}");
 		return s.toString();
-	}
-	
-	private String format(String s){
-		s=JUtilString.replaceAll(s,"\"","\\\"");
-		return s;
 	}
 	
 	public static void main(String[] args){

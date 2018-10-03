@@ -26,7 +26,7 @@ public class SysConfig{
 	
 	private static String machineId;//物理服务器ID
 	
-	public static String sysEncoding;//字符编码
+	public static String sysEncoding="UTF-8";//字符编码
 	
 	public static String[] responseEncodingPages=null;//哪些页面需调用response.setContentType("text/html;charset="+SysConfig.sysEncoding)
 
@@ -72,7 +72,8 @@ public class SysConfig{
 		//文件是否存在
 		File file = new File(j.Properties.getConfigPath()+"sys.xml");
         if(!file.exists()){
-        	throw new Exception("找不到配置文件："+file.getAbsolutePath());
+        	log.log("找不到配置文件："+file.getAbsolutePath(),-1);
+        	return;
         }
         
 		//解析

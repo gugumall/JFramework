@@ -3,6 +3,7 @@ package j.app.webserver;
 
 import j.I18N.I18N;
 import j.app.Constants;
+import j.app.online.Onlines;
 import j.log.Logger;
 import j.nvwa.Nvwa;
 import j.sys.SysConfig;
@@ -169,12 +170,32 @@ public class Server{
 			if(jsession.jresponse!=null){//如果是直接输出
 				if(!handler.getSingleton()&&jHandler!=null) jHandler=null;
 				
-				String resultString=I18N.convert(jsession.jresponse.toString(),I18N.getCurrentLanguage(session));
+				String resultString="";
+				
 				String referer=request.getHeader("referer");
 				referer=JUtilString.getUri(referer);
+			
+				//多语言转换
+				String responseCode=jsession.jresponse.getCode();
+				String responseMessage=jsession.jresponse.getMessage();
 				if(referer!=null&&referer.startsWith("/")){
-					resultString=I18N.convert(resultString,referer,session);
+					responseCode=I18N.convert(responseCode,referer,session);
+					responseMessage=I18N.convert(responseMessage,referer,session);
+				}else{
+					responseCode=I18N.convert(responseCode,I18N.getCurrentLanguage(session));
+					responseMessage=I18N.convert(responseMessage,I18N.getCurrentLanguage(session));
 				}
+				jsession.jresponse.setCode(responseCode);
+				jsession.jresponse.setMessage(responseMessage);
+				
+				//if(referer!=null&&referer.startsWith("/")){
+				//	resultString=I18N.convert(jsession.jresponse.toString(),referer,session);
+				//}else{
+				//	resultString=I18N.convert(jsession.jresponse.toString(),I18N.getCurrentLanguage(session));
+				//}
+				resultString=jsession.jresponse.toString();
+				//多语言转换  end
+				
 				
 				if(toLog) logger.after(action,session,requestUuid,resultString);
 				SysUtil.outHttpResponse(response,resultString);//print返回内容给用户
@@ -223,7 +244,10 @@ public class Server{
 			if(navigateType==null){
 				throw new Exception("no defined view matches the result");
 			}
-			
+
+			if(Onlines.getHandler()!=null){
+				navigateUrl=Onlines.getHandler().adjustUrl(session,request,navigateUrl);
+			}
 			if(navigateType.equalsIgnoreCase("forward")){//如果返回类型为forward		
 				SysUtil.forwardI18N(request,response,navigateUrl);
 			}else{//如果返回类型为sendRedirect
@@ -241,7 +265,10 @@ public class Server{
 					if(nav!=null){//on-error设置的属性值所代表的<navigate>存在
 						navigateType=nav.getType();
 						navigateUrl=nav.getUrl();
-						
+
+						if(Onlines.getHandler()!=null){
+							navigateUrl=Onlines.getHandler().adjustUrl(session,request,navigateUrl);
+						}
 						if(navigateType.equalsIgnoreCase("forward")){//如果返回类型为forward	
 							try{
 								SysUtil.forwardI18N(request,response,navigateUrl);

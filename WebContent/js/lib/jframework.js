@@ -15,7 +15,8 @@ function renewScreenSize(){
 	screenHeight=screen.availHeight;
 }
 
-var pageFeatures=new Array();//当前页面的特性，有时候公共函数需根据不同页面的特性进行不同逻辑处理
+//当前页面的特性，有时候公共函数需根据不同页面的特性进行不同逻辑处理
+var pageFeatures=new Array();
 function hasPageFeature(feature){
 	return Str.contains(pageFeatures,feature);
 }
@@ -26,29 +27,253 @@ function hasPageFeatureOf(features){
 	return false;
 }
 
-//手机锁定
-try{
-	screen.orientation.lock('natural');
-}catch(e){}
+
+//字符串操作
+var Str={
+	//全部替换
+	replaceAll:function(str,original,alternative){
+		var tokens=new Array();
+		var index=str.indexOf(original);
+		while(index>=0){
+			tokens.push(str.substring(0,index)+alternative);
+			str=str.substring(index+original.length);
+			index=str.indexOf(original);
+
+			if(str=='') break;
+		}
+		if(str!='') tokens.push(str);
+		var newstr=tokens.join('');
+		tokens=null;
+		return newstr;
+	},
+
+	//去掉首尾空格
+	trimAll:function(str){
+		for(;str.indexOf(' ')==0;){
+			str=str.replace(' ','');
+		}
+		for(;str!=''&&str.lastIndexOf(' ')==str.length-1;){
+			str=str.substring(0,str.length-1);
+		}	
+		return str;
+	},
+	
+	//计算字符串长度（字节数）
+	bytes:function(str,encoding){
+		var len=0;
+		for(var i=0;i<str.length;i++){
+			var sub=str.substring(i,i+1);
+			if(sub.match(/[\u4E00-\u9FA5]/)){
+				if(encoding==undefined||encoding.toUpperCase()=='UTF-8'){
+					len+=3;
+				}else{
+					len+=2;
+				}
+			}else{
+				len+=1;			
+			}
+		}
+		return len;
+	},
+	
+	//是否包含
+	contains:function(arr,str){
+		if(!arr||arr.length==0) return false;
+		
+		for(var i=0;i<arr.length;i++){
+			if(arr[i]==str) return true;
+		}
+		return false;
+	},
+	
+	//我们是<font color="red" id="3.8">中国人</font>xxx<font color=\'red\'>些某</font>yyy<font color=\'red\'/>x
+	delTag:function(src,tagName){	
+		var re=new RegExp('<'+tagName+'[^<]*>','gm');
+		src=src.replace(re,'');
+		
+		re=new RegExp('</'+tagName+'>','gm');
+		src=src.replace(re,'');
+		
+		return src;
+	},
+	
+	//是否以什么开头
+	startsWith:function(src,prefix,ignorecase){	
+		if(!src||!prefix) return false;
+		
+		if(src==''||prefix=='') return false;
+		
+		if(ignorecase){
+			src=src.toLowerCase();
+			prefix=prefix.toLowerCase();
+		}
+		
+		return src.indexOf(prefix)==0;
+	},
+	
+	//是否以什么结尾
+	endsWith:function(src,suffix,ignorecase){	
+		if(!src||!suffix) return false;
+		
+		if(src==''||suffix=='') return false;
+		
+		if(ignorecase){
+			src=src.toLowerCase();
+			suffix=suffix.toLowerCase();
+		}
+		
+		return src.lastIndexOf(suffix)==src.length-suffix.length;
+	},
+	
+	//是否以什么开头
+	startsWithOneOf:function(src,prefixes,ignorecase){	
+		if(!src||!prefixes) return false;
+		
+		if(src==''||prefixes=='') return false;
+		
+		for(var i=0;i<prefixes.length;i++){
+			if(Str.startsWith(src,prefixes[i],ignorecase)) return true;
+		}
+		
+		return false;
+	},
+	
+	//是否以什么结尾
+	endsWithOneOf:function(src,prefixes,ignorecase){	
+		if(!src||!prefixes) return false;
+		
+		if(src==''||prefixes=='') return false;
+		
+		for(var i=0;i<prefixes.length;i++){
+			if(Str.endsWith(src,prefixes[i],ignorecase)) return true;
+		}
+		
+		return false;
+	},
+	
+	//字符ascii码序列转化成字符
+	intSequence2String:function(sequence){
+		if(sequence==null||!sequence.startsWith('jis:')) return sequence;
+		
+		var s='';
+		var chars=sequence.substring(4).split(',');
+		for(var i=0;i<chars.length;i++){
+			s+=String.fromCharCode(parseInt(chars[i],36));
+		}
+		return s;
+	},
+	
+	//返回域名
+	getDomain:function(url){
+		var d=url;
+		d=d.substring(d.indexOf('//')+2);
+		d=d.substring(0,d.indexOf('/'));
+		return d;
+	},
+	
+	//返回网址的根（不含/）
+	getUrlBase:function(url){
+		var temp1=url.substring(0,8);
+		var temp2=url.substring(8);
+		if(temp2.indexOf('/')>0) temp2=temp2.substring(0,temp2.indexOf('/'));
+		return temp1+temp2;
+	},
+	
+	//返回协议(https/http)
+	getScheme:function(url){
+		return currentUrl.indexOf('https:')==0?'https':'http';
+	}
+}
+
 
 //当前url
 var currentUrl=location.href;
 
 //当前域名
-var thisDomain=currentUrl;
-thisDomain=thisDomain.substring(thisDomain.indexOf('//')+2);
-thisDomain=thisDomain.substring(0,thisDomain.indexOf('/'));
+var thisDomain=Str.getDomain(currentUrl);
+
+//当前地址根
+var thisUrlBase=Str.getUrlBase(currentUrl);
 
 //https/http
-var httpScheme=currentUrl.indexOf('https:')==0?'https':'http';
+var httpScheme=Str.getScheme(currentUrl);
 
+//当前操作窗口
 var currentWindow=null;
+
+//session id
+var session_id='';
 
 //当前uri
 var _uri=currentUrl.substring(8);
 if(_uri.indexOf('/')<0) _uri='/';
 else _uri=_uri.substring(_uri.indexOf('/'));
 if(_uri.indexOf('?')>0) _uri=_uri.substring(0,_uri.indexOf('?'));
+
+//定义HTMLInterface接口（安卓app内会自动生成）
+if((typeof HTMLInterface)=='undefined'){
+	HTMLInterface=new Object();
+	HTMLInterface.scanCallback=null;
+	HTMLInterface.scanInit=false;
+	HTMLInterface.scanCallTimer=null;
+	HTMLInterface.iosAppVersion='';
+	HTMLInterface.iosAppVersionNew='';
+	HTMLInterface.androidAppVersion='';
+	HTMLInterface.androidAppVersionNew='';
+	HTMLInterface.iosAppMustUpdate='false';
+	HTMLInterface.androidMustUpdate='false';
+	
+	if(thisDomain.startsWith('ios.')){
+		HTMLInterface.scan=function(callback){
+			if(HTMLInterface.scanCallTimer){
+				clearTimeout(HTMLInterface.scanCallTimer);
+				HTMLInterface.scanCallTimer=null;
+			}
+			
+			if(callback) HTMLInterface.scanCallback=callback;
+			
+			if(!HTMLInterface.scanInit){
+				HTMLInterface.scanCallTimer=setTimeout(HTMLInterface.scan,1000);
+				QRScannerInit();
+				return;
+			}
+			try{
+				QRScanner.scan(HTMLInterface.scanCallback);
+				QRScanner.show();
+				if(Scanner.camera=='back') Scanner.back();
+				else Scanner.front();
+			}catch(e){}
+		};
+		
+		HTMLInterface.getVersions=function(){
+			return HTMLInterface.iosAppVersion+','+HTMLInterface.iosAppVersionNew;
+		};
+	}
+}
+//定义HTMLInterface接口（安卓app内会自动生成）end
+
+//IOS APP相关功能
+function QRScannerPrepared(err,status){
+	if(err&&err.name&&err.name=='CAMERA_ACCESS_DENIED'){
+		alert('I{js,需要相机权限}');
+	}else if(status){
+		if(status.authorized){
+			HTMLInterface.scanInit=true;
+		}else{
+			HTMLInterface.cancel();
+			alert('I{js,需要相机权限}');
+		}
+	}
+}
+
+function QRScannerInit(){
+	try{
+		QRScanner.prepare(QRScannerPrepared);
+	}catch(e){
+		QRScannerInitTimer=setTimeout(QRScannerInit,500);
+	}
+}
+//IOS APP相关功能 end
 
 //无任何操作
 function _void(){} 
@@ -93,8 +318,9 @@ function _$cls(clsName,tagName){
 		var nodes=document.getElementsByTagName(_tagName);
 		var _nodes=new Array();
 		for(var i=0;i<nodes.length;i++){
-			if(nodes[i].className&&nodes[i].className==clsName){
-				_nodes.push(nodes[i]);
+			if(nodes[i].className&&nodes[i].className){
+				var cells=nodes[i].className.split(' ');
+				if(Str.contains(cells,clsName)) _nodes.push(nodes[i]);
 			}
 		}
 		return _nodes;
@@ -168,11 +394,7 @@ var Toast={
 		if(_$('TOAST_GLOBAL')) this.hide();
 		
 		var str='<div id="TOAST_GLOBAL" style="visibility:hidden;">'+txt+'</div>';
-		if(document.body.insertAdjacentHTML){
-			document.body.insertAdjacentHTML('afterBegin', str);
-		}else{
-			document.body.innerHTML=str+document.body.innerHTML;
-		}
+		document.body.insertAdjacentHTML('afterBegin', str);
 		_$('TOAST_GLOBAL').style.visibility='visible';
 
 		_$('TOAST_GLOBAL').style.top=Math.ceil((W.vh()-W.elementHeight(_$('TOAST_GLOBAL')))/2)+'px';
@@ -253,11 +475,7 @@ var ColorPicker={
 			str.push('		<div class="btnSmall65" onclick="ColorPicker.hide();"><input type="button" value="I{js,取消}"/></div>');
 			str.push('	</div>');
 			str.push('</div>');
-			if(document.body.insertAdjacentHTML){
-				document.body.insertAdjacentHTML('afterBegin', str.join(''));
-			}else{
-				document.body.innerHTML=str.join('')+document.body.innerHTML;
-			}
+			document.body.insertAdjacentHTML('afterBegin', str.join(''));
 			str=null;
 		}	
 
@@ -375,11 +593,7 @@ var Alert={
 		//str+='	<div id="ALERT_GLOBAL_TEXT">'+txt+'</div>';
 		//str+='	<div id="ALERT_GLOBAL_BTN"><div id="ALERT_GLOBAL_CLOSE" onclick="Alert.hide();">I{js,确定}</div></div>';
 		//str+='</div>';
-		//if(document.body.insertAdjacentHTML){
-		//	document.body.insertAdjacentHTML('afterBegin', str);
-		//}else{
-		//	document.body.innerHTML=str+document.body.innerHTML;
-		//}
+		//document.body.insertAdjacentHTML('afterBegin', str);
 
 		//_$('ALERT_GLOBAL_BG').style.height=(W.h()-0)+'px';
 		//_$('ALERT_GLOBAL_BG').style.width='100%';
@@ -613,6 +827,17 @@ var Utils={
 		return false;
 	},
 	
+	isAndroid:function(){
+		var mobileAgent = new Array("android", "adr");
+		var browser = navigator.userAgent.toLowerCase(); 
+		for (var i=0; i<mobileAgent.length; i++){ 
+			if (browser.indexOf(mobileAgent[i])!=-1){ 
+				return true;
+			}
+		} 
+		return false;
+	},
+	
 	isWeiXin:function(){
 		var ua=window.navigator.userAgent.toLowerCase();
 		return (ua.indexOf('micromessenger')>-1);
@@ -700,6 +925,28 @@ var Utils={
 		this.goBack('/');
 	},
 	
+	payCallbackAPP:function(url){
+		if(top.LoadingFullPage.isOpen()){
+			top.LoadingFullPage.open(null,window,url,'I{fund,支付结果}');
+		}else if(top.LoadingGoodsPage.isOpen()){
+			top.LoadingGoodsPage.open(null,window,url,'I{fund,支付结果}');
+		}else{
+			top.LoadingGoodsPage.open(null,window,url,'I{fund,支付结果}');
+		}
+	},
+	
+	openUrlLayered:function(url,name,_console){
+		if(top.LoadingFullPage.isOpen()){
+			top.LoadingFullPage.open(null,window,url,name);
+		}else if(top.LoadingGoodsPage.isOpen()){
+			top.LoadingGoodsPage.open(null,window,url,name);
+		}else if(_$('header')){
+			top.LoadingGoodsPage.open(null,window,url,name);
+		}else{
+			top.location.href=_console+'?url='+encodeURIComponent(url);
+		}
+	},
+	
 	distance:function(x1,y1,x2,y2){
 		var d=(x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)
 		return Math.sqrt(d);
@@ -733,8 +980,42 @@ var Utils={
 		if(temp&&temp.style&&(temp.style.display=='none'||temp.style.visibility=='hidden')) return false;
 		
 		return true;
+	},
+	
+	getRequestUrl(url){
+		if(url.indexOf("http://")>-1
+				||url.indexOf("https://")>-1){
+			url=url.substring(8);
+		}
+		if(url.indexOf('/')>-1) url=url.substring(url.indexOf('/'));
+		return url;
+	},
+	
+	replaceFirstDomainCell(domain,alt){
+		var cells=domain.split('.');
+		if(cells.length==2) return alt+'.'+domain;
+		else{
+			cells[0]=alt;
+			var domainNew='';
+			for(var i=0;i<cells.length;i++) domainNew+=cells[i]+'.';
+			domainNew=domainNew.substring(0,domainNew.length-1);
+			return domainNew;
+		}
+	},
+	
+	//将内容大小（字节数）转换成M显示（如果大于1M）
+	//bytes  字节数
+	size:function(bytes){
+		bytes=bytes/1024;
+		if(bytes<1024) return bytes+'K';
+		else return Math.floor(bytes/1024)+'M';
 	}
 }
+
+//手机锁定
+try{
+	if(Utils.isMobile()) screen.orientation.lock('natural');
+}catch(e){}
 
 var MathUtil={
 	p:function(scope, selected){//排列
@@ -900,36 +1181,196 @@ PasswordViewer.prototype.move=function(relative){
 	//eyeObj.style.top=(W.elementTop(relative)+Math.floor((W.elementHeight(relative)-W.elementHeight(eyeObj))/2))+'px';
 }
 
+//图片压缩处理与上传
+function JFileManager(){
+
+}
+//图片压缩处理与上传 end
+
 //扫码处理
+var ScannerUploader=new Array();
+ScannerUploader.push('<div class="r alignC">I{.不在APP内无法直接扫码，请拍照或上传图片。}</div>');
+ScannerUploader.push('<div class="r alignC marginT10">');
+ScannerUploader.push('<div style="width:96%; display:inline-table; margin-left:auto; margin-right:auto;">');
+ScannerUploader.push('    <div class="fullWidthBtnYellow displayBlock fl" style="width:44%;">');
+ScannerUploader.push('        <div class="fileInputWithSkin" style="width:100%; height:40px; line-height:40px; color:#FFF; text-align:center; overflow:hidden;">');
+ScannerUploader.push('            <div class="skin hand" id="scanUploadFile">I{.拍照或选择图片}</div>');
+ScannerUploader.push('            <div class="file hand" style="height:40px; top:-40px;">');
+ScannerUploader.push('                <form name="scanUploadForm" id="scanUploadForm" action="/scanner.handler?request=scan" method="post" enctype="multipart/form-data" target="ScannerUploader">');
+ScannerUploader.push('                    <input type="file" style="height:40px;" name="scanImage" accept="image/*" onchange="Scanner.upload();"/>');
+ScannerUploader.push('                </form>');
+ScannerUploader.push('            </div>');
+ScannerUploader.push('        </div>');
+ScannerUploader.push('        <div class="hidden"><iframe id="ScannerUploader" name="ScannerUploader"></iframe></div>');
+ScannerUploader.push('    </div>');
+ScannerUploader.push('    <div class="fullWidthBtnGray displayBlock fr" style="width:44%;" onclick="Scanner.uploadCancel();">I{取消}</div>');
+ScannerUploader.push('</div>');
+ScannerUploader.push('</div>');
 var Scanner={
+	camera:'back',
+	uploadTimer:null,
+	
 	scan:function(){
-		if(thisDomain.startsWith("app.")){
-			HTMLInterface.scan('Scanner.callback');
-		}else if(thisDomain.startsWith("ios.")){
-			
+		try{
+			if(thisDomain.startsWith("app.")){
+				HTMLInterface.scan('Scanner.callback');
+			}else if(thisDomain.startsWith("ios.")){
+				if(_$('footerMenus')) _$('footerMenus').style.display='none';
+				if(_$('content')) _$('content').style.display='none';
+				if(_$('container')) _$('container').style.display='none';
+				if(_$('header')) _$('header').style.display='none';
+				_$('scannerMenus').style.visibility='visible';
+				HTMLInterface.scan(Scanner.callback);
+			}else{
+				HTMLInterface.scan('Scanner.callback');
+			}
+		}catch(e){
+			top.Loading.open(-1,-1,-1,-1,null,window,'dialog');
+			top.Loading.setMsg(ScannerUploader.join(''));
+		}
+	},
+	
+	upload:function(){
+		if(_$('scanUploadFile').innerHTML.indexOf('loading')>0) return;
+		
+		if(!this.uploadTimer){
+			clearTimeout(this.uploadTimer);
+			this.uploadTimer=null;
+		}
+		
+		if(scanUploadForm.scanImage.value==''){
+			_$('scanUploadFile').innerHTML='I{.拍照或选择图片}';
+		}else if(!scanUploadForm.scanImage.value.toLowerCase().endsWith('.jpg')
+				&&!scanUploadForm.scanImage.value.toLowerCase().endsWith('.jpeg')
+				&&!scanUploadForm.scanImage.value.toLowerCase().endsWith('.png')){
+			_$('scanUploadFile').innerHTML='I{.拍照或选择图片}';
+			alert('I{js,只能上传JPG或PNG格式图片}');
 		}else{
-			top.Loading.setMsg('I{header,请在APP内使用扫一扫功能}');
+			_$('scanUploadFile').innerHTML='<img src="/img/loading/Loading4.gif" height="20" style="margin-top:10px;"/>';
+			scanUploadForm.submit();
+			this.uploadTimer=setTimeout(Scanner.uploadDone,1000);
+		}
+	},
+	
+	uploadDone:function(){
+		if(!Scanner.uploadTimer){
+			clearTimeout(Scanner.uploadTimer);
+			Scanner.uploadTimer=null;
+		}
+		
+		var txt='';
+		try{
+			if(_$('ScannerUploader').contentDocument){
+				txt=_$('ScannerUploader').contentDocument.body.innerHTML;
+			}else{
+				txt=ScannerUploader.document.body.innerText;
+			}
+		}catch(e){}
+		
+		if(txt==''){
+			Scanner.uploadTimer=setTimeout(Scanner.uploadDone,1000);
+			return;
+		}
+		
+		try{
+			_$('scanUploadFile').innerHTML='I{.拍照或选择图片}';
+			
+			var resp=JSONUtil.parse(txt);
+			if(resp.success=='true'){
+				Scanner.callback(null,resp.code);
+				Scanner.uploadCancel();
+			}else{
+				alert(resp.message);
+			}
+		}catch(e){
+			alert('I{js,二维码解析出错}');
+		}
+	},
+	
+	uploadCancel:function(){
+		if(!this.uploadTimer){
+			clearTimeout(this.uploadTimer);
+			this.uploadTimer=null;
+		}
+		top.Loading.close();
+	},
+	
+	cancel:function(){
+		if(thisDomain.startsWith("ios.")){
+			_$('scannerMenus').style.visibility='hidden';
+			if(_$('footerMenus')) _$('footerMenus').style.display='';
+			if(_$('content')) _$('content').style.display='';
+			if(_$('container')) _$('container').style.display='';
+			if(_$('header')) _$('header').style.display='';
+			QRScanner.cancelScan(_void);
+			QRScanner.hide();
+		}
+	},
+	
+	lightOn:function(){
+		if(thisDomain.startsWith("ios.")){
+			QRScanner.enableLight(_void);
+		}
+	},
+	
+	lightOff:function(){
+		if(thisDomain.startsWith("ios.")){
+			QRScanner.disableLight(_void);
+		}
+	},
+	
+	front:function(){
+		if(thisDomain.startsWith("ios.")){
+			QRScanner.useFrontCamera(_void);
+		}
+	},
+	
+	back:function(){
+		if(thisDomain.startsWith("ios.")){
+			QRScanner.useBackCamera(_void);
+		}
+	},
+	
+	changeCamera:function(){
+		if(this.camera=='back'){
+			this.camera='front';
+			this.front();
+		}else{
+			this.camera='back';
+			this.back();
 		}
 	},
 	
 	callback:function(code,message){
-		if(code==0){
-			top.Alert.show('I{js,扫码失败}');
+		if(thisDomain.startsWith('ios.')){
+			_$('scannerMenus').style.visibility='hidden';
+			if(_$('header')) _$('header').style.display='';
+			if(_$('container')) _$('container').style.display='';
+			if(_$('content')) _$('content').style.display='';
+			if(_$('footerMenus')) _$('footerMenus').style.display='';
+			QRScanner.destroy();
+		}
+		
+		if(message.indexOf('http')==0){
+			location.href=(message);
 		}else{
-			if(message.indexOf('http')==0){
-				location.href=(message);
-			}else{
-				var qrcode=JSON.parse(message);
-				if(!qrcode||!qrcode.processor){
-					top.Loading.setMsg('I{js,扫码结果}:'+message);
-				}else{
-					top.Loading.setMsg('<img src="/img/loadingGreen.gif"/>');
-					
-					var url='/scanner.handler?request=scan&processor='+qrcode.processor+'&qrcode='+encodeURIComponent(message);
-					
-					var ajax=new Ajax();
-					ajax.send('GET',Scanner.doCallback,url);
+			var qrcode=null;
+			try{
+				qrcode=JSON.parse(message);
+			}catch(e){}
+			
+			if(!qrcode||!qrcode.processor){
+				try{
+					top.Loading.win.ScannerCallback(message);
+				}catch(e){
 				}
+			}else{
+				top.Loading.setMsg('<img src="/img/loadingGreen.gif"/>');
+				
+				var url='/scanner.handler?request=scan&processor='+qrcode.processor+'&qrcode='+encodeURIComponent(message);
+				
+				var ajax=new Ajax();
+				ajax.send('GET',Scanner.doCallback,url);
 			}
 		}
 	},
@@ -938,7 +1379,7 @@ var Scanner={
 		if(ajax.getReadyState()==4&&ajax.getStatus()==200){
 			try{
 				var resp=ajax.getResponseJson();
-				if(resp.code=='1'){
+				if(resp.success=='true'){
 					top.Loading.setMsgOk(resp.message);
 				}else{
 					top.Loading.setMsgErr(resp.message);
@@ -1178,9 +1619,9 @@ var Paras={
 		var url='';
 		for(var i in this.paras){
 			if(url==''){
-				url+='?'+i+'='+this.paras[i];
+				url+='?'+i+'='+encodeURIComponent(this.paras[i]);
 			}else{
-				url+='&'+i+'='+this.paras[i];
+				url+='&'+i+'='+encodeURIComponent(this.paras[i]);
 			}
 		}	
 		return url;
@@ -1189,9 +1630,8 @@ var Paras={
 	getParasEx:function(ex){
 		var url='';
 		for(var i in this.paras){
-			if(i.indexOf(ex)>-1){
-				continue;
-			}
+			if(i.indexOf(ex)>-1) continue;
+			
 			if(url==''){
 				url+='?'+i+'='+encodeURIComponent(this.paras[i]);
 			}else{
@@ -1204,9 +1644,12 @@ var Paras={
 	getParasExExact:function(ex){
 		var url='';
 		for(var i in this.paras){
-			if(i==ex){
+			if((typeof ex)=='string'){
+				if(i==ex) continue;
+			}else if(Str.contains(ex,i)){
 				continue;
 			}
+		
 			if(url==''){
 				url+='?'+i+'='+encodeURIComponent(this.paras[i]);
 			}else{
@@ -1284,11 +1727,7 @@ var Currency={
 		else document.write(htm);
 		
 		if(!_$('currencySelectorList')){
-			if(document.body.insertAdjacentHTML){
-				document.body.insertAdjacentHTML('afterBegin', this.listHtm);
-			}else{
-				document.body.innerHTML=this.listHtm+document.body.innerHTML;
-			}
+			document.body.insertAdjacentHTML('afterBegin', this.listHtm);
 		}
 		this._showCurrencySelector(true);
 	},
@@ -1574,11 +2013,7 @@ var Lang={
 		else document.write(htm);
 		
 		if(!_$('langSelectorList')){
-			if(document.body.insertAdjacentHTML){
-				document.body.insertAdjacentHTML('afterBegin', this.listHtm);
-			}else{
-				document.body.innerHTML=this.listHtm+document.body.innerHTML;
-			}
+			document.body.insertAdjacentHTML('afterBegin', this.listHtm);
 			this._showLangSelector(true);
 		}
 	},
@@ -1858,13 +2293,15 @@ var D={
 			}	
 		}
 	
-		var posX = W.elementLeft(obj);
+		var posX = Utils.isMobile()?Math.floor((W.vw()-256)/2):W.elementLeft(obj);
 		var posY = W.elementTop(obj);
 
-		posX-=W.elementWidth(obj);
-		posY+=W.elementHeight(obj)+5;
-		if(posX<10) posX=10;
-		if(posX+220>W.vw()) posX=W.vw()-230;
+		if(!Utils.isMobile()){
+			posX-=W.elementWidth(obj);
+			posY+=W.elementHeight(obj)+5;
+			if(posX<10) posX=10;
+			if(posX+220>W.vw()) posX=W.vw()-230;
+		}
 		
 		Loading.cover=false;
 		Loading.open(posX,posY,-1,-1,null,window);
@@ -2103,16 +2540,36 @@ var W={
 		return Math.max(r, this.vh());
 	},
 	iframeHeight:function(id){
-		var obj=_$(id);
-		
-		return Math.min(obj.contentWindow.document.documentElement.scrollHeight,
-				obj.contentWindow.document.body.scrollHeight);
+		try{
+			var obj=_$(id);
+			
+			if(obj.contentWindow.document.documentElement.scrollHeight
+					&&obj.contentWindow.document.body.scrollHeight){
+				return Math.min(obj.contentWindow.document.documentElement.scrollHeight,obj.contentWindow.document.body.scrollHeight);
+			}else if(obj.contentWindow.document.documentElement.scrollHeight){
+				return obj.contentWindow.document.documentElement.scrollHeight;
+			}else{
+				return obj.contentWindow.document.body.scrollHeight;
+			}
+		}catch(e){
+			return IFrame.minHeight;
+		}
 	},
 	iframeWidth:function(id){
-		var obj=_$(id);
-		
-		return Math.min(obj.contentWindow.document.documentElement.scrollWidth,
-				obj.contentWindow.document.body.scrollWidth);
+		try{
+			var obj=_$(id);
+			
+			if(obj.contentWindow.document.documentElement.scrollWidth
+					&&obj.contentWindow.document.body.scrollWidth){
+				return Math.min(obj.contentWindow.document.documentElement.scrollWidth,obj.contentWindow.document.body.scrollWidth);
+			}else if(obj.contentWindow.document.documentElement.scrollWidth){
+				return obj.contentWindow.document.documentElement.scrollWidth;
+			}else{
+				return obj.contentWindow.document.body.scrollWidth;
+			}
+		}catch(e){
+			return W.vw();
+		}
 	},
 	
 	elementTop:function(obj){
@@ -2187,16 +2644,34 @@ var IFrame={
 		}catch(e){	
 		}
 	},
-
+	
 	//往iframe窗口中写入内容
 	setContent:function(frm,content){
-		if(frm.contentDocument){
+		if((typeof frm)=='string'){
+			_$(frm).contentDocument.write(content);
+			_$(frm).contentDocument.close();
+		}else if(frm.contentDocument){
 			frm.contentDocument.write(content);
 			frm.contentDocument.close();
 		}else{
 			frm.document.write(content);
 			frm.document.close();
 		}
+	},
+	
+	//读取iframe内容
+	getContent:function(frm){
+		try{
+			var txt='';
+			if((typeof frm)=='string'){
+				txt=_$(frm).contentDocument.body.innerHTML;
+			}else if(frm.contentDocument){
+				txt=frm.contentDocument.body.innerHTML;
+			}else{
+				txt=frm.document.body.innerHTML;
+			}
+		}catch(e){}
+		return txt;
 	},
 
 	//frm: iframe对象
@@ -2206,7 +2681,7 @@ var IFrame={
 		if(frm.contentDocument){
 			frm.contentDocument.getElementById(elementId).innerHTML=content;
 		}else{
-			frm.document.all(elementId).innerHTML=content;
+			frm.document.getElementById(elementId).innerHTML=content;
 		}	
 	},
 
@@ -2219,130 +2694,6 @@ var IFrame={
 		}	
 	}
 } 
-
-//字符串操作
-var Str={
-	//全部替换
-	replaceAll:function(str,original,alternative){
-		var tokens=new Array();
-		var index=str.indexOf(original);
-		while(index>=0){
-			tokens.push(str.substring(0,index)+alternative);
-			str=str.substring(index+original.length);
-			index=str.indexOf(original);
-
-			if(str=='') break;
-		}
-		if(str!='') tokens.push(str);
-		var newstr=tokens.join('');
-		tokens=null;
-		return newstr;
-	},
-
-	//去掉首尾空格
-	trimAll:function(str){
-		for(;str.indexOf(' ')==0;){
-			str=str.replace(' ','');
-		}
-		for(;str!=''&&str.lastIndexOf(' ')==str.length-1;){
-			str=str.substring(0,str.length-1);
-		}	
-		return str;
-	},
-	
-	//计算字符串长度（字节数）
-	bytes:function(str,encoding){
-		var len=0;
-		for(var i=0;i<str.length;i++){
-			var sub=str.substring(i,i+1);
-			if(sub.match(/[\u4E00-\u9FA5]/)){
-				if(encoding==undefined||encoding.toUpperCase()=='UTF-8'){
-					len+=3;
-				}else{
-					len+=2;
-				}
-			}else{
-				len+=1;			
-			}
-		}
-		return len;
-	},
-	
-	//是否包含
-	contains:function(arr,str){
-		if(!arr||arr.length==0) return false;
-		
-		for(var i=0;i<arr.length;i++){
-			if(arr[i]==str) return true;
-		}
-		return false;
-	},
-	
-	//我们是<font color="red" id="3.8">中国人</font>xxx<font color=\'red\'>些某</font>yyy<font color=\'red\'/>x
-	delTag:function(src,tagName){	
-		var re=new RegExp('<'+tagName+'[^<]*>','gm');
-		src=src.replace(re,'');
-		
-		re=new RegExp('</'+tagName+'>','gm');
-		src=src.replace(re,'');
-		
-		return src;
-	},
-	
-	//是否以什么开头
-	startsWith:function(src,prefix,ignorecase){	
-		if(!src||!prefix) return false;
-		
-		if(src==''||prefix=='') return false;
-		
-		if(ignorecase){
-			src=src.toLowerCase();
-			prefix=prefix.toLowerCase();
-		}
-		
-		return src.indexOf(prefix)==0;
-	},
-	
-	//是否以什么结尾
-	endsWith:function(src,suffix,ignorecase){	
-		if(!src||!suffix) return false;
-		
-		if(src==''||suffix=='') return false;
-		
-		if(ignorecase){
-			src=src.toLowerCase();
-			suffix=suffix.toLowerCase();
-		}
-		
-		return src.indexOf(suffix)==src.length-suffix.length;
-	},
-	
-	//是否以什么开头
-	startsWithOneOf:function(src,prefixes,ignorecase){	
-		if(!src||!prefixes) return false;
-		
-		if(src==''||prefixes=='') return false;
-		
-		for(var i=0;i<prefixes.length;i++){
-			if(Str.startsWith(src,prefixes[i],ignorecase)) return true;
-		}
-		
-		return false;
-	},
-	
-	//是否以什么结尾
-	endsWithOneOf:function(src,prefixes,ignorecase){	
-		if(!src||!prefixes) return false;
-		
-		if(src==''||prefixes=='') return false;
-		
-		for(var i=0;i<prefixes.length;i++){
-			if(Str.endsWith(src,prefixes[i],ignorecase)) return true;
-		}
-		
-		return false;
-	}
-}
 
 //============================
 //图片处理
@@ -2908,16 +3259,54 @@ var XML={
 //============================
 //Ajax
 //============================
+var JSONUtil={
+	parse:function(s){
+		var resp=JSON.parse(s);
+		try{
+			resp.code=Str.intSequence2String(resp.code);
+		}catch(e){} 
+		try{
+			resp.message=Str.intSequence2String(resp.message);
+		}catch(e){} 
+		return resp;
+	}
+}
+
 var currentAjax=null;
-function Ajax(setResult){
+var currentAjaxForUpload=null;
+var Ajaxs=new Array();
+function Ajax(setResult,closeDialogAuto){
+	result='';
+	
+	this.id='AJAX_'+(Math.random()+'').substring(2);//ID
+	
+	this.response=null;//ifame或app方式下的返回结果
+	this.readyStatus=null;//ifame或app方式下的状态，为兼容常规Ajax回调方式
+	this.status=null;//ifame或app方式下的状态，为兼容常规Ajax回调方式
+	
+	//当需要调用安卓APP上传文件时，APP只能回调顶层窗口函数，如果当前是处于IFrame，则需要以IFrameObject.callback的形式将callback传递给APP
+	this.inIFrame=null;
+	this.mediaType='';//告诉APP可上传的文件类型
+	
 	this.setResult=setResult?setResult:false;
+	this.closeDialogAuto=closeDialogAuto?closeDialogAuto:false;
 	
 	//XMLHttpRequest
 	this.request=null;
 	this.requestContentType=null;
 	this.requestHeaders=new Array();
 	this.url='';
+	
+	//上传文件单个大小和总大小(单位 K)
+	this.maxFileSize=0;
+	this.maxFileSizeTotal=0;
+	
+	this.callback=null;
+	this.onStart=null;//开始时回调
+	
 	currentAjax=this;
+	
+	Ajaxs[this.id]=[this,null];//[本Ajax实例,IFrame提交方式时获取结果的计时器]
 }
 
 Ajax.prototype.getRequestContentType=function(){
@@ -2950,55 +3339,69 @@ Ajax.prototype.getRequestHeaders=function(){
 //3：请求在处理中；通常响应中已有部分数据可用了，但是服务器还没有完成响应的生成。
 //4：响应已完成；您可以获取并使用服务器的响应了。
 Ajax.prototype.getReadyState=function(){
+	if(this.readyStatus) return this.readyStatus;
 	return this.request.readyState;
 }
 
 //http相应代码，如404等
 Ajax.prototype.getStatus=function(){
+	if(this.status) return this.status;
 	try{
 		return this.request.status;
 	}catch(e){}
 }
 
 Ajax.prototype.getStatusText=function(){
+	if(this.response) return this.response;
 	try{
 		return this.request.statusText;
 	}catch(e){}
 }
 
 Ajax.prototype.getResponseXML=function(){
+	if(this.response) return this.response;
 	try{
 		return this.request.responseXML;
 	}catch(e){}
 }
 
 Ajax.prototype.getResponseText=function(){
+	var txt='';
+	if(this.response) txt=this.response;
+	else txt=this.request.responseText;
 	try{
-		if(this.request.responseText
-				&&this.request.responseText.indexOf('"success":')>-1
-				&&this.request.responseText.indexOf('"code":')>-1
-				&&this.request.responseText.indexOf('"message":')>-1){
+		if(txt.indexOf('"success":')>-1
+				&&txt.indexOf('"code":')>-1
+				&&txt.indexOf('"message":')>-1){
 			try{
-				return JSON.parse(this.request.responseText).code;
+				var resp=JSON.parse(txt);
+				resp.code=Str.intSequence2String(resp.code);
+				resp.message=Str.intSequence2String(resp.message);
+				return resp.code;
 			}catch(e){}
 		}
 		
-		if(this.request.responseText.indexOf('redirect.submit();')>-1){//需要登录
+		if(txt.indexOf('redirect.submit();')>-1){//需要登录
 			return '-login';
 		}else{//其它错误
-			return this.request.responseText;
+			return txt;
 		}
 	}catch(e){}
 }
 
 Ajax.prototype.getResponseJson=function(){
+	var txt='';
+	if(this.response) txt=this.response;
+	else txt=this.request.responseText;
 	try{
-		var resp=JSON.parse(this.request.responseText);
+		var resp=JSON.parse(txt);
 		if(resp&&resp.code){//返回正常
+			resp.code=Str.intSequence2String(resp.code);
+			resp.message=Str.intSequence2String(resp.message)
 			return resp;
-		}else if(this.request.responseText.indexOf('redirect.submit();')>-1){//需要登录
+		}else if(txt.indexOf('redirect.submit();')>-1){//需要登录
 			return JSON.parse('{"success":"false","code":"-login","message":"I{js,请登录系统}","datas":{}}');
-		}else if(this.request.responseText=='FORBIDDEN'){
+		}else if(txt=='FORBIDDEN'){
 			if(this.url.indexOf('/seller/')>-1
 					||this.url.indexOf('/Seller')>-1){
 				return JSON.parse('{"success":"false","code":"FORBIDDEN","message":"I{js,您不是商户}","datas":{}}');
@@ -3009,9 +3412,9 @@ Ajax.prototype.getResponseJson=function(){
 			return JSON.parse('{"success":"false","code":"ERR","message":"I{js,未知错误}","datas":{}}');
 		}
 	}catch(e){
-		if(this.request.responseText.indexOf('redirect.submit();')>-1){//需要登录
+		if(txt.indexOf('redirect.submit();')>-1){//需要登录
 			return JSON.parse('{"success":"false","code":"-login","message":"I{js,请登录系统}","datas":{}}');
-		}else if(this.request.responseText=='FORBIDDEN'){
+		}else if(txt=='FORBIDDEN'){
 			if(this.url.indexOf('/seller/')>-1
 					||this.url.indexOf('/Seller')>-1){
 				return JSON.parse('{"success":"false","code":"FORBIDDEN","message":"I{js,您不是商户}","datas":{}}');
@@ -3072,6 +3475,7 @@ Ajax.prototype.createXMLHttpRequest=function(){
 //创建XMLHttpRequest,发送请求
 //post时data的格式为 p1=v1&p2=v2&p3=v3...
 Ajax.prototype.send=function(method,callback,url,data){
+	this.callback=callback;
 	this.url=url;
 	if(this.request!=null){	
 		try{		
@@ -3112,7 +3516,87 @@ Ajax.prototype.send=function(method,callback,url,data){
 }
 	
 //创建XMLHttpRequest,发送请求
-Ajax.prototype.sendForm=function(_form,callback){
+Ajax.prototype.sendForm=function(_form,callback){	
+	this.callback=callback;
+	currentAjaxForUpload=this;
+	
+	if(_form.enctype=='multipart/form-data'&&thisDomain.startsWith('app.')){//如果包含文件且是安卓APP
+		//该方式下一个页面只运行一个Ajax实例在运行
+		var _action=_form.action;
+		if(!_action.startsWith('http')) _action=httpScheme+'://'+thisDomain+_action;
+		HTMLInterface.startUploadTypeCallback(_action,session_id,this.mediaType,(this.inIFrame==null?'':(this.inIFrame+'.'))+'ajaxGetAndroidAppResult');
+		return;
+	}
+	
+	///////////////////////////////组织数据//////////////
+	var data=null;
+	
+	var useIFrame=false;//是否需要用iframe上传文件
+	var multipart=false;//是否包含文件
+	var es=_form.elements;
+	var fileSizeTotal=0;
+	for(var i=0;i<es.length;i++){
+		if(es[i].type=='file'){
+			multipart=true;
+			
+			for(var f = 0; f < es[i].files.length; f++){
+				 if(this.maxFileSize>0&&es[i].files[f].size>this.maxFileSize){
+					 alert('I{js,文件大小超出允许值 } '+Utils.size(this.maxFileSize));
+					 return;
+				 }
+				 fileSizeTotal+=es[i].files[f].size;
+			}
+		}
+	}
+	
+	if(this.maxFileSizeTotal<this.maxFileSize) this.maxFileSizeTotal=this.maxFileSize;
+	if(this.maxFileSizeTotal>0&&fileSizeTotal>this.maxFileSize){
+		alert('I{js,文件总大小超出允许值 } '+Utils.size(this.maxFileSizeTotal));
+		return;
+	}
+	
+	if(multipart&&(typeof FormData)==='function'){
+		console.log(this.id+"...使用FormData上传数据...");
+		data=new FormData();
+		for(var i=0;i<es.length;i++){
+			if(es[i].type=='file'){
+				 for(var f = 0; f < es[i].files.length; f++){
+					 data.append(es[i].name, es[i].files[f], es[i].files[f].name);
+				 }
+			}else{
+				data.append(es[i].name, es[i].value);
+			}
+		}
+	}else{
+		if(multipart){
+			console.log(this.id+"...使用IFrame提交表单...");
+			useIFrame=true;
+		}else{
+			console.log(this.id+"...普通POST方式提交数据...");
+			data='';		
+			for(var i=0;i<es.length;i++){
+				data+='&'+es[i].name+'='+encodeURIComponent(es[i].value);
+			}
+			if(data.length>0) data=data.substring(1);
+			else data==null;
+		}
+	}
+	///////////////////////////////组织数据//////////////
+	
+	if(useIFrame){//使用IFrame提交
+		var _target='<div style="display:none !important;"><iframe id="'+this.id+'_FRAME" name="'+this.id+'_FRAME"/></div>';
+		document.body.insertAdjacentHTML('afterBegin',_target);
+		_form.target=this.id+'_FRAME';
+		_form.submit();
+		
+		var timer=setTimeout("ajaxGetIFrameResult('"+this.id+"')",2000)
+		Ajaxs[this.id]=[this,timer];//[本Ajax实例,IFrame提交方式时获取结果的计时器]
+		
+		if(this.onStart) this.onStart('','I{js,开始上传}');
+		
+		return;
+	}
+	
 	this.url=_form.action;
 	if(this.request!=null){	
 		try{		
@@ -3133,7 +3617,9 @@ Ajax.prototype.sendForm=function(_form,callback){
 	
 	//请求头
 	if(this.requestContentType==null){
-		_request.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+		if(data==null||(typeof data)==='string'){//不是FormData才需要设置Content-Type
+			_request.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+		}
 	}else{
 		_request.setRequestHeader('Content-Type',this.requestContentType); 
 	}
@@ -3147,14 +3633,8 @@ Ajax.prototype.sendForm=function(_form,callback){
 	_request.setRequestHeader("If-Modified-Since","0");	
 	//请求头 end
 	
-	var data='';
-	var es=_form.elements;
-	for(var i=0;i<es.length;i++){
-		data+='&'+es[i].name+'='+encodeURIComponent(es[i].value);
-	}
-	if(data.length>0) data=data.substring(1);
-	else data==null;
-	
+	if(this.onStart) this.onStart('','I{js,开始提交}');
+
 	_request.send(data);
 }
 
@@ -3173,11 +3653,23 @@ Ajax.prototype.callbackDefault=function(){
 			var resp=this.getResponseJson();
 			if(this.setResult) result=resp.code;
 			if(resp.code=='1'){
-				if(top._$('loading')) top.Loading.setMsgOk(resp.message);
-				else Loading.setMsgOk(resp.message);
+				if(top._$('loading')){
+					top.Loading.setMsgOk('<font class="iconfont icon-chenggong font24px"></font><br/>'+resp.message);
+					if(this.closeDialogAuto) top.Loading.closeDelay(2000,true);
+				}else{
+					Loading.setMsgOk('<font class="iconfont icon-chenggong font24px"></font><br/>'+resp.message);
+					if(this.closeDialogAuto) Loading.closeDelay(2000,true);
+				}
+			}else if(resp.code=='-login'){
+				showNotLoginMessage();
 			}else{
-				if(top._$('loading')) top.Loading.setMsgErr(resp.message);
-				else Loading.setMsgErr(resp.message);
+				if(top._$('loading')){
+					top.Loading.setMsgErr('<font class="iconfont icon-shibai1 font24px"></font><br/>'+resp.message);
+					//if(this.closeDialogAuto) top.Loading.closeDelay(2000,true);
+				}else{
+					Loading.setMsgErr('<font class="iconfont icon-shibai1 font24px"></font><br/>'+resp.message);
+					//if(this.closeDialogAuto) Loading.closeDelay(2000,true);
+				}
 			}
 		}catch(e){
 			Loading.setMsgErr('I{.未知错误}');
@@ -3187,8 +3679,40 @@ Ajax.prototype.callbackDefault=function(){
 function ajaxCallbackDefault(ajax){
 	ajax.callbackDefault();
 }
-
-
+function ajaxGetIFrameResult(id){
+	var ajaxAndTimer=Ajaxs[id];
+	if(!ajaxAndTimer) return;
+	
+	if(ajaxAndTimer[1]){
+		clearTimeout(ajaxAndTimer[1]);
+	}
+	
+	var response=IFrame.getContent(id+'_FRAME');
+	if(response==''){
+		ajaxAndTimer[1]=setTimeout("ajaxGetIFrameResult('"+id+"')",1000);
+		return;
+	}
+	
+	var _iframe=_$(id+'_FRAME');
+	_iframe.parentNode.removeChild(_iframe);
+	
+	ajaxAndTimer[0].response=response;//ifame或app方式下的返回结果
+	ajaxAndTimer[0].readyStatus=4;//ifame或app方式下的状态
+	ajaxAndTimer[0].status=200;//ifame或app方式下的状态
+	
+	if(ajaxAndTimer[0].callback) ajaxAndTimer[0].callback(ajaxAndTimer[0]);
+}
+function ajaxGetAndroidAppResult(code,txt){
+	if(code==''){//开始上传
+		if(currentAjaxForUpload.onStart) currentAjaxForUpload.onStart('','I{js,开始上传}');
+		return;
+	}
+	
+	currentAjaxForUpload.response=txt;//ifame或app方式下的返回结果
+	currentAjaxForUpload.readyStatus=4;//ifame或app方式下的状态
+	currentAjaxForUpload.status=200;//ifame或app方式下的状态
+	if(currentAjaxForUpload.callback) currentAjaxForUpload.callback(currentAjaxForUpload);
+}
 
 //自定义下拉列表
 //document.write('<div id="displayTypes">');
@@ -3297,11 +3821,7 @@ Selector.prototype.insert=function(parentId){
 	}
 	htm.push('</div>\n');
 	htm.push('</div>\n');
-	if(document.body.insertAdjacentHTML){
-		document.body.insertAdjacentHTML('afterBegin', htm.join(''));
-	}else{
-		document.body.innerHTML=htm.join('')+document.body.innerHTML;
-	}
+	document.body.insertAdjacentHTML('afterBegin', htm.join(''));
 }
 Selector.prototype.findItem=function(id){		
 	for(var i=0;i<this.items.length;i++){
@@ -3437,19 +3957,28 @@ var LoadingFullPage={
 	padding:0,
 	initScrollTop:0,
 	
+	isOpen:function(){
+		return _$('loadingFullPage')?true:false;
+	},
+	
 	scrollTop:function(){
 		return _$('loadingFullPage')?_$('loadingFullPage').scrollTop:0;
 	},
 	
+	scroll:function(t){
+		_$('loadingFullPage').scrollTop=t;
+	},
+	
 	setHeight:function(){
 		try{			
-			if(_$('loadingFullPageFrame')){
+			if(_$('loadingFullPageFrame')
+					&&loadingFullPageFrame.location.href.indexOf(thisDomain)>0){
 				IFrame.adjustSize('loadingFullPageFrame');
 			}
 		}catch(e){}
 	},
 	
-	open:function(_onClose,_win,_url,_pageName,_content){
+	open:function(_onClose,_win,_url,_pageName,_content,_zIndex){
 		if(_url==null) _url='';
 		
 		if(_url.indexOf('/goods/item.jhtml')>-1
@@ -3457,12 +3986,16 @@ var LoadingFullPage={
 			LoadingGoodsPage.open(_onClose,_win,_url,_pageName,_content);
 			return;
 		}
+		
+		if(_pageName) _pageName=decodeURIComponent(_pageName);
+		
 		this.onClose=null;
 		this.win=null;
 		this.url=_url;
 		this.pageName=_pageName;
 		this.urlLoaded=new Array();
 		this.urlLoadedIndex=-1;
+		this.zIndex=_zIndex;
 		
 		if(_onClose) this.onClose=_onClose;
 		if(_win) this.win=_win;
@@ -3477,9 +4010,9 @@ var LoadingFullPage={
 		this.init();
 		
 		if(this.cover){
-			_$('loadingFullPageBg').style.height=(W.h()-10)+'px';
+			_$('loadingFullPageBg').style.height=(W.h()-51)+'px';
 			_$('loadingFullPageBg').style.width='100%';
-			_$('loadingFullPageBg').style.top='0px';
+			_$('loadingFullPageBg').style.top='41px';
 			_$('loadingFullPageBg').style.left='0px';	
 		}
 
@@ -3503,6 +4036,13 @@ var LoadingFullPage={
 	},
 	
 	close:function(noForce){//关闭
+		top.Loading.close();
+		
+		//恢复手机版搜索提示词和提交目标
+		try{
+			_searcherConfigInHeader(null,null);
+		}catch(e){}
+		
 		if(!_$('loadingFullPage')) return;
 		
 		if(this.canClose==false){
@@ -3511,9 +4051,14 @@ var LoadingFullPage={
 		
 		if(noForce&&noForce=='true'){
 			try{
-				if(this.urlLoadedIndex>0){
+				while(this.urlLoadedIndex>0){
 					var _urlLoaded=this.urlLoaded[this.urlLoadedIndex-1];
 					this.urlLoadedIndex--;
+					
+					if(_urlLoaded[0].indexOf('/deposit/')>-1){
+						continue;
+					}
+					 
 					this.setTitle(_urlLoaded[1]);
 					loadingFullPageFrame.location.href=_urlLoaded[0];
 					//history.back(-1);
@@ -3555,7 +4100,11 @@ var LoadingFullPage={
 		_$('loadingFullPageTitle').innerHTML=tit; 
 	},
 	
-	load:function(url,_content){ 
+	load:function(url,_content){ //恢复手机版搜索提示词和提交目标
+		try{
+			_searcherConfigInHeader(null,null);
+		}catch(e){}
+		
 		if(!_$('loadingFullPage')) return;
 		
 		if(_content){
@@ -3620,14 +4169,15 @@ var LoadingFullPage={
 	
 	init:function(){
 		if(_$('loadingFullPageBg')){
+			this.setTitle(this.pageName);
 			return;
 		}	
 		
-		var str='<div id="loadingFullPageBg"><iframe src="/blank.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		var str='<div id="loadingFullPageBg" style="'+(this.zIndex?('z-index:'+this.zIndex):'')+'"><iframe src="/white.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>';
 		
-		str+='<div id="loadingFullPageLoading"><img src="/img/loading/Loading6.gif"/></div>';
+		str+='<div id="loadingFullPageLoading" style="'+(this.zIndex?('z-index:'+(this.zIndex+2)):'')+'"><img src="/img/loading/Loading6.gif"/></div>';
 		
-		str+='<div id="loadingFullPageCloseBox">';
+		str+='<div id="loadingFullPageCloseBox" style="'+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'">';
 		str+='	<div id="loadingFullPageClose" onclick="LoadingFullPage.close(\'true\');">';
 		str+='		<div id="loadingFullPageCloseText" class="iconfont icon-back_light"></div>';
 		str+='	</div>';
@@ -3637,13 +4187,8 @@ var LoadingFullPage={
 		str+='	<div id="loadingFullPageTitle" style="width:'+(W.vw()-100)+'px;">'+this.pageName+'</div>';
 		str+='</div>';
 		
-		str+='<div id="loadingFullPage" class="loadingFullPage" style="height:'+(W.vh()-40)+'px;">';
-		str+='</div>';
-		if(document.body.insertAdjacentHTML){
-			document.body.insertAdjacentHTML('afterBegin', str);
-		}else{
-			document.body.innerHTML=str+document.body.innerHTML;
-		}
+		str+='<div id="loadingFullPage" class="loadingFullPage" style="height:'+(W.vh()-81)+'px; '+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'"></div>';
+		document.body.insertAdjacentHTML('afterBegin', str);
 	}
 }
 
@@ -3659,13 +4204,22 @@ var LoadingGoodsPage={
 	setHeightInterval:null,
 	initScrollTop:0,
 	
+	isOpen:function(){
+		return _$('loadingGoodsPage')?true:false;
+	},
+	
 	scrollTop:function(){
 		return _$('loadingGoodsPage')?_$('loadingGoodsPage').scrollTop:0;
 	},
 	
+	scroll:function(t){
+		_$('loadingGoodsPage').scrollTop=t;
+	},
+	
 	setHeight:function(){
 		try{			
-			if(_$('loadingGoodsPageFrame')){
+			if(_$('loadingGoodsPageFrame')
+					&&loadingGoodsPageFrame.location.href.indexOf(thisDomain)>0){
 				IFrame.adjustSize('loadingGoodsPageFrame');
 			}
 		}catch(e){}
@@ -3674,11 +4228,13 @@ var LoadingGoodsPage={
 	open:function(_onClose,_win,_url,_pageName,_content){
 		if(top._$('loadingFullPage')){
 			top.LoadingFullPage.close();
-			return;
+			//return;
 		}else if(_$('loadingFullPage')){
 			LoadingFullPage.close();
-			return;
+			//return;
 		}
+		
+		if(_pageName) _pageName=decodeURIComponent(_pageName);
 		
 		this.onClose=null;
 		this.win=null;
@@ -3701,9 +4257,9 @@ var LoadingGoodsPage={
 		this.init();
 		
 		if(this.cover){
-			_$('loadingGoodsPageBg').style.height=(W.h()-10)+'px';
+			_$('loadingGoodsPageBg').style.height=(W.h()-51)+'px';
 			_$('loadingGoodsPageBg').style.width='100%';
-			_$('loadingGoodsPageBg').style.top='0px';
+			_$('loadingGoodsPageBg').style.top='41px';
 			_$('loadingGoodsPageBg').style.left='0px';	
 		}
 
@@ -3728,6 +4284,13 @@ var LoadingGoodsPage={
 	},
 	
 	close:function(noForce){//关闭
+		top.Loading.close();
+		
+		//恢复手机版搜索提示词和提交目标
+		try{
+			_searcherConfigInHeader(null,null);
+		}catch(e){}
+		
 		if(!_$('loadingGoodsPage')) return;
 		
 		if(this.canClose==false){
@@ -3736,9 +4299,14 @@ var LoadingGoodsPage={
 		
 		if(noForce&&noForce=='true'){
 			try{
-				if(this.urlLoadedIndex>0){
+				while(this.urlLoadedIndex>0){
 					var _urlLoaded=this.urlLoaded[this.urlLoadedIndex-1];
 					this.urlLoadedIndex--;
+					
+					if(_urlLoaded[0].indexOf('/deposit/')>-1){
+						continue;
+					}
+					
 					this.setTitle(_urlLoaded[1]);
 					loadingGoodsPageFrame.location.href=_urlLoaded[0];
 					//history.back(-1);
@@ -3780,6 +4348,11 @@ var LoadingGoodsPage={
 	},
 	
 	load:function(url,_content){ 
+		//恢复手机版搜索提示词和提交目标
+		try{
+			_searcherConfigInHeader(null,null);
+		}catch(e){}
+		
 		if(!_$('loadingGoodsPage')) return;
 		
 		if(_content){
@@ -3794,7 +4367,8 @@ var LoadingGoodsPage={
 			if(url.indexOf('/goods/item.jhtml')>-1
 					||url.indexOf('/goods/snapshot.jhtml')>-1
 					||url.indexOf('/shopping/cart.jhtml')>-1
-					||url.indexOf('/usr/message.jhtml')>-1){
+					||url.indexOf('/usr/message.jhtml')>-1
+					||url.indexOf('/lbs/show.jhtml')>-1){
 				_$('loadingGoodsPage').className='loadingGoodsPageNoScrolling';
 			}else{
 				_$('loadingGoodsPage').className='loadingGoodsPage';
@@ -3838,10 +4412,11 @@ var LoadingGoodsPage={
 	
 	init:function(){
 		if(_$('loadingGoodsPage')){
+			this.setTitle(this.pageName);
 			return;
 		}	
 		
-		var str='<div id="loadingGoodsPageBg" align="center"><iframe src="/blank.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		var str='<div id="loadingGoodsPageBg" align="center"><iframe src="/white.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>';
 
 		str+='<div id="loadingGoodsPageLoading"><img src="/img/loading/Loading6.gif"/></div>';
 		
@@ -3855,19 +4430,21 @@ var LoadingGoodsPage={
 		str+='	<div id="loadingGoodsPageTitle" style="width:'+(W.vw()-100)+'px;">'+this.pageName+'</div>';
 		str+='</div>';
 		
-		str+='<div id="loadingGoodsPage" class="loadingGoodsPage" style="height:'+(W.vh()-40)+'px;">';
-		str+='</div>'; 
-		if(document.body.insertAdjacentHTML){
-			document.body.insertAdjacentHTML('afterBegin', str);
-		}else{
-			document.body.innerHTML=str+document.body.innerHTML;
-		}
+		str+='<div id="loadingGoodsPage" class="loadingGoodsPage" style="height:'+(W.vh()-81)+'px;"></div>'; 
+		document.body.insertAdjacentHTML('afterBegin', str);
 	}
 }
 function showGoodsPage(url,name){
 	//location.href=url;
 	top.LoadingGoodsPage.open(null,top,url,decodeURIComponent(name));
 	top.LoadingGoodsPage.setTitle(decodeURIComponent(name));
+}
+function showGoodsPageIf(url,name){
+	if(url.indexOf('/goods/item.jhtml')>-1){
+		showGoodsPage(url,name);
+	}else{
+		location.href=url;
+	}
 }
 
 var LoadingAllImages={
@@ -3891,10 +4468,14 @@ var LoadingAllImages={
 			var _pageTitle='';
 	        var _pageUrl='';
 	        if(_win){
-	        	_pageTitle=top.Share.sharedTitle;
 	        	//_pageTitle=_win.document.title;
-	        	if(Str.startsWith(thisDomain,'w.')) _pageUrl=top.Share.sharedLink;
-	        	else _pageUrl=top.Share.sharedLink;
+	        	if(Str.startsWith(thisDomain,'w.')){
+		        	_pageTitle=top.Share.sharedTitle;
+	        		_pageUrl=top.Share.sharedLink;
+	        	}else{
+		        	_pageTitle=_win.Share.sharedTitle;
+	        		_pageUrl=_win.Share.sharedLink;
+	        	}
 	        }else{
 	        	_pageTitle=top.Share.sharedTitle;
 	        	//_pageTitle=document.title;
@@ -3905,7 +4486,7 @@ var LoadingAllImages={
 	        //	_pageTitle=_pageTitle.substring(0,_pageTitle.lastIndexOf(' - '));
 	        //}
 	        
-	        this.allImages.push(['/utils/qrcodex.jhtml?size=20&content='+encodeURIComponent(_pageUrl)+'&title='+encodeURIComponent(_pageTitle),'QRCODE','I{js,保存本图并分享到朋友圈让您的朋友可直接访问本页面}',_pageUrl]);
+	        this.allImages.push(['/utils/qrcodex.jhtml?size=15&content='+encodeURIComponent(_pageUrl)+'&title='+encodeURIComponent(_pageTitle),'QRCODE','I{js,保存本图并分享到朋友圈让您的朋友可直接访问本页面}',_pageUrl]);
 	        //自动添加二维码 end
 		}
         
@@ -4392,11 +4973,7 @@ var LoadingAllImages={
 		str+='	<div id="loadingAllImagesBizLink"></div>';
 		str+='	<div id="loadingAllImagesNumbersCount"></div>';
 		str+='</div>';
-		if(document.body.insertAdjacentHTML){
-			document.body.insertAdjacentHTML('afterBegin', str);
-		}else{
-			document.body.innerHTML=str+document.body.innerHTML;
-		}
+		document.body.insertAdjacentHTML('afterBegin', str);
 	}
 }
 
@@ -4410,6 +4987,17 @@ function LoadingUtil(){
 				_$('loadingCloseIcon').style.display='';
 			}else{
 				_$('loadingCloseIcon').style.display='none';
+			}
+		}
+		
+		if(Loading.openType=='dock'){
+			_$('loading').style.width='100%';
+			_$('loading').style.top=(W.vh()-W.elementHeight(_$('loading'))-0)+'px';
+			_$('loading').style.left='0px';
+			
+			if(!Loading.cover){
+				_$('loadingBg').style.height=W.elementHeight(_$('loading'))+'px';
+				_$('loadingBg').style.top=(W.vh()-W.elementHeight(_$('loading'))-0)+'px';
 			}
 		}
 		
@@ -4436,6 +5024,7 @@ var Loading={
 	openType:'',
 	win:null,
 	onClose:null,
+	onInterrupt:null,//框架机制关闭对话框导致操作中断时调用
 	canClose:true,
 	cover:true,
 	w:300,
@@ -4454,8 +5043,10 @@ var Loading={
 	transparent:'0.5',
 	bgColor:null,
 	padding:-1,
+	noTitle:false,
 	
 	setTitle:function(tit){
+		this.title=tit;
 		if(_$('loadingTitleText')) _$('loadingTitleText').innerHTML=tit;
 		else if(_$('loadingTitle')) _$('loadingTitle').innerHTML=tit;
 	},
@@ -4484,6 +5075,11 @@ var Loading={
 		
 		if(!_type) _type='';
 		
+		//手机顶层页面统一使用dock形式
+		if(Utils.isMobile()&&location.href==top.location.href&&_type=='dialog'){
+			_type='dock';
+		}
+		
 		var obj1=_$('loadingBg');
 		var obj2=_$('loading');			
 		if(obj1) obj1.parentNode.removeChild(obj1);
@@ -4499,6 +5095,7 @@ var Loading={
 		if(_type=='') this.init();	
 		else if(_type=='tip') this.initTip();
 		else if(_type=='dialog') this.initDialog();	
+		else if(_type=='dock') this.initDock();	
 		
 		if(this.delay>0) this.showTimeout=setTimeout("Loading.show("+_l+","+_t+","+_w+","+_h+")",this.delay);
 		else this.showTimeout=setTimeout("Loading.show("+_l+","+_t+","+_w+","+_h+")",250);//this.show(_l,_t);
@@ -4519,6 +5116,21 @@ var Loading={
 			_$('loadingBg').style.width='100%';
 			_$('loadingBg').style.top='0px';
 			_$('loadingBg').style.left='0px';	
+		}
+		
+		if(this.openType=='dock'){
+			_$('loading').style.width='100%';
+			_$('loading').style.top=(W.vh()-W.elementHeight(_$('loading'))-0)+'px';
+			_$('loading').style.left='0px';
+			
+			if(!this.cover){
+				_$('loadingBg').style.height=W.elementHeight(_$('loading'))+'px';
+				_$('loadingBg').style.top=(W.vh()-W.elementHeight(_$('loading'))-0)+'px';
+			}
+			
+			_$('loading').style.visibility='visible';
+			_$('loadingBg').style.visibility='visible';
+			return;
 		}
 		
 		if(_w!=-1){
@@ -4551,10 +5163,10 @@ var Loading={
 		
 		_$('loading').style.visibility='visible';
 		if(this.openType!='tip'||this.cover==true) _$('loadingBg').style.visibility='visible';
-		if(!Utils.isMobile()) _$('loadingFocus').focus();
+		if(!Utils.isMobile()&&_$('loadingFocus')) _$('loadingFocus').focus();
 	},
 	
-	close:function(){//关闭
+	close:function(closeBySysMechanism){//closeBySysMechanism表示是否框架机制关闭
 		LoadingUtilLastHeight=0;
 		
 		endDrag();
@@ -4572,31 +5184,40 @@ var Loading={
 		this.valign='middle';
 		this.bgColor=null;
 		this.padding=-1;
+		this.noTitle=false;
 		
 		if(!_$('loadingBg')) return;
 		
-		if(this.canClose==false){
-			return;
+		if(this.canClose==false) return;
+	
+		_$('loadingBg').parentNode.removeChild(_$('loadingBg'));
+		_$('loading').parentNode.removeChild(_$('loading'));
+		
+		if(closeBySysMechanism&&this.onInterrupt!=null){
+			try{
+				this.onInterrupt.call(this.win?this.win:window);
+			}catch(e){}
+			this.onInterrupt=null;
+		}
+
+		if(this.onClose!=null){
+			try{
+				this.onClose.call(this.win?this.win:window);
+			}catch(e){}
+			this.onClose=null;
 		}
 		
 		if(LoadingUtilInterval){
 			clearInterval(LoadingUtilInterval);
 			LoadingUtilInterval=null;
 		}
-	
-		_$('loadingBg').parentNode.removeChild(_$('loadingBg'));
-		_$('loading').parentNode.removeChild(_$('loading'));
-
-		if(this.onClose!=null){
-			try{
-				this.onClose.call(this.win?this.win:window);
-			}catch(e){}
-		}
-		this.win=null;
+		
+		//this.win=null;
 	},
 	
-	closeDelay:function(_delay){
-		this.closeTimeout=setTimeout("Loading.close()",_delay);
+	closeDelay:function(_delay,closeBySysMechanism){
+		if(closeBySysMechanism) this.closeTimeout=setTimeout("Loading.close(true)",_delay);
+		else this.closeTimeout=setTimeout("Loading.close()",_delay);
 	},
 	
 	move:function(_l,_t,_w,_h){
@@ -4685,10 +5306,10 @@ var Loading={
 	},
 	
 	hideMsg:function(){ 
-		if(_$('loading')) _$('loading').style.visibility='hidden';
+		if(_$('loadingMsg')) _$('loadingMsg').style.visibility='hidden';
 	},
 	
-	setMsg:function(msg,_bg){ 
+	setMsg:function(msg,_bg,delayToClose){ 
 		if(!_$('loadingBg')){
 			top.Loading.open(-1,-1,-1,-1,null,window,'dialog');
 		}
@@ -4697,25 +5318,31 @@ var Loading={
 			Utils.setAtt(_$('loadingMsg'),'valign','top');
 		}
 		
+		if(msg.indexOf('<iframe ')>-1&&_$('loadingFocus')){
+			_$('loadingFocus').style.display='none';
+		}
+		
 		_$('loadingMsg').innerHTML=msg;
 		if(_bg) this.setBg(_bg);
 		if(this.align) _$('loadingMsg').style.textAlign=this.align;
 		if(!this.cover) _$('loadingBg').style.width=W.elementWidth(_$('loading'))+'px';
 		if(!this.cover) _$('loadingBg').style.height=W.elementHeight(_$('loading'))+'px';
+		
+		if(delayToClose) this.closeDelay(delayToClose);
 	},
 	
-	setMsgOk:function(msg,_bg){
+	setMsgOk:function(msg,_bg,delayToClose){
 		if(this.autoCloseDelay>0){
 			this.closeDelay(this.autoCloseDelay);
 			this.autoCloseDelay=0;
 		}
 		msg='<div class="okColor">'+msg+'</div>';
-		this.setMsg(msg,_bg);
+		this.setMsg(msg,_bg,delayToClose);
 	},
 	
-	setMsgErr:function(msg,_bg){
+	setMsgErr:function(msg,_bg,delayToClose){
 		msg='<div class="errorColor">'+msg+'</div>';
-		this.setMsg(msg,_bg);
+		this.setMsg(msg,_bg,delayToClose);
 	},
 	
 	init:function(){
@@ -4726,11 +5353,7 @@ var Loading={
 		str+='<div style="z-index:201;position:absolute;float:left; top:0px; left:0px; visibility:hidden;" id="loading" align="center">';		
 		str+=' 		<div id="loadingMsg">&nbsp;</div>';
 		str+='</div>';	
-		if(document.body.insertAdjacentHTML){
-			document.body.insertAdjacentHTML('afterBegin', str);
-		}else{
-			document.body.innerHTML=str+document.body.innerHTML;
-		}
+		document.body.insertAdjacentHTML('afterBegin', str);
 	},
 	
 	initTip:function(){
@@ -4745,11 +5368,7 @@ var Loading={
 		str+='		<table width="100%" height="100%" cellpadding="3" cellspacing="0"><tr><td id="loadingMsg" valign="middle" style="color:#666; line-height:18px;"></td></tr></table>';
 		str+='	</div>';
 		str+='</div>';
-		if(document.body.insertAdjacentHTML){
-			document.body.insertAdjacentHTML('afterBegin', str);
-		}else{
-			document.body.innerHTML=str+document.body.innerHTML;
-		}
+		document.body.insertAdjacentHTML('afterBegin', str);
 	},
 	
 	showTip:function(id,obj,l,t,w,h,lOffset,tOffset,align,zindex,cover,msg){
@@ -4779,11 +5398,7 @@ var Loading={
 		str+='		<table width="100%" height="100%" cellpadding="3" cellspacing="0"><tr><td id="'+id+'Msg" valign="middle" style="color:#666; line-height:18px;">'+msg+'</td></tr></table>';
 		str+='	</div>';
 		str+='</div>';
-		if(document.body.insertAdjacentHTML){
-			document.body.insertAdjacentHTML('afterBegin', str);
-		}else{
-			document.body.innerHTML=str+document.body.innerHTML;
-		}
+		document.body.insertAdjacentHTML('afterBegin', str);
 		if(cover) _$(id+'Bg').style.visibility='visible';
 		_$(id).style.visibility='visible';
 	},
@@ -4802,19 +5417,31 @@ var Loading={
 			return;
 		}	
 		
-		var str='<div style="position:absolute; z-index:3999; filter:alpha(opacity=80); -moz-opacity:.8; opacity:.8; overflow:hidden; visibility:hidden;" id="loadingBg" align="center"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		var str='<div id="loadingBg" align="center"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
 		str+='<div id="loading" class="loading"'+(this.bgColor?(' style="background-color:'+this.bgColor+'"'):'')+' onkeydown="if(event.keyCode==13) Loading.close();">';
-		str+='	<div id="loadingTitle" class="loadingTitle" onmousedown="startDrag(event);" onmouseup="endDrag(event)" onmouseout="endDrag(event)" onmousemove="moving(event);"><div id="loadingTitleText" class="loadingTitleText">'+this.title+'</div><div onclick="Loading.close();" id="loadingCloseIcon" class="loadingCloseIcon iconfont icon-close"></div></div>';
+		str+='	<div id="loadingTitle" class="loadingTitle" onmousedown="startDrag(event);" onmouseup="endDrag(event)" onmouseout="endDrag(event)" onmousemove="moving(event);"><div id="loadingTitleText" class="loadingTitleText">'+this.title+'</div><div onclick="Loading.close(true);" id="loadingCloseIcon" class="loadingCloseIcon iconfont"></div></div>';
 		str+='	<div id="loadingContent" class="loadingContent">';
 		str+='		<table class="loadingTable"><tr><td align="center" valign="'+this.valign+'" id="loadingMsg" class="loadingMsg"'+(this.padding>-1?(' style="padding:'+this.padding+'px !important;"'):'')+'></td></tr></table>';
 		str+='	</div>';
 		str+='	<div><input type="text" id="loadingFocus" style="width:1px !important; height:1px !important; background:none; border:none;"/></div>';
 		str+='</div>';
-		if(document.body.insertAdjacentHTML){
-			document.body.insertAdjacentHTML('afterBegin', str);
-		}else{
-			document.body.innerHTML=str+document.body.innerHTML;
-		}
+		//beforeBegin,beforeEnd,afterBegin,afterEnd
+		document.body.insertAdjacentHTML('afterBegin', str);
+	},
+	
+	initDock:function(){
+		if(_$('loadingBg')){
+			return;
+		}	
+		
+		var str='<div id="loadingBg" style="z-index:9998;"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		str+='<div id="loading" class="loading dock">';
+		str+='	<div id="loadingTitle" class="loadingTitle'+(this.noTitle?' hidden':'')+'"><div id="loadingTitleText" class="loadingTitleText">'+this.title+'</div><div onclick="Loading.close(true);" id="loadingCloseIcon" class="loadingCloseIcon iconfont"></div></div>';
+		str+='	<div id="loadingContent" class="loadingContent">';
+		str+='		<table class="loadingTable"><tr><td align="center" valign="'+this.valign+'" id="loadingMsg" class="loadingMsg"'+(this.padding>-1?(' style="padding:'+this.padding+'px !important;"'):'')+'></td></tr></table>';
+		str+='	</div>';
+		str+='</div>';
+		document.body.insertAdjacentHTML('afterBegin', str);
 	},
 	
 	showDialog:function(_l,_t,_w,_h,txt,txtAlign,btns){
@@ -4841,11 +5468,20 @@ function getLoadingTop(offset){
 			if(top._$('header')) offset=top.W.elementHeight(top._$('header'));
 			else offset=0;
 		}
-		theTop=top.W.t()-offset;
+		
+		if(_$('loadingFullPage')){
+			theTop=top.LoadingFullPage.scrollTop();
+		}else if(_$('loadingGoodsPage')){
+			theTop=top.LoadingGoodsPage.scrollTop();
+		}else{
+			theTop=top.W.t()-offset;
+		}
+		
 		if(theTop<=0) theTop=0;
 		theTop+=50;
 	}
-	if(theTop<this.topMin) theTop=this.topMin;
+	
+	if(theTop<Loading.topMin) theTop=Loading.topMin;
 	return theTop;
 }
 function _notice(msg,align){
@@ -4976,11 +5612,7 @@ function cancelDrag(){
 function setMovingFrame(){
 	var htm='<div id="moving_frame" style="position:absolute; z-index:1; visibility:hidden;">&nbsp;</div>';	
 	if(!_$('moving_frame')){
-		if(document.body.insertAdjacentHTML){
-			document.body.insertAdjacentHTML('afterBegin', htm);
-		}else{
-			document.body.innerHTML=htm+document.body.innerHTML;
-		}
+		document.body.insertAdjacentHTML('afterBegin', htm);
 	}
 	movingFrame=_$('moving_frame');
 }
@@ -5050,11 +5682,13 @@ function Touch(obj,minMovement,callbackStart,callbackMoving,callbackUp,callbackD
 	this.callbackZoomIn=callbackZoomIn?callbackZoomIn:null;
 	this.callbackZoomOut=callbackZoomOut?callbackZoomOut:null;
 	this.callbackLongPress=callbackLongPress?callbackLongPress:null;
+	
+	this.preventDefaultOnClick=true;
 
-	this.obj.addEventListener("onclick", this.onclick, false);
-	this.obj.addEventListener("touchstart", this.touchstart, false);
-	this.obj.addEventListener("touchmove", this.touchmove, false);
-	this.obj.addEventListener("touchend", this.touchend, false);
+	this.obj.addEventListener("onclick", this.onclick, true);
+	this.obj.addEventListener("touchstart", this.touchstart, true);
+	this.obj.addEventListener("touchmove", this.touchmove, true);
+	this.obj.addEventListener("touchend", this.touchend, true);
 	
 	touchTargets[this.obj.id]=this;
 }
@@ -5184,7 +5818,7 @@ Touch.prototype.touchend=function(event){
 					_instance.callbackLongPress(event,_instance);
 				}
 			}else{
-				event.preventDefault();//阻止浏览器默认事件，重要
+				if(_instance.preventDefaultOnClick) event.preventDefault();//阻止浏览器默认事件，重要
 				
 				if(_instance.callbackCancel) _instance.callbackCancel(event,_instance);
 				if(_instance.callbackOnclick) _instance.callbackOnclick(event,_instance);	
@@ -5333,12 +5967,8 @@ var Sys={
 	//刷新网页（用js添加删除元素时，会出现显示不正常的情况，操作后调用此方法能解决问题）
 	flush:function(){
 		//if(!_$('flush')){
-		//	var str='<div id="flush" style="position:absolute; width:1px; height:1px;overflow:hidden;left:0px;top:0px;"></div>';	
-		//	if(document.body.insertAdjacentHTML){
-		//		document.body.insertAdjacentHTML('afterBegin', str);
-		//	}else{
-		//		document.body.innerHTML=str+document.body.innerHTML;
-		//	}
+		//	var str='<div id="flush" style="position:absolute; width:1px; height:1px;overflow:hidden;left:-1px;top:-1px;"></div>';	
+		//	document.body.insertAdjacentHTML('afterBegin', str);
 		//}	
 		//_$('flush').innerHTML='&nbsp;';
 	} 
@@ -6178,7 +6808,7 @@ var Countries={
 			for(var i=0;i<this.exports.length;i++){
 				htm.push('<div class="mobilePhoneCountry" onclick="top.LoadingFullPage.win.Countries.setMobilePhoneCountry(\''+id+'\',\''+this.exports[i].value+'\',\''+this.exports[i].mobileCode+'\',\''+this.exports[i].cnName+'\');">+'+this.exports[i].mobileCode+'(+'+this.exports[i].cnName+')</div>');
 			}
-			top.LoadingFullPage.open(null,window,'','I{js,请选择国家或地区}',htm.join(''));
+			top.LoadingFullPage.open(null,window,'','I{js,请选择国家或地区}',htm.join(''),5000);
 		},
 		
 		setMobilePhoneCountry:function(id,value,code,name){
@@ -6350,11 +6980,7 @@ var Region={
 			if(_$('regionContainer')){
 				_$('regionContainer').innerHTML=str.join('');
 			}else{
-				if(document.body.insertAdjacentHTML){
-					document.body.insertAdjacentHTML('afterBegin', str.join(''));
-				}else{
-					document.body.innerHTML=str.join('')+document.body.innerHTML;
-				}
+				document.body.insertAdjacentHTML('afterBegin', str.join(''));
 			}
 		}
 		
@@ -7163,11 +7789,7 @@ var Catalogs={
 			if(container){
 				container.innerHTML=str.join('');
 			}else{
-				if(document.body.insertAdjacentHTML){
-					document.body.insertAdjacentHTML('afterBegin', str.join(''));
-				}else{
-					document.body.innerHTML=str.join('')+document.body.innerHTML;
-				}
+				document.body.insertAdjacentHTML('afterBegin', str.join(''));
 			}
 		}
 		
@@ -7417,6 +8039,146 @@ var NotifyCatalogs={
 	}
 }
 
+//可滑动tab栏
+var SlidableTabsInstances=new Array();
+function SlidableTabs(id,contentId,cookieId,callback,width){
+	this.id=id;
+	this.contentId=contentId;
+	this.cookieId=cookieId;
+	this.callback=callback;
+	this.width=width;
+	this.moveInterval=null;
+	this.tabWidth=10;//一个tab的宽度
+	
+	var visibleWidth=0;
+	if(!width){
+		visibleWidth=W.vw();
+	}else{
+		visibleWidth=width;
+	}
+	_$(id).style.width=visibleWidth+'px';
+	
+	var tabs=_$cls('slidableTabCurrent');
+	if(tabs.length==0) tabs=_$cls('slidableTab');
+	if(tabs.length>0) this.tabWidth=W.elementWidth(tabs[0])+5;
+	
+	var tabsWidth=W.elementScrollWidth(_$(contentId));
+	this.tabsMaxSlideDistance=tabsWidth-visibleWidth;
+	
+	if(Utils.isMobile()&&tabsWidth>W.vw()){//手机端，且需要滑动
+		var touch=new Touch(_$(id),
+	        		10,
+	        		null,
+	        		callback?callback:SlidableTabsCallbackDefault,
+	        		null,
+	        		null,
+	        		null,
+	        		null,
+	        		null,
+	        		null,
+	        		null,
+	        		null);
+		touch.preventDefaultOnClick=false;
+	}
+	
+	SlidableTabsInstances[id]=this;
+}
+
+SlidableTabs.prototype.init=function(){
+	if(this.cookieId&&Cookie.get(this.cookieId+'_tabs_scroll_left')){
+		var _left=Cookie.get(this.cookieId+'_tabs_scroll_left')*1;
+		
+		_$(this.id).scrollLeft=_left;
+		Utils.setAtt(_$(this.id),'_scrollLeft',_left);
+	}
+}
+
+SlidableTabs.prototype.initPC=function(){
+}
+
+//向左
+SlidableTabs.prototype.toLeft=function(){
+	if(this.moveInterval){
+		clearInterval(this.moveInterval);
+		this.moveInterval=null;
+	}
+	this.moveInterval=setInterval("SlidableTabsToLeft('"+this.id+"')",this.tabWidth>10?500:100);
+}
+SlidableTabs.prototype.toLeftDo=function(){
+	var _left=_$(this.id).scrollLeft;
+	_left-=this.tabWidth;
+	if(_left<0) _left=0;
+	
+	_$(this.id).scrollLeft=_left;
+	Utils.setAtt(_$(this.id),'_scrollLeft',_left);
+}
+SlidableTabs.prototype.toLeftCancel=function(){
+	if(this.moveInterval){
+		clearInterval(this.moveInterval);
+		this.moveInterval=null;
+	}
+}
+SlidableTabs.prototype.toStart=function(){
+	this.toLeftCancel();
+	_$(this.id).scrollLeft=0;
+	Utils.setAtt(_$(this.id),'_scrollLeft',0);
+}
+//向左 end
+
+//向右
+SlidableTabs.prototype.toRight=function(){
+	if(this.moveInterval){
+		clearInterval(this.moveInterval);
+		this.moveInterval=null;
+	}
+	this.moveInterval=setInterval("SlidableTabsToRight('"+this.id+"')",this.tabWidth>10?500:100);
+}
+SlidableTabs.prototype.toRightDo=function(){
+	var _left=_$(this.id).scrollLeft;
+	_left+=this.tabWidth;
+	if(_left>this.tabsMaxSlideDistance) _left=this.tabsMaxSlideDistance;
+	
+	_$(this.id).scrollLeft=_left;
+	Utils.setAtt(_$(this.id),'_scrollLeft',_left);
+}
+SlidableTabs.prototype.toRightCancel=function(){
+	if(this.moveInterval){
+		clearInterval(this.moveInterval);
+		this.moveInterval=null;
+	}
+}
+SlidableTabs.prototype.toEnd=function(){
+	this.toRightCancel();
+	_$(this.id).scrollLeft=this.tabsMaxSlideDistance;
+	Utils.setAtt(_$(this.id),'_scrollLeft',this.tabsMaxSlideDistance);
+}
+//向右 end
+
+function SlidableTabsCallbackDefault(event,_instance){
+	var id=_instance.obj.id;
+	
+	var distance=Math.floor(_instance.pageX-_instance.initPageX);
+	var _left=_$(id).scrollLeft;
+	_left-=distance;
+	if(_left>SlidableTabsInstances[id].tabsMaxSlideDistance) _left=SlidableTabsInstances[id].tabsMaxSlideDistance;
+	if(_left<0) _left=0;
+	
+	_$(id).scrollLeft=_left;
+	Utils.setAtt(_$(id),'_scrollLeft',_left);
+	
+	if(SlidableTabsInstances[id].cookieId){
+		Cookie.set(SlidableTabsInstances[id].cookieId+'_tabs_scroll_left',_left+'');
+	}
+}
+
+function SlidableTabsToLeft(id){
+	SlidableTabsInstances[id].toLeftDo();
+}
+function SlidableTabsToRight(id){
+	SlidableTabsInstances[id].toRightDo();
+}
+//可滑动tab栏 end
+
 //图片轮播
 function Animation(id,width,height,photos,mediaTypes,mediaSizes,medias,links,action,speed,showNumbers,players){	
 	this.id=id;//id
@@ -7480,15 +8242,19 @@ Animation.prototype.init=function(containerId){
 			}
 			this.inPlays[i]=true;
 		}else{
+			var hasLink=false;
 			if(this.links[i].indexOf('javascript')==0){
+				hasLink=true;
 				htm.push('<a href="javascript:_void();" onclick="'+this.links[i]+'">');
-			}else{
-				htm.push('<a href="'+this.links[i]+'" target="_blank">');
+			}else if(this.links[i]!=''){
+				hasLink=true;
+				if(Utils.isMobile()) htm.push('<a href="javascript:_void();" onclick="Animations.openUrl(\''+this.links[i]+'\');">');
+				else htm.push('<a href="'+this.links[i]+'" target="_blank">');
 			}
 
 			htm.push('	<img id="'+this.id+'.img.'+i+'_animation" src="/img/coverLoading.gif" height="'+this.height+'"/>');
 			htm.push('	<img id="'+this.id+'.img.'+i+'" _src="'+this.photos[i]+'" style="display:none;"/>');
-			htm.push('</a>');
+			if(hasLink) htm.push('</a>');
 		}
 		
 		htm.push('</div>');
@@ -7515,7 +8281,7 @@ Animation.prototype.init=function(containerId){
 				htm.push('<a href="javascript:_void();" onclick="'+this.links[i]+'">');
 			}else if(this.links[i]!=''){
 				hasLink=true;
-				if(Utils.isMobile()) htm.push('<a href="javascript:_void();" onclick="Animations.openUrl('+this.links[i]+');">');
+				if(Utils.isMobile()) htm.push('<a href="javascript:_void();" onclick="Animations.openUrl(\''+this.links[i]+'\');">');
 				else htm.push('<a href="'+this.links[i]+'" target="_blank">');
 			}
 
@@ -7552,6 +8318,8 @@ Animation.prototype.init=function(containerId){
 	htm.push('</div>');
 	
 	_$(containerId).innerHTML=htm.join('');
+	
+	if(this.photos.length==0) return;
 	
 	for(var i=0;i<this.photos.length;i++){
 		IMG.reset(this.id+'.img.'+i);
@@ -7719,7 +8487,7 @@ var Animations={
 	openUrl:function(url,title){
 		if(Utils.isMobile()){
 			if(url.indexOf('/goods/item.jhtml')>-1){
-				LoadingGoodsPage.open(null,top,url,title,null);
+				LoadingGoodsPage.open(null,top,url,'',null);
 			}else{
 				location.href=url;
 			}
@@ -7801,11 +8569,7 @@ function _setAlertSound(container){
 		if(_$('alertSound')) return;
 	}
 	var str='<div id="'+(container?container:'alertSound')+'" style="position:absolute; width:1px; height:1px;overflow:hidden;left:0px;top:0px;"></div>';	
-	if(document.body.insertAdjacentHTML){
-		document.body.insertAdjacentHTML('afterBegin', str);
-	}else{
-		document.body.innerHTML=str+document.body.innerHTML;
-	}
+	document.body.insertAdjacentHTML('afterBegin', str);
 }
 function _alertSound(i,container){//声音
 	if(!i) i=0;
@@ -7925,7 +8689,7 @@ function _close(){
 }
 
 //显示提示
-function _showTip(event,obj,msg,l,t,w,h,lOffset,tOffset){	
+function _showTip(event,obj,msg,l,t,w,h,lOffset,tOffset){		
 	if(l==-1){
 		l = obj.offsetLeft;
 		
@@ -7993,7 +8757,7 @@ var Message={
 	depositId:null,
 	drawId:null,
 	sent:0,
-	talkWith:1,//1：卖家；2：平台
+	talkWith:2,//1：卖家；2：平台
 	
 	isFileValid:function(fileName){
 		return Str.endsWithOneOf(fileName,this.allowedFileTypes,true);
@@ -8010,16 +8774,13 @@ var Message={
 			str+='		<iframe id="chattingFrame" name="chattingFrame" src="'+_url+'" width="100%"  height="'+(thisDomain.indexOf('m.')==0||thisDomain.indexOf('p.')==0?282:526)+'" frameborder="0" scrolling="no"></iframe>';
 			str+='	</div>';
 			str+='</div>';
-			if(document.body.insertAdjacentHTML){
-				document.body.insertAdjacentHTML('afterBegin', str);
-			}else{
-				document.body.innerHTML=str+document.body.innerHTML;
-			}
+			document.body.insertAdjacentHTML('afterBegin', str);
 			makeMovable(null,null);
 		}
 		
 		_$('chatting').style.top=(W.t()+50)+'px';
 		_$('chatting').style.left=Math.round((W.vw()-W.elementWidth(_$('chatting')))/2)+'px';
+		chattingFrame.location.href='/usr/message.jhtml';
 		
 		if(_silent){ 
 			
@@ -8046,11 +8807,6 @@ var Message={
 	},
 
 	close:function(){
-		if(_$('chatting')){
-			_$('chatting').style.visibility='hidden';
-			_$('chatting').style.display='none';
-		}
-		
 		this.sent=0;
 		this.goodsId=null;
 		this.sellerId=null;
@@ -8058,6 +8814,12 @@ var Message={
 		this.depositId=null;
 		this.drawId=null;
 		this.talkWith=1;
+		
+		if(_$('chatting')){
+			_$('chatting').style.visibility='hidden';
+			_$('chatting').style.display='none';
+			chattingFrame.location.href='/white.htm';
+		}
 	},
 	
 	send:function(_url){
@@ -8078,18 +8840,14 @@ var Message={
 		if(this.orderId) _url+='&order_id='+this.orderId;
 		if(this.goodsId) _url+='&goods_id='+this.goodsId;
 		if(this.talkWith==1){//与卖家
-			if(this.sellerId){
-				_url+='&talk_with='+this.sellerId;
-			}else if(Cookie.get('Message.sellerId')){
-				_url+='&talk_with='+Cookie.get('Message.sellerId');
-			}
+			_url+='&talk_with='+this.sellerId;
 		}
 
 		this.depositId=null;
 		this.drawId=null;
 		this.orderId=null;
 		this.goodsId=null;
-		this.sellerId=null;
+		//this.sellerId=null;
 		this.sent++;
 		
 		return _url;
@@ -8101,11 +8859,7 @@ var Message={
 		}
 		
 		if(this.talkWith==1){//与卖家
-			if(this.sellerId){
-				_url+='&talk_with='+this.sellerId;
-			}else if(Cookie.get('Message.sellerId')){
-				_url+='&talk_with='+Cookie.get('Message.sellerId');
-			}
+			_url+='&talk_with='+this.sellerId;
 		}
 		
 		return _url;
@@ -8113,6 +8867,12 @@ var Message={
 	
 	talkTo:function(talkWith){
 		this.talkWith=talkWith;
+		try{
+			onTalkWithChange(talkWith);
+		}catch(e){}
+		try{
+			chattingFrame.onTalkWithChange(talkWith);
+		}catch(e){}
 		try{
 			top.loadingFullPageFrame.onTalkWithChange(talkWith);
 		}catch(e){}
@@ -8122,7 +8882,7 @@ var Message={
 		if(this.sellerId){
 			return this.sellerId;
 		}else if(Cookie.get('Message.sellerId')){
-			return Cookie.get('Message.sellerId');
+			//return Cookie.get('Message.sellerId');
 		}
 		return null;
 	}
@@ -8137,6 +8897,8 @@ function _message(goodsId,sellerId,orderId,depositId,drawId){
 		top.Message.drawId=drawId;
 		sellerId=null;
 		top.Message.talkTo(2);
+	}else if(sellerId){
+		top.Message.talkTo(1);
 	}
 	
 	if(goodsId) top.Message.goodsId=goodsId;
@@ -8151,7 +8913,6 @@ function _message(goodsId,sellerId,orderId,depositId,drawId){
 		top.Message.showFullPage(window);
 	}else{		
 		top.Message.show();
-		chattingFrame.initTalkWith();
 	}
 }
 
@@ -8275,6 +9036,15 @@ function toTop(toUrl){
 	}
 }
 
+//调整URL已适应不同终端
+function toParent(){
+	if(Utils.isMobile()
+			&&top.location.href==location.href
+			&&(_uri=='/goods/item.jhtml'||_uri=='/shopping/cart.jhtml')){
+		location.href='/?open='+encodeURIComponent(location.href);
+	}
+}
+
 var _referer='';
 function getReferer(){
 	if(_referer!=''){
@@ -8312,6 +9082,12 @@ var Share={
 		return link;
 	},
 	init:function(_sharedImages,_sharedImage,_sharedTitle,_sharedDesc,_sharedLink,_sharedLinkForWeixin){
+		if(Utils.isMobile()
+				&&_uri=='/goods/item.jhtml'){
+			_sharedLink=httpScheme+'://'+thisDomain+'/?open='+encodeURIComponent(Utils.getRequestUrl(_sharedLink));
+			_sharedLink=httpScheme+'://'+thisDomain+'/?open='+encodeURIComponent(Utils.getRequestUrl(_sharedLinkForWeixin));
+		}
+		
 		if(Str.startsWith(thisDomain,'w.')
 				&&location.href!=top.location.href){//微信需初调用顶层页面
 			top.Share.init(_sharedImages,_sharedImage,_sharedTitle,_sharedDesc,_sharedLink,_sharedLinkForWeixin);
@@ -8519,6 +9295,42 @@ var Share={
 	},
 	_shareCopy:function(event,obj){
 	},
+	_shareContact:function(){
+		var contacts=HTMLInterface.readContacts();
+		if(contacts!=''){
+			var ajax=new Ajax();
+			ajax.send('POST',Share._doShareContact,'/utils/contacts.jhtml','contacts='+encodeURIComponent(contacts));
+		}
+	},
+	_doShareContact:function(ajax){
+		if(ajax.getReadyState()==4&&ajax.getStatus()==200){
+			try{
+				var resp=ajax.getResponseText();
+			
+				var json=JSON.parse(resp);
+				var htm=new Array();
+				for(var i=0;i<json.length;i++){
+					htm.push('<div class="contact">');
+					htm.push('	<div class="contactCheck"><input type="checkbox" class="checkbox"/></div>');
+					htm.push('	<div class="contactName">'+json[i].name+'</div>');
+					htm.push('	<div class="contactTel">'+json[i].tel+'</div>');
+					htm.push('</div>');
+				}
+				
+				top.Loading.showDialog(-1,-1,-1,-1,
+						htm.join(''),
+						'center',
+						['<div class="btnLongDisabled"><input type="button" value="I{shopping,取消}" onclick="top.Loading.close();"/></div>',
+						 '<div class="btnLong marginL10"><input type="button" value="I{shopping,分享给好友}" onclick="top.Loading.setMsgOk(\'I{js,分享成功}\');"/></div>']);
+				top.Loading.setValign('middle');
+				top.Loading.setTitle('I{js,分享给选中好友}');
+				htm=null;
+			}catch(e){
+				alert(e);
+				Loading.setMsgErr('I{js,您的联系人中没有已在本站注册的}');
+			}
+		}
+	},
 	_bdShare:function(event){
 		_$('bdShare').style.display='';
 		window._bd_share_config={
@@ -8585,12 +9397,18 @@ var Share={
 var Pages={
 	noRecordShow:'',
 	gotoPageDefined:null,
+	pn:1,
+	totalPages:1,
+	total:1,
 	init:function(){
 		if(this.noRecordShow==''){
 			this.noRecordShow='<div class="Pages_No_Record">I{js,无符合条件的记录}</div>';
 		}
 	},
 	genPagesSelector:function(total,rpp,pn,pagesId,summaryId,showIfNoItems,__gotoPage){
+		this.total=total;
+		this.pn=pn;
+		
 		this.init();
 		if(__gotoPage){
 			this.gotoPageDefined=__gotoPage;
@@ -8598,7 +9416,7 @@ var Pages={
 			this.gotoPageDefined=null;
 		}
 		
-		if(total==0&&showIfNoItems!='hidden'){
+		if(total==0&&showIfNoItems&&showIfNoItems!='hidden'){
 			if(_$(pagesId)) _$(pagesId).parentNode.innerHTML=this.noRecordShow;
 		}
 		
@@ -8616,6 +9434,8 @@ var Pages={
 		}else{
 			totalPages=1;
 		}	
+		
+		this.totalPages=totalPages;
 		
 		if(totalPages<=1){
 			if(_$(pagesId)){
@@ -8675,20 +9495,28 @@ var Pages={
 		if(pn<totalPages){
 			pageSelectorHtml+='<div onclick="Pages.nextPage('+totalPages+');" class="next">&nbsp;</div><div onclick="Pages.gotoPage('+totalPages+');" class="last">&nbsp;</div>';
 		}
-		if(pn>1){
+		//if(pn>1){
 			pageSelectorHtml='<div onclick="Pages.gotoPage(1);" class="first">&nbsp;</div><div onclick="Pages.prePage();" class="previous">&nbsp;</div>'+pageSelectorHtml;
-		}		
+		//}		
 		
 		if(_$(pagesId)) _$(pagesId).innerHTML=pageSelectorHtml;
 		//if(_$(summaryId)) _$(summaryId).innerHTML=total+'I{order,个记录}';
 	},
 	
 	genPagesSelectorX:function(total,rpp,pn,pagesId,summaryId,showIfNoItems,__gotoPage){
+		this.total=total;
+		this.pn=pn;
+		
 		this.init();
 		if(__gotoPage){
 			this.gotoPageDefined=__gotoPage;
 		}else{
 			this.gotoPageDefined=null;
+		}
+		
+		if(total==0){
+			if(_$(pagesId)&&showIfNoItems&&showIfNoItems!='hidden') _$(pagesId).parentNode.innerHTML=this.noRecordShow;
+			return;
 		}
 		
 		var pageSection=1;
@@ -8705,6 +9533,8 @@ var Pages={
 		}else{
 			totalPages=1;
 		}	
+		
+		this.totalPages=totalPages;
 		
 		var pageSelectorHtml='';
 		if(pn>1){

@@ -13,6 +13,7 @@ import j.util.JUtilString;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,6 +35,39 @@ import org.dom4j.Element;
  */
 public class SysUtil {		
 	private static Logger log=Logger.create(SysUtil.class);
+	public static final String USER_AGENT_UNKNOWN="NONE";
+	public static final String USER_AGENT_PC="PC";
+	public static final String USER_AGENT_IOS="IOS";
+	public static final String[] USER_AGENT_IOS_KEYWORDS=new String[]{"iphone", "ipod", "ipad"};
+	public static final String USER_AGENT_ANDROID="ANDROID";
+	public static final String[] USER_AGENT_ANDROID_KEYWORDS=new String[]{"android"};
+	public static final String USER_AGENT_WEIXIN="WEIXIN";
+	public static final String[] USER_AGENT_WEIXIN_KEYWORDS=new String[]{"micromessenger"};
+	public static final String USER_AGENT_MOBILE="MOBILE";
+	public static final String[] USER_AGENT_MOBILE_KEYWORDS=new String[]{"iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire"};
+	
+	
+	
+	/**
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static String getUserAgentType(HttpServletRequest request){
+		if(request==null) return USER_AGENT_UNKNOWN;
+		
+		String userAgent=request.getHeader("User-Agent");
+		if(userAgent==null) return USER_AGENT_UNKNOWN;
+		
+		userAgent=userAgent.toLowerCase();
+		if(JUtilString.existsIgnoreCase(userAgent,USER_AGENT_WEIXIN_KEYWORDS)){
+			return USER_AGENT_WEIXIN;
+		}else if(JUtilString.existsIgnoreCase(userAgent,USER_AGENT_MOBILE_KEYWORDS)){
+			return USER_AGENT_MOBILE;
+		}else{
+			return USER_AGENT_PC;
+		}
+	}
 	
 	/**
 	 * 
@@ -200,7 +234,7 @@ public class SysUtil {
 				String name=paras[i].substring(0,paras[i].indexOf("="));
 				String value=paras[i].substring(paras[i].indexOf("=")+1);
 				value=JUtilString.decodeURI(value,SysConfig.sysEncoding);
-				redirect+="<input type=\"hidden\" name=\""+name+"\" value=\""+value+"\">\r\n";
+				redirect+="<input type=\"hidden\" name=\""+name+"\" value=\"jis:"+JObject.string2IntSequence(value)+"\">\r\n";
 				
 				sso_parameter_names+=name+"|";
 				sso_parameter_values+=value;
@@ -318,7 +352,7 @@ public class SysUtil {
 				String name=paras[i].substring(0,paras[i].indexOf("="));
 				String value=paras[i].substring(paras[i].indexOf("=")+1);
 				value=JUtilString.decodeURI(value,SysConfig.sysEncoding);
-				redirect+="<input type=\"hidden\" name=\""+name+"\" value=\""+value+"\">\r\n";
+				redirect+="<input type=\"hidden\" name=\""+name+"\" value=\"jis:"+JObject.string2IntSequence(value)+"\">\r\n";
 			}
 		}
 
@@ -651,6 +685,24 @@ public class SysUtil {
         return url;
 	}	
 	
+	/**
+	 * 
+	 * @param url
+	 * @param parameters
+	 * @return
+	 */
+	public static String appendHttpParameter(String url,Map parameters){
+		if(parameters!=null){
+			for(Iterator keys=parameters.keySet().iterator();keys.hasNext();){
+				String key=(String)keys.next();
+				String val=(String)parameters.get(key);
+				
+				if(url.indexOf("?")>0) url+="&"+key+"="+JUtilString.encodeURI(val,SysConfig.sysEncoding);
+				else url+="?"+key+"="+JUtilString.encodeURI(val,SysConfig.sysEncoding);
+			}
+		}
+		return url;
+	}
 	
 	/**
 	 * 得到http参数
@@ -931,5 +983,13 @@ public class SysUtil {
 		}
 		
 		SysUtil.redirect(httpRequest,httpResponse,url);
+	}
+	
+	public static void main(String[] args){
+		String requestUrl="www.gugumall.cn/";
+		Map p=new HashMap();
+		p.put("state","aaaa");
+		requestUrl=SysUtil.appendHttpParameter(requestUrl,p);
+		System.out.println(requestUrl);
 	}
 }

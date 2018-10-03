@@ -25,36 +25,21 @@ public class FileReplace {
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
-		File dir=new File("F:\\work\\JShop_v2.0");
-		count(dir,
-				"\r\n",
-				".java");
-		
-		count(dir,
-				"\r\n",
-				".jsp");
+//		File dir=new File("F:\\work\\JShop_v2.0");
+//		count(dir,
+//				"\r\n",
+//				".java");
+//		
+//		count(dir,
+//				"\r\n",
+//				".jsp");
 		
 		System.out.println(count);
 		
-//		File dir=new File("F:\\work\\JShop_v2.0\\WebContent\\WEB-INF\\pages");
-//		replace(dir,
-//				"竞拍",
-//				"拍卖",
-//				".jsp");
-//		File dir=new File("F:\\work\\JShop_v2.0\\doc\\素材\\icons");
-//		File[] fs=dir.listFiles();
-//		for(int i=0;i<fs.length;i++){
-//			if(fs[i].getName().endsWith("-01.svg")){
-//				fs[i].renameTo(new File(fs[i].getAbsolutePath().replaceAll("-01.svg",".svg")));
-//			}
-//		}
-//		
-//		fs=dir.listFiles();
-//		for(int i=0;i<fs.length;i++){
-//			if(fs[i].getName().endsWith(",")){
-//				fs[i].renameTo(new File(fs[i].getAbsolutePath().replaceAll(",","")));
-//			}
-//		}
+		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages\\deposit");
+		replace(dir,"'订单不存在'","'I{fund,订单不存在}'",".jsp");
+		replace(dir,"'非法请求'","'I{fund,非法请求}'",".jsp");
+		replace(dir,"'充值成功'","'I{fund,充值成功}'",".jsp");
 	}
 	
 	/**

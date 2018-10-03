@@ -553,7 +553,7 @@ public class JUtilBean {
 				if(o==null){
 					jsonString.append("\""+name+"\":null,");
 				}else{
-					jsonString.append("\""+name+"\":\""+JUtilString.replaceAll(o.toString(),"\"","\\\"")+"\",");
+					jsonString.append("\""+name+"\":\""+JUtilJSON.format(o.toString())+"\",");
 				}
 			} catch (Exception e){
 				log.log(e, Logger.LEVEL_ERROR);
@@ -615,7 +615,7 @@ public class JUtilBean {
 			if(val instanceof List){
 				s.append(JUtilBean.beans2Json((List)val));
 			}else if(val instanceof String){
-				s.append("\""+JUtilString.replaceAll(val.toString(),"\"","\\\"")+"\"");
+				s.append("\""+JUtilJSON.format(val.toString())+"\"");
 			}else if(val instanceof Integer){
 				s.append("\""+val.toString()+"\"");
 			}else if(val instanceof Long){
@@ -1007,7 +1007,7 @@ public class JUtilBean {
 		log1.setEventTime(new Timestamp(SysUtil.getNow()));
 		
 		JactionLog log2=new JactionLog();
-		log2.setActionHandler("3\"221");
+		log2.setActionHandler("3\"22[]1");
 		log2.setEventTime(new Timestamp(SysUtil.getNow()));
 		
 		List temp=new LinkedList();
@@ -1022,7 +1022,7 @@ public class JUtilBean {
 		String s=map2Json(datas);
 		JSONObject js=new JSONObject(s);
 
-		System.out.println(js.get("total"));
+		System.out.println(JUtilString.encodeURI("aa[]<>ddd	ccc\nxxx","UTF-8"));
 		System.out.println(js.getJSONArray("list").length());
 		//System.out.println(js.get("asvrId"));
 		

@@ -309,7 +309,7 @@ public class JQRCode {
 //		OutputStream output = new FileOutputStream(imgPath);
 //	 	TDC.encode(encoderContent, output,"png",4);
 //
-		String decoderContent = JQRCode.decode(new FileInputStream("f:/temp/b.png"));
+		String decoderContent = JQRCode.decode(new FileInputStream("f:/temp/微信图片_20181004041751.png"));
 		System.out.println("解析结果如下 - "+decoderContent);
 	}
 }

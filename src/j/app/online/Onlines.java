@@ -95,6 +95,14 @@ public class Onlines implements Filter,Runnable{
 	 * 
 	 * @return
 	 */
+	public static OnlineHandler getHandler(){
+		return handler;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public static int getUpdaters(){
 		return updaters;
 	}

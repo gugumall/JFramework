@@ -42,6 +42,43 @@ public class JUtilTimestamp implements Runnable{
 		return System.currentTimeMillis()+bjTime;
 	}
 	
+	/**
+	 * 
+	 * @param time
+	 * @return 如 20080808
+	 */
+	public static int getDateAsYYYYMMDD(Timestamp time){
+		return Integer.parseInt(JUtilString.replaceAll(time.toString().substring(0,10),"-",""));
+	}
+	
+	/**
+	 * 得到符合中国习惯的周一~周日顺序号（1~7）
+	 * @param time
+	 * @return
+	 */
+	public static int getWeekDayUsualOrderCn(long time){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date(time));
+        
+        int dayNum = calendar.get(Calendar.DAY_OF_WEEK);
+        calendar=null;
+        if(dayNum == Calendar.SUNDAY){
+            return 7;
+        }else if(dayNum == Calendar.MONDAY){
+            return 1;
+    	}else if(dayNum == Calendar.TUESDAY){
+            return 2;
+    	}else if(dayNum == Calendar.WEDNESDAY){
+            return 3;
+    	}else if(dayNum == Calendar.THURSDAY){
+            return 4;
+    	}else if(dayNum == Calendar.FRIDAY){
+            return 5;
+    	}else{
+            return 6;
+    	}
+    }
+	
 	
 	/**
 	 * 得到指定时间是星期几的中文名
@@ -167,7 +204,18 @@ public class JUtilTimestamp implements Runnable{
     	if(original==null||daysAdd==0) return original;
     	return new Timestamp(original.getTime()+daysAdd*3600000*24L);
     }
+
     
+    /**
+     * 
+     * @param original
+     * @param daysAdd
+     * @return
+     */
+    public static Timestamp addToTime(Timestamp original,double daysAdd){
+    	if(original==null||daysAdd==0) return original;
+    	return new Timestamp(original.getTime()+(long)(daysAdd*3600000*24L));
+    }
 
 
 	/**

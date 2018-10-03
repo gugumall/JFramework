@@ -16,7 +16,16 @@ import javax.servlet.http.HttpSession;
  * @author 肖炯
  *
  */
-public interface OnlineHandler {
+public interface OnlineHandler {	
+	/**
+	 * 
+	 * @param session
+	 * @param request
+	 * @param url
+	 * @return
+	 */
+	public String adjustUrl(HttpSession session,HttpServletRequest request,String url);
+	
 	/**
 	 * @deprecated
 	 * @param request
