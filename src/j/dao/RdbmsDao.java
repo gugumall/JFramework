@@ -8,6 +8,7 @@ import j.dao.util.SQLUtil;
 import j.log.Logger;
 import j.sys.SysUtil;
 import j.util.JUtilBean;
+import j.util.JUtilCompressor;
 import j.util.JUtilInputStream;
 import j.util.JUtilMap;
 import j.util.JUtilMath;
@@ -398,7 +399,10 @@ public class RdbmsDao implements DAO {
 					Method setter=factory.getUnregisterSetter(cls, fieldName, new Class[]{fields[i].getType()});
 					Object obj=null;
 					try{
-						obj = getObject(rs, factory.getColType(tblName, fieldName), factory.getColName(tblName,fieldName));
+						obj = getObject(rs, 
+								factory.getColType(tblName, fieldName), 
+								factory.getColName(tblName,fieldName), 
+								factory.getColIsGzip(tblName,fieldName));
 					}catch(Exception e){
 						//log.log("fieldName:"+fieldName,Logger.LEVEL_DEBUG);
 						//log.log(e,Logger.LEVEL_DEBUG);
@@ -492,7 +496,10 @@ public class RdbmsDao implements DAO {
 					Method setter=factory.getSetter(tableName,colName);
 					Object obj=null;
 					try{
-						obj = getObject(rs, factory.getColType(tableName, colName), colName);
+						obj = getObject(rs, 
+								factory.getColType(tableName, colName), 
+								colName, 
+								factory.getColIsGzip(tableName,colName));
 					}catch(Exception e){
 						//log.log("fieldName:"+fieldName,Logger.LEVEL_DEBUG);
 						//log.log(e,Logger.LEVEL_DEBUG);
@@ -578,7 +585,10 @@ public class RdbmsDao implements DAO {
 					Method setter=factory.getUnregisterSetter(cls, fieldName, new Class[]{fields[i].getType()});
 					Object obj=null;
 					try{
-						obj = getObject(rs, factory.getColType(tableName, fieldName), factory.getColName(tableName,fieldName));
+						obj = getObject(rs, 
+								factory.getColType(tableName, fieldName), 
+								factory.getColName(tableName,fieldName), 
+								factory.getColIsGzip(tableName,fieldName));
 					}catch(Exception e){
 						//log.log("fieldName:"+fieldName,Logger.LEVEL_DEBUG);
 						//log.log(e,Logger.LEVEL_DEBUG);
@@ -658,6 +668,7 @@ public class RdbmsDao implements DAO {
 							
 			Map allColsIndex=new HashMap();
 			Map allColsType=new HashMap();
+			Map allColsIsGzip=new HashMap();
 			
 			//记住各表各列在结果集中的位置，同时生成sql		 
 			int index=1;
@@ -671,6 +682,7 @@ public class RdbmsDao implements DAO {
 					sql+=tblNames[i]+"."+col.colName+" AS C"+index+",";
 					allColsIndex.put(tblNames[i]+"."+col.colName,new Integer(index));
 					allColsType.put(tblNames[i]+"."+col.colName,new Integer(col.colType));
+					allColsIsGzip.put(tblNames[i]+"."+col.colName,new Boolean(col.gzip));
 					index++;
 				}
 			}
@@ -735,9 +747,10 @@ public class RdbmsDao implements DAO {
 						Method setter=factory.getSetter(tblNames[i],colName);
 						Object obj=null;
 						try{
-							int thisIndex=((Integer)allColsIndex.get(tblNames[i]+"."+colName)).intValue();;
+							int thisIndex=((Integer)allColsIndex.get(tblNames[i]+"."+colName)).intValue();
 							int thisColType=((Integer)allColsType.get(tblNames[i]+"."+colName)).intValue();
-							obj=getObject(rs,thisColType,thisIndex);
+							Boolean thisIsGzip=((Boolean)allColsIsGzip.get(tblNames[i]+"."+colName));
+							obj=getObject(rs,thisColType,thisIndex,thisIsGzip);
 						}catch(Exception e){}
 						if(setter!=null) setter.invoke(objects[i],new Object[]{obj});						
 					}
@@ -813,6 +826,7 @@ public class RdbmsDao implements DAO {
 							
 			Map allColsIndex=new HashMap();
 			Map allColsType=new HashMap();
+			Map allColsIsGzip=new HashMap();
 			
 			//记住各表各列在结果集中的位置，同时生成sql		 
 			int index=1;
@@ -826,6 +840,7 @@ public class RdbmsDao implements DAO {
 					sql+=tblNames[i]+"."+col.colName+" AS C"+index+",";
 					allColsIndex.put(tblNames[i]+"."+col.colName,new Integer(index));
 					allColsType.put(tblNames[i]+"."+col.colName,new Integer(col.colType));
+					allColsIsGzip.put(tblNames[i]+"."+col.colName,new Boolean(col.gzip));
 					index++;
 				}
 			}
@@ -901,7 +916,8 @@ public class RdbmsDao implements DAO {
 						try{
 							int thisIndex=((Integer)allColsIndex.get(tblNames[i]+"."+colName)).intValue();;
 							int thisColType=((Integer)allColsType.get(tblNames[i]+"."+colName)).intValue();
-							obj=getObject(rs,thisColType,thisIndex);
+							Boolean thisIsGzip=((Boolean)allColsIsGzip.get(tblNames[i]+"."+colName));
+							obj=getObject(rs,thisColType,thisIndex,thisIsGzip);
 						}catch(Exception e){}
 						if(setter!=null) setter.invoke(objects[i],new Object[]{obj});						
 					}
@@ -1025,7 +1041,7 @@ public class RdbmsDao implements DAO {
 					paras[0]=new Integer(i);
 					paras[1]=value;
 				}
-				Methods.set(colType,pstmt,paras);
+				Methods.set(colType,col.gzip,pstmt,paras);
 				i++;
 			}
 			
@@ -1147,7 +1163,7 @@ public class RdbmsDao implements DAO {
 					paras[0]=new Integer(i);
 					paras[1]=value;
 				}
-				Methods.set(colType,pstmt,paras);
+				Methods.set(colType,col.gzip,pstmt,paras);
 				i++;
 			}
 			
@@ -1235,7 +1251,7 @@ public class RdbmsDao implements DAO {
 							paras[0]=new Integer(index);
 							paras[1]=value;
 						}
-						Methods.set(colType,pstmt,paras);
+						Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
 						index++;
 					}
 					
@@ -1275,7 +1291,7 @@ public class RdbmsDao implements DAO {
 						paras[0]=new Integer(index);
 						paras[1]=value;
 					}
-					Methods.set(colType,pstmt,paras);
+					Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
 					index++;
 				}
 				
@@ -1418,7 +1434,7 @@ public class RdbmsDao implements DAO {
 							paras[0]=new Integer(index);
 							paras[1]=value;
 						}
-						Methods.set(colType,pstmt,paras);
+						Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
 						index++;
 					}
 					
@@ -1465,7 +1481,7 @@ public class RdbmsDao implements DAO {
 						paras[0]=new Integer(index);
 						paras[1]=value;
 					}
-					Methods.set(colType,pstmt,paras);
+					Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
 					index++;
 				}
 				
@@ -1609,7 +1625,7 @@ public class RdbmsDao implements DAO {
 							paras[0]=new Integer(index);
 							paras[1]=value;
 						}
-						Methods.set(colType,pstmt,paras);
+						Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
 						index++;
 					}
 					
@@ -1656,7 +1672,7 @@ public class RdbmsDao implements DAO {
 						paras[0]=new Integer(index);
 						paras[1]=value;
 					}
-					Methods.set(colType,pstmt,paras);
+					Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
 					index++;
 				}
 				
@@ -1875,6 +1891,7 @@ public class RdbmsDao implements DAO {
 					Column column=new Column(colName,
 							SQLUtil.adjustDataType(factory.getDbType(),colType,colTypeName),
 							notnull,
+							false,
 							rsmd.getColumnDisplaySize(i));
 					columns.add(column);
 				}catch(Exception ex){}
@@ -1937,6 +1954,7 @@ public class RdbmsDao implements DAO {
 					Column col=new Column(colName,
 							((Integer)typeOfColumnMap.get(colName)).intValue(),
 							((Boolean)notnullOfColumnMap.get(colName)).booleanValue(),
+							false,
 							((Integer)lengthOfColumnMap.get(colName)).intValue());
 					pks.add(col);
 				}catch(Exception e){
@@ -2442,10 +2460,11 @@ public class RdbmsDao implements DAO {
 	 * @param rs
 	 * @param colType
 	 * @param colName
+	 * @param isGzip
 	 * @return
 	 * @throws Exception
 	 */
-	protected Object getObject(ResultSet rs,int colType,String colName)throws Exception{
+	protected Object getObject(ResultSet rs,int colType,String colName,boolean isGzip)throws Exception{
 		if(colType==Types.BLOB){
 			java.sql.Blob blob=rs.getBlob(colName);
 			if(blob==null){
@@ -2465,7 +2484,13 @@ public class RdbmsDao implements DAO {
 			}
 			return new ByteArrayInputStream(JUtilInputStream.bytes(in));
 		}else{
-			return Methods.get(colType,rs,colName);
+			Object obj=Methods.get(colType,rs,colName);
+			if(obj!=null&&(obj instanceof String)&&isGzip){
+				try{
+					obj=JUtilCompressor.gunzipString((String)obj,"UTF-8");
+				}catch(Exception e){}
+			}
+			return obj;
 		}
 	}
 	
@@ -2475,10 +2500,11 @@ public class RdbmsDao implements DAO {
 	 * @param rs
 	 * @param colType
 	 * @param index
+	 * @param isGzip
 	 * @return
 	 * @throws Exception
 	 */
-	protected Object getObject(ResultSet rs,int colType,int index)throws Exception{
+	protected Object getObject(ResultSet rs,int colType,int index,boolean isGzip)throws Exception{
 		if(colType==Types.BLOB){
 			java.sql.Blob blob=rs.getBlob(index);
 			if(blob==null){
@@ -2498,7 +2524,13 @@ public class RdbmsDao implements DAO {
 			}
 			return new ByteArrayInputStream(JUtilInputStream.bytes(in));
 		}else{
-			return Methods.get(colType,rs,index);
+			Object obj=Methods.get(colType,rs,index);
+			if(obj!=null&&(obj instanceof String)&&isGzip){
+				try{
+					obj=JUtilCompressor.gunzipString((String)obj,"UTF-8");
+				}catch(Exception e){}
+			}
+			return obj;
 		}
 	}
 	

@@ -78,6 +78,12 @@ public class DAOFactory implements Runnable{
 	private Map colsName=new HashMap();
 	
 	/**
+	 * key,小写表名.对应vo中的变量名   value,true/flase 表示是否gzip
+	 * colsName.put(tblNameLowerCase+"."+fieldName,col.colName);
+	 */
+	private Map colsIsGzip=new HashMap();
+	
+	/**
 	 * key,小写表名.对应vo中的变量名   value,vo中对应的set方法
 	 * setters.put(tblNameLowerCase+"."+fieldName,setter);
 	 */
@@ -391,11 +397,12 @@ public class DAOFactory implements Runnable{
 				String colName=property.attributeValue("column");
 				int colType=SQLUtil.getJavaTypeValue(property.attributeValue("type"));
 				
-				Column col=new Column(colName,colType);
+				Column col=new Column(colName,colType,"true".equals(property.attributeValue("type")));
 				colsList.add(col);
 				
 				factory.colsType.put(tblNameLowerCase+"."+fieldName,new Integer(col.colType));
 				factory.colsName.put(tblNameLowerCase+"."+fieldName,col.colName);	
+				factory.colsIsGzip.put(tblNameLowerCase+"."+fieldName,property.attributeValue("type"));
 			}	
 			factory.colsOfTables.put(tblNameLowerCase,colsList);	
 			
@@ -487,11 +494,12 @@ public class DAOFactory implements Runnable{
 				String colName=property.attributeValue("column");
 				int colType=SQLUtil.getJavaTypeValue(property.attributeValue("type"));
 				
-				Column col=new Column(colName,colType);
+				Column col=new Column(colName,colType,"true".equals(property.attributeValue("type")));
 				colsList.add(col);
 				
 				factory.colsType.put(tblNameLowerCase+"."+fieldName,new Integer(col.colType));
-				factory.colsName.put(tblNameLowerCase+"."+fieldName,col.colName);		
+				factory.colsName.put(tblNameLowerCase+"."+fieldName,col.colName);	
+				factory.colsIsGzip.put(tblNameLowerCase+"."+fieldName,property.attributeValue("type"));	
 			}	
 			
 			factory.colsOfTables.put(tblNameLowerCase,colsList);	
@@ -588,11 +596,12 @@ public class DAOFactory implements Runnable{
 				String colName=property.attributeValue("column");
 				int colType=SQLUtil.getJavaTypeValue(property.attributeValue("type"));
 				
-				Column col=new Column(colName,colType);
+				Column col=new Column(colName,colType,"true".equals(property.attributeValue("type")));
 				colsList.add(col);
 				
 				factory.colsType.put(tblNameLowerCase+"."+fieldName,new Integer(col.colType));
 				factory.colsName.put(tblNameLowerCase+"."+fieldName,col.colName);
+				factory.colsIsGzip.put(tblNameLowerCase+"."+fieldName,property.attributeValue("type"));
 			}	
 			
 			factory.colsOfTables.put(tblNameLowerCase,colsList);	
@@ -1011,6 +1020,19 @@ public class DAOFactory implements Runnable{
 		tableName=db.getMetaTable(tableName);
 		
 		return ((Integer)this.colsType.get(tableName.toLowerCase()+"."+JUtilBean.colNameToVariableName(colNameOrFieldName))).intValue();
+	}
+	
+	/**
+	 * 得到表tableName的列类型
+	 * @param tableName
+	 * @param colNameOrFieldName
+	 * @return
+	 */
+	public boolean getColIsGzip(String tableName,String colNameOrFieldName){
+		Database db=DB.database(this.dbName);
+		tableName=db.getMetaTable(tableName);
+		
+		return "true".equals(this.colsIsGzip.get(tableName.toLowerCase()+"."+JUtilBean.colNameToVariableName(colNameOrFieldName)));
 	}
 		
 	

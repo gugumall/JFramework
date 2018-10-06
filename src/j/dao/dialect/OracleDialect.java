@@ -154,7 +154,7 @@ public class OracleDialect extends RdbmsDao {
 					paras[0]=new Integer(i);
 					paras[1]=value;
 				}
-				Methods.set(colType,pstmt,paras);
+				Methods.set(colType,col.gzip,pstmt,paras);
 			}
 			
 			pstmt.execute();
@@ -282,7 +282,7 @@ public class OracleDialect extends RdbmsDao {
 					paras[0]=new Integer(i);
 					paras[1]=value;
 				}
-				Methods.set(colType,pstmt,paras);
+				Methods.set(colType,col.gzip,pstmt,paras);
 			}
 			
 			pstmt.execute();
@@ -383,7 +383,7 @@ public class OracleDialect extends RdbmsDao {
 							paras[0]=new Integer(index);
 							paras[1]=value;
 						}
-						Methods.set(colType,pstmt,paras);
+						Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
 						index++;
 					}
 					
@@ -440,7 +440,7 @@ public class OracleDialect extends RdbmsDao {
 						paras[0]=new Integer(index);
 						paras[1]=value;
 					}
-					Methods.set(colType,pstmt,paras);
+					Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
 					index++;
 				}
 				
@@ -570,7 +570,7 @@ public class OracleDialect extends RdbmsDao {
 							paras[0]=new Integer(index);
 							paras[1]=value;
 						}
-						Methods.set(colType,pstmt,paras);
+						Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
 						index++;
 					}
 					
@@ -632,7 +632,7 @@ public class OracleDialect extends RdbmsDao {
 						paras[0]=new Integer(index);
 						paras[1]=value;
 					}
-					Methods.set(colType,pstmt,paras);
+					Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
 					index++;
 				}
 				
@@ -766,7 +766,7 @@ public class OracleDialect extends RdbmsDao {
 							paras[0]=new Integer(index);
 							paras[1]=value;
 						}
-						Methods.set(colType,pstmt,paras);
+						Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
 						index++;
 					}
 					
@@ -828,7 +828,7 @@ public class OracleDialect extends RdbmsDao {
 						paras[0]=new Integer(index);
 						paras[1]=value;
 					}
-					Methods.set(colType,pstmt,paras);
+					Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
 					index++;
 				}
 				

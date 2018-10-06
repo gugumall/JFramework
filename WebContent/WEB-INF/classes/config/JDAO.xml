@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<!-- 是否集群环境，如果是则在自增主键时使用共享缓存  -->
+	<is-cluster>false</is-cluster>
+	<database id="Region" name="Region" desc="行政区划数据库（SQLite）" TEST-SQL="select * from j_ip">
+		<mirror uuid="Region:1" config="config/datasource.region.xml" is-monitor="false" monitor="" avail="true" read="true" insert="true" update="true" priority="1"></mirror>
+	</database>
+	<!-- 
+	<database id="jshop" name="jshop" desc="" TEST-SQL="select u_id from js_user where u_id is null">
+		<mirror uuid="jshop:1" config="config/datasource.jshop.xml" is-monitor="true" monitor="/DataSource.service" avail="true" read="true" insert="true" update="true" priority="1"></mirror>
+		<mirror uuid="jshop:2" config="config/datasource.jshop.xml" is-monitor="true" monitor="/DataSource.service" avail="true" read="true" insert="true" update="true" priority="1"></mirror>
+		<syn>
+		    <node uuid="jshop:1" name="服务器A">
+		        <channel type="http" value="http://sa.xxx.com"/>
+		    </node>
+		    <node uuid="jshop:2" name="服务器B">
+		        <channel type="http" value="http://sb.xxx.com"/>
+		    </node>
+		</syn>
+	</database>
+	<database id="jpayment" name="jpayment" desc="">
+		<mirror uuid="jpayment:1" config="config/datasource.jpay.xml" is-monitor="true" monitor="/DataSource.service" avail="true" read="true" insert="true" update="true" priority="1"></mirror>
+	</database> -->
+</root>

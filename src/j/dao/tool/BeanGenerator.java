@@ -288,6 +288,7 @@ public class BeanGenerator {
 					tmpConfStr+=" type=\""+type+"\"";
 					tmpConfStr+=" column=\""+col.colName+"\"";
 					tmpConfStr+=" not-null=\""+col.notNull+"\"";
+					tmpConfStr+=" gzip=\"false\"";
 					tmpConfStr+=" length=\""+col.length+"\"/>\r\n\r\n";
 				}//遍历每个列,得到成员变量 ends
 				

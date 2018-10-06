@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import j.log.Logger;
+import j.util.JUtilCompressor;
 
 /**
  * PreparedStatement和ResultSet的一些get/set方法，保存在map中，key为数据库字段类型、value为get/set方法。以简化反射操作时代码编写。
@@ -328,7 +329,20 @@ public class Methods {
 	 * @param paras
 	 * @return
 	 */
-	public static Object set(int colType,Object obj,Object[] paras)throws Exception{
+	public static Object set(int colType,boolean gzip,Object obj,Object[] paras)throws Exception{
+		if(gzip&&paras!=null&&paras.length>1){
+			Object value=paras[1];
+			if(value!=null&&(value instanceof String)){
+				try{
+					//尝试解压，以避免重复执行gzip压缩
+					value=JUtilCompressor.gunzipString((String)value,"UTF-8");
+					
+					//压缩
+					value=JUtilCompressor.gzipString((String)value,"UTF-8");
+					paras[1]=value;
+				}catch(Exception e){}
+			}
+		}
 		Method method=(Method)settersOfPreparedStatement.get(new Integer(colType));
 		//log.log(method.toString(),Logger.LEVEL_DEBUG);
 		return method.invoke(obj,paras);

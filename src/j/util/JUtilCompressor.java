@@ -1,6 +1,9 @@
 package j.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -82,8 +85,7 @@ public class JUtilCompressor {
 	 * @param file
 	 * @throws Exception
 	 */
-	public static void gzipIs2File(InputStream in, String file)
-			throws Exception {
+	public static void gzipIs2File(InputStream in, String file) throws Exception {
 		FileOutputStream fo = new FileOutputStream(file);
 		GZIPOutputStream os = new GZIPOutputStream(fo);
 		byte[] buffer = new byte[1024];
@@ -97,6 +99,53 @@ public class JUtilCompressor {
 		fo.close();
 		in.close();
 	}
+
+	/**
+	 * 
+	 * @param source
+	 * @return
+	 * @throws Exception
+	 */
+	public static String gzipString(String source,String encoding) throws Exception {
+		if(source == null || source.length() == 0) {   
+			return source;   
+		}   
+		
+		ByteArrayOutputStream out = new ByteArrayOutputStream();   
+		GZIPOutputStream gzip = new GZIPOutputStream(out);   
+		gzip.write(source.getBytes(encoding));   
+		gzip.close(); 
+		out.close();
+		
+		return out.toString("ISO-8859-1");
+	}
+	
+	
+	/**
+	 * 
+	 * @param source
+	 * @param encoding
+	 * @return
+	 * @throws IOException
+	 */
+	public static String gunzipString(String source,String encoding) throws IOException {   
+		if (source == null || source.length() == 0) {   
+			return source;   
+	    }   
+		
+		ByteArrayOutputStream out = new ByteArrayOutputStream();   
+		ByteArrayInputStream in = new ByteArrayInputStream(source.getBytes("ISO-8859-1"));   
+		GZIPInputStream gunzip = new GZIPInputStream(in);   
+	    byte[] buffer = new byte[256];   
+	    int n;   
+	    while ((n = gunzip.read(buffer))>= 0) {   
+	    	out.write(buffer, 0, n);   
+	    }   
+	    gunzip.close();
+	    out.close();
+	    
+	    return out.toString(encoding);	    
+	} 
 
 	/**
 	 * test
