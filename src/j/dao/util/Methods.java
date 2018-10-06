@@ -336,7 +336,9 @@ public class Methods {
 				try{
 					//尝试解压，以避免重复执行gzip压缩
 					value=JUtilCompressor.gunzipString((String)value,"UTF-8");
-					
+				}catch(Exception e){}
+				
+				try{
 					//压缩
 					value=JUtilCompressor.gzipString((String)value,"UTF-8");
 					paras[1]=value;

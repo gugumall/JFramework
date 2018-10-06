@@ -403,6 +403,8 @@ public class DAOFactory implements Runnable{
 				factory.colsType.put(tblNameLowerCase+"."+fieldName,new Integer(col.colType));
 				factory.colsName.put(tblNameLowerCase+"."+fieldName,col.colName);	
 				factory.colsIsGzip.put(tblNameLowerCase+"."+fieldName,property.attributeValue("gzip"));
+				
+				if(col.gzip) log.log("gzip col: "+tblNameLowerCase+"."+fieldName,-1);
 			}	
 			factory.colsOfTables.put(tblNameLowerCase,colsList);	
 			
@@ -500,6 +502,8 @@ public class DAOFactory implements Runnable{
 				factory.colsType.put(tblNameLowerCase+"."+fieldName,new Integer(col.colType));
 				factory.colsName.put(tblNameLowerCase+"."+fieldName,col.colName);	
 				factory.colsIsGzip.put(tblNameLowerCase+"."+fieldName,property.attributeValue("gzip"));	
+				
+				if(col.gzip) log.log("gzip col: "+tblNameLowerCase+"."+fieldName,-1);
 			}	
 			
 			factory.colsOfTables.put(tblNameLowerCase,colsList);	
@@ -602,6 +606,8 @@ public class DAOFactory implements Runnable{
 				factory.colsType.put(tblNameLowerCase+"."+fieldName,new Integer(col.colType));
 				factory.colsName.put(tblNameLowerCase+"."+fieldName,col.colName);
 				factory.colsIsGzip.put(tblNameLowerCase+"."+fieldName,property.attributeValue("gzip"));
+				
+				if(col.gzip) log.log("gzip col: "+tblNameLowerCase+"."+fieldName,-1);
 			}	
 			
 			factory.colsOfTables.put(tblNameLowerCase,colsList);	
