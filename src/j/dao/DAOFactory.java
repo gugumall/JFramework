@@ -397,7 +397,7 @@ public class DAOFactory implements Runnable{
 				String colName=property.attributeValue("column");
 				int colType=SQLUtil.getJavaTypeValue(property.attributeValue("type"));
 				
-				Column col=new Column(colName,colType,"true".equals(property.attributeValue("type")));
+				Column col=new Column(colName,colType,"true".equals(property.attributeValue("gzip")));
 				colsList.add(col);
 				
 				factory.colsType.put(tblNameLowerCase+"."+fieldName,new Integer(col.colType));
@@ -494,7 +494,7 @@ public class DAOFactory implements Runnable{
 				String colName=property.attributeValue("column");
 				int colType=SQLUtil.getJavaTypeValue(property.attributeValue("type"));
 				
-				Column col=new Column(colName,colType,"true".equals(property.attributeValue("type")));
+				Column col=new Column(colName,colType,"true".equals(property.attributeValue("gzip")));
 				colsList.add(col);
 				
 				factory.colsType.put(tblNameLowerCase+"."+fieldName,new Integer(col.colType));
@@ -596,7 +596,7 @@ public class DAOFactory implements Runnable{
 				String colName=property.attributeValue("column");
 				int colType=SQLUtil.getJavaTypeValue(property.attributeValue("type"));
 				
-				Column col=new Column(colName,colType,"true".equals(property.attributeValue("type")));
+				Column col=new Column(colName,colType,"true".equals(property.attributeValue("gzip")));
 				colsList.add(col);
 				
 				factory.colsType.put(tblNameLowerCase+"."+fieldName,new Integer(col.colType));
