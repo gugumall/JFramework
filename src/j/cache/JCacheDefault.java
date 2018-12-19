@@ -169,6 +169,15 @@ public class JCacheDefault extends JCache implements Runnable{
 		JCacheUnit unit=checkStatus(cacheId);	
 		return unit.size();
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see j.cache.JCache#size(java.lang.String, j.cache.JCacheParams)
+	 */
+	public int size(String cacheId,JCacheParams params) throws Exception{
+		JCacheUnit unit=checkStatus(cacheId);	
+		return unit.size(params);
+	}
 
 	/*
 	 *  (non-Javadoc)

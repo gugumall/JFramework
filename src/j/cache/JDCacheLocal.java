@@ -128,6 +128,15 @@ public class JDCacheLocal extends JCache{
 	}
 
 	/*
+	 * (non-Javadoc)
+	 * @see j.cache.JCache#size(java.lang.String, j.cache.JCacheParams)
+	 */
+	public int size(String cacheId, JCacheParams jdcParams) throws Exception {
+		JCacheUnit unit=checkStatus(cacheId);	
+		return unit.size(jdcParams);
+	}
+
+	/*
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#get(java.lang.String, j.cache.JCacheParams)
 	 */

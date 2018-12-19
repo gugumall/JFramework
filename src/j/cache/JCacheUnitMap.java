@@ -144,6 +144,14 @@ public class JCacheUnitMap extends JCacheUnit{
 	}
 	
 	/*
+	 * (non-Javadoc)
+	 * @see j.cache.JCacheUnit#size(j.cache.JCacheParams)
+	 */
+	public int size(JCacheParams params) throws Exception{
+		return this.values(params).size();
+	}
+	
+	/*
 	 *  (non-Javadoc)
 	 * @see j.cache.JCacheUnit#get(j.cache.JCacheParams)
 	 */

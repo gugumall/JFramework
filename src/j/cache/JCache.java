@@ -134,6 +134,15 @@ public abstract class JCache implements Serializable{
 	 * @return
 	 * @throws Exception
 	 */
+	public abstract int size(String cacheId,JCacheParams jdcParams) throws Exception;
+	
+	/**
+	 * 
+	 * @param cacheId
+	 * @param jdcParams
+	 * @return
+	 * @throws Exception
+	 */
 	public abstract Object get(String cacheId,JCacheParams jdcParams) throws Exception;
 	
 	/**

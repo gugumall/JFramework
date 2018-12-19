@@ -100,6 +100,15 @@ public interface JDCacheService extends ServiceBase {
 	 * @return
 	 * @throws RemoteException
 	 */
+	public int size(String cacheId,JCacheParams params) throws RemoteException;
+
+	/**
+	 * 
+	 * @param cacheId
+	 * @param params
+	 * @return
+	 * @throws RemoteException
+	 */
 	public Object get(String cacheId,JCacheParams params) throws RemoteException;
 
 	/**

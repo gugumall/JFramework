@@ -1,8 +1,12 @@
 package j.app.permission;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import j.app.sso.User;
 import j.app.webserver.Handler;
 import j.app.webserver.Handlers;
+import j.util.JUtilString;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,6 +21,7 @@ public class ResourceAction implements Resource{
 	private String[] roles;//可访问该资源的角色，多个用|分隔	
 	private String noPermissionPage;//当用户已经登录，但不具备访问该资源权限时转向的页面，如不设置则转向SSOServer.noRightPage
 	private String loginPage;//当用户未登录时转向的页面，如不设置则转向SSOServer.LOGIN_PAGE
+	private List excludes;//如果匹配excludes中指定的方法，则不进行权限认证
 	
 	
 	/**
@@ -24,6 +29,7 @@ public class ResourceAction implements Resource{
 	 *
 	 */
 	public ResourceAction(){
+		excludes=new LinkedList();
 	}
 	
 	//setters	 
@@ -45,6 +51,10 @@ public class ResourceAction implements Resource{
 	
 	public void setLoginPage(String loginPage){
 		this.loginPage=loginPage;
+	}
+	
+	public void addExclude(String exclude){
+		this.excludes.add(exclude);
 	}
 	
 	
@@ -77,11 +87,17 @@ public class ResourceAction implements Resource{
 			String _path=requestURI.substring(0,requestURI.lastIndexOf("."));
 			Handler handler=Handlers.getHandler(_path);
 			if(handler==null) return false;
-			
+
+			String _actionId=request.getParameter(handler.getRequestBy());
 			if(this.actionId==null||"".equals(this.actionId)){
-				return path.equals(_path);
+				if(path.equals(_path)){
+					for(int i=0;i<this.excludes.size();i++){
+						String exclude=(String)this.excludes.get(i);
+						if(exclude.equals(_actionId)) return false;
+					}
+					return true;
+				}
 			}else{
-				String _actionId=request.getParameter(handler.getRequestBy());
 				return path.equals(_path)&&actionId.equals(_actionId);
 			}
 		}

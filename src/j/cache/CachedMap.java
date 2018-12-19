@@ -84,6 +84,16 @@ public class CachedMap{
 	public int size() throws Exception {
 		return cache.size(this.cacheId);
 	}
+	
+	/**
+	 * 
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	public int size(JCacheParams params) throws Exception {
+		return cache.size(this.cacheId,params);
+	}
 
 	/**
 	 * 

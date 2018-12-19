@@ -8,7 +8,8 @@ create database jframework default character set utf8 collate utf8_general_ci;
 3,打开windows命令窗口，用如下命令导出数据：
 mysqldump -u root -p -h localhost --no-create-db --no-create-info --default-character-set=utf8 -B jframework> /usr/tmp/navigate.sql
 mysqldump -u root -p -h localhost --default-character-set=utf8 -B jframework> /usr/tmp/jframework.sql
-mysqldump -u root -p -h localhost --default-character-set=utf8 -B jframework j_user> /usr/tmp/juser.sql
+mysqldump -u root -p -h localhost --default-character-set=utf8 -B jshopx js_catalog> /usr/tmp/js_catalog.sql
+mysqldump -u root -p -h localhost --default-character-set=utf8 -B jshopx js_group> /usr/tmp/js_group.sql
 
 4,打开windows命令窗口，用如下命令导入数据：
 mysql -u root -p < /usr/tmp/juser.sql

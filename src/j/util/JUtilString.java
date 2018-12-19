@@ -51,7 +51,7 @@ public class JUtilString extends JUtilSorter {
 	public static final String RegExpComName="^([a-zA-Z_.,\\- ]{1,150})$"; 
 	public static final String RegExpCharCn="^[\\u4E00-\\u9FA5]{0,}$";
 	public static final String RegExpIdcard="^[0-9]{17}[0-9Xx]{1}$";
-	public static final String RegExpBankCard="^([\\d]{16})|([\\d]{19})$";
+	public static final String RegExpBankCard="^([\\d]{16})|([\\d]{19})|([\\d]{20})$";
 	public static final String RegCompanyLicenseNum="^(\\d{13})|(\\d{15})|(\\d{18})$";
 	public static final String RegExpRegularName="^[\\S ]{0,}$"; 
 	private static final char[] hexDigit = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
@@ -1030,6 +1030,8 @@ public class JUtilString extends JUtilSorter {
 	 */
 	public static String encodeURI(String url,String encoding){
 		try{
+			if("".equals(url)||url==null) return url;
+			
 			String en=URLEncoder.encode(url,encoding);
 			en=en.replaceAll("\\+","%20");
 			return en;

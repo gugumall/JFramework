@@ -163,6 +163,12 @@ public class Permission implements Runnable{
 	        	r.setNoPermissionPage(rEle.attributeValue("no-permission-page"));
 	        	r.setLoginPage(rEle.attributeValue("login-page"));
 	        	
+	        	List excludes=rEle.elements("exclude");
+	        	for(int j=0;excludes!=null&&j<excludes.size();j++){
+	            	Element ex=(Element)excludes.get(j);
+	        		r.addExclude(ex.getText());
+	        	}
+	        	
 	        	resources.add(r);
 	        	
 	        	log.log(r.toString(),-1);

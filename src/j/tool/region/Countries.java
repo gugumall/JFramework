@@ -15,7 +15,7 @@ public class Countries {
 	public static final String TEL_RE="^\\d{3,6}\\-?\\d{5,10}\\-?\\d{0,6}$";
 	
 	static{
-		countries.add(new CountryData("CN","86","中国大陆","China","中国","^(86){0,1}\\-?1[3,4,5,7,8]\\d{9}$"));
+		countries.add(new CountryData("CN","86","中国大陆","China","中国","^(86){0,1}\\-?1[1,2,3,4,5,6,7,8,9]\\d{9}$"));
 		countries.add(new CountryData("HK","852","香港","Hong Kong","中国","^(852){1}\\-?0{0,1}[1,5,6,9](?:\\d{7}|\\d{8}|\\d{12})$"));
 		countries.add(new CountryData("MO","853","澳门","Macau","中国","^(853){1}\\-?6\\d{7}$"));
 		countries.add(new CountryData("TW","886","台湾","Taiwan","中国","^(886){1}\\-?0{0,1}[6,7,9](?:\\d{7}|\\d{8}|\\d{10})$"));

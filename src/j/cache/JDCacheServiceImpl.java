@@ -309,6 +309,16 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 			throw new RemoteException(e.getMessage());
 		}
 	}
+	
+	public int size(String cacheId, JCacheParams params) throws RemoteException{
+		JCacheUnit unit=checkStatus(cacheId);	
+		try{
+			return unit.size(params);
+		}catch(Exception e){
+			log.log(e,Logger.LEVEL_ERROR);
+			throw new RemoteException(e.getMessage());
+		}
+	}
 
 	/*
 	 *  (non-Javadoc)
@@ -549,8 +559,13 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	public void size(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
+			String params=SysUtil.getHttpParameter(request,"params");
 			
-			jsession.resultString=""+this.size(cacheId);
+			if(params!=null){
+				jsession.resultString=""+this.size(cacheId,(JCacheParams)JObject.string2Serializable(params));
+			}else{
+				jsession.resultString=""+this.size(cacheId);
+			}
 		}catch(Exception e){
 			log.log(e,Logger.LEVEL_ERROR);
 			jsession.resultString=Constants.INVOKING_FAILED;

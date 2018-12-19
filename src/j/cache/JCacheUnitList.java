@@ -138,6 +138,15 @@ public class JCacheUnitList extends JCacheUnit{
 	
 	/*
 	 *  (non-Javadoc)
+	 * @see j.cache.JCacheUnit#size()
+	 */
+	public int size(JCacheParams params) throws Exception{
+		ConcurrentList values=(ConcurrentList)this.sub(params);
+		return values==null?0:values.size();
+	}
+	
+	/*
+	 *  (non-Javadoc)
 	 * @see j.cache.JCacheUnit#get(j.cache.JCacheParams)
 	 */
 	public Object get(JCacheParams params) throws Exception{

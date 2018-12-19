@@ -40,7 +40,8 @@ public class I18NFilter implements Filter{
 			
 			String requestedUri=httpRequest.getRequestURI();	
 	    	
-			I18NResponseWrapper wrapper = new I18NResponseWrapper((HttpServletResponse)response); 
+			I18NResponseWrapper wrapper = new I18NResponseWrapper((HttpServletResponse)response);
+			wrapper.resetBuffer(); 
 			request.getRequestDispatcher(requestedUri).include(request,wrapper);
 			
 			String content = wrapper.getContent();  

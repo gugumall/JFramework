@@ -59,18 +59,18 @@ public class Server{
 	 */
 	private static String[] ignoredLogActionsOfService=new String[]{"register","unregister","heartbeat","auth","service"};
 	public static void service(Handler handler,HttpServletRequest request,HttpServletResponse response)throws ServletException{
-		String requestUuid=request.getParameter(Constants.J_REQUEST_UUID);
-		String requestUuidSn=request.getParameter(Constants.J_REQUEST_UUID_SN);
+		String requestUuid=SysUtil.getHttpParameter(request,Constants.J_REQUEST_UUID);
+		String requestUuidSn=SysUtil.getHttpParameter(request,Constants.J_REQUEST_UUID_SN);
 		
 		HttpSession session=request.getSession();//得到会话（HttpSession）
 				
 		JSession jsession=null;
 		JHandler jHandler=null;//业务处理类
 		Action action=null;		
-		String actionId=request.getParameter(handler.getRequestBy());//得到用户请求的操作名
+		String actionId=SysUtil.getHttpParameter(request,handler.getRequestBy());//得到用户请求的操作名
 		
-		String navigateType =request.getParameter(Constants.J_BACK_TYPE);//调转到返回地址所使用的机制	
-		String navigateUrl=request.getParameter(Constants.J_BACK_URL);//返回给用户的地址
+		String navigateType =SysUtil.getHttpParameter(request,Constants.J_BACK_TYPE);//调转到返回地址所使用的机制	
+		String navigateUrl=SysUtil.getHttpParameter(request,Constants.J_BACK_URL);//返回给用户的地址
 		if(navigateType==null){
 			navigateType=(String)request.getAttribute(Constants.J_BACK_TYPE);
 		}
@@ -91,6 +91,7 @@ public class Server{
 			
 			if(!actionId.matches("^([a-zA-Z_.\\-]{1,64})$")){
 				try{
+					log.log("illegal actionId:"+actionId,Logger.LEVEL_FATAL);
 					SysUtil.outHttpResponse(response,Constants.J_ILLEGAL_VISITOR);
 				}catch(Exception e){}
 				return;

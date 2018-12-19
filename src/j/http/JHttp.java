@@ -440,7 +440,7 @@ public class JHttp{
 			while (keys.hasNext()) {
 				Object key = keys.next();
 				Object val = params.get(key);
-				formparams.add(new BasicNameValuePair((String)key, (String)val));
+				formparams.add(new BasicNameValuePair((String)key, val==null?"":val.toString()));
 			}
 			if(context.getRequestEncoding()==null) request.setEntity(new UrlEncodedFormEntity(formparams));
 			else request.setEntity(new UrlEncodedFormEntity(formparams,context.getRequestEncoding()));
@@ -968,14 +968,13 @@ public class JHttp{
 		if(ip==null) ip=request.getHeader("x-forwarded-for");
 		if(ip==null) ip=request.getHeader("x-real-ip");
 		if(ip==null) ip=request.getHeader("remote-host");
+		if(ip==null) ip=request.getHeader("remote-addr");
+		if(ip==null) ip=request.getHeader("PROXY_FORWARDED_FOR");
 		if(ip==null) ip=request.getRemoteHost();
 		
 		if(ip.indexOf(",")>0){
 			ip=ip.replaceAll(" ","");
-			String[] ret=ip.split(",");
-			
-			Arrays.sort(ret);
-			return ret;
+			return ip.split(",");
 		}else{
 			return new String[]{ip.trim()};
 		}

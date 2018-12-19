@@ -36,16 +36,23 @@ import org.dom4j.Element;
 public class SysUtil {		
 	private static Logger log=Logger.create(SysUtil.class);
 	public static final String USER_AGENT_UNKNOWN="NONE";
+	
 	public static final String USER_AGENT_PC="PC";
+	
 	public static final String USER_AGENT_IOS="IOS";
 	public static final String[] USER_AGENT_IOS_KEYWORDS=new String[]{"iphone", "ipod", "ipad"};
+	
 	public static final String USER_AGENT_ANDROID="ANDROID";
 	public static final String[] USER_AGENT_ANDROID_KEYWORDS=new String[]{"android"};
+	
 	public static final String USER_AGENT_WEIXIN="WEIXIN";
 	public static final String[] USER_AGENT_WEIXIN_KEYWORDS=new String[]{"micromessenger"};
+	
 	public static final String USER_AGENT_MOBILE="MOBILE";
 	public static final String[] USER_AGENT_MOBILE_KEYWORDS=new String[]{"iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire"};
 	
+	public static final String USER_AGENT_BROWSER="BROWSER";
+	public static final String[] USER_AGENT_BROWSER_KEYWORDS=new String[]{"chrome", "qqbrowser", "ucbrowser", "sogou", "firefox", "edge", "safari", "opera", "taobrowser", "lbbrowser", "maxthon"};
 	
 	
 	/**
@@ -62,8 +69,13 @@ public class SysUtil {
 		userAgent=userAgent.toLowerCase();
 		if(JUtilString.existsIgnoreCase(userAgent,USER_AGENT_WEIXIN_KEYWORDS)){
 			return USER_AGENT_WEIXIN;
-		}else if(JUtilString.existsIgnoreCase(userAgent,USER_AGENT_MOBILE_KEYWORDS)){
+		}else if(JUtilString.existsIgnoreCase(userAgent,USER_AGENT_MOBILE_KEYWORDS)
+				&&JUtilString.existsIgnoreCase(userAgent,USER_AGENT_BROWSER_KEYWORDS)){
 			return USER_AGENT_MOBILE;
+		}else if(JUtilString.existsIgnoreCase(userAgent,USER_AGENT_IOS_KEYWORDS)){
+			return USER_AGENT_IOS;
+		}else if(JUtilString.existsIgnoreCase(userAgent,USER_AGENT_ANDROID_KEYWORDS)){
+			return USER_AGENT_ANDROID;
 		}else{
 			return USER_AGENT_PC;
 		}
@@ -468,9 +480,11 @@ public class SysUtil {
 		I18N.changeLanguage(httpRequest,session);
 		
 		I18NResponseWrapper wrapper = new I18NResponseWrapper(httpResponse); 
+		wrapper.resetBuffer();
 		httpRequest.getRequestDispatcher(httpResponse.encodeRedirectURL(url)).include(httpRequest,wrapper);
 		
 		String content = wrapper.getContent(); 
+				
 		int start=content.indexOf("<div class=\"I18N-GROUP\">");
 		int end=content.indexOf("</div>",start);
 		if(start>0&&end>start){//页面中指定了多语言分组
@@ -696,6 +710,7 @@ public class SysUtil {
 			for(Iterator keys=parameters.keySet().iterator();keys.hasNext();){
 				String key=(String)keys.next();
 				String val=(String)parameters.get(key);
+				if(val==null) val="";
 				
 				if(url.indexOf("?")>0) url+="&"+key+"="+JUtilString.encodeURI(val,SysConfig.sysEncoding);
 				else url+="?"+key+"="+JUtilString.encodeURI(val,SysConfig.sysEncoding);
@@ -728,6 +743,8 @@ public class SysUtil {
 		if(value!=null&&value.startsWith("jis:")){
 			value=JObject.intSequence2String(value);
 		}
+		
+		if(value!=null) value=value.trim();
 		
 		return value;
 	}
@@ -983,6 +1000,28 @@ public class SysUtil {
 		}
 		
 		SysUtil.redirect(httpRequest,httpResponse,url);
+	}
+	
+	/**
+	 * 
+	 * @param session
+	 * @param name
+	 * @return
+	 */
+	public static Object getHttpSessionAttr(HttpSession session,String name){
+		return session==null?null:session.getAttribute(name);
+	}
+	
+	/**
+	 * 
+	 * @param session
+	 * @param name
+	 * @param defaultValueIfNull
+	 * @return
+	 */
+	public static Object getHttpSessionAttr(HttpSession session,String name,Object defaultValueIfNull){
+		Object obj=session==null?null:session.getAttribute(name);
+		return obj==null?defaultValueIfNull:obj;
 	}
 	
 	public static void main(String[] args){

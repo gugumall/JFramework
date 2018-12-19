@@ -269,6 +269,27 @@ public class JDCache extends JCache{
 	}
 
 	/*
+	 * (non-Javadoc)
+	 * @see j.cache.JCache#size(java.lang.String, j.cache.JCacheParams)
+	 */
+	public int size(String cacheId, JCacheParams jdcParams) throws Exception {
+		Servant info=findService(cacheId);
+		
+		if(info.service!=null){
+			return info.service.size(cacheId);
+		}else{
+			Map params=new HashMap();
+			params.put("cacheId",cacheId);
+			params.put("params",JObject.serializable2String((Serializable)jdcParams));
+			String response=Client.httpCallPost(info.jhttp,info.jclient,info.serviceCode,info.httpChannel,"size",params);
+			params.clear();
+			params=null;
+			
+			return Integer.parseInt(response);	
+		}
+	}
+
+	/*
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#get(java.lang.String, j.cache.JCacheParams)
 	 */

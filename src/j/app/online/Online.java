@@ -229,7 +229,7 @@ public class Online implements Serializable{
 		}
 	}
 	
-	public void addMessageOut(Object msg){
+	public void addMessageOut(Serializable msg){
 		this.messagesOut.add(msg);
 	}
 	public ConcurrentList getMessagesOut(){

@@ -20,7 +20,7 @@
 		<!-- <property name="proxool.properties">j/dao/proxool.properties</property> -->
 		<!-- <property name="proxool.pool_alias">DBPool</property> -->
 		<property name="connection.driver_class">org.sqlite.JDBC</property>
-		<property name="connection.url">jdbc:sqlite:D:/tomcat/webapps/vselected_sso/ROOT/WEB-INF/db/IP</property>
+		<property name="connection.url">jdbc:sqlite:/usr/local/tomcat/webapps/jshop/ROOT/WEB-INF/db/IP</property>
 		<property name="connection.username"></property>
 		<property name="connection.password"></property>
 		<property name="show_sql">false</property>

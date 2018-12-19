@@ -8,6 +8,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
@@ -21,9 +22,12 @@ import java.util.Locale;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
+import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.ImageIcon;
 
@@ -782,27 +786,27 @@ public final class JUtilImage implements ImageObserver {
 	private static int all = 10000;
 
 	public static void main(String[] args) throws Exception {
-		webp2jpg();
-//		JUtilImage im = new JUtilImage();
-//		im.setQuality(1f);
-//		
-//		int index=278;
-//		
-//		File dir = new File("F:\\images\\时光(容颜)\\temp");
-//		File[] fs=dir.listFiles();
-//		for(int i=0;i<fs.length;i++){
-//			if(fs[i].getName().toLowerCase().endsWith(".jpg")
-//					||fs[i].getName().toLowerCase().endsWith(".jpeg")){
-//				System.out.println(fs[i].getAbsolutePath());
-//				
-//				String newName=index+"";
-//				while(newName.length()<6) newName="0"+newName;
-//				
-//				im.zoomToSize(fs[i], new File("F:\\images\\时光(容颜)\\"+newName+".jpg"), 1200, JUtilImage.FORMAT_JPEG);
-//				
-//				index++;
-//			}
-//		}
+		//webp2jpg();
+		JUtilImage im = new JUtilImage();
+		im.setQuality(1f);
+		
+		int index=207;
+		
+		File dir = new File("F:\\images\\时光(重庆) II\\temp");
+		File[] fs=dir.listFiles();
+		for(int i=0;i<fs.length;i++){
+			if(fs[i].getName().toLowerCase().endsWith(".jpg")
+					||fs[i].getName().toLowerCase().endsWith(".jpeg")){
+				System.out.println(fs[i].getAbsolutePath());
+				
+				String newName=index+"";
+				while(newName.length()<6) newName="0"+newName;
+				
+				im.zoomToSize(fs[i], new File("F:\\images\\时光(重庆) II\\"+newName+".jpg"), 1920, JUtilImage.FORMAT_JPEG);
+				
+				index++;
+			}
+		}
 		
 //		im.zoomToSize(new File("F:\\work\\商城\\衣服\\狼爪\\1388\\1388A.gif"), new File("F:\\work\\商城\\衣服\\狼爪\\1388\\temp.gif"), 300, "JPEG");
 
@@ -896,5 +900,64 @@ public final class JUtilImage implements ImageObserver {
 						.replace(".GIF", ".gif"));
 			}
 		}
+	}
+
+	/**
+	 * 将图片裁剪
+	 * @param srcFile
+	 * @param destFile
+	 * @param leftRatio 左边裁去比率（相对图片原始宽度）
+	 * @param rightRatio 右边裁去比率（相对图片原始宽度）
+	 * @param topRatio 顶部裁去比率（相对图片原始高度）
+	 * @param bottomRatio 底部裁去比率（相对图片原始高度）
+	 * @param imageFormat
+	 * @throws Exception
+	 */
+	public void trim(File srcFile, File destFile,double leftRatio,double rightRatio,double topRatio,double bottomRatio,String imageFormat) throws Exception {
+		if (!chkImageFormat(imageFormat)) {
+			throw new Exception("图片类型不合法");
+		}
+		
+		if(leftRatio<0
+				||rightRatio<0
+				||topRatio<0
+				||bottomRatio<0
+				||(leftRatio+rightRatio)>0.99
+				||(topRatio+bottomRatio)>0.99){
+			throw new Exception("截取区域设置错误");
+		}
+		
+		Image src = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		src = new ImageIcon(src).getImage();
+		double oldWidth = (double) src.getWidth(this);
+		double oldHeight = (double) src.getHeight(this);
+		
+		//左上角坐标
+		int startX=(int)(oldWidth*leftRatio);
+		int startY=(int)(oldHeight*topRatio);
+		
+		//截取后宽、高
+		int newWidth=(int)(oldWidth*(1-leftRatio-rightRatio));
+		int newHeight=(int)(oldHeight*(1-topRatio-bottomRatio));
+		
+		//截取后的区域
+		Rectangle rect=new Rectangle(startX,startY,newWidth,newHeight);
+		
+		String suffix=srcFile.getName();
+		suffix=suffix.substring(suffix.lastIndexOf(".")+1);
+		
+		FileInputStream fis=new FileInputStream(srcFile);
+		ImageInputStream iis= ImageIO.createImageInputStream(fis);
+		FileOutputStream fos=new FileOutputStream(destFile);
+		
+		ImageReader reader = ImageIO.getImageReadersBySuffix(suffix).next();
+		reader.setInput(iis, true);
+		ImageReadParam param = reader.getDefaultReadParam();
+		param.setSourceRegion(rect);
+		BufferedImage bi = reader.read(0, param);
+		ImageIO.write(bi, suffix, fos);
+		
+		fos.flush();
+		fos.close();	
 	}
 }

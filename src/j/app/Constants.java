@@ -23,6 +23,7 @@ public class Constants {
 	public static final String SSO_BACK_URL="sso_back_url";
 	public static final String SSO_LOGIN_PAGE="sso_login_page";
 	public static final String SSO_CLIENT="sso_client";
+	public static final String SSO_CLIENT_SESSION_ID="sso_client_sid";
 	public static final String SSO_LOGIN_AGENT="sso_login_agent";
 	public static final String SSO_GLOBAL_SESSION_ID_ON_SERVER="sso_global_session_id_on_server";
 	public static final String SSO_GLOBAL_SESSION_ID="sso_global_session_id";

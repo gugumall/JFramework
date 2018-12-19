@@ -17,21 +17,21 @@
 
 
 4，生成skel和stub：
-   打开windows命令窗口，进入到类文件所在根目录（也可用-classpath F:\work\JFramework\WebContent\WEB-INF\classes），然后如下：
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.service.hello.JHelloAbstract
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.service.router.JRouterAbstract
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.fs.JDFSServiceAbstract
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.cache.JDCacheServiceAbstract
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.dao.DBServiceAbstract
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.tool.ip.IPServiceAbstract
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.tool.region.RegionServiceAbstract
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -poa -iiop -nowrite j.tool.log.LogServiceAbstract
+   打开windows命令窗口，进入到类文件所在根目录（也可用-classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\classes），然后如下：
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.service.hello.JHelloAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.service.router.JRouterAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.fs.JDFSServiceAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.cache.JDCacheServiceAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.dao.DBServiceAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.tool.ip.IPServiceAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.tool.region.RegionServiceAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.tool.log.LogServiceAbstract
 
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -nowrite j.service.hello.JHelloAbstract
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -nowrite j.service.router.JRouterAbstract
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -nowrite j.fs.JDFSServiceAbstract
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -nowrite j.cache.JDCacheServiceAbstract
-rmic -classpath F:\work\JFramework\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework\src -keep -nowrite j.dao.DBServiceAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -nowrite j.service.hello.JHelloAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -nowrite j.service.router.JRouterAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -nowrite j.fs.JDFSServiceAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -nowrite j.cache.JDCacheServiceAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -nowrite j.dao.DBServiceAbstract
 rmic -classpath F:\work\JShop_v1.1\WebContent\WEB-INF\lib\*;. -d F:\work\JShop_v1.1\src -keep -nowrite j.shop.message.MailSendServiceAbstract
 
 5，部署应用时，将生成的skel、stub与业务处理类放在同一目录。

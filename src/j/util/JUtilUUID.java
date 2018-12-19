@@ -6,6 +6,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 
 /**
  * 
@@ -216,7 +219,14 @@ public final class JUtilUUID {
 		return gain;
 	}
 	
-	public static void main(String[] args){
-		System.out.println(JUtilUUID.genUUID());
+	public static void main(String[] args) throws Exception{
+		String s="{\"result\":true,\"message\":\"成功\",\"status\":\"200\",\"data\":[{\"payaccount\":\"0235369485\",\"kuaidinum\":\"252253690888\",\"orgCode\":\"023\",\"expressName\":\"标准快递\",\"expressCode\":\"\",\"destCode\":\"737\",\"kdComOrderNum\":\"0946952084\",\"template\":[\"aaaa\"],\"templateurl\":[\"http://ckd.im/baSKHs \"]}]}";
+		JSONObject resp=JUtilJSON.parse(s);
+		JSONArray datas=JUtilJSON.array(resp,"data");
+		JSONObject data=JUtilJSON.get(datas,0);
+		
+		System.out.println(JUtilJSON.string(data,"kuaidinum"));
+		System.out.println(JUtilJSON.array(data,"templateurl").get(0));
+		System.out.println(JUtilJSON.array(data,"template").get(0));
 	}
 }

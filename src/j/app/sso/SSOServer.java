@@ -235,14 +235,17 @@ public class SSOServer extends JHandler implements Runnable{
 	 * @throws Exception
 	 */
 	public void sso_verifier_uuid(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws Exception{
-		String scriptType=request.getParameter("type");
-		String form=request.getParameter("form");
-		String sn=request.getParameter("sn");
+		String scriptType=SysUtil.getHttpParameter(request,"type");
+		String form=SysUtil.getHttpParameter(request,"form");
+		String sn=SysUtil.getHttpParameter(request,"sn");
+		String sid=SysUtil.getHttpParameter(request,Constants.SSO_CLIENT_SESSION_ID);
 
-		String uuid=JHttp.getRemoteIp(request);
+		String uuid=sid==null||"".equals(sid)?JHttp.getRemoteIp(request):sid;
 		if(JUtilMath.isInt(sn)&&Integer.parseInt(sn)>=0&&Integer.parseInt(sn)<10){
 			uuid+=":"+sn;
 		}
+		uuid=JUtilMD5.MD5EncodeToHex(uuid);
+		
 		uuid=Verifier.allotUuid(uuid);
 		
 		String script="";
@@ -296,6 +299,9 @@ public class SSOServer extends JHandler implements Runnable{
 		
 		//是否SSO Client
 		String clientUrlPrefix=SysUtil.getHttpParameter(request,Constants.SSO_CLIENT);	
+		
+		//SSO CLIENT SESSION ID
+		String clientSessionId=SysUtil.getHttpParameter(request,Constants.SSO_CLIENT_SESSION_ID);	
 		
 		Client client=SSOConfig.getSsoClientByIdOrUrl(clientUrlPrefix);
 		
@@ -539,7 +545,7 @@ public class SSOServer extends JHandler implements Runnable{
 		if(clientUrlPrefix.indexOf("http")<0) clientUrlPrefix=client.getUrlDefault();
 			
 		try{
-			String ssoUserId=request.getParameter(Constants.SSO_USER_ID);
+			String ssoUserId=SysUtil.getHttpParameter(request,Constants.SSO_USER_ID);
 			
 			//该用户如在别处登录了，先注销
 			if(!"none".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())){
@@ -678,7 +684,7 @@ public class SSOServer extends JHandler implements Runnable{
 		}
 			
 		try{
-			String globalSessionId=request.getParameter(Constants.SSO_GLOBAL_SESSION_ID);
+			String globalSessionId=SysUtil.getHttpParameter(request,Constants.SSO_GLOBAL_SESSION_ID);
 			
 			Object[] tokenInfo=SSOContext.getToken(globalSessionId);
 			String token=tokenInfo==null?null:(String)tokenInfo[0];

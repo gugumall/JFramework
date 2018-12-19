@@ -118,8 +118,8 @@ public class SSOClient extends JHandler implements Runnable{
 	 * @return
 	 */
 	private static boolean verifySsoLogin(Client client,HttpServletRequest request){
-		String verify=request.getParameter(Constants.SSO_PVERIFY);
-		String names=request.getParameter(Constants.SSO_PNAMES);
+		String verify=SysUtil.getHttpParameter(request,Constants.SSO_PVERIFY);
+		String names=SysUtil.getHttpParameter(request,Constants.SSO_PNAMES);
 		if(verify==null||names==null) return false;
 		
 		String[] ns=names.split("\\|");
@@ -689,7 +689,7 @@ public class SSOClient extends JHandler implements Runnable{
 				return;
 			}
 			
-			String ip=request.getParameter(Constants.SSO_USER_IP);
+			String ip=SysUtil.getHttpParameter(request,Constants.SSO_USER_IP);
 			
 			LoginResult loginResult=client.getLoginAgent().getAuthenticator().login(request,session,ip);
 			if(loginResult==null){
