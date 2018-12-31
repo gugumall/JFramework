@@ -136,7 +136,7 @@ public class CachedMap{
 	 * @param params
 	 * @throws Exception
 	 */
-	public void updateCollecton(JCacheParams params) throws Exception {
+	public void updateCollection(JCacheParams params) throws Exception {
 		cache.updateCollection(this.cacheId,params);
 	}
 
