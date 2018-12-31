@@ -261,6 +261,20 @@ public class JCacheUnitMap extends JCacheUnit{
 	}
 	
 	/*
+	 * (non-Javadoc)
+	 * @see j.cache.JCacheUnit#updateCollection(j.cache.JCacheParams)
+	 */
+	public void updateCollection(JCacheParams params) throws Exception{
+		checkStatus(false);
+		
+		if(params==null||(params.collectionUpdater==null)){
+			throw new Exception("no valid operating params.");
+		}
+		
+		params.collectionUpdater.updateCollection(container);
+	}
+	
+	/*
 	 *  (non-Javadoc)
 	 * @see j.cache.JCacheUnit#sub(j.cache.JCacheParams)
 	 */

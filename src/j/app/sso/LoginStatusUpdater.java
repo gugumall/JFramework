@@ -67,6 +67,14 @@ public class LoginStatusUpdater implements JCacheUpdater{
 
 	/*
 	 * (non-Javadoc)
+	 * @see j.cache.JCacheUpdater#update(java.util.Map)
+	 */
+	public void updateCollection(ConcurrentMap collection) throws Exception {
+		
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * @see j.cache.JCacheUpdater#update(java.util.List)
 	 */
 	public void update(ConcurrentList list) throws Exception {

@@ -221,6 +221,15 @@ public class JCacheUnitList extends JCacheUnit{
 	}
 	
 	/*
+	 * (non-Javadoc)
+	 * @see j.cache.JCacheUnit#updateCollection(j.cache.JCacheParams)
+	 */
+	public void updateCollection(JCacheParams params) throws Exception{
+		throw new Exception("Not Supported.");
+	}
+	
+	
+	/*
 	 *  (non-Javadoc)
 	 * @see j.cache.JCacheUnit#sub(j.cache.JCacheParams)
 	 */

@@ -23,6 +23,7 @@ public class JCacheParams implements Serializable{
 	public int recordsPerPage=0;
 	public int pageNum=0;
 	public JCacheUpdater updater;
+	public JCacheUpdater collectionUpdater;
 	
 	/**
 	 * 

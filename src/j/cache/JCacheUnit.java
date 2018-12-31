@@ -169,6 +169,13 @@ public abstract class JCacheUnit implements Serializable{
 	/**
 	 * 
 	 * @param params
+	 * @throws Exception
+	 */
+	public abstract void updateCollection(JCacheParams params) throws Exception;
+	
+	/**
+	 * 
+	 * @param params
 	 * @return Map or List
 	 * @throws Exception
 	 */

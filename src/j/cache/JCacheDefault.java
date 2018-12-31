@@ -216,6 +216,15 @@ public class JCacheDefault extends JCache implements Runnable{
 	}
 
 	/*
+	 * (non-Javadoc)
+	 * @see j.cache.JCache#updateCollection(java.lang.String, j.cache.JCacheParams)
+	 */
+	public void updateCollection(String cacheId, JCacheParams params) throws Exception {
+		JCacheUnit unit=checkStatus(cacheId);	
+		unit.updateCollection(params);
+	}
+
+	/*
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#sub(java.lang.String, j.cache.JCacheParams)
 	 */

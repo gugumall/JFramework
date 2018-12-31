@@ -133,6 +133,14 @@ public interface JDCacheService extends ServiceBase {
 	 * @throws RemoteException
 	 */
 	public void update(String cacheId,JCacheParams params) throws RemoteException;
+
+	/**
+	 * 
+	 * @param cacheId
+	 * @param params
+	 * @throws RemoteException
+	 */
+	public void updateCollection(String cacheId,JCacheParams params) throws RemoteException;
 	
 	/**
 	 * 
@@ -184,6 +192,8 @@ public interface JDCacheService extends ServiceBase {
 	public void clear(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws RemoteException;
 
 	public void update(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws RemoteException;
+	
+	public void updateCollection(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws RemoteException;
 	
 	public void sub(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws RemoteException;
 	

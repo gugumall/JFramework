@@ -92,14 +92,14 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("F:\\work\\JFramework_v2.0\\src");
-//		replace(dir,
-//				"古古商贸",
-//				"首拍花卉",
-//				".xml");
-		count(dir,
-		"花卉大全",
-		".java");
+		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
+		replace(dir,
+				"I{shopping,抢拍}",
+				"I{shopping,拍市}",
+				".jsp");
+//		count(dir,
+//		"花卉大全",
+//		".java");
 		
 		System.out.println(count);
 //		

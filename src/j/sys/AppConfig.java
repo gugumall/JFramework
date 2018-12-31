@@ -159,7 +159,7 @@ public class AppConfig implements Runnable{
 			AppPara bean=(AppPara)instance.params.get(key);
 			bean.setValue(value);
 		}else{			
-			instance.params.put(key,new AppPara(paraName,value,"",true,fileName));
+			instance.params.put(key,new AppPara(paraName,value,"","",true,fileName));
 		}
 	}
 	
@@ -169,6 +169,7 @@ public class AppConfig implements Runnable{
 	 * @param paraName
 	 * @param value
 	 * @param desc
+	 * @param placeholder
 	 */
 	public static void setPara(String groupName,String paraName,String value,String desc){
 		setParaInCertainFile(groupName,paraName,value,desc,"para.xml");
@@ -180,6 +181,7 @@ public class AppConfig implements Runnable{
 	 * @param paraName
 	 * @param value
 	 * @param desc
+	 * @param placeholder
 	 * @param fileName
 	 */
 	public static void setParaInCertainFile(String groupName,String paraName,String value,String desc,String fileName){
@@ -195,7 +197,7 @@ public class AppConfig implements Runnable{
 			AppPara bean=(AppPara)instance.params.get(key);
 			bean.setValue(value);
 		}else{			
-			instance.params.put(key,new AppPara(paraName,value,desc,true,fileName));
+			instance.params.put(key,new AppPara(paraName,value,desc,"",true,fileName));
 		}
 	}		
 	
@@ -358,9 +360,15 @@ public class AppConfig implements Runnable{
         		String paraName=para.attributeValue("name");
         		String paraValue=para.getTextTrim();
         		String paraDesc=para.attributeValue("desc");
+        		String paraPlaceholder=para.attributeValue("placeholder");
         		boolean canBeUpdated=!"false".equals(para.attributeValue("can-be-updated"));
         		String key=appName+"*"+paraName;
-        		instance.params.put(key,new AppPara(paraName,paraValue,paraDesc==null?"":paraDesc,canBeUpdated,file.getName()));
+        		instance.params.put(key,new AppPara(paraName,
+        				paraValue,
+        				paraDesc==null?"":paraDesc,
+        				paraPlaceholder==null?"":paraPlaceholder,
+        				canBeUpdated,
+        				file.getName()));
         	}
         }
 	}
@@ -547,7 +555,7 @@ public class AppConfig implements Runnable{
 			AppPara bean=(AppPara)instance.params.get(key);
 			bean.setValue(value);
 		}else{			
-			instance.params.put(key,new AppPara(paraName,value,"",true,fileName));
+			instance.params.put(key,new AppPara(paraName,value,"","",true,fileName));
 		}
 		_instances.put(user.getUserId(),instance);
 	}	
@@ -590,7 +598,52 @@ public class AppConfig implements Runnable{
 			AppPara bean=(AppPara)instance.params.get(key);
 			bean.setValue(value);
 		}else{			
-			instance.params.put(key,new AppPara(paraName,value,desc,true,fileName));
+			instance.params.put(key,new AppPara(paraName,value,desc,"",true,fileName));
+		}
+		_instances.put(user.getUserId(),instance);
+	}
+	
+	/**
+	 * 
+	 * @param user
+	 * @param groupName
+	 * @param paraName
+	 * @param value
+	 * @param desc
+	 * @param placeholder
+	 * @throws Exception
+	 */
+	public static void setPara(User user,String groupName,String paraName,String value,String desc,String placeholder) throws Exception{
+		setParaInCertainFile(user,groupName,paraName,value,desc,placeholder,"");
+	}
+	
+	/**
+	 * 
+	 * @param user
+	 * @param groupName
+	 * @param paraName
+	 * @param value
+	 * @param desc
+	 * @param placeholder
+	 * @param fileName
+	 * @throws Exception
+	 */
+	public static void setParaInCertainFile(User user,String groupName,String paraName,String value,String desc,String placeholder,String fileName) throws Exception{
+		if(groupName==null||paraName==null||value==null){
+			return;
+		}
+		AppConfig instance=getInstance(user);
+		if(!instance.loaded) AppConfig.load(user);
+		
+		if(!instance.groups.containsKey(groupName)){
+			instance.groups.put(groupName,new AppParaGroup(groupName,""));
+		}
+		String key=groupName+"*"+paraName;
+		if(instance.params.containsKey(key)){
+			AppPara bean=(AppPara)instance.params.get(key);
+			bean.setValue(value);
+		}else{			
+			instance.params.put(key,new AppPara(paraName,value,desc,placeholder,true,fileName));
 		}
 		_instances.put(user.getUserId(),instance);
 	}
@@ -757,9 +810,15 @@ public class AppConfig implements Runnable{
         		String paraName=para.attributeValue("name");
         		String paraValue=para.getTextTrim();
         		String paraDesc=para.attributeValue("desc");
+        		String paraPlaceholder=para.attributeValue("placeholder");
         		boolean canBeUpdated=!"false".equals(para.attributeValue("can-be-updated"));
         		String key=appName+"*"+paraName;
-        		instance.params.put(key,new AppPara(paraName,paraValue,paraDesc==null?"":paraDesc,canBeUpdated,file.getName()));
+        		instance.params.put(key,new AppPara(paraName,
+        				paraValue,
+        				paraDesc==null?"":paraDesc,
+        				paraPlaceholder==null?"":paraPlaceholder,
+        				canBeUpdated,
+        				file.getName()));
         	}
         }
         

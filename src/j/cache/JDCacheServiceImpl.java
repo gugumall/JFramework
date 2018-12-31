@@ -394,6 +394,26 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 		}
 	}
 
+
+	/*
+	 *  (non-Javadoc)
+	 * @see j.cache.JCache#update(java.lang.String, j.cache.JCacheParams)
+	 */
+	public void updateCollection(String cacheId, JCacheParams params) throws RemoteException {
+		JCacheUnit unit=checkStatus(cacheId);	
+		if(!cacheId.startsWith("syn:")){
+			addTask(new Object[]{"updateCollection",cacheId,params,new Integer(unit.getUnitType()),new Integer(unit.getLifeCircleType())});
+		}else{
+			cacheId=cacheId.substring(4,cacheId.lastIndexOf(","));
+		}
+		
+		try{
+			unit.updateCollection(params);
+		}catch(Exception e){
+			log.log(e,Logger.LEVEL_ERROR);
+			throw new RemoteException(e.getMessage());
+		}
+	}
 	/*
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#sub(java.lang.String, j.cache.JCacheParams)
@@ -632,6 +652,24 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 			String params=SysUtil.getHttpParameter(request,"params");
 			
 			this.update(cacheId,(JCacheParams)JObject.string2Serializable(params));
+			
+			jsession.resultString=Constants.INVOKING_DONE;
+		}catch(Exception e){
+			log.log(e,Logger.LEVEL_ERROR);
+			jsession.resultString=Constants.INVOKING_FAILED;
+		}
+	}
+
+	/*
+	 *  (non-Javadoc)
+	 * @see j.cache.JDCacheService#update(j.app.webserver.JSession, javax.servlet.http.HttpSession, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
+	public void updateCollection(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
+		try{
+			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
+			String params=SysUtil.getHttpParameter(request,"params");
+			
+			this.updateCollection(cacheId,(JCacheParams)JObject.string2Serializable(params));
 			
 			jsession.resultString=Constants.INVOKING_DONE;
 		}catch(Exception e){

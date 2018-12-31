@@ -368,6 +368,25 @@ public class JDCache extends JCache{
 
 	/*
 	 *  (non-Javadoc)
+	 * @see j.cache.JCache#update(java.lang.String, j.cache.JCacheParams)
+	 */
+	public void updateCollection(String cacheId, JCacheParams jdcParams) throws Exception {
+		Servant info=findService(cacheId);
+		
+		if(info.service!=null){
+			info.service.update(cacheId,jdcParams);
+		}else{
+			Map params=new HashMap();
+			params.put("cacheId",cacheId);
+			params.put("params",JObject.serializable2String((Serializable)jdcParams));
+			Client.httpCallPost(info.jhttp,info.jclient,info.serviceCode,info.httpChannel,"updateCollection",params);
+			params.clear();
+			params=null;	
+		}
+	}
+
+	/*
+	 *  (non-Javadoc)
 	 * @see j.cache.JCache#sub(java.lang.String, j.cache.JCacheParams)
 	 */
 	public Object sub(String cacheId, JCacheParams jdcParams) throws Exception {

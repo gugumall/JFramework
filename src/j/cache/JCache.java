@@ -172,6 +172,14 @@ public abstract class JCache implements Serializable{
 	 * 
 	 * @param cacheId
 	 * @param jdcParams
+	 * @throws Exception
+	 */
+	public abstract void updateCollection(String cacheId,JCacheParams jdcParams) throws Exception;
+	
+	/**
+	 * 
+	 * @param cacheId
+	 * @param jdcParams
 	 * @return
 	 * @throws Exception
 	 */

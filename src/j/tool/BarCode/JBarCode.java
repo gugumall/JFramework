@@ -313,6 +313,27 @@ public class JBarCode {
 	 * @param num
 	 * @param response
 	 * @param imageType
+	 * @param xDimension
+	 * @param showText
+	 */
+	public static void createCode128(String num,HttpServletResponse response,String imageType,double xDimension,boolean showText) { 
+		try { 
+			JBarcode code = new JBarcode(Code128Encoder.getInstance(),WidthCodedPainter.getInstance(),BaseLineTextPainter.getInstance()); 
+			code.setXDimension(xDimension);
+			code.setShowText(showText);
+			BufferedImage image = code.createBarcode(num); 
+			
+			writeImage(image, response,imageType);
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+		} 
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param response
+	 * @param imageType
 	 */
 	public static void createCodeEAN13(String num,HttpServletResponse response,String imageType) { 
 		try { 

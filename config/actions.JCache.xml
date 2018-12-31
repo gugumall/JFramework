@@ -15,6 +15,7 @@
     	<action id="remove" method="remove" respond-with-string="true"/> 
     	<action id="clear" method="clear" respond-with-string="true"/> 
     	<action id="update" method="update" respond-with-string="true"/> 
+    	<action id="updateCollection" method="updateCollection" respond-with-string="true"/> 
     	<action id="sub" method="sub" respond-with-string="true"/> 
     	<action id="keys" method="keys" respond-with-string="true"/> 
     	<action id="values" method="values" respond-with-string="true"/> 

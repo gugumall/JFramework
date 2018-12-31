@@ -173,6 +173,15 @@ public class JDCacheLocal extends JCache{
 	}
 
 	/*
+	 * (non-Javadoc)
+	 * @see j.cache.JCache#updateCollection(java.lang.String, j.cache.JCacheParams)
+	 */
+	public void updateCollection(String cacheId, JCacheParams jdcParams) throws Exception {
+		JCacheUnit unit=checkStatus(cacheId);	
+		unit.updateCollection(jdcParams);
+	}
+
+	/*
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#sub(java.lang.String, j.cache.JCacheParams)
 	 */

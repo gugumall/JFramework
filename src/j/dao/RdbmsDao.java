@@ -12,6 +12,7 @@ import j.util.JUtilCompressor;
 import j.util.JUtilInputStream;
 import j.util.JUtilMap;
 import j.util.JUtilMath;
+import j.util.JUtilRandom;
 import j.util.JUtilString;
 
 import java.io.ByteArrayInputStream;
@@ -1213,7 +1214,7 @@ public class RdbmsDao implements DAO {
 			if(condition!=null&&condition.trim().length()>=3){
 				sql+=" where "+condition;
 			}//生成sql end	
-			log.log("JDAO SQL: "+sql,Logger.LEVEL_DEBUG);
+			//log.log("JDAO SQL: "+sql,Logger.LEVEL_DEBUG);
 			
 
 			if(factory.isSynchronized(tblName)){
@@ -2402,6 +2403,7 @@ public class RdbmsDao implements DAO {
 				}				
 			}
 			long ret=0;
+			
 			ret=max.longValue()+1+addition;
 			if(ret<min) ret=min;
 			
