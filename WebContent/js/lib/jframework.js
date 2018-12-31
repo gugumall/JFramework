@@ -111,6 +111,8 @@ function hasPageFeatureOf(features){
 	return false;
 }
 
+//当前登录用户类型
+var UserType='';
 
 //字符串操作
 var Str={
@@ -279,7 +281,32 @@ var Str={
 	//返回协议(https/http)
 	getScheme:function(url){
 		return currentUrl.indexOf('https:')==0?'https':'http';
+	},
+	
+	/////////////url处理//////////////////
+	parseUrl:function(url){
+		var paras=new Array();
+		var parastr=url;
+		while(parastr.lastIndexOf('#')==parastr.length-1){
+			parastr=parastr.substring(0,parastr.length-1);
+		}
+		var pos = parastr.indexOf('?');
+		if(pos>0){
+			parastr = parastr.substring(pos+1);
+			if (parastr.indexOf('&')>0){
+				var para = parastr.split('&');
+				for(i=0;i<para.length;i++){
+					pos = para[i].indexOf('=');
+					paras[para[i].substring(0,pos)]=decodeURIComponent(para[i].substring(pos+1));
+				}
+			}else{
+				pos = parastr.indexOf('=');
+				paras[parastr.substring(0,pos)]=decodeURIComponent(parastr.substring(pos+1));
+			}
+		}	
+		return paras;
 	}
+	/////////////url处理 end//////////////
 }
 
 
@@ -968,6 +995,17 @@ var MediaManager={
 		_$('mediaManagerBg').style.left='-1000px';
 		_$('mediaManager').style.left='-1000px';
 		_$('mediaManagerCloseBox').left='-1000px';
+		
+		if(Utils.isMobile()){
+			if(_$('container')){
+				_$('container').scrollTop=this.initScrollTop;
+				Utils.setAtt(_$('container'),'_scrollTop',this.initScrollTop);
+			}else{
+				window.scroll(0,this.initScrollTop);
+			}
+		}else{
+			window.scroll(0,this.initScrollTop);
+		}
 	},
 	
 	setTitle:function(tit){
@@ -1032,7 +1070,7 @@ var MediaManager={
 		str+='</div>';
 		
 		if(Utils.isMobile()){
-			str+='<div id="mediaManager" class="mediaManager" style="height:'+(W.vh()-82)+'px; '+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'"></div>';
+			str+='<div id="mediaManager" class="mediaManager" style="height:'+(W.vh()-41)+'px; '+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'"></div>';
 		}else{
 			str+='<div id="mediaManager" class="mediaManagerNoScrolling" style="'+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'"></div>';
 		}
@@ -2240,6 +2278,18 @@ var Utils={
 		bytes=bytes/1024;
 		if(bytes<1024) return bytes+'K';
 		else return Math.floor(bytes/1024)+'M';
+	},
+	
+	searcherShowOrHide:function(){
+		if(_$('searcherShowOrHide').className.indexOf('icon-moreunfold')>-1){
+			var searcher=_$cls('searcher');
+			if(searcher&&searcher.length>0) searcher[0].style.display='';
+			_$('searcherShowOrHide').className='fr marginR10 iconfont icon-less';
+		}else{
+			var searcher=_$cls('searcher');
+			if(searcher&&searcher.length>0) searcher[0].style.display='none';
+			_$('searcherShowOrHide').className='fr marginR10 iconfont icon-moreunfold';
+		}
 	}
 }
 
@@ -2651,7 +2701,11 @@ var Scanner={
 					//商户扫描客户订单二维码，先显示订单信息，然后在订单信息页面在确认交易
 					if(Scanner.qrcodeCurrent&&Scanner.qrcodeCurrent.processor=='O2O'&&resp.code=='1'){
 						top.Loading.close();
-						top.LoadingFullPage.open(null,window,'/SellerOrder.handler?request=show&noheader=true&order_id='+Scanner.qrcodeCurrent.order_id,'I{shopping,订单详情}','',null,Scanner.sellerConfirmOrder);
+						if(Scanner.qrcodeCurrent.grabbing_sn&&Scanner.qrcodeCurrent.grabbing_sn*1>0){
+							top.LoadingFullPage.open(null,window,'/'+UserType+'Order.handler?request=orders&noheader=true&grabbing_sn='+Scanner.qrcodeCurrent.grabbing_sn,'I{shopping,订单明细}','',null,Scanner.sellerConfirmOrder);
+						}else{
+							top.LoadingFullPage.open(null,window,'/'+UserType+'Order.handler?request=show&noheader=true&order_id='+Scanner.qrcodeCurrent.order_id,'I{shopping,订单详情}','',null,Scanner.sellerConfirmOrder);
+						}
 					}else{
 						top.Loading.setMsgOk(resp.message);
 					}
@@ -4596,17 +4650,14 @@ var XML={
 	
 
 
-//============================
-//Ajax
-//============================
 var JSONUtil={
 	parse:function(s){
 		var resp=JSON.parse(s);
 		try{
-			resp.code=Str.intSequence2String(resp.code);
+			if(resp.code) resp.code=Str.intSequence2String(resp.code);
 		}catch(e){} 
 		try{
-			resp.message=Str.intSequence2String(resp.message);
+			if(resp.message) resp.message=Str.intSequence2String(resp.message);
 		}catch(e){} 
 		return resp;
 	},
@@ -4619,6 +4670,77 @@ var JSONUtil={
 	}
 }
 
+
+//============================
+//WebSocket
+//============================
+var websockets=new Array();//全部websocket
+function JWebSocket(id,server,onopen,onmessage,onclose,onerror){
+	if(!server.startsWith('/')) server='/'+server;
+	
+	this.id=id;
+	this.server=server;
+	this.onopen=onopen;
+	this.onerror=onerror;
+	this.onmessage=onmessage;
+	this.onclose=onclose;
+	this.websocket=null;
+	
+	if('WebSocket' in window){//判断当前浏览器是否支持WebSocket
+		this.websocket = new WebSocket((httpScheme=='https'?'wss':'ws')+'://'+thisDomain+server);
+	}else {
+	    alert('I{js,当前环境不支持通信方式} WebSocket');
+	}
+	
+	if(this.onopen){
+		this.websocket.onopen=this.onopen;
+	}else{
+		this.websocket.onopen=function(){
+		    Toast.show("I{js,连接成功}",Toast.SHORT);
+		}
+	}
+	
+	if(this.onerror){
+		this.websocket.onerror=this.onerror;
+	}else{
+		this.websocket.onerror=function(){
+		    Toast.show("I{js,通信错误}",Toast.SHORT);
+		}
+	}
+	
+	if(this.onmessage){
+		this.websocket.onmessage=this.onmessage;
+	}else{
+		this.websocket.onmessage=function(event){
+		    var data=JSONUtil.parse(event.data);
+		    Toast.show(JSONUtil.de(data.data),Toast.SHORT);
+		}
+	}
+	
+	if(this.onclose){
+		this.websocket.onclose=this.onclose;
+	}else{
+		this.websocket.onclose=function(){
+		    Toast.show("I{js,连接关闭}",Toast.SHORT);
+		}
+	}
+	
+	websockets[id]=this;
+}
+JWebSocket.prototype.destroy=function(){
+	if(this.websocket) this.websocket.close();
+}
+JWebSocket.prototype.send=function(data){
+    var s='{"session_id":"'+session_id+'","data":"'+Str.string2IntSequence(data)+'"}';
+    this.websocket.send(s);
+}
+//============================
+//WebSocket end
+//============================
+
+//============================
+//Ajax
+//============================
 var currentAjax=null;
 var currentAjaxForUpload=null;
 var Ajaxs=new Array();
@@ -5414,7 +5536,7 @@ var LoadingFullPage={
 	},
 	
 	open:function(_onClose,_win,_url,_pageName,_content,_zIndex,_onOk){
-		IFrame.minHeight=top.W.vh()-82;
+		IFrame.minHeight=top.W.vh()-41;
 		
 		if(_url==null) _url='';
 		
@@ -5654,7 +5776,7 @@ var LoadingFullPage={
 		str+='	<div id="loadingFullPageTitle" style="width:'+(W.vw()-100)+'px;">'+this.pageName+'</div>';
 		str+='</div>';
 		
-		str+='<div id="loadingFullPage" class="loadingFullPage" style="height:'+(W.vh()-82)+'px; '+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'"></div>';
+		str+='<div id="loadingFullPage" class="loadingFullPage" style="height:'+(W.vh()-41)+'px !important; '+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'"></div>';
 		
 		str+='<div id="loadingFullPageOkCancelBox" style="'+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'">';
 		str+='	<div class="fullWidthBtnYellow displayBlock" style="width:45%;" onclick="LoadingFullPage.ok();">I{确定}</div>';
@@ -5699,7 +5821,7 @@ var LoadingGoodsPage={
 	}, 
 	
 	open:function(_onClose,_win,_url,_pageName,_content){
-		IFrame.minHeight=top.W.vh()-82;
+		IFrame.minHeight=top.W.vh()-41;
 		
 		if(top._$('loadingFullPage')){
 			top.LoadingFullPage.close();
@@ -5918,7 +6040,7 @@ var LoadingGoodsPage={
 		str+='	<div id="loadingGoodsPageTitle" style="width:'+(W.vw()-100)+'px;">'+this.pageName+'</div>';
 		str+='</div>';
 		
-		str+='<div id="loadingGoodsPage" class="loadingGoodsPage" style="height:'+(top.W.vh()-82)+'px;"></div>'; 
+		str+='<div id="loadingGoodsPage" class="loadingGoodsPage" style="height:'+(top.W.vh()-41)+'px;"></div>'; 
 		document.body.insertAdjacentHTML('afterBegin', str);
 	}
 }
@@ -6250,7 +6372,7 @@ var LoadingAllImages={
 		_$('loadingAllImagesTrimBox').style.height=trimBoxInitSize+'px';
 		
 		var trimBoxLeft=((top.W.vw()-trimBoxInitSize)/2);
-		var trimBoxTop=Math.floor((cimg.height-trimBoxInitSize)/2)+40;
+		var trimBoxTop=Math.floor((cimg.height-trimBoxInitSize)/2)+0;
 		_$('loadingAllImagesTrimBox').style.left=trimBoxLeft+'px';
 		_$('loadingAllImagesTrimBox').style.top=trimBoxTop+'px';
 		
@@ -6292,7 +6414,7 @@ var LoadingAllImages={
 		
 		var trimLeftLength=W.elementLeft(_$('loadingAllImagesTrimBox'))-W.elementLeft(cimg);
 		var trimRightLength=cimg.width-trimLeftLength-W.elementWidth(_$('loadingAllImagesTrimBox'));
-		var trimTopLength=W.elementTop(_$('loadingAllImagesTrimBox'))-40;
+		var trimTopLength=W.elementTop(_$('loadingAllImagesTrimBox'))-0;
 		var trimBottomLength=cimg.height-trimTopLength-W.elementHeight(_$('loadingAllImagesTrimBox'));
 		 
 		LoadingAllImages.trimming=false;
@@ -6464,10 +6586,10 @@ var LoadingAllImages={
 				movement=_touch.screenY-LoadingAllImages.initY;
 				movement=Math.floor(movement*zoomRatio);
 				var _top=LoadingAllImages.initTop+movement;
-				if(_top<40){ 
-					_top=40;
-				}else if(_top+W.elementHeight(_$('loadingAllImagesTrimBox'))>cimg.height+40){
-					_top=cimg.height+40-W.elementHeight(_$('loadingAllImagesTrimBox'));
+				if(_top<0){ 
+					_top=0;
+				}else if(_top+W.elementHeight(_$('loadingAllImagesTrimBox'))>cimg.height+0){
+					_top=cimg.height+0-W.elementHeight(_$('loadingAllImagesTrimBox'));
 				}
 				_$('loadingAllImagesTrimBox').style.top=_top+'px';
 				//Y方向移动距离 end
@@ -6502,16 +6624,16 @@ var LoadingAllImages={
 				height+=movement;
 				if(height>cimg.height){
 					height=cimg.height;
-				}else if(_top<40){
-					_top=40;
+				}else if(_top<0){
+					_top=0;
 				}
 				_$('loadingAllImagesTrimBox').style.height=height+'px';
 				var _top=LoadingAllImages.initTop;
 				_top-=Math.floor(movement/2);
-				if(_top<40){
-					_top=40;
-				}else if(_top+W.elementHeight(_$('loadingAllImagesTrimBox'))>cimg.height+40){
-					_top=cimg.height+40-W.elementHeight(_$('loadingAllImagesTrimBox'));
+				if(_top<0){
+					_top=0;
+				}else if(_top+W.elementHeight(_$('loadingAllImagesTrimBox'))>cimg.height+0){
+					_top=cimg.height+0-W.elementHeight(_$('loadingAllImagesTrimBox'));
 				}
 				_$('loadingAllImagesTrimBox').style.top=_top+'px';
 				
@@ -6800,8 +6922,8 @@ var LoadingAllImages={
 		str+='	</div>';
 		str+='</div>';
 		
-		str+='<div id="loadingAllImages" style="height:'+(top.W.h()-40)+'px;">';
-		str+='	<div id="loadingAllImagesContainer" style="height:'+(top.W.h()-40)+'px;"></div>';
+		str+='<div id="loadingAllImages" style="height:'+(top.W.h()-0)+'px;">';
+		str+='	<div id="loadingAllImagesContainer" style="height:'+(top.W.h()-0)+'px;"></div>';
 		str+='</div>';
 		str+='<div id="loadingAllImagesNumbers">';
 		str+='	<div id="loadingAllImagesBizLink"></div>';
@@ -7836,7 +7958,7 @@ var Countries={
 			cnName: "I{r,中国大陆}",
 			enName: "China",
 			group: "",
-			RE: /^(86){0,1}\-?1[,2,3,4,5,6,7,8,9]\d{9}$/,
+			RE: /^(86){0,1}\-?1[1,2,3,4,5,6,7,8,9]\d{9}$/,
 			isTop: !0
 		},
 		{
@@ -10120,8 +10242,6 @@ function SlidableTabsCallbackDefault(event,_instance){
 	if(_left>SlidableTabsInstances[id].tabsMaxSlideDistance) _left=SlidableTabsInstances[id].tabsMaxSlideDistance;
 	if(_left<0) _left=0;
 	
-	
-	
 	_$(id).scrollLeft=_left;
 	Utils.setAtt(_$(id),'_scrollLeft',_left);
 	
@@ -11133,24 +11253,28 @@ var Share={
 	sharedDesc:'',
 	sharedLink:'',
 	sharedLinkForWeixin:'',
-	setReferer:function(link){
-		if(link.indexOf('referer=')<0){
-			if(link.indexOf('?')>0) link+='&referer='+getReferer();
-			else link+='?referer='+getReferer();
-		}else{
-			var temp1=link.substring(0,link.indexOf('referer=')-1);
+	formatLink:function(link){
+		var paras=Str.parseUrl(link);
+		if(link.indexOf('?')>0) link=link.substring(0,link.indexOf('?'));
+		for(var i in paras){
+			if(i.indexOf('thirdparty_')>-1) continue;//去掉第三方登录信息
+			if(i=='referer') continue;//去掉原有referer
+			if(i=='_') continue;//去掉原有referer
+			if(paras[i]=='') continue;//去掉参数值为空的
 			
-			var temp2=link.substring(link.indexOf('referer=')+8);
-			if(temp2.indexOf('&')>0) temp2=temp2.substring(temp2.indexOf('&'));
-			else temp2='';
-			
-			if(temp1.indexOf('?')>0) temp1+='&referer='+getReferer();
-			else temp1+='?referer='+getReferer();
-			
-			link=temp1+temp2;
+			if(link.indexOf('?')<0){
+				link+='?'+i+'='+encodeURIComponent(paras[i]);
+			}else{
+				link+='&'+i+'='+encodeURIComponent(paras[i]);
+			}
 		}
+		
+		if(link.indexOf('?')>0) link+='&referer='+getReferer();
+		else link+='?referer='+getReferer();
+		
 		return link;
 	},
+	
 	init:function(_sharedImages,_sharedImage,_sharedTitle,_sharedDesc,_sharedLink,_sharedLinkForWeixin){
 		if(Utils.isMobile()
 				&&_uri=='/goods/item.jhtml'){
@@ -11164,8 +11288,8 @@ var Share={
 			return;
 		}
 		
-		_sharedLink=this.setReferer(_sharedLink);
-		_sharedLinkForWeixin=this.setReferer(_sharedLinkForWeixin);
+		_sharedLink=this.formatLink(_sharedLink);
+		_sharedLinkForWeixin=this.formatLink(_sharedLinkForWeixin);
 		
 		this.sharedImages=_sharedImages;
 		this.sharedImage=_sharedImage;
@@ -11271,7 +11395,7 @@ var Share={
 	
 	_shareLink:function(event,obj){
 		var htm='<div class="alignC">';
-		htm+='	<div class="r marginT10 font16px alignL" style="white-space:normal; word-break:break-all;" id="share_link_show">'+(this.sharedLink==''?location.href:this.sharedLink)+'</div>';
+		htm+='	<div class="r marginT10 font16px alignL" style="white-space:normal; word-break:break-all;" id="share_link_show">'+(this.sharedLink==''?this.formatLink(location.href):this.sharedLink)+'</div>';
 		htm+='	<div class="r marginT20">';
 		htm+='		<div class="fullWidthBtnGray displayBlock" style="width:90%;" id="share_link_copy" data-clipboard-action="copy" data-clipboard-target="#share_link_show">I{复制网址}</div>';
 		htm+='	</div>';
@@ -11607,8 +11731,8 @@ var Pages={
 		}
 		
 		if(total==0){
-			if(_$(pagesId)&&showIfNoItems&&showIfNoItems!='hidden') _$(pagesId).parentNode.innerHTML=this.noRecordShow;
-			return;
+			//if(_$(pagesId)&&showIfNoItems&&showIfNoItems!='hidden') _$(pagesId).parentNode.innerHTML=this.noRecordShow;
+			//return;
 		}
 		
 		var pageSection=1;
@@ -12413,6 +12537,23 @@ if (typeof JSON !== "object") {
 ///////////////////////////////clipboard end/////////////////////////////////
 
 //初始化
+var _onbeforeunload=null;
+window.onbeforeunload = function() {
+    //清理需要清理的东西
+	
+	//关闭所有websocket
+	try{
+		for(var i in websockets){
+			websockets[i].destroy();
+		}
+	}catch(e){}
+	
+	//如果指定了清理方法（_onbeforeunload）
+	try{
+		if(_onbeforeunload) _onbeforeunload();
+	}catch(e){}
+}
+
 try{
 	if(top.location.href!=location.href){
 		parent.LoadingFullPage.loaded();
