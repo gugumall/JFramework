@@ -346,8 +346,12 @@ public class Methods {
 			}
 		}
 		Method method=(Method)settersOfPreparedStatement.get(new Integer(colType));
-		//log.log(method.toString(),Logger.LEVEL_DEBUG);
-		return method.invoke(obj,paras);
+		try{
+			return method.invoke(obj,paras);
+		}catch(Exception e){
+			//log.log(colType+","+method.toString()+","+paras[0]+","+paras[1].getClass(),-1);
+			throw e;
+		}
 	}
 	
 	/**

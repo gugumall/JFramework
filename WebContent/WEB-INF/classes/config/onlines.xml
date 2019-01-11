@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<!-- 在线信息更新线程数 -->
+	<updaters>2</updaters>
+	<update-interval>5000</update-interval>
+	
+	<!-- 每个ip每分钟最多能发起的请求数 -->
+	<max-requests-per-minute>60</max-requests-per-minute>
+	
+	<!-- 每个ip同时在线会话数 -->
+	<max-sessions-per-ip>5</max-sessions-per-ip>
+	
+	<!-- 最大POST长度，单位K（非文件上传） -->
+	<max-post-size>64</max-post-size>
+	
+	<!-- 最大POST长度，单位K（文件上传） -->
+	<max-upload-size>1024</max-upload-size>
+	
+	<!-- 不进行在线用户处理的客户IP -->
+	<ignored-ip>192.168.1.1</ignored-ip>
+	<ignored-ip>192.168.1.2</ignored-ip>
+	
+	<!-- 可信IP -->
+	<credible-ip>192.168.1.2</credible-ip>
+	
+	<!-- 黑IP -->
+	<!-- 给通过Onlines.addBlackPermanent/Onlines.addBlackTemporary永久(系统重启失效)或暂时禁用某个IP -->
+	<black-ip>192.168.1.23</black-ip>
+	
+	<!-- 黑地区 -->
+	<black-region>菲律宾</black-region>
+	<black-region>泰国</black-region>
+	
+	<!-- 未登录情况下可允许上传文件的url -->
+	<file-upload-allowed-url>/*.service</file-upload-allowed-url>
+	<file-upload-allowed-url>/chatting.handler</file-upload-allowed-url>
+	
+	<!-- 不进行在线用户处理的URL，可用*标示通配符 -->
+	<ignored-url>/*chatting.jhtml</ignored-url>
+	<ignored-url>/*.js</ignored-url>
+	<ignored-url>/*.css</ignored-url>
+	<ignored-url>/*.service</ignored-url>
+	
+	<!-- 被禁止的蜘蛛 -->
+	<!-- EQUALS开头表示完全相同时禁止，否则包含指定字符即禁止 -->
+	<forbidden-spider>googlebot</forbidden-spider>
+	<forbidden-spider>baiduspider</forbidden-spider>
+	<forbidden-spider>sosospider</forbidden-spider>
+	<forbidden-spider>bingbot</forbidden-spider>
+	<forbidden-spider>sogou</forbidden-spider>
+	<forbidden-spider>360</forbidden-spider>
+	
+	<!-- 域名限定，按配置文件中从上到下顺序优先匹配 -->
+	<!-- match的类型有startsWith,equals,contains,matches,如包含*号则匹配模式 -->
+	<!-- allowed-domain如果为*表示允许任何域名，包含*号则匹配模式，不包含*号则相等 -->
+	<domain-limit>
+	    <match type="startsWith">/manage/</match>
+	    <allowed-domain>supervisor.gugumall.cn</allowed-domain>
+	</domain-limit>
+	<domain-limit>
+	    <match type="startsWith">/</match>
+	    <allowed-domain>*</allowed-domain>
+	</domain-limit>
+	
+	<!-- 在线对象初始化类,j.app.online.OnlineHandler的子类 -->
+	<initializer>j.app.online.OnlineHandlerImpl</initializer>
+</root>
+
+

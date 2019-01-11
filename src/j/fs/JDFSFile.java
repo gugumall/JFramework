@@ -481,7 +481,7 @@ public class JDFSFile extends JFile{
 		String[] ss = list();
 		if (ss == null) return null;
 		int n = ss.length;
-		File[] fs = new File[n];
+		JFile[] fs = new JFile[n];
 		for (int i = 0; i < n; i++) {
 		    fs[i] = JFile.create(ss[i]);
 		}
@@ -495,14 +495,14 @@ public class JDFSFile extends JFile{
 	public java.io.File[] listFiles(FileFilter filter){
 		String ss[] = list();
 		if (ss == null) return null;
-		ArrayList v = new ArrayList();
+		ArrayList<JFile> v = new ArrayList();
 		for (int i = 0 ; i < ss.length ; i++) {
-		    File f = JFile.create(ss[i]);
+			JFile f = JFile.create(ss[i]);
 		    if ((filter == null) || filter.accept(f)) {
 		    	v.add(f);
 		    }
 		}
-		return (File[])(v.toArray(new File[v.size()]));
+		return (JFile[])(v.toArray(new JFile[v.size()]));
 	}
 	
 	/*
@@ -512,13 +512,13 @@ public class JDFSFile extends JFile{
 	public java.io.File[] listFiles(FilenameFilter filter){
 		String ss[] = list();
 		if (ss == null) return null;
-		ArrayList v = new ArrayList();
+		ArrayList<JFile> v = new ArrayList();
 		for (int i = 0 ; i < ss.length ; i++) {
 		    if ((filter == null) || filter.accept(this, ss[i])) {
 		    	v.add(JFile.create(ss[i]));
 		    }
 		}
-		return (File[])(v.toArray(new File[v.size()]));
+		return (JFile[])(v.toArray(new JFile[v.size()]));
 	}
 	
 	/*

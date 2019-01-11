@@ -92,20 +92,43 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
-		replace(dir,
-				"I{shopping,抢拍}",
-				"I{shopping,拍市}",
-				".jsp");
+//		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages\\");
+//		replace(dir,
+//				"I{shopping,EXFEE}",
+//				"I{shopping,运费}",
+//				".jsp");
 //		count(dir,
 //		"花卉大全",
 //		".java");
+		
+		File root=new File("F://tempx/");
+		File[] children=(File[])root.listFiles();
+		for(int i=0;i<children.length;i++){
+			delete(children[i]);
+		}
 		
 		System.out.println(count);
 //		
 //		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
 //		replace(dir,"未指定支付订单ID","未指定支付编号",".jsp");
 		System.exit(0);
+	}
+	
+	private static boolean delete(File file){
+		if(!file.isDirectory()) return false;
+		
+		File[] children=(File[])file.listFiles();
+		if(children==null||children.length==0){
+			System.out.println("delete....."+file.getAbsolutePath());
+			file.delete();
+			return true;
+		}
+		
+		for(int i=0;i<children.length;i++){
+			delete(children[i]);
+		}
+		
+		return false;
 	}
 	
 	/**

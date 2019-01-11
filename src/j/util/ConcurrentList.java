@@ -14,7 +14,7 @@ import java.util.ListIterator;
  * @author JFramework
  * 
  */
-public class ConcurrentList implements List, Serializable {
+public class ConcurrentList<E> implements List, Serializable {
 	private static final long serialVersionUID = 1L;
 	private JObject lock = null;
 

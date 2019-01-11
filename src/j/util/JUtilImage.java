@@ -18,6 +18,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.imageio.IIOImage;
@@ -488,6 +490,22 @@ public final class JUtilImage implements ImageObserver {
 			int titleWidth=metrics.charsWidth(title.toCharArray(),0,title.length());
 			int titleHeight=charHeight;
 			
+			//换行
+			int maxTitleWidth=srcWidth-30;
+			List printTitleLines=new ArrayList();
+			if(titleWidth>maxTitleWidth){
+				for(int i=1;i<=title.length();i++){
+					int temp=metrics.charsWidth(title.toCharArray(),0,i);
+					if(temp>maxTitleWidth){
+						printTitleLines.add(title.substring(0,i));
+						title=title.substring(i);
+						i=1;
+					}
+				}
+			}
+			printTitleLines.add(title);
+			//换行 end
+			
 			if(titlePos.equals(JUtilImage.POS_CE)){
 				realOffsetX = (srcWidth - titleWidth) / 2;
 				realOffsetY = (srcHeight - titleHeight) / 2;
@@ -510,10 +528,14 @@ public final class JUtilImage implements ImageObserver {
 				realOffsetX = titleOffsetX;
 				realOffsetY = titleOffsetY;
 			}
+			
+			if(titleWidth>maxTitleWidth) realOffsetX=10;
 			    
 			graphics.setFont(titleFont);
 			graphics.setColor(titleColor);
-			graphics.drawString(title,realOffsetX,realOffsetY);
+			for(int i=0;i<printTitleLines.size();i++){
+				graphics.drawString((String)printTitleLines.get(i),realOffsetX,realOffsetY+(i*charHeight));
+			}
 		}
 
 		// 如果父目录不存在，则创建目录
@@ -617,6 +639,22 @@ public final class JUtilImage implements ImageObserver {
 			int titleWidth=metrics.charsWidth(title.toCharArray(),0,title.length());
 			int titleHeight=charHeight;
 			
+			//换行
+			int maxTitleWidth=srcWidth-30;
+			List printTitleLines=new ArrayList();
+			if(titleWidth>maxTitleWidth){
+				for(int i=1;i<=title.length();i++){
+					int temp=metrics.charsWidth(title.toCharArray(),0,i);
+					if(temp>maxTitleWidth){
+						printTitleLines.add(title.substring(0,i));
+						title=title.substring(i);
+						i=1;
+					}
+				}
+			}
+			printTitleLines.add(title);
+			//换行 end
+			
 			if(titlePos.equals(JUtilImage.POS_CE)){
 				realOffsetX = (srcWidth - titleWidth) / 2;
 				realOffsetY = (srcHeight - titleHeight) / 2;
@@ -639,10 +677,14 @@ public final class JUtilImage implements ImageObserver {
 				realOffsetX = titleOffsetX;
 				realOffsetY = titleOffsetY;
 			}
+			
+			if(titleWidth>maxTitleWidth) realOffsetX=10;
 			    
 			graphics.setFont(titleFont);
 			graphics.setColor(titleColor);
-			graphics.drawString(title,realOffsetX,realOffsetY);
+			for(int i=0;i<printTitleLines.size();i++){
+				graphics.drawString((String)printTitleLines.get(i),realOffsetX,realOffsetY+(i*charHeight));
+			}
 		}
 		
 		return tag;
@@ -786,27 +828,84 @@ public final class JUtilImage implements ImageObserver {
 	private static int all = 10000;
 
 	public static void main(String[] args) throws Exception {
-		//webp2jpg();
-		JUtilImage im = new JUtilImage();
-		im.setQuality(1f);
+		JUtilImage img=new JUtilImage();
+		File srcFile=new File("F:\\work\\JShop_v2.1 - sp\\WebContent\\img\\QRCODE_GOODS.png");
+		Image srcImg = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		srcImg = new ImageIcon(srcImg).getImage();
+	
+		int srcWidth = srcImg.getWidth(img);
+		int srcHeight = srcImg.getHeight(img);
+				
+		BufferedImage tag = new BufferedImage(srcWidth, srcHeight,BufferedImage.TYPE_INT_RGB);
+		tag.getGraphics().drawImage(srcImg, 0, 0, srcWidth, srcHeight, img);// 绘制大图
 		
-		int index=207;
+		Graphics graphics=tag.getGraphics();
 		
-		File dir = new File("F:\\images\\时光(重庆) II\\temp");
-		File[] fs=dir.listFiles();
-		for(int i=0;i<fs.length;i++){
-			if(fs[i].getName().toLowerCase().endsWith(".jpg")
-					||fs[i].getName().toLowerCase().endsWith(".jpeg")){
-				System.out.println(fs[i].getAbsolutePath());
-				
-				String newName=index+"";
-				while(newName.length()<6) newName="0"+newName;
-				
-				im.zoomToSize(fs[i], new File("F:\\images\\时光(重庆) II\\"+newName+".jpg"), 1920, JUtilImage.FORMAT_JPEG);
-				
-				index++;
+		String title="预定星期五 精品盒饭（两荤一素，订12送1、订20送3，订30送5） ";
+		
+		FontMetrics metrics = graphics.getFontMetrics(new java.awt.Font("微软雅黑",java.awt.Font.PLAIN,16));
+		int charHeight = metrics.getHeight();
+		int titleWidth=metrics.charsWidth(title.toCharArray(),0,title.length());
+		
+		int maxTitleWidth=srcWidth-30;
+		List printTitleLines=new ArrayList();
+		if(titleWidth>maxTitleWidth){
+			for(int i=1;i<=title.length();i++){
+				int temp=metrics.charsWidth(title.toCharArray(),0,i);
+				if(temp>maxTitleWidth){
+					System.out.println("i:"+i);
+					printTitleLines.add(title.substring(0,i));
+					title=title.substring(i);
+					i=1;
+				}
 			}
 		}
+		printTitleLines.add(title);
+		
+		System.out.println(title);
+		
+
+		graphics.setFont(new java.awt.Font("微软雅黑",java.awt.Font.PLAIN,16));
+		graphics.setColor(new java.awt.Color(0,0,0));
+		
+		for(int i=0;i<printTitleLines.size();i++){
+			graphics.drawString((String)printTitleLines.get(i),10,50+(i*charHeight));
+		}
+		
+		FileOutputStream os = new FileOutputStream(new File("F:\\work\\JShop_v2.1 - sp\\WebContent\\img\\QRCODE_GOODSX.png")); // 输出到文件流
+		ImageWriter writer = (ImageWriter) ImageIO.getImageWritersByFormatName("PNG").next();
+		ImageOutputStream ios = ImageIO.createImageOutputStream(os);
+		writer.setOutput(ios);
+		ImageWriteParam param = new JPEGImageWriteParam(Locale.getDefault());
+		param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+		param.setCompressionQuality(1);
+		writer.write(null, new IIOImage(tag, null, null), param);
+		writer.dispose();
+		ios.flush();
+		ios.close();
+		os.close();
+		
+//		//webp2jpg();
+//		JUtilImage im = new JUtilImage();
+//		im.setQuality(1f);
+//		
+//		int index=207;
+//		
+//		File dir = new File("F:\\images\\时光(重庆) II\\temp");
+//		File[] fs=dir.listFiles();
+//		for(int i=0;i<fs.length;i++){
+//			if(fs[i].getName().toLowerCase().endsWith(".jpg")
+//					||fs[i].getName().toLowerCase().endsWith(".jpeg")){
+//				System.out.println(fs[i].getAbsolutePath());
+//				
+//				String newName=index+"";
+//				while(newName.length()<6) newName="0"+newName;
+//				
+//				im.zoomToSize(fs[i], new File("F:\\images\\时光(重庆) II\\"+newName+".jpg"), 1920, JUtilImage.FORMAT_JPEG);
+//				
+//				index++;
+//			}
+//		}
 		
 //		im.zoomToSize(new File("F:\\work\\商城\\衣服\\狼爪\\1388\\1388A.gif"), new File("F:\\work\\商城\\衣服\\狼爪\\1388\\temp.gif"), 300, "JPEG");
 

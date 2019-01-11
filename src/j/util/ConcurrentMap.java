@@ -15,7 +15,7 @@ import java.util.Set;
  * @author JFramework
  *
  */
-public class ConcurrentMap implements Map,Serializable{
+public class ConcurrentMap<K,V> implements Map,Serializable{
 	private static final long serialVersionUID = 1L;
 	private JObject lock=null;
 	private Map container=null;//实际数据存储对象

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>		
+    <handler path="/JActionLogger" path-pattern=".handler" class="j.app.webserver.ActionLogger" request-by="request">
+    	<action name="查询常规日志" id="search" method="search"> 
+    	</action>
+    	<action name="删除常规日志" id="del" method="del" respond-with-string="true">
+    	</action> 
+    	<action name="ip统计" id="ip" method="ip">
+    	</action> 
+    </handler>
+    
+    <handler path="/JLogger" path-pattern=".handler" class="j.log.JLogger" request-by="request" non-nvwa-obj="true">
+    	<action name="查询业务日志" id="search" method="search"> 
+    	</action>
+    	<action name="删除业务日志" id="del" method="del" respond-with-string="true">
+    	</action> 
+    </handler>		
+</root>

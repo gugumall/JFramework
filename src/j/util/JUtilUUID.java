@@ -1,13 +1,18 @@
 
 package j.util;
 
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import javax.swing.ImageIcon;
 
 
 /**
@@ -220,13 +225,6 @@ public final class JUtilUUID {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		String s="{\"result\":true,\"message\":\"成功\",\"status\":\"200\",\"data\":[{\"payaccount\":\"0235369485\",\"kuaidinum\":\"252253690888\",\"orgCode\":\"023\",\"expressName\":\"标准快递\",\"expressCode\":\"\",\"destCode\":\"737\",\"kdComOrderNum\":\"0946952084\",\"template\":[\"aaaa\"],\"templateurl\":[\"http://ckd.im/baSKHs \"]}]}";
-		JSONObject resp=JUtilJSON.parse(s);
-		JSONArray datas=JUtilJSON.array(resp,"data");
-		JSONObject data=JUtilJSON.get(datas,0);
 		
-		System.out.println(JUtilJSON.string(data,"kuaidinum"));
-		System.out.println(JUtilJSON.array(data,"templateurl").get(0));
-		System.out.println(JUtilJSON.array(data,"template").get(0));
 	}
 }

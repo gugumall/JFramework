@@ -148,6 +148,58 @@ public class JUtilMath {
 	}
 	
 	/**
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @param precision
+	 * @return
+	 */
+	public static boolean equals(Double v1,Double v2,int precision){
+		if(v1==null&&v2!=null) return false;
+		if(v1!=null&&v2==null) return false;
+		if(v1==null&&v2==null) return true;
+		double diff=Double.parseDouble(JUtilMath.formatPrintWithoutZero(v1-v2,precision));
+		return Math.abs(diff)==0d;
+	}
+	
+	/**
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @param precision
+	 * @return
+	 */
+	public static boolean isBigger(Double v1,Double v2,int precision){
+		if(v1==null||v2==null) return false;
+		double diff=Double.parseDouble(JUtilMath.formatPrintWithoutZero(v1-v2,precision));
+		return diff>0;
+	}
+	
+	/**
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @param precision
+	 * @return
+	 */
+	public static boolean isSmaller(Double v1,Double v2,int precision){
+		if(v1==null||v2==null) return false;
+		double diff=Double.parseDouble(JUtilMath.formatPrintWithoutZero(v2-v1,precision));
+		return diff>0;
+	}
+	
+	/**
+	 * 
+	 * @param value
+	 * @param precision
+	 * @return
+	 */
+	public static double floor(double value,int precision){
+		value=Double.parseDouble(JUtilMath.formatPrintWithoutZero(value,precision));
+		return Math.floor(value);
+	}
+	
+	/**
 	 * 格式化数字，precision位小数，四舍五入
 	 * @param src
 	 * @param precision
@@ -478,6 +530,6 @@ public class JUtilMath {
 	}
 	
 	public static void main(String[] args)throws Exception{
-		System.out.println(number2CnFormat(103));
+		System.out.println(equals(0.0001d,0.00011d,6));
 	}
 }

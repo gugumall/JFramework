@@ -103,42 +103,28 @@ public class JUtilJSON{
 		return "jis:"+JObject.string2IntSequence(s);
 	}
 	
+	/**
+	 * 
+	 * @param s
+	 * @return
+	 */
+	public static String convert(String s){
+		if(s==null||"".equals(s)) return s;
+		s=JUtilString.replaceAll(s,"\"","\\\"");
+		s=JUtilString.replaceAll(s,"[","\\[");
+		s=JUtilString.replaceAll(s,"]","\\]");
+		s=JUtilString.replaceAll(s,"{","\\{");
+		s=JUtilString.replaceAll(s,"}","\\}");
+		return s;
+	}
+	
 	public static void main(String[] args) throws Exception{
-		String s="{exCode:\"exCodex\",template:[\"xx\\\"xxxxx\"]}";
-		System.out.println(s);
-		JSONObject obj=JUtilJSON.parse(s);
-		System.out.print(obj.getJSONArray("template").get(0));
-		
-		String key="mHOgAMuK4590";//AppConfig.getPara("KUAIDI100", "key");
-		String customer="08E9C2A098F3E028338A2A25A5867D5F";//AppConfig.getPara("KUAIDI100", "customer");
-		
-		
-		//发起订阅
-		String url="http://poll.kuaidi100.com/poll";//订阅接口
-		
-		String param="{\"company\":\"zhongtong\",";
-		param+="\"number\":\"75114716763449\",";
-		param+="\"key\":\""+key+"\",";
-		param+="\"parameters\":{\"callbackurl\":\"https://www.gugumall.cn/express/kuaidi100/callback.jhtml\",";
-		param+="\"salt\":\"15db9742161470366f23\",";
-		param+="\"resultv2\":\"1\"}}";
-		
-		String sign=JUtilMD5.MD5EncodeToHex(param+key+customer).toUpperCase();
-
-		Map paras=new HashMap();
-		paras.put("schema","json");
-		paras.put("param",param);
-		
-		try{
-			JHttp http=JHttp.getInstance();
-			JHttpContext context=new JHttpContext();
-			HttpClient client=http.createClient();
-			
-			String result=http.postResponse(context,client,url,paras,"UTF-8");
-			System.out.println(result);
-			JSONObject resp=JUtilJSON.parse(result);
-		}catch(Exception e){
-			e.printStackTrace();
-		}		
+		String a="a";
+		synchronized(a){
+			System.out.println("\\\"");
+			synchronized(a){
+				System.out.println("22222222");
+			}
+		}
 	}
 }
