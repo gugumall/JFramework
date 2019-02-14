@@ -25,7 +25,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnable{

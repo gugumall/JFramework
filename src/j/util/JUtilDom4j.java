@@ -14,7 +14,7 @@ import org.dom4j.io.XMLWriter;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public final class JUtilDom4j {	

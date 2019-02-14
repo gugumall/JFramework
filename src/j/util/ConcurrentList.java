@@ -11,7 +11,7 @@ import java.util.ListIterator;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public class ConcurrentList<E> implements List, Serializable {

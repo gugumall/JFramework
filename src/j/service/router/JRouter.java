@@ -12,7 +12,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public interface JRouter extends Remote {	

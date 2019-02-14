@@ -73,7 +73,7 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 
 /**
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public class JHttp{

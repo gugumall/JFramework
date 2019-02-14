@@ -1,7 +1,7 @@
 package j.dao;
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Column {

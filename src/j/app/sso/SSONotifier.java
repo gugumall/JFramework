@@ -17,7 +17,7 @@ import org.apache.http.client.HttpClient;
 
 /**
  * sso client 通知线程
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class SSONotifier implements Runnable{
@@ -140,7 +140,7 @@ public class SSONotifier implements Runnable{
 					String response=context.getResponseText();
 					context.finalize();
 					context=null;
-					//log.log("notify "+url+",client response:"+response,-1);
+					log.log("notify "+url+",client response:"+response,-1);
 					break;
 				}
 			}catch(Exception e){

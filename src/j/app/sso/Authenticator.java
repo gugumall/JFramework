@@ -8,7 +8,7 @@ import javax.servlet.http.HttpSession;
 
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  * 处理用户登录，基于登录框架的应用必须实现此接口
  */

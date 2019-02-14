@@ -1,4 +1,4 @@
-package j.jms;
+package j.comm.jms;
 
 import java.io.Serializable;
 
@@ -9,7 +9,7 @@ import javax.jms.TextMessage;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class ListenerDefault implements MessageListener{

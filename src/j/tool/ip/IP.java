@@ -25,7 +25,7 @@ import com.maxmind.geoip2.model.CountryResponse;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public final class IP{

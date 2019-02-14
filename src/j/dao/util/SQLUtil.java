@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public final class SQLUtil {

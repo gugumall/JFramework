@@ -16,7 +16,7 @@ import org.apache.commons.logging.LogFactory;
  * provider also implements a very rudimentary connection pool.
  * 
  * @see ConnectionProvider
- * @author JFramework
+ * @author 肖炯
  */
 public class DefaultConnectionProvider implements ConnectionProvider {
 	private static final Log log = LogFactory.getLog(DefaultConnectionProvider.class);

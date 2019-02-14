@@ -1,4 +1,4 @@
-package j.jms;
+package j.comm.jms;
 
 import j.sys.Initializer;
 
@@ -15,7 +15,7 @@ import org.dom4j.io.SAXReader;
  * 
  * 基于RFrame配置的jms一对一，一对多消息传输
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Config implements Initializer{	

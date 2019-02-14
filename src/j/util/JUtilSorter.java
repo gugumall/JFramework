@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public abstract class JUtilSorter implements Serializable {

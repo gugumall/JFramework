@@ -24,7 +24,7 @@ import javax.mail.internet.MimeMultipart;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class MailSender implements Runnable{	
@@ -396,7 +396,7 @@ public class MailSender implements Runnable{
 
 /**
  * 邮件发送任务
- * @author JFramework
+ * @author 肖炯
  *
  */
 class SendMailTask{

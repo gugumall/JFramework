@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class ResourceAction implements Resource{

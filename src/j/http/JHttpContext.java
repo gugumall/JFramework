@@ -10,7 +10,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JHttpContext {

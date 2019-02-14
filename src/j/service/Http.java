@@ -5,7 +5,7 @@ import java.util.Properties;
 
 /**
  * 基于http的服务接口的相关配置信息
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Http implements Serializable{

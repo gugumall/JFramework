@@ -12,7 +12,7 @@ import j.util.JUtilCompressor;
 
 /**
  * PreparedStatement和ResultSet的一些get/set方法，保存在map中，key为数据库字段类型、value为get/set方法。以简化反射操作时代码编写。
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Methods {

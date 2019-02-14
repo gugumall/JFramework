@@ -4,7 +4,7 @@ import j.util.JUtilString;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JDFSMappingRule {

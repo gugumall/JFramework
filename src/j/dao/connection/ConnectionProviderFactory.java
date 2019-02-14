@@ -19,7 +19,7 @@ import org.apache.commons.logging.LogFactory;
  * or <tt>DBCPConnectionProvider</tt>.
  * 
  * @see ConnectionProvider
- * @author JFramework
+ * @author 肖炯
  */
 
 public final class ConnectionProviderFactory {

@@ -4,7 +4,7 @@ import j.nvwa.Nvwa;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class One {

@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Language implements Serializable {

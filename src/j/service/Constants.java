@@ -2,7 +2,7 @@ package j.service;
 
 /**
  * 服务框架用到的一些常量
- * @author JFramework
+ * @author 肖炯
  *
  */
 public final class Constants {

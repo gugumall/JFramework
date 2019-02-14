@@ -3,7 +3,7 @@ package j.cache;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JDCacheMapping {

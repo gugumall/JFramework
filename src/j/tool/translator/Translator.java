@@ -4,7 +4,7 @@ import j.util.ConcurrentMap;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public abstract class Translator {

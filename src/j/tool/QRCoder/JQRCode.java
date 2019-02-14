@@ -21,7 +21,7 @@ import com.swetake.util.Qrcode;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public class JQRCode {

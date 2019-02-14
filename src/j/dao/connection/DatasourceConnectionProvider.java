@@ -13,7 +13,7 @@ import j.dao.connection.helper.NamingHelper;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public class DatasourceConnectionProvider implements ConnectionProvider {

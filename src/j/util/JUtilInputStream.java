@@ -9,7 +9,7 @@ import java.io.InputStream;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JUtilInputStream {

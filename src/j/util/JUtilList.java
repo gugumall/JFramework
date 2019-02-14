@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * 继承java.util.LinkedList并实现java.io.Serializable
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JUtilList{

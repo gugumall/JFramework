@@ -22,7 +22,7 @@ import org.apache.http.client.HttpClient;
  * 运行于服务节点（用于向对应路由节点注册和卸载服务）
  * 运行于路由节点（用于监视对应路由节点状态）
  * 运行于客户节点（用于监视对应路由节点状态已确定可用路由节点集合，并负责从相关节点获取服务入口）
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class RouterAgent implements Runnable {

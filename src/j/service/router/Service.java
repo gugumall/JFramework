@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Service implements Serializable{	

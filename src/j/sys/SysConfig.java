@@ -16,7 +16,7 @@ import org.dom4j.io.SAXReader;
 
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class SysConfig{	

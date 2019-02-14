@@ -16,7 +16,7 @@ import javax.naming.InitialContext;
 
 /**
  * 用户启动服务的线程
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class ServiceContainer implements Runnable{	

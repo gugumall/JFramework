@@ -11,7 +11,7 @@ import java.util.zip.GZIPOutputStream;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public class JUtilCompressor {

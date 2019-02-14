@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @deprecated
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Properties implements Runnable {	
@@ -437,7 +437,7 @@ public class Properties implements Runnable {
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 class PropertySorter extends JUtilSorter{

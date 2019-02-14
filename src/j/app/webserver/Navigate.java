@@ -2,7 +2,7 @@ package j.app.webserver;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Navigate {

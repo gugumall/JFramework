@@ -12,7 +12,7 @@ import java.util.Set;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class ConcurrentMap<K,V> implements Map,Serializable{

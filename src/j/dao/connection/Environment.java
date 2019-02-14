@@ -140,7 +140,7 @@ import j.dao.connection.helper.PropertiesHelper;
  * </tr>
  * </table>
  *
- * @author JFramework
+ * @author 肖炯
  */
 public final class Environment {	
 	/**

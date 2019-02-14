@@ -9,7 +9,7 @@ import org.apache.http.client.HttpClient;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class TranslatorGoogle extends Translator{

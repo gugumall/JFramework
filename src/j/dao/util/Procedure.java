@@ -13,7 +13,7 @@ import java.util.Iterator;
 /**
  * 存储过程
  * 
- * @author JFramework
+ * @author 肖炯
  */
 
 public class Procedure {

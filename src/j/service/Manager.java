@@ -17,7 +17,7 @@ import org.dom4j.Element;
 
 /**
  * 启动服务框架
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Manager implements Initializer{

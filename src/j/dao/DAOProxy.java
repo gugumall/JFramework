@@ -7,7 +7,7 @@ import java.lang.reflect.Proxy;
 import j.util.JUtilString;
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class DAOProxy implements InvocationHandler{

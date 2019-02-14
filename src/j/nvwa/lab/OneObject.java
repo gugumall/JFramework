@@ -2,7 +2,7 @@ package j.nvwa.lab;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public interface OneObject {

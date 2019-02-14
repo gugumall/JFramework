@@ -7,7 +7,7 @@ package j.dao.util;
 /**
  * 存储过程（函数）中输入参数的类型-值对
  * 
- * @author JFramework
+ * @author 肖炯
  */
 
 public class ParaValuePair {

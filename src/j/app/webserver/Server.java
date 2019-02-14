@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  * 控制中心，根据用户请求调用相应的业务处理类，并根据执行结果导航
  */

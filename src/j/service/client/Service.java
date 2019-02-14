@@ -6,7 +6,7 @@ import java.util.Properties;
 
 /**
  * 服务的基本信息，主要包括与每个服务进行md5校验的密钥
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Service implements Serializable {

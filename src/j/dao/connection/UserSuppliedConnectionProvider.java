@@ -12,7 +12,7 @@ import org.apache.commons.logging.LogFactory;
  * simply throws an exception when a connection is requested. This implementation
  * indicates that the user is expected to supply a JDBC connection.
  * @see ConnectionProvider
- * @author JFramework
+ * @author 肖炯
  */
 public class UserSuppliedConnectionProvider implements ConnectionProvider {
 	

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * 客户节点信息，服务节点是路由节点的客户节点，应用节点是路由节点和服务节点的客户节点
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Client implements Serializable{

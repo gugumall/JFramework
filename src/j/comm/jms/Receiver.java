@@ -1,4 +1,4 @@
-package j.jms;
+package j.comm.jms;
 
 import java.io.File;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ import j.log.Logger;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Receiver {

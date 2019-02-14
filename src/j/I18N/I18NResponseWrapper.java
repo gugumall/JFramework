@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public class I18NResponseWrapper extends HttpServletResponseWrapper {

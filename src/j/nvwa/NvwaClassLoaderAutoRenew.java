@@ -15,7 +15,7 @@ import java.util.jar.JarFile;
 /**
  * 自动检查类文件是否更新，如更新则自动重新加载
  * 
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public class NvwaClassLoaderAutoRenew extends NvwaClassLoader {	

@@ -4,7 +4,7 @@ import java.io.File;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Global {

@@ -15,7 +15,7 @@ import java.sql.SQLException;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Blob implements java.sql.Blob, Serializable, Cloneable {

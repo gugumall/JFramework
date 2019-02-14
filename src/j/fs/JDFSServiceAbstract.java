@@ -7,7 +7,7 @@ import java.rmi.RemoteException;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public abstract class JDFSServiceAbstract extends ServiceBaseImpl implements JDFSService,Serializable {	

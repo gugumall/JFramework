@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public class SSOServer extends JHandler implements Runnable{

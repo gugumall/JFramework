@@ -8,7 +8,7 @@ import java.awt.Font;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class VerifierSetting{

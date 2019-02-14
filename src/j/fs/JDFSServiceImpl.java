@@ -37,7 +37,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JDFSServiceImpl extends JDFSServiceAbstract{

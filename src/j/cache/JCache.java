@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * 为能实现分布式方案，所有放入缓存的对象都应该实现Serializable接口
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public abstract class JCache implements Serializable{	

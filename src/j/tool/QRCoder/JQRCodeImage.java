@@ -6,7 +6,7 @@ import jp.sourceforge.qrcode.data.QRCodeImage;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public class JQRCodeImage implements QRCodeImage {

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * 服务方法
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Method implements Serializable{

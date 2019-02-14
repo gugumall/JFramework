@@ -5,7 +5,7 @@ import java.util.Properties;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public interface ConnectionProvider {

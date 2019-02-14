@@ -15,18 +15,18 @@ import org.dom4j.Element;
 
 /**
  * 加载类配置信息，并提供获取实例的接口
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Nvwa implements Runnable {	
-	private static ConcurrentMap objects=new ConcurrentMap();//key：类编码   value：j.nvwa.Obj
+	private static ConcurrentMap<String,NvwaObject> objects=new ConcurrentMap();//key：类编码   value：j.nvwa.NvwaObject
 	private static ConcurrentList implementations=new ConcurrentList();//所有实现类的列表
 	private static ConcurrentList classLoaderResponsibleFor=new ConcurrentList();//哪些类由自定义ClassLoader加载
 	private static ConcurrentMap entrusts=new ConcurrentMap();//托管类
 	private static ConcurrentList entrustClassNames=new ConcurrentList();//托管类类名列表
 	private static String customClassLoaderName=null;//自定义类加载器类名
 	private static NvwaClassLoader customClassLoader=null;//自定义类加载器
-	private static long configLastModified=0;//配置文件上次修改时间
+	private static ConcurrentMap<String,Long> configLastModified=new ConcurrentMap();//配置文件上次修改时间, key:文件名，value:修改时间
 	private static volatile boolean loading=true;
 	protected static ClassLoader defaultClassLoader=Thread.currentThread().getContextClassLoader();
 	
@@ -254,23 +254,65 @@ public class Nvwa implements Runnable {
 	}
 	
 	/**
-	 * 初始化
-	 *
+	 * 
 	 */
 	private static void load(){
-		try{			
+		try{
 			loading=true;
-			
-			System.out.println(JUtilTimestamp.timestamp()+" loading objects from nvwa.xml");
 			
 			implementations.clear();
 			classLoaderResponsibleFor.clear();
 			
-			List newCodes=new LinkedList();
+			File dir = new File(JProperties.getConfigPath());
+			if(!dir.exists()){
+	        	throw new Exception("配置文件目录不存在");
+			}
+
+			List newCodes=new LinkedList();//所有对象的编码
 			
+			File[] files=dir.listFiles();
+			for(int i=0;i<files.length;i++){
+				if(files[i].getName().startsWith("nvwa")) load(files[i],newCodes);
+			}
+			
+			//移除已经在nvwa.xml中删除的<object>
+			List allCodes=objects.listKeys();
+			for(int i=0;i<allCodes.size();i++){
+				if(!newCodes.contains(allCodes.get(i))){
+					objects.remove(allCodes.get(i));
+				}
+			}
+			
+			allCodes.clear();
+			allCodes=null;
+			
+			newCodes.clear();
+			newCodes=null;
+			//移除已经在nvwa.xml中删除的<object> end
+
+			loading=false;
+			
+			//更新已创建单例对象的成员值
+			List allObjects=objects.listValues();
+			for(int i=0;i<allObjects.size();i++){
+				NvwaObject o=(NvwaObject)allObjects.get(i);
+				o.doRenewField();
+			}	
+		}catch(Exception e){
+			loading=false;
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 初始化
+	 *
+	 */
+	private static void load(File file,List newCodes){
+		try{			
+			System.out.println(JUtilTimestamp.timestamp()+" loading objects from "+file.getName());
 			
 			//文件是否存在
-			File file = new File(JProperties.getConfigPath()+"nvwa.xml");
 	        if(!file.exists()){
 	        	throw new Exception("找不到配置文件："+file.getAbsolutePath());
 	        }
@@ -382,37 +424,9 @@ public class Nvwa implements Runnable {
 			root=null;
 			document=null;
 			
-			//移除已经在nvwa.xml中删除的<object>
-			List allCodes=objects.listKeys();
-			for(int i=0;i<allCodes.size();i++){
-				if(!newCodes.contains(allCodes.get(i))){
-					objects.remove(allCodes.get(i));
-				}
-			}
-			
-			allCodes.clear();
-			allCodes=null;
-			
-			newCodes.clear();
-			newCodes=null;
-			//移除已经在nvwa.xml中删除的<object> end
-			
-
-			//配置文件最近修改时间
-			File configFile=new File(JProperties.getConfigPath()+"nvwa.xml");
-			configLastModified=configFile.lastModified();
-			configFile=null;
-
-			loading=false;
-			
-			List allObjects=objects.listValues();
-			for(int i=0;i<allObjects.size();i++){
-				NvwaObject o=(NvwaObject)allObjects.get(i);
-				o.doRenewField();
-			}			
+			//保存文件最近修改时间
+			configLastModified.put(file.getName(),new Long(file.lastModified()));		
 		}catch(Exception e){
-			loading=false;
-			
 			e.printStackTrace();
 		}
 	}
@@ -442,13 +456,28 @@ public class Nvwa implements Runnable {
 			try{
 				Thread.sleep(5000);
 			}catch(Exception e){}
-
-			File configFile=new File(JProperties.getConfigPath()+"nvwa.xml");
-			if(configLastModified<configFile.lastModified()){
-				System.out.println(JUtilTimestamp.timestamp()+" j.nvwa.Nvwa nvwa.xml has been modified, so reload it.");
-				load();
+			
+			try{
+				File dir = new File(JProperties.getConfigPath());
+				if(!dir.exists()){
+		        	continue;
+				}
+				
+				boolean changed=false;
+				File[] files=dir.listFiles();
+				for(int i=0;i<files.length;i++){
+					if(files[i].getName().startsWith("nvwa")){
+						Long _configLastModified=(Long)configLastModified.get(files[i].getName());
+						if(_configLastModified==null||_configLastModified<files[i].lastModified()){
+							System.out.println(JUtilTimestamp.timestamp()+" j.nvwa.Nvwa "+files[i]+" has been modified, so reload it.");
+						}
+					}
+				}
+				
+				if(changed) load();
+			}catch(Exception e){
+				e.printStackTrace();
 			}
-			configFile=null;
 		}
 	}
 }

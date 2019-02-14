@@ -13,7 +13,7 @@ import java.io.Writer;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JFileDefault extends JFile {	

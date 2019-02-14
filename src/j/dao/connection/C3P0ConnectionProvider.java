@@ -13,7 +13,7 @@ import com.mchange.v2.c3p0.DataSources;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public class C3P0ConnectionProvider implements ConnectionProvider {

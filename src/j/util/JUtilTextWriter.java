@@ -10,7 +10,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JUtilTextWriter {

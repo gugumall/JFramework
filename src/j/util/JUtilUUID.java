@@ -17,7 +17,7 @@ import javax.swing.ImageIcon;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public final class JUtilUUID {
@@ -225,6 +225,6 @@ public final class JUtilUUID {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		
+		System.out.println(false!=true);
 	}
 }

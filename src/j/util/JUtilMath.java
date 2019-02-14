@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JUtilMath {	

@@ -2,7 +2,7 @@ package j.util;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public class JUtilCalendar {

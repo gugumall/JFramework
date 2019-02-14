@@ -29,7 +29,7 @@ import j.util.JUtilBean;
 import j.util.JUtilString;
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class OracleDialect extends RdbmsDao {

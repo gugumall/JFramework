@@ -8,7 +8,7 @@ import j.dao.StmtAndRs;
 
 
 /**
- * @author JFramework
+ * @author 肖炯
  * select * from messages limit 10,100;
  * 表示跳过10行，取100行的返回结果。
  */

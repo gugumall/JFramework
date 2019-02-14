@@ -19,7 +19,7 @@ import org.dom4j.Element;
 
 /**
  * 权限控制
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Permission implements Runnable{

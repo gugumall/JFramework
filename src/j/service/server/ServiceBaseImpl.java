@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
  * 即客户节点的uuid，客户节点传过来的md5校验串
  * 
  * 继承JHandler实现基于“请求-应答框架”的http接口，需在actions.service.xml中配置相关action
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class ServiceBaseImpl extends JHandler implements ServiceBase,Serializable{

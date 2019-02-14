@@ -3,7 +3,7 @@ package j.http;
 
 /**
  * 包含上传文件的信息
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class UploadedFile {

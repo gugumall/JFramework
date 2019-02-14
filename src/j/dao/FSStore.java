@@ -2,7 +2,7 @@ package j.dao;
 
 /**
  * 通用长字段数据存储库
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class FSStore {

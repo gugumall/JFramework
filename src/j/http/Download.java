@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Download {

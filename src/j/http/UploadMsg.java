@@ -3,7 +3,7 @@ package j.http;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class UploadMsg {

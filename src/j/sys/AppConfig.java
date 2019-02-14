@@ -19,7 +19,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  * 应用系统配置信息，用来装载配置文件app.xml中的信息
  * app.xml的格式如下：

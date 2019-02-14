@@ -5,7 +5,7 @@ import java.sql.Statement;
 
 /**
  * Statement和相关联的ResultSet、SQL语句，调用close方法正确关闭Statement和ResultSet
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class StmtAndRs {

@@ -22,7 +22,7 @@ import j.dao.DAOFactory;
 
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class BeanGen {

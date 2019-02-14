@@ -7,7 +7,7 @@ import j.util.ConcurrentMap;
 
 /**
  * 角色，代表一个权限的集合，拥有某个角色的用户可以执行某些操作/访问某些资源
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Role implements Serializable{

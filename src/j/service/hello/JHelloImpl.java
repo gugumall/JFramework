@@ -12,7 +12,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * 每个服务实现类都必须继承ServiceBase
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JHelloImpl extends JHelloAbstract {

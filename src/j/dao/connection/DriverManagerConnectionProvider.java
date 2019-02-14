@@ -18,7 +18,7 @@ import j.dao.connection.helper.PropertiesHelper;
  * provider also implements a very rudimentary connection pool.
  * 
  * @see ConnectionProvider
- * @author JFramework
+ * @author 肖炯
  */
 public class DriverManagerConnectionProvider implements ConnectionProvider {
 	private static final Log log = LogFactory.getLog(DriverManagerConnectionProvider.class);

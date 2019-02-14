@@ -34,7 +34,7 @@ import javax.swing.border.TitledBorder;
 import j.dao.DAO;
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class BeanGenGUI  extends JPanel{

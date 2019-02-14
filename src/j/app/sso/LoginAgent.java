@@ -24,7 +24,7 @@ import org.dom4j.Element;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class LoginAgent implements Serializable{

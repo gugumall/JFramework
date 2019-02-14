@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public final class ArrayHelper {

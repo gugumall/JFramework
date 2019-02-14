@@ -4,7 +4,7 @@ import j.log.Logger;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class TestNvwaAndLogger {	

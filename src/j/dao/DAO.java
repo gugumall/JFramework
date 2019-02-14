@@ -6,7 +6,7 @@ import java.util.Map;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public interface DAO{	

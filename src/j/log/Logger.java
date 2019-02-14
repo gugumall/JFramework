@@ -4,7 +4,7 @@ package j.log;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public abstract class Logger{

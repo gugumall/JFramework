@@ -23,7 +23,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JLogger extends JHandler implements Runnable{

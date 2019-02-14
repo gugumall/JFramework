@@ -30,7 +30,7 @@ import org.dom4j.Element;
 
 /**
  * 应用可通过此类获取服务并调用相关方法
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Client implements Runnable{

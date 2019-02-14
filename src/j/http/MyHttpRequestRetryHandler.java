@@ -13,7 +13,7 @@ import org.apache.http.protocol.HttpContext;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class MyHttpRequestRetryHandler implements HttpRequestRetryHandler{

@@ -17,7 +17,7 @@ import org.dom4j.Element;
 
 /**
  * 配置信息
- * @author JFramework
+ * @author 肖炯
  */
 public class Handlers implements Runnable{
 	private static Logger log=Logger.create(Handlers.class);//日志输出	

@@ -28,7 +28,7 @@ import org.dom4j.Element;
 
 /**
  * 加载路由信息并启动路由器（只在server.xml中标记为is-router才会启动）与路由代理
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class RouterManager implements Runnable {

@@ -6,7 +6,7 @@ import j.util.JUtilSorter;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JCacheParams implements Serializable{

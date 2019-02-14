@@ -20,7 +20,7 @@ import org.dom4j.Element;
 
 /**
  * 加载服务信息，并启动服务，将服务注册到路由器
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class ServiceManager implements Runnable {

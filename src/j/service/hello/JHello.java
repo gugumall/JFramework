@@ -11,7 +11,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * 每个服务接口类都必须继承ServiceBaseInterface
- * @author JFramework
+ * @author 肖炯
  *
  */
 public interface JHello extends ServiceBase{

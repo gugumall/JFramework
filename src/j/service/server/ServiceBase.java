@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
  * 还有一个所有服务方法必须遵循的规则在此没有体现，那就是每个服务方法的前2个参数都必须是：
  * String clientUuid, String md54Service
  * 即客户节点的uuid，客户节点传过来的md5校验串
- * @author JFramework
+ * @author 肖炯
  *
  */
 public interface ServiceBase extends Remote{	

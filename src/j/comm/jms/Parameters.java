@@ -1,9 +1,9 @@
-package j.jms;
+package j.comm.jms;
 
 import javax.jms.DeliveryMode;
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Parameters {

@@ -29,7 +29,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class DAOFactory implements Runnable{	

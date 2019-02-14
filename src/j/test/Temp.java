@@ -1,12 +1,5 @@
 package j.test;
 
-import j.http.JHttp;
-import j.http.JHttpContext;
-
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
 
 /**
  * 
@@ -20,6 +13,11 @@ public class Temp {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception{
-
+		int lost=0;
+		for(int i=1;i<=25;i++){
+			int ifWin=lost+i;
+			lost+=ifWin;
+			System.out.println("第"+i+"次 下注"+ifWin+"元，如赢，利润为"+i+"元");
+		}
 	}
 }

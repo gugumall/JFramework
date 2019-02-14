@@ -3,7 +3,7 @@ package j.dao.dialect;
 import j.dao.RdbmsDao;
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class SqlServerDialect  extends RdbmsDao {

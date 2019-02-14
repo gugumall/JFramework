@@ -10,7 +10,7 @@ import java.io.InputStream;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public abstract class JFile extends java.io.File {

@@ -9,7 +9,7 @@ import javax.servlet.http.HttpSession;
 
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  * 实现该接口的业务处理类处理一个或多个用户请求，对应在actions.*.xml的一个<handler>
  */

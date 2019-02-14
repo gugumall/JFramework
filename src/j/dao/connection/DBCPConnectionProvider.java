@@ -25,7 +25,7 @@ import j.dao.connection.helper.PropertiesHelper;
  * properties are set.
  * 
  * @see ConnectionProvider
- * @author JFramework
+ * @author 肖炯
  */
 public class DBCPConnectionProvider implements ConnectionProvider {
 	private static final Log log = LogFactory.getLog(DBCPConnectionProvider.class);

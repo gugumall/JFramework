@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  * 根据数据库的表生成与表对应的Bean
  */
@@ -263,7 +263,7 @@ public class BeanGenerator {
 				
 				//作者
 				classContent+="/**\r\n";
-				classContent+=" * @author JFramework-BeanGenerator\r\n";
+				classContent+=" * @author 肖炯-BeanGenerator\r\n";
 				classContent+=" *\r\n";
 				classContent+=" */\r\n";
 				//作者 ends

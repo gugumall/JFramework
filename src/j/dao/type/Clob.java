@@ -19,7 +19,7 @@ import java.sql.SQLException;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Clob implements java.sql.Clob,Serializable, Cloneable {

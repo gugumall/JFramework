@@ -9,7 +9,7 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class JUtilMD5 {

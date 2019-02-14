@@ -11,7 +11,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public interface JDFSService extends ServiceBase{

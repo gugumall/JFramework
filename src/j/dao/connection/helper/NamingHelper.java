@@ -18,7 +18,7 @@ import j.dao.connection.Environment;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public final class NamingHelper {

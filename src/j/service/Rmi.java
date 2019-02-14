@@ -5,7 +5,7 @@ import java.util.Properties;
 
 /**
  * rmi-iiop 或 rmi 相关配置信息
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class Rmi implements Serializable{

@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * DAOPlugin实现范例，用于输出sql
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class DAOPlugin4Syn implements DAOPlugin{

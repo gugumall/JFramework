@@ -37,7 +37,7 @@ public class FileReplace {
 //			//System.out.println(catLevel1);
 //			//String groupIdLevle1=JUtilString.randomStr(10);
 //			
-//			System.out.println("INSERT INTO `js_catalog` VALUES ('"+order+"',2400,'',NULL,NULL,'"+catLevel1+"','','','','',NULL,"+order+",'T','<?xml version=\"1.0\" encoding=\"UTF-8\"?><root/>');");
+//			System.out.println("INSERT INTO `js_catalog` VALUES ('"+order+"',2400,'',NULL,NULL,'"+catLevel1+"','','','iconfont icon-jinkou1','',NULL,"+order+",'T','<?xml version=\"1.0\" encoding=\"UTF-8\"?><root/>');");
 //			int catIdLevel1=order;
 //			order++;
 //			
@@ -92,22 +92,22 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-//		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages\\");
-//		replace(dir,
-//				"I{shopping,EXFEE}",
-//				"I{shopping,运费}",
-//				".jsp");
+		File dir=new File("f:\\work\\JFramework_v2.0\\src");
+		replace(dir,
+				"@author 肖炯",
+				"@author 肖炯",
+				".java");
 //		count(dir,
 //		"花卉大全",
 //		".java");
 		
-		File root=new File("F://tempx/");
-		File[] children=(File[])root.listFiles();
-		for(int i=0;i<children.length;i++){
-			delete(children[i]);
-		}
-		
-		System.out.println(count);
+//		File root=new File("F://tempx/");
+//		File[] children=(File[])root.listFiles();
+//		for(int i=0;i<children.length;i++){
+//			delete(children[i]);
+//		}
+//		
+//		System.out.println(count);
 //		
 //		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
 //		replace(dir,"未指定支付订单ID","未指定支付编号",".jsp");

@@ -4,7 +4,7 @@ import j.dao.RdbmsDao;
 
 
 /**
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class MysqlDialect extends RdbmsDao{

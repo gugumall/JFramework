@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public final class PropertiesHelper {

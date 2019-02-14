@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * 
- * @author JFramework
+ * @author 肖炯
  *
  */
 public class LoggerDefault extends Logger{	

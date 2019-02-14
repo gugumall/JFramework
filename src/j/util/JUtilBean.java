@@ -25,7 +25,7 @@ import org.dom4j.Element;
 import org.json.JSONObject;
 
 /**
- * @author JFramework
+ * @author 肖炯
  * 
  */
 public class JUtilBean {
