@@ -422,10 +422,7 @@ public class Nvwa implements Runnable {
 			}				
 			
 			root=null;
-			document=null;
-			
-			//保存文件最近修改时间
-			configLastModified.put(file.getName(),new Long(file.lastModified()));		
+			document=null;	
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -458,6 +455,8 @@ public class Nvwa implements Runnable {
 			}catch(Exception e){}
 			
 			try{
+				if(loading) continue;
+				
 				File dir = new File(JProperties.getConfigPath());
 				if(!dir.exists()){
 		        	continue;
@@ -469,6 +468,10 @@ public class Nvwa implements Runnable {
 					if(files[i].getName().startsWith("nvwa")){
 						Long _configLastModified=(Long)configLastModified.get(files[i].getName());
 						if(_configLastModified==null||_configLastModified<files[i].lastModified()){
+							//保存文件最近修改时间
+							configLastModified.put(files[i].getName(),new Long(files[i].lastModified()));	
+							changed=true;
+							
 							System.out.println(JUtilTimestamp.timestamp()+" j.nvwa.Nvwa "+files[i]+" has been modified, so reload it.");
 						}
 					}

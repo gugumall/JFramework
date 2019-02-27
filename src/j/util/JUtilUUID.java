@@ -1,18 +1,17 @@
 
 package j.util;
 
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import java.io.File;
+import j.http.JHttp;
+import j.http.JHttpContext;
+import j.tool.region.Region;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.ImageIcon;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 
 
 /**
@@ -226,5 +225,44 @@ public final class JUtilUUID {
 	
 	public static void main(String[] args) throws Exception{
 		System.out.println(false!=true);
+		
+		String url="http://japi.zto.cn/bagAddrMarkGetmark";
+		
+		StringBuffer data=new StringBuffer();
+		data.append("{\"unionCode\":\"73109503847443\"");
+		
+		////////
+		data.append(",\"send_province\":\"重庆市\"");
+		data.append(",\"send_city\":\"重庆市\"");
+		data.append(",\"send_district\":\"沙坪坝区\"");    		
+		data.append(",\"send_address\":\"小杨公桥108号金悦城2期2栋\"");
+		
+		/////////
+		data.append(",\"receive_province\":\"湖南省\"");
+		data.append(",\"receive_city\":\"益阳市\"");
+		data.append(",\"receive_district\":\"桃江县\"");
+		data.append(",\"receive_address\":\"桃花江镇138号\"}");
+		
+		Map paras=new LinkedHashMap();
+		paras.put("company_id","6269b804881f4e969ac50057c55bf77b");
+		paras.put("data",data.toString());
+		paras.put("msg_type","GETMARK");
+		
+		String dataDigest="company_id=6269b804881f4e969ac50057c55bf77b&data="+data.toString()+"&msg_type=GETMARK43930c4c80fd";
+		dataDigest=Base64.encodeBase64String(DigestUtils.md5(dataDigest));
+
+		JHttp http=JHttp.getInstance();
+		JHttpContext context=new JHttpContext();
+		context.setContentType("application/x-www-form-urlencoded; charset=utf-8");
+		context.addRequestHeader("x-companyId","6269b804881f4e969ac50057c55bf77b");
+		context.addRequestHeader("x-dataDigest",dataDigest);
+		context.setRequestEncoding("UTF-8");
+		
+
+		String resp=http.postResponse(context,null,url,paras);
+		
+		System.out.println(resp);
+		
+		System.exit(0);
 	}
 }
