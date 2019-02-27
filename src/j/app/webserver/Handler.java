@@ -13,6 +13,7 @@ import java.util.Map;
 public class Handler{
 	private String path;
 	private String pathPattern;
+	private String RESTStylePath;
 	private String clazz;
 	private String requestBy;
 	private boolean nonNvwaObj;
@@ -30,6 +31,10 @@ public class Handler{
 	//getters
 	public String getPath(){
 		return this.path;
+	}
+	
+	public String getRESTStylePath(){
+		return this.RESTStylePath;
 	}
 	
 	public String getPathPattern(){
@@ -66,6 +71,10 @@ public class Handler{
 	//setters
 	public void setPath(String path){
 		this.path=path;
+	}
+	
+	public void setRESTStylePath(String RESTStylePath){
+		this.RESTStylePath=RESTStylePath;
 	}
 	
 	public void setPathPattern(String pathPattern){

@@ -64,14 +64,19 @@ public class Router implements Filter{
 			return;
 		}
 		
-		if(Handlers.isActionPath(requestURI)!=null){
-			String path=requestURI.substring(0,requestURI.lastIndexOf("."));
-			String pattern=requestURI.substring(requestURI.lastIndexOf("."));
-			Handler handler=Handlers.getHandler(path);
-			if(handler!=null&&handler.getPathPattern().equals(pattern)){
-				Server.service(handler,httpRequest,httpResponse);
-				return;
+		Handler handler=null;
+		String pattern=Handlers.isActionPath(requestURI);
+		if(pattern!=null){
+			if(requestURI.endsWith(pattern)){//常规方式
+				String path=requestURI.substring(0,requestURI.indexOf(pattern));
+				handler=Handlers.getHandler(path);
+			}else{//RESTful方式
+				handler=Handlers.getHandler(requestURI);
 			}
+		}
+		if(handler!=null){
+			Server.service(handler,httpRequest,httpResponse);
+			return;
 		}
 		
 		try{

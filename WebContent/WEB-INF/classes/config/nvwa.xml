@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+
+	<!--自定义ClassLoader，必须是j.nvwa.NvwaClassLoader的子类，NvwaClassLoaderAutoRenew实现了自动热加载功能-->
+	<!--Nvwa有托管机制，无需在下方配置<object>就能实现类的热加载、热拔插，只需调用Nvwa.entrust()即可将类托管给Nvwa，并调用Nvwa.entrustCreate()创建对象-->
+	<custom-classloader class="j.nvwa.NvwaClassLoaderAutoRenew">
+		<!--哪些类由自定义类加载器进行加载，当class的值为__all_implementation时表示nvwa.xml中的所有实现类-->
+		<responsible-for class="__all_implementation"/>
+		<responsible-for class="j.log.LoggerDefault"/> 
+	</custom-classloader>
+	
+	<object>	
+		<!--编码，根据编码获取对象-->
+		<code>Logger</code>
+		
+		<!--名称-->
+		<name>日志</name> 
+		
+		<!--实现类-->
+		<implementation>j.log.LoggerDefault</implementation>
+			
+		<!--是否单例 true or false-->
+		<singleton>false</singleton>
+	</object>
+	
+	<object>
+		<!--编码，根据编码获取对象-->
+		<code>FileSystem</code>
+		
+		<!--名称-->
+		<name>文件系统</name>
+		
+		<!--实现类-->
+		<implementation>j.fs.JDFSFile</implementation>
+		
+		<!--是否单例 true or false-->
+		<singleton>false</singleton>
+	</object>
+	
+	<object>
+		<!--编码，根据编码获取对象-->
+		<code>Cache</code>
+		
+		<!--名称-->
+		<name>缓存</name>
+		
+		<!--实现类-->
+		<implementation>j.cache.JDCache</implementation>
+		
+		<!--是否单例 true or false-->
+		<singleton>true</singleton>
+	</object>
+	
+	<object>
+		<code>SMS-SENDER-VERIFY-CN</code>
+		<name>短信通道</name>
+		<implementation>j.sms.SMSChannelDefault</implementation>
+		<singleton>true</singleton>
+	</object>
+	
+	<object>
+		<code>SMS-SENDER-VERIFY-CN-CMCC</code>
+		<name>短信通道</name>
+		<implementation>j.sms.SMSChannelDefault</implementation>
+		<singleton>true</singleton>
+	</object>	
+	
+	
+	<object>
+		<code>VerifierCodeSetting</code>
+		<name>SSO登陆验证码参数</name>		
+		<implementation>none</implementation>
+		<parameter key="bgColor" value="255,255,255"/>
+		<parameter key="borderColor" value="127,157,185"/>
+		<parameter key="fontColor" value="255,110,0"/>
+		<parameter key="width" value="60"/>
+		<parameter key="height" value="20"/>
+		<parameter key="chars" value="4"/>
+		<parameter key="posXOffset" value="1"/>
+		<parameter key="posYOffset" value="1"/>
+		<parameter key="timeout" value="60000"/>
+		<parameter key="fontName" value="Arial"/>
+		<parameter key="fontStyle" value="BOLD"/>
+		<parameter key="fontSize" value="14"/>
+		<parameter key="noise" value="32"/>
+		<singleton>true</singleton>
+	</object>	
+	
+	
+	
+	<!-- action 的handler 实现类配置，可在这配置，不配置的话系统会自动托管给Nvwa -->	
+	<object>
+		<code>/j.service.hello.words</code>
+		<name>测试服务的初始值</name>
+		<implementation>j.service.hello.JHelloWords</implementation>
+		<singleton>true</singleton>
+		<field name="words" type="String" init-value="I love oooo" keep="false"/>
+	</object>
+	
+	<object>
+		<code>/j.service.hello</code>
+		<name>测试服务</name>
+		<implementation>j.service.hello.JHelloImpl</implementation>
+		<singleton>true</singleton>
+		<!-- 基本类型初始值，只支持String,int,long,double,Timestamp,boolean -->
+		<!--	
+		String 字符串型
+		int 整型
+		long 长整型
+		double 双精度浮点型（由于java处理Float型的精度问题，禁止使用FLoat型）
+		Timestamp 时间日期型 格式必须为 0000-00-00 00:00:00[.000]  []里的表示可选
+		boolean 布尔型 取值为 true / false
+		-->
+		<field name="counter" type="int" init-value="0" keep="true"/>
+		
+		<!-- ref表示引用另外一个nvwa.xml中配置的对象，值为该对象配置的code -->
+		<!-- 所引用对象必须有不带参数的构造函数 -->
+		<field name="words" type="ref" init-value="/j.service.hello.words" keep="false"/>
+	</object>
+	
+	
+	<object>
+		<code>/snapshot</code>
+		<name>快照测试</name>
+		<implementation>j.tool.snapshot.WebPageSnapshot</implementation>
+		<singleton>true</singleton>
+		<parameter key="DriverName" value="webdriver.firefox.bin"/>
+		<parameter key="DriverPath" value="C:/Program Files (x86)/Mozilla Firefox/firefox.exe"/>
+		<parameter key="SavedPath" value="d:/snapshot/"/>
+	</object>
+</root>

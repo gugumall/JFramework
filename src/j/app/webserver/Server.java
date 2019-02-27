@@ -68,6 +68,10 @@ public class Server{
 		JHandler jHandler=null;//业务处理类
 		Action action=null;		
 		String actionId=SysUtil.getHttpParameter(request,handler.getRequestBy());//得到用户请求的操作名
+		if(actionId==null){//RESTful
+			String requestURI=request.getRequestURI();	
+			actionId=requestURI.substring(requestURI.lastIndexOf("/")+1);
+		}
 		
 		String navigateType =SysUtil.getHttpParameter(request,Constants.J_BACK_TYPE);//调转到返回地址所使用的机制	
 		String navigateUrl=SysUtil.getHttpParameter(request,Constants.J_BACK_URL);//返回给用户的地址

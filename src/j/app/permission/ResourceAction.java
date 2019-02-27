@@ -83,23 +83,36 @@ public class ResourceAction implements Resource{
 	public boolean matches(HttpServletRequest request){
 		String requestURI=request.getRequestURI();	
 		
-		if(Handlers.isActionPath(requestURI)!=null){
-			String _path=requestURI.substring(0,requestURI.lastIndexOf("."));
-			Handler handler=Handlers.getHandler(_path);
-			if(handler==null) return false;
-
-			String _actionId=request.getParameter(handler.getRequestBy());
-			if(this.actionId==null||"".equals(this.actionId)){
-				if(path.equals(_path)){
-					for(int i=0;i<this.excludes.size();i++){
-						String exclude=(String)this.excludes.get(i);
-						if(exclude.equals(_actionId)) return false;
-					}
-					return true;
-				}
-			}else{
-				return path.equals(_path)&&actionId.equals(_actionId);
+		Handler handler=null;
+		String _path="";
+		String pattern=Handlers.isActionPath(requestURI);
+		if(pattern!=null){
+			if(requestURI.endsWith(pattern)){//常规方式
+				_path=requestURI.substring(0,requestURI.indexOf(pattern));
+				handler=Handlers.getHandler(path);
+			}else{//RESTful方式
+				handler=Handlers.getHandler(requestURI);
+				_path=requestURI.substring(0,requestURI.lastIndexOf("/"));
 			}
+		}
+		
+		if(handler==null) return false;
+
+		String _actionId=request.getParameter(handler.getRequestBy());
+		if(actionId==null){//RESTful
+			actionId=requestURI.substring(requestURI.lastIndexOf("/")+1);
+		}
+		
+		if(this.actionId==null||"".equals(this.actionId)){
+			if(path.equals(_path)){
+				for(int i=0;i<this.excludes.size();i++){
+					String exclude=(String)this.excludes.get(i);
+					if(exclude.equals(_actionId)) return false;
+				}
+				return true;
+			}
+		}else{
+			return path.equals(_path)&&actionId.equals(_actionId);
 		}
 		
 		return false;

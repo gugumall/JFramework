@@ -24,7 +24,8 @@ public class Handlers implements Runnable{
 	
 	private static ConcurrentList actionDefinitionFileNames=new ConcurrentList();//动作定义文件名列表
 	
-	private static ConcurrentMap handlers=new ConcurrentMap();//动作列表	
+	private static ConcurrentMap<String,Handler> handlersByPath=new ConcurrentMap();//动作列表	
+	private static ConcurrentMap<String,Handler> handlersByRESTPath=new ConcurrentMap();//动作列表	
 	
 	private static ConcurrentMap globalNavigates=new ConcurrentMap();//全局导航配置（global-navigate）
 	
@@ -37,7 +38,7 @@ public class Handlers implements Runnable{
 	
 	private static volatile long actionTimeout=60000;//请求处理超时时间，如果超过此时间，日志系统将记录为“响应超时”
 
-	private static ConcurrentMap lastModifiedOfFiles=new ConcurrentMap();//各文件最近修改时间
+	private static ConcurrentMap<String,Long> lastModifiedOfFiles=new ConcurrentMap();//各文件最近修改时间
 	
 	private static volatile boolean loading=true;
 	
@@ -64,14 +65,22 @@ public class Handlers implements Runnable{
 	
 	/**
 	 * 
-	 * @param requestURL
+	 * @param requestURI
 	 * @return
 	 */
-	public static String isActionPath(String requestURL){
+	public static String isActionPath(String requestURI){
 		waitWhileLoading();
 		for(int i=0;i<actionPathPatterns.length;i++){
-			if(requestURL.endsWith(actionPathPatterns[i])) return actionPathPatterns[i];
+			if(requestURI.endsWith(actionPathPatterns[i])) return actionPathPatterns[i];
 		}
+		
+		if(requestURI.lastIndexOf("/")>1){
+			String RESTPath=requestURI.substring(0,requestURI.lastIndexOf("/"));
+			//String action=requestURI.substring(requestURI.lastIndexOf("/")+1);
+			Handler handler=Handlers.getHandlerByRESTPath(RESTPath);
+			if(handler!=null) return handler.getPathPattern();
+		}
+		
 		return null;
 	}
 	
@@ -114,12 +123,26 @@ public class Handlers implements Runnable{
 	
 	/**
 	 * 
-	 * @param path
+	 * @param pathOrRESTPath
 	 * @return
 	 */
-	public static Handler getHandler(String path){
+	public static Handler getHandler(String pathOrRESTPath){
 		waitWhileLoading();
-		return (Handler)handlers.get(path);
+		Handler handler=(Handler)handlersByPath.get(pathOrRESTPath);
+		if(handler==null&&pathOrRESTPath.lastIndexOf("/")>1){
+			handler=(Handler)handlersByRESTPath.get(pathOrRESTPath.substring(0,pathOrRESTPath.lastIndexOf("/")));
+		}
+		return handler;
+	}
+	
+	/**
+	 * 
+	 * @param RESTPath
+	 * @return
+	 */
+	public static Handler getHandlerByRESTPath(String RESTPath){
+		waitWhileLoading();
+		return (Handler)handlersByRESTPath.get(RESTPath);
 	}
 	
 	/**
@@ -128,7 +151,7 @@ public class Handlers implements Runnable{
 	 */
 	public static List getHandlers(){
 		waitWhileLoading();
-		return handlers.listValues();
+		return handlersByPath.listValues();
 	}
 	
 
@@ -173,7 +196,7 @@ public class Handlers implements Runnable{
 			loading=true;
 			
 	      	actionDefinitionFileNames.clear();
-			handlers.clear();
+			handlersByPath.clear();
 			globalNavigates.clear();
 			
 			//文件是否存在
@@ -232,6 +255,7 @@ public class Handlers implements Runnable{
 		        	
 		        	Handler handler= new Handler();
 		        	handler.setPath(handlerEle.attributeValue("path"));
+		        	handler.setRESTStylePath(handlerEle.attributeValue("REST-style-path"));
 		        	handler.setPathPattern(handlerEle.attributeValue("path-pattern"));
 		        	handler.setClazz(handlerEle.attributeValue("class"));
 		        	handler.setRequestBy(handlerEle.attributeValue("request-by"));
@@ -285,7 +309,10 @@ public class Handlers implements Runnable{
 			        	handler.addAction(action);
 		        	}
 		        	
-		        	handlers.put(handler.getPath(),handler);
+		        	handlersByPath.put(handler.getPath(),handler);
+		        	if(handler.getRESTStylePath()!=null&&!"".equals(handler.getRESTStylePath())){
+		        		handlersByRESTPath.put(handler.getRESTStylePath(),handler);
+		        	}
 		        	
 		        	//托管给Nvwa
 		        	if(handlerEle.attributeValue("non-nvwa-obj")==null){
