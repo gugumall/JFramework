@@ -1,5 +1,8 @@
 package j.I18N;
 
+import j.app.webserver.Handler;
+import j.app.webserver.Handlers;
+import j.app.webserver.Server;
 import j.util.JUtilString;
 
 import java.util.LinkedList;
@@ -69,19 +72,19 @@ public class I18NUrl{
 	 * @return
 	 */
 	public boolean matches(HttpServletRequest request){
-		String requestUri=request.getRequestURI();
+		String requestURI=request.getRequestURI();
 		
-		if(!"".equals(extension)&&!requestUri.endsWith(extension)) return false;
+		if(!"".equals(extension)&&!requestURI.endsWith(extension)) return false;
 		
 		if("alike".equalsIgnoreCase(match)){
-			if(JUtilString.match(requestUri,urlPattern,"*")<0) return false;
+			if(JUtilString.match(requestURI,urlPattern,"*")<0) return false;
 		}else{
-			if(!requestUri.equals(urlPattern)) return false;
+			if(!requestURI.equals(urlPattern)) return false;
 		}
 		
 		for(int i=0;i<this.excludes.size();i++){
 			String exclude=(String)this.excludes.get(i);
-			if(JUtilString.match(requestUri,exclude,"*")>-1) return false;
+			if(JUtilString.match(requestURI,exclude,"*")>-1) return false;
 		}
 		
 		return true;

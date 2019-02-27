@@ -254,10 +254,7 @@ public class JObject implements Serializable{
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
-		String s1="我们】【】[]";
-		String s1i=JObject.string2IntSequence(s1);
-		s1i="jis:"+s1i;
-		System.out.println(s1i);
-		System.out.println(JObject.intSequence2String(s1i));
+		String s1="jis:2p,3a,2p,2x,30,2p,2q,30,2t";
+		System.out.println(JObject.intSequence2String(s1));
 	}
 }

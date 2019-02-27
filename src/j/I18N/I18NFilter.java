@@ -30,7 +30,7 @@ public class I18NFilter implements Filter{
     	HttpServletResponse httpResponse=(HttpServletResponse)response;
     	try{
 			HttpSession session=httpRequest.getSession(true);
-	
+			
 			if(!I18N.enabled||!I18N.need(httpRequest)){
 	    		chain.doFilter(request,response);
 	    		return;

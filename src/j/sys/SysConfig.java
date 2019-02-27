@@ -1,5 +1,7 @@
 package j.sys;
 
+import j.app.webserver.Handler;
+import j.app.webserver.Handlers;
 import j.log.Logger;
 import j.util.ConcurrentMap;
 import j.util.JUtilString;
@@ -147,11 +149,27 @@ public class SysConfig{
 	 * @param requestURL
 	 * @return
 	 */
-	public static boolean needSettingResponseEncoding(String requestURL){
+	public static boolean needSettingResponseEncoding(String requestURI){
+		//RESTful 支持
+		Handler handler=null;
+		String pattern=Handlers.isActionPath(requestURI);
+		if(pattern!=null){
+			if(requestURI.endsWith(pattern)){//常规方式
+				String path=requestURI.substring(0,requestURI.indexOf(pattern));
+				handler=Handlers.getHandler(path);
+			}else{//RESTful方式
+				handler=Handlers.getHandler(requestURI);
+			}
+		}
+		if(handler!=null){
+			requestURI=handler.getPath()+handler.getPathPattern();
+		}
+		//RESTful 支持		
+				
 		for(int i=0;i<responseEncodingPages.length;i++){
 			if("".equals(responseEncodingPages[i])) continue;
 			
-			if(JUtilString.match(requestURL,responseEncodingPages[i],"|-|")>-1){
+			if(JUtilString.match(requestURI,responseEncodingPages[i],"|-|")>-1){
 				return true;
 			}
 		}

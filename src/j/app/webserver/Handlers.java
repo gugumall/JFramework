@@ -255,7 +255,13 @@ public class Handlers implements Runnable{
 		        	
 		        	Handler handler= new Handler();
 		        	handler.setPath(handlerEle.attributeValue("path"));
-		        	handler.setRESTStylePath(handlerEle.attributeValue("REST-style-path"));
+		        	
+		        	String RESTStylePath=handlerEle.attributeValue("REST-style-path");
+		        	if(RESTStylePath==null||"".equals(RESTStylePath)){
+		        		RESTStylePath=handler.getPath();
+		        	}
+		        	handler.setRESTStylePath(RESTStylePath);
+		        	
 		        	handler.setPathPattern(handlerEle.attributeValue("path-pattern"));
 		        	handler.setClazz(handlerEle.attributeValue("class"));
 		        	handler.setRequestBy(handlerEle.attributeValue("request-by"));

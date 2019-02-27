@@ -29,7 +29,7 @@ public class EncodingFilter implements Filter{
 		if(!httpRequest.getRequestURI().endsWith(".service")){
 			httpRequest.setCharacterEncoding(SysConfig.sysEncoding);
 		}		
-		if(SysConfig.needSettingResponseEncoding(httpRequest.getRequestURL().toString())){
+		if(SysConfig.needSettingResponseEncoding(httpRequest.getRequestURI())){
 			httpResponse.setContentType("text/html;charset="+SysConfig.sysEncoding);
 		}
 		
