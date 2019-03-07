@@ -13,12 +13,14 @@ import j.util.JUtilString;
 public class DAOProxy implements InvocationHandler{
 	private DAO dao;
 	
+	/**
+	 * 
+	 * @param _dao
+	 * @param _factory
+	 * @return
+	 */
 	public Object bind(DAO _dao,DAOFactory _factory){
 		dao=_dao;
-		return Proxy.newProxyInstance(RdbmsDao.class.getClassLoader(),RdbmsDao.class.getInterfaces(),this);
-	}
-	
-	public Object rebind(){
 		return Proxy.newProxyInstance(RdbmsDao.class.getClassLoader(),RdbmsDao.class.getInterfaces(),this);
 	}
 

@@ -2,8 +2,10 @@ package j.service.hello;
 
 import j.app.webserver.JSession;
 import j.service.Constants;
+import j.service.server.ServiceBaseImpl;
 import j.sys.SysUtil;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,11 +13,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * 每个服务实现类都必须继承ServiceBase
- * @author 肖炯
+ * 
+ * @author ceo
  *
  */
-public class JHelloImpl extends JHelloAbstract {
+public class JHelloImpl extends ServiceBaseImpl implements JHello,Serializable {	
 	private static final long serialVersionUID = 1L;
 	private int counter=0;
 	private JHelloWords words;

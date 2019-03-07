@@ -706,6 +706,7 @@ public class SysUtil {
 	 * @return
 	 */
 	public static String appendHttpParameter(String url,Map parameters){
+		if(url.lastIndexOf("/")<=7) url+="/";//https://...
 		if(parameters!=null){
 			for(Iterator keys=parameters.keySet().iterator();keys.hasNext();){
 				String key=(String)keys.next();

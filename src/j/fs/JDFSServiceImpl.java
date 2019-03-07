@@ -10,6 +10,7 @@ import j.http.UploadMsg;
 import j.http.UploadedFile;
 import j.log.Logger;
 import j.service.Constants;
+import j.service.server.ServiceBaseImpl;
 import j.service.server.ServiceConfig;
 import j.service.server.ServiceManager;
 import j.sys.SysConfig;
@@ -24,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
 import java.io.Writer;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
@@ -40,7 +42,7 @@ import javax.servlet.http.HttpSession;
  * @author 肖炯
  *
  */
-public class JDFSServiceImpl extends JDFSServiceAbstract{
+public class JDFSServiceImpl extends ServiceBaseImpl implements JDFSService,Serializable {	
 	private static final long serialVersionUID = 1L;
 	private static Logger log=Logger.create(JDFSServiceImpl.class);
 	

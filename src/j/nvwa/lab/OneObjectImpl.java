@@ -6,14 +6,30 @@ package j.nvwa.lab;
  *
  */
 public class OneObjectImpl implements OneObject{
-	public static int x=0;
+	private int counter=0;
+	
+	/**
+	 * 
+	 * @param counter
+	 */
+	public void setCounter(int counter){
+		this.counter=counter;
+	}
+
+	/**
+	 * 
+	 * @param counter
+	 */
+	public int getCounter(){
+		return this.counter;
+	}
 	
 	/*
 	 * (non-Javadoc)
 	 * @see j.nvwa.lab.OneObject#hello()
 	 */
 	public void hello(){
-		x++;
-		System.out.println("hello - "+x);
+		this.counter++;
+		System.out.println("hello - "+counter);
 	}
 }

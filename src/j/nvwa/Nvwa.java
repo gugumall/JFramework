@@ -272,7 +272,10 @@ public class Nvwa implements Runnable {
 			
 			File[] files=dir.listFiles();
 			for(int i=0;i<files.length;i++){
-				if(files[i].getName().startsWith("nvwa")) load(files[i],newCodes);
+				if(files[i].getName().startsWith("nvwa")){
+					configLastModified.put(files[i].getName(),new Long(files[i].lastModified()));
+					load(files[i],newCodes);
+				}
 			}
 			
 			//移除已经在nvwa.xml中删除的<object>
@@ -315,28 +318,30 @@ public class Nvwa implements Runnable {
 			//文件是否存在
 	        if(!file.exists()){
 	        	throw new Exception("找不到配置文件："+file.getAbsolutePath());
-	        }
+	        }	
 			
-			Document document=JUtilDom4j.parse(JProperties.getConfigPath()+"nvwa.xml","UTF-8");			
+			Document document=JUtilDom4j.parse(file.getAbsolutePath(),"UTF-8");			
 			Element root=document.getRootElement();
 			
-			Element customClassLoaderEle=root.element("custom-classloader");
-			if(customClassLoaderEle!=null){//如果使用自定义类
-				//从不使用自定义ClassLoader改为使用ClassLoader，或ClassLoader类名变化
-				if(customClassLoaderName==null
-						||!customClassLoaderName.equals(customClassLoaderEle.attributeValue("class"))){
+			if("nvwa.xml".equals(file.getName())){//全局配置
+				Element customClassLoaderEle=root.element("custom-classloader");
+				if(customClassLoaderEle!=null){//如果使用自定义类
+					//从不使用自定义ClassLoader改为使用ClassLoader，或ClassLoader类名变化
+					if(customClassLoaderName==null
+							||!customClassLoaderName.equals(customClassLoaderEle.attributeValue("class"))){
+						customClassLoader=null;
+					}
+					
+					customClassLoaderName=customClassLoaderEle.attributeValue("class");				
+					List responsibleFor=customClassLoaderEle.elements("responsible-for");
+					for(int i=0;i<responsibleFor.size();i++){
+						Element responsibleEle=(Element)responsibleFor.get(i);
+						classLoaderResponsibleFor.add(responsibleEle.attributeValue("class"));
+					}
+				}else if(customClassLoaderName!=null){//从使用自定义ClassLoader改为不使用ClassLoader
+					customClassLoaderName=null;
 					customClassLoader=null;
 				}
-				
-				customClassLoaderName=customClassLoaderEle.attributeValue("class");				
-				List responsibleFor=customClassLoaderEle.elements("responsible-for");
-				for(int i=0;i<responsibleFor.size();i++){
-					Element responsibleEle=(Element)responsibleFor.get(i);
-					classLoaderResponsibleFor.add(responsibleEle.attributeValue("class"));
-				}
-			}else if(customClassLoaderName!=null){//从使用自定义ClassLoader改为不使用ClassLoader
-				customClassLoaderName=null;
-				customClassLoader=null;
 			}
 			
 			List objs=root.elements("object");
@@ -351,6 +356,7 @@ public class Nvwa implements Runnable {
 					obj.setCode(code);
 					obj.setName(objEle.elementText("name"));
 					obj.setImplementation(objEle.elementText("implementation"));
+					obj.setProxy(objEle.elementText("proxy"));
 					obj.setSingleton("true".equalsIgnoreCase(objEle.elementText("singleton")));
 
 					List params=objEle.elements("parameter");
@@ -467,7 +473,7 @@ public class Nvwa implements Runnable {
 				for(int i=0;i<files.length;i++){
 					if(files[i].getName().startsWith("nvwa")){
 						Long _configLastModified=(Long)configLastModified.get(files[i].getName());
-						if(_configLastModified==null||_configLastModified<files[i].lastModified()){
+						if(_configLastModified==null||_configLastModified<files[i].lastModified()){							
 							//保存文件最近修改时间
 							configLastModified.put(files[i].getName(),new Long(files[i].lastModified()));	
 							changed=true;

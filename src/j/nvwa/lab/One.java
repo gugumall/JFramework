@@ -14,13 +14,13 @@ public class One {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception{
-    	Nvwa.entrust("oo", "j.nvwa.lab.OneObjectImpl", true);
-		OneObject o=(OneObject)Nvwa.entrustCreate("oo", "j.nvwa.lab.OneObjectImpl", false);
-		o.hello();
-		System.out.println(o.getClass().getClassLoader().getParent());
-		
-		OneObjectImpl oo=new OneObjectImpl();
+    	OneObject oo=(OneObject)Nvwa.create("HelloWorld");
 		oo.hello();
-		System.out.println(oo.getClass().getClassLoader());
+		oo.hello();
+		oo.hello();
+		oo=(OneObject)Nvwa.create("HelloWorld");
+		oo.hello();
+		Thread.sleep(10000);
+		oo.hello();
 	}
 }

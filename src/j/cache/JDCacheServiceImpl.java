@@ -4,6 +4,7 @@ import j.app.webserver.JSession;
 import j.common.JObject;
 import j.log.Logger;
 import j.service.Constants;
+import j.service.server.ServiceBaseImpl;
 import j.service.server.ServiceConfig;
 import j.service.server.ServiceManager;
 import j.sys.SysUtil;
@@ -28,7 +29,7 @@ import javax.servlet.http.HttpSession;
  * @author 肖炯
  *
  */
-public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnable{
+public class JDCacheServiceImpl extends ServiceBaseImpl implements JDCacheService,Serializable,Runnable {
 	private static final long serialVersionUID = 1L;
 	private static Logger log=Logger.create(JCacheDefault.class);	
 	protected ConcurrentMap units=new ConcurrentMap();

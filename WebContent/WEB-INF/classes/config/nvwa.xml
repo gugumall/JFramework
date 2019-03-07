@@ -9,6 +9,38 @@
 		<responsible-for class="j.log.LoggerDefault"/> 
 	</custom-classloader>
 	
+	<object>
+		<code>HelloWorld</code>
+		<name>测试</name> 
+		<implementation>j.nvwa.lab.OneObjectImpl</implementation>
+		<proxy>j.nvwa.lab.OneObjectProxy</proxy>
+		<singleton>true</singleton>
+		<!-- 基本类型初始值，只支持String,int,long,double,Timestamp,boolean -->
+		<!--	
+		String 字符串型
+		int 整型
+		long 长整型
+		double 双精度浮点型（由于java处理Float型的精度问题，禁止使用FLoat型）
+		Timestamp 时间日期型 格式必须为 0000-00-00 00:00:00[.000]  []里的表示可选
+		boolean 布尔型 取值为 true / false
+		
+		keep 表示重新加载类时是否维持该字段已有的值
+		-->
+		<field name="counter" type="int" init-value="0" keep="true"/>
+		
+		<!-- ref表示引用另外一个nvwa.xml中配置的对象，值为该对象配置的code -->
+		<!-- 所引用对象必须有不带参数的构造函数 -->
+		<field name="words" type="ref" init-value="HelloWorldWords" keep="false"/>
+	</object>
+	
+	<object>
+		<code>HelloWorldWords</code>
+		<name>测试</name>
+		<implementation>j.service.hello.JHelloWords</implementation>
+		<singleton>true</singleton>
+		<field name="words" type="String" init-value="I love oooo" keep="false"/>
+	</object>
+	
 	<object>	
 		<!--编码，根据编码获取对象-->
 		<code>Logger</code>

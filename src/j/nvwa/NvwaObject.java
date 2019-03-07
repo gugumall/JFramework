@@ -8,6 +8,7 @@ import j.util.JUtilTimestamp;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class NvwaObject implements Serializable {
 	private String name;
 	private String Interface;
 	private String implementation;
+	private String proxy;
 	private boolean singleton;
 	private ConcurrentMap parameters;
 	private ConcurrentMap fields;
@@ -184,6 +186,22 @@ public class NvwaObject implements Serializable {
 	
 	/**
 	 * 
+	 * @param proxy
+	 */
+	synchronized public void setProxy(String proxy){
+		this.proxy=proxy;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	synchronized public String getProxy(){
+		return this.proxy;
+	}
+	
+	/**
+	 * 
 	 * @param singleton
 	 */
 	synchronized public void setSingleton(boolean singleton){
@@ -227,12 +245,20 @@ public class NvwaObject implements Serializable {
 						}else{
 							clazz=Class.forName(this.implementation);
 						}
-						_new=clazz.getConstructor().newInstance();
+						_new=clazz.getConstructor().newInstance();						
 						init(clazz,_new);
 					}else if(renewField){
 						doRenewField();
 					}
-					if(_new!=null) instance=_new;
+					
+					if(_new!=null){
+						instance=_new;
+						
+						if(this.getProxy()!=null&&!"".equals(this.getProxy())){
+							NvwaProxy proxyInstance=(NvwaProxy)Class.forName(this.getProxy()).newInstance();
+							_new=proxyInstance.bind(_new);
+						}
+					}
 					
 					renew=false;			
 					renewField=false;
@@ -250,8 +276,14 @@ public class NvwaObject implements Serializable {
 					clazz=Class.forName(this.implementation);
 				}
 				
-				Object _new=clazz.getConstructor().newInstance();
+				Object _new=clazz.getConstructor().newInstance();				
 				init(clazz,_new);
+				
+				if(this.getProxy()!=null&&!"".equals(this.getProxy())){
+					NvwaProxy proxyInstance=(NvwaProxy)Class.forName(this.getProxy()).newInstance();
+					_new=proxyInstance.bind(_new);
+				}
+				
 				return _new;
 			}
 		}catch(Exception e){
@@ -294,7 +326,15 @@ public class NvwaObject implements Serializable {
 					}else if(renewField){
 						doRenewField();
 					}
-					if(_new!=null) instance=_new;
+					
+					if(_new!=null){
+						instance=_new;
+					
+						if(this.getProxy()!=null&&!"".equals(this.getProxy())){
+							NvwaProxy proxyInstance=(NvwaProxy)Class.forName(this.getProxy()).newInstance();
+							_new=proxyInstance.bind(_new);
+						}
+					}
 					
 					renew=false;					
 					renewField=false;
@@ -312,6 +352,12 @@ public class NvwaObject implements Serializable {
 				
 				Object _new=clazz.getConstructor(parameterTypes).newInstance(parameters);
 				init(clazz,_new);
+
+				if(this.getProxy()!=null&&!"".equals(this.getProxy())){
+					NvwaProxy proxyInstance=(NvwaProxy)Class.forName(this.getProxy()).newInstance();
+					_new=proxyInstance.bind(_new);
+				}
+				
 				return _new;
 			}
 		}catch(Exception e){
@@ -346,7 +392,7 @@ public class NvwaObject implements Serializable {
 	 * @param _new
 	 * @throws Exception
 	 */
-	private void init(Class clazz,Object _new) throws Exception{
+	private void init(Class clazz,Object _new) throws Exception{		
 		List fieldList=fields.listValues();
 		for(int i=0;i<fieldList.size();i++){
 			NvwaField field=(NvwaField)fieldList.get(i);//对每个配置的field赋值
