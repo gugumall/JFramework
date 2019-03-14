@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>		
+    <handler path="/snapshot" class="j.tool.snapshot.WebPageSnapshot" request-by="request" non-nvwa-obj="true">
+    	<action name="网页快照" id="snapshot" method="snapshot" respond-with-string="true"/> 
+    </handler>
+</root>

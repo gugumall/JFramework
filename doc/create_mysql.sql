@@ -1,12 +1,8 @@
-drop database if exists gframework;
-create database gframework default character set utf8 collate utf8_general_ci;
-use gframework;
-
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016/12/8 21:47:20                           */
+/* Created on:     2019-03-14 17:05:56                          */
 /*==============================================================*/
-
+use jframeworkx;
 
 drop table if exists j_action_log;
 
@@ -52,13 +48,9 @@ drop table if exists j_service_router;
 
 drop table if exists j_test;
 
-drop table if exists j_thirdparty_for_login;
-
 drop table if exists j_thirdparty_user;
 
-drop table if exists j_user;
-
-drop table if exists j_user_certification;
+drop table if exists j_user_login;
 
 drop table if exists j_webserver;
 
@@ -492,130 +484,54 @@ create table j_test
 ) engine = InnoDB;
 
 /*==============================================================*/
-/* Table: j_thirdparty_for_login                                */
-/*==============================================================*/
-create table j_thirdparty_for_login
-(
-   THIRDPARTY_CODE      varchar(64) not null,
-   THIRDPARTY_NAME      varchar(90),
-   DEL_BY_SYS           char(1),
-   primary key (THIRDPARTY_CODE)
-) engine = InnoDB;
-
-/*==============================================================*/
 /* Table: j_thirdparty_user                                     */
 /*==============================================================*/
 create table j_thirdparty_user
 (
    UUID                 varchar(64) not null,
-   U_ID                 varchar(64),
+   USER_ID              varchar(64),
    THIRDPARTY_CODE      varchar(64),
-   THIRDPARTY_UID       varchar(64),
+   THIRDPARTY_USER_ID   varchar(128),
+   THIRDPARTY_NICKNAME  varchar(128),
+   THIRDPARTY_HEADER    varchar(256),
    primary key (UUID)
 ) engine = InnoDB;
 
 /*==============================================================*/
-/* Table: j_user                                                */
+/* Table: j_user_login                                          */
 /*==============================================================*/
-create table j_user
+create table j_user_login
 (
-   U_ID                 varchar(64) not null,
-   A_SVR_ID             varchar(32),
-   A_SYS_ID             varchar(32),
-   A_DOMAIN             varchar(64),
-   U_NUM                varchar(64),
-   U_STAT               char(3) comment '000 正常/默认
-            100 待激活
-            200 待审核
-            300 冻结',
-   S_PW                 varchar(64),
-   S_MAIL               varchar(64),
-   S_MAIL_VERIFIED      char(1) comment 'T/F',
-   S_PHONE              varchar(32),
-   S_PHONE_VERIFIED     char(1) comment 'T/F',
-   S_TWO_DIMENSION_CODES varchar(1024) comment 'T/F
-            用户选择验证方式',
-   S_LOGIN_GUARD        char(1) comment 'T/F
-            用户选择验证方式',
-   U_NICK               varchar(30) comment '000 正常/默认
-            100 待激活
-            200 待审核
-            300 冻结',
-   U_NAME               varchar(150) comment '000 正常/默认
-            100 待激活
-            200 待审核
-            300 冻结',
-   U_CERT               char(1) comment 'T/F',
-   COM_NAME             varchar(150) comment '000 正常/默认
-            100 待激活
-            200 待审核
-            300 冻结',
-   COM_CERT             char(1) comment 'T/F',
-   REG_VIA              char(3) comment 'API，合作方通过api调用注册
-            WEB，web注册
-            MOB，手机网页注册
-            APP，智能手机客户端注册
-            SMS，短信注册',
-   REG_IP               varchar(128) comment '用户注册时的IP地址，为以后作统计使用',
-   REG_TIME             datetime comment '用户注册的时间',
-   LOGIN_IP             varchar(128) comment '用户最后一次登录的IP',
-   LOGIN_TIME           datetime comment '用户的最后一次登录时间',
-   PREVIOUS_LOGIN_IP    varchar(128) comment '用户最后一次登录的IP',
-   PREVIOUS_LOGIN_TIME  datetime comment '用户的最后一次登录时间',
-   LOGIN_COUNT          int,
-   primary key (U_ID)
-) engine = InnoDB;
-
-/*==============================================================*/
-/* Table: j_user_certification                                  */
-/*==============================================================*/
-create table j_user_certification
-(
-   U_ID                 varchar(64) not null,
-   U_NAME               varchar(150),
-   U_GENDER             char(1) comment 'M  男
-            F 女',
-   U_BIRTH              datetime null,
-   U_IDCARD_NUM         varchar(32),
-   U_IDCARD_PHOTO_FRONT varchar(128) comment '图片需清晰：注册号、企业名称、法人代表、年检章等需清晰可辨别',
-   U_IDCARD_PHOTO_BACK  varchar(128) comment '图片需清晰：注册号、企业名称、法人代表、年检章等需清晰可辨别',
-   U_IDCARD_PHOTO_WITH_OWNER varchar(128) comment '图片需清晰：注册号、企业名称、法人代表、年检章等需清晰可辨别',
-   U_IDCARD_PHOTO_BUST  varchar(128) comment '图片需清晰：注册号、企业名称、法人代表、年检章等需清晰可辨别',
-   U_CERT               char(3) comment '000 未提交审核
-            001 已提交，等待审核
-            002 审核失败
-            003 审核成功',
-   U_CERT_APPLY_TIME    datetime null,
-   U_CERT_APPLY_TIMES   tinyint,
-   U_CERT_AUDIT_IP      varchar(128),
-   U_CERT_AUDIT_STAFF   varchar(64),
-   U_CERT_AUDIT_TIME    datetime null,
-   U_CERT_REMARKS       varchar(150),
-   COM_NAME             varchar(150),
-   COM_NAME_KNOWN_AS    varchar(150),
-   COM_CORPORATOR       varchar(150),
-   COM_LICENSE_NUM      varchar(128),
-   COM_LICENSE_PHOTO_FRONT varchar(128) comment '图片需清晰：注册号、企业名称、法人代表、年检章等需清晰可辨别',
-   COM_LICENSE_PHOTO_BACK varchar(128) comment '图片需清晰：注册号、企业名称、法人代表、年检章等需清晰可辨别',
-   COM_CERT             char(3) comment '000 未提交审核
-            001 已提交，等待审核
-            002 审核失败
-            003 审核成功',
-   COM_CERT_APPLY_TIME  datetime null,
-   COM_CERT_APPLY_TIMES tinyint,
-   COM_CERT_AUDIT_IP    varchar(128),
-   COM_CERT_AUDIT_STAFF varchar(64),
-   COM_CERT_AUDIT_TIME  datetime null,
-   COM_CERT_REMARKS     varchar(150),
-   COUNTRY_ID           varchar(16) comment '由字母、数字、下划线组成，不超过32位',
-   PROVINCE_ID          varchar(16) comment '由字母、数字、下划线组成，不超过32位',
-   CITY_ID              varchar(16),
-   COUNTY_ID            varchar(16),
-   ZONE_ID              varchar(16),
-   ADDR                 varchar(150),
-   AGREEMENT_NO         varchar(64),
-   AGREEMENT_FILE_PATH  varchar(128),
-   primary key (U_ID)
+   UUID                 varchar(64) not null,
+   USER_ID              varchar(64),
+   USER_AGENT_SN        varchar(128),
+   USER_IP              varchar(128),
+   THIRDPARTY_CODE      varchar(64),
+   THIRDPARTY_USER_ID   varchar(128),
+   LOGIN_TIME_TRY       bigint,
+   LOGIN_TIME_OK        bigint,
+   LOGIN_TIME_AUTO      bigint,
+   LOGIN_STATUS         char(3) comment '000 登录失败
+            001 登录成功',
+   LOGIN_METHOD         char(3) comment '000 用户名+密码
+            001 手机号+密码
+            002 邮箱+密码
+            
+            100 手机号+短信验证码
+            101 邮箱+邮件验证码
+            
+            200 第三方账号授权
+            
+            300 WEB cookie自动登录
+            301 APP token自动登录
+            
+            浏览器与单次登录服务器之间的session关联全局会话实现单次登录。
+            token与设备唯一编号对应，实现同一app内跨应用单次登录。',
+   LOGIN_FAILED_TIMES   smallint,
+   APPID_LOGIN_FROM     varchar(64),
+   SESSION_ID_LOGIN_FROM varchar(64) comment 'app登录时，指第一次通过http发起登录请求时产生的session_id',
+   SESSION_ID_GLOBAL    varchar(64),
+   primary key (UUID)
 ) engine = InnoDB;
 
 /*==============================================================*/

@@ -8,27 +8,27 @@
 	<generator class="assigned" />
 </id>
 
-<property name="provinceId" type="java.lang.String" column="PROVINCE_ID" not-null="true" length="16"/>
+<property name="provinceId" type="java.lang.String" column="PROVINCE_ID" not-null="true" gzip="false" length="16"/>
 
-<property name="countryId" type="java.lang.String" column="COUNTRY_ID" not-null="false" length="16"/>
+<property name="countryId" type="java.lang.String" column="COUNTRY_ID" not-null="false" gzip="false" length="16"/>
 
-<property name="continentId" type="java.lang.String" column="CONTINENT_ID" not-null="true" length="16"/>
+<property name="continentId" type="java.lang.String" column="CONTINENT_ID" not-null="true" gzip="false" length="16"/>
 
-<property name="provinceName" type="java.lang.String" column="PROVINCE_NAME" not-null="false" length="60"/>
+<property name="provinceName" type="java.lang.String" column="PROVINCE_NAME" not-null="false" gzip="false" length="60"/>
 
-<property name="provinceNameShort" type="java.lang.String" column="PROVINCE_NAME_SHORT" not-null="false" length="30"/>
+<property name="provinceNameShort" type="java.lang.String" column="PROVINCE_NAME_SHORT" not-null="false" gzip="false" length="30"/>
 
-<property name="provinceNameTw" type="java.lang.String" column="PROVINCE_NAME_TW" not-null="false" length="60"/>
+<property name="provinceNameTw" type="java.lang.String" column="PROVINCE_NAME_TW" not-null="false" gzip="false" length="60"/>
 
-<property name="provinceNameEn" type="java.lang.String" column="PROVINCE_NAME_EN" not-null="false" length="150"/>
+<property name="provinceNameEn" type="java.lang.String" column="PROVINCE_NAME_EN" not-null="false" gzip="false" length="150"/>
 
-<property name="areaCode" type="java.lang.String" column="AREA_CODE" not-null="false" length="8"/>
+<property name="areaCode" type="java.lang.String" column="AREA_CODE" not-null="false" gzip="false" length="8"/>
 
-<property name="timeZone" type="java.lang.Double" column="TIME_ZONE" not-null="false" length="3"/>
+<property name="timeZone" type="java.lang.Double" column="TIME_ZONE" not-null="false" gzip="false" length="3"/>
 
-<property name="postalCode" type="java.lang.String" column="POSTAL_CODE" not-null="false" length="16"/>
+<property name="postalCode" type="java.lang.String" column="POSTAL_CODE" not-null="false" gzip="false" length="16"/>
 
-<property name="isAvail" type="java.lang.String" column="IS_AVAIL" not-null="false" length="1"/>
+<property name="isAvail" type="java.lang.String" column="IS_AVAIL" not-null="false" gzip="false" length="1"/>
 
 </class>
 </hibernate-mapping>

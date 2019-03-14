@@ -8,23 +8,23 @@
 	<generator class="assigned" />
 </id>
 
-<property name="countryId" type="java.lang.String" column="COUNTRY_ID" not-null="true" length="16"/>
+<property name="countryId" type="java.lang.String" column="COUNTRY_ID" not-null="true" gzip="false" length="16"/>
 
-<property name="continentId" type="java.lang.String" column="CONTINENT_ID" not-null="false" length="16"/>
+<property name="continentId" type="java.lang.String" column="CONTINENT_ID" not-null="false" gzip="false" length="16"/>
 
-<property name="countryCode" type="java.lang.String" column="COUNTRY_CODE" not-null="false" length="32"/>
+<property name="countryCode" type="java.lang.String" column="COUNTRY_CODE" not-null="false" gzip="false" length="32"/>
 
-<property name="countryName" type="java.lang.String" column="COUNTRY_NAME" not-null="false" length="90"/>
+<property name="countryName" type="java.lang.String" column="COUNTRY_NAME" not-null="false" gzip="false" length="90"/>
 
-<property name="countryNameTw" type="java.lang.String" column="COUNTRY_NAME_TW" not-null="false" length="90"/>
+<property name="countryNameTw" type="java.lang.String" column="COUNTRY_NAME_TW" not-null="false" gzip="false" length="90"/>
 
-<property name="countryNameEn" type="java.lang.String" column="COUNTRY_NAME_EN" not-null="false" length="150"/>
+<property name="countryNameEn" type="java.lang.String" column="COUNTRY_NAME_EN" not-null="false" gzip="false" length="150"/>
 
-<property name="areaCode" type="java.lang.String" column="AREA_CODE" not-null="false" length="8"/>
+<property name="areaCode" type="java.lang.String" column="AREA_CODE" not-null="false" gzip="false" length="8"/>
 
-<property name="timeZone" type="java.lang.Double" column="TIME_ZONE" not-null="false" length="3"/>
+<property name="timeZone" type="java.lang.Double" column="TIME_ZONE" not-null="false" gzip="false" length="3"/>
 
-<property name="isAvail" type="java.lang.String" column="IS_AVAIL" not-null="false" length="1"/>
+<property name="isAvail" type="java.lang.String" column="IS_AVAIL" not-null="false" gzip="false" length="1"/>
 
 </class>
 </hibernate-mapping>

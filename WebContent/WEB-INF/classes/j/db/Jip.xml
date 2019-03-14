@@ -8,13 +8,13 @@
 	<generator class="assigned" />
 </id>
 
-<property name="ipId" type="java.lang.Long" column="IP_ID" not-null="true" length="20"/>
+<property name="ipId" type="java.lang.Long" column="IP_ID" not-null="true" gzip="false" length="20"/>
 
-<property name="ipStart" type="java.lang.Long" column="IP_START" not-null="true" length="20"/>
+<property name="ipStart" type="java.lang.Long" column="IP_START" not-null="true" gzip="false" length="20"/>
 
-<property name="ipEnd" type="java.lang.Long" column="IP_END" not-null="true" length="20"/>
+<property name="ipEnd" type="java.lang.Long" column="IP_END" not-null="true" gzip="false" length="20"/>
 
-<property name="ipAddr" type="java.lang.String" column="IP_ADDR" not-null="true" length="300"/>
+<property name="ipAddr" type="java.lang.String" column="IP_ADDR" not-null="true" gzip="false" length="300"/>
 
 </class>
 </hibernate-mapping>

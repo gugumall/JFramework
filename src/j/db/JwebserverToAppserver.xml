@@ -8,13 +8,13 @@
 	<generator class="assigned" />
 </id>
 
-<property name="uuid" type="java.lang.String" column="UUID" not-null="true" length="64"/>
+<property name="uuid" type="java.lang.String" column="UUID" not-null="true" gzip="false" length="64"/>
 
-<property name="appserverCode" type="java.lang.String" column="APPSERVER_CODE" not-null="false" length="64"/>
+<property name="appserverCode" type="java.lang.String" column="APPSERVER_CODE" not-null="false" gzip="false" length="64"/>
 
-<property name="webserverCode" type="java.lang.String" column="WEBSERVER_CODE" not-null="false" length="64"/>
+<property name="webserverCode" type="java.lang.String" column="WEBSERVER_CODE" not-null="false" gzip="false" length="64"/>
 
-<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" length="21845"/>
+<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" gzip="false" length="21845"/>
 
 </class>
 </hibernate-mapping>

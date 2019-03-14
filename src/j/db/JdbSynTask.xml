@@ -8,21 +8,21 @@
 	<generator class="assigned" />
 </id>
 
-<property name="uuid" type="java.lang.String" column="UUID" not-null="true" length="64"/>
+<property name="uuid" type="java.lang.String" column="UUID" not-null="true" gzip="false" length="64"/>
 
-<property name="taskTime" type="java.sql.Timestamp" column="TASK_TIME" not-null="false" length="19"/>
+<property name="taskTime" type="java.sql.Timestamp" column="TASK_TIME" not-null="false" gzip="false" length="19"/>
 
-<property name="fromUuid" type="java.lang.String" column="FROM_UUID" not-null="false" length="64"/>
+<property name="fromUuid" type="java.lang.String" column="FROM_UUID" not-null="false" gzip="false" length="64"/>
 
-<property name="toUuid" type="java.lang.String" column="TO_UUID" not-null="false" length="64"/>
+<property name="toUuid" type="java.lang.String" column="TO_UUID" not-null="false" gzip="false" length="64"/>
 
-<property name="taskOperation" type="java.lang.String" column="TASK_OPERATION" not-null="false" length="64"/>
+<property name="taskOperation" type="java.lang.String" column="TASK_OPERATION" not-null="false" gzip="false" length="64"/>
 
-<property name="taskData" type="java.lang.String" column="TASK_DATA" not-null="false" length="21845"/>
+<property name="taskData" type="java.lang.String" column="TASK_DATA" not-null="false" gzip="false" length="21845"/>
 
-<property name="synTimes" type="java.lang.Integer" column="SYN_TIMES" not-null="false" length="11"/>
+<property name="synTimes" type="java.lang.Integer" column="SYN_TIMES" not-null="false" gzip="false" length="11"/>
 
-<property name="synTime" type="java.sql.Timestamp" column="SYN_TIME" not-null="false" length="19"/>
+<property name="synTime" type="java.sql.Timestamp" column="SYN_TIME" not-null="false" gzip="false" length="19"/>
 
 </class>
 </hibernate-mapping>

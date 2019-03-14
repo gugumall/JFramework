@@ -7,12 +7,9 @@ public class JSession {
 	/*
 	 * 如果在<request>中定义了属性print-directly="true"，通过PrintWriter.out直接将字符串内容返回给用户
 	 */
-	/**
-	 * @deprecated
-	 */
 	public String resultString=null;
 	
-	//取代resultString，提供json格式的、更丰富分返回内容
+	//取代resultString，提供json格式的返回内容
 	public JResponse jresponse=null;
 	
 	/*

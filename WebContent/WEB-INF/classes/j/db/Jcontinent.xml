@@ -8,17 +8,17 @@
 	<generator class="assigned" />
 </id>
 
-<property name="continentId" type="java.lang.String" column="CONTINENT_ID" not-null="true" length="16"/>
+<property name="continentId" type="java.lang.String" column="CONTINENT_ID" not-null="true" gzip="false" length="16"/>
 
-<property name="continentCode" type="java.lang.String" column="CONTINENT_CODE" not-null="false" length="32"/>
+<property name="continentCode" type="java.lang.String" column="CONTINENT_CODE" not-null="false" gzip="false" length="32"/>
 
-<property name="continentName" type="java.lang.String" column="CONTINENT_NAME" not-null="false" length="90"/>
+<property name="continentName" type="java.lang.String" column="CONTINENT_NAME" not-null="false" gzip="false" length="90"/>
 
-<property name="continentNameTw" type="java.lang.String" column="CONTINENT_NAME_TW" not-null="false" length="90"/>
+<property name="continentNameTw" type="java.lang.String" column="CONTINENT_NAME_TW" not-null="false" gzip="false" length="90"/>
 
-<property name="continentNameEn" type="java.lang.String" column="CONTINENT_NAME_EN" not-null="false" length="150"/>
+<property name="continentNameEn" type="java.lang.String" column="CONTINENT_NAME_EN" not-null="false" gzip="false" length="150"/>
 
-<property name="isAvail" type="java.lang.String" column="IS_AVAIL" not-null="false" length="1"/>
+<property name="isAvail" type="java.lang.String" column="IS_AVAIL" not-null="false" gzip="false" length="1"/>
 
 </class>
 </hibernate-mapping>

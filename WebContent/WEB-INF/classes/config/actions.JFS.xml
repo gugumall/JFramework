@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>	
+    <handler path="/JFS" REST-style-path="/REST/JFS" path-pattern=".service" class="j.fs.JDFSServiceImpl" request-by="request">
+    	<action id="auth" method="auth" respond-with-string="true"/> 
+    	<action id="heartbeat" method="heartbeat" respond-with-string="true"/>
+    	
+    	<action id="_new" method="_new" respond-with-string="true"/> 
+    	<action id="delete" method="delete" respond-with-string="true"/> 
+    	<action id="list" method="list" respond-with-string="true"/> 
+    	<action id="mkdir" method="mkdir" respond-with-string="true"/> 
+    	<action id="mkdirs" method="mkdirs" respond-with-string="true"/> 
+    	<action id="renameTo" method="renameTo" respond-with-string="true"/> 
+    	<action id="setExecutable" method="setExecutable" respond-with-string="true"/> 
+    	<action id="setLastModified" method="setLastModified" respond-with-string="true"/> 
+    	<action id="setReadable" method="setReadable" respond-with-string="true"/> 
+    	<action id="setReadOnly" method="setReadOnly" respond-with-string="true"/> 
+    	<action id="setWritable" method="setWritable" respond-with-string="true"/> 
+    	<action id="bytes" method="bytes" respond-with-string="true"/> 
+    	<action id="string" method="string" respond-with-string="true"/> 
+    	<action id="saveString" method="saveString" respond-with-string="true"/> 
+    	<action id="saveBytes" method="saveBytes" respond-with-string="true"/> 
+    	<action id="saveFile" method="saveFile" respond-with-string="true"/> 
+    </handler>
+</root>

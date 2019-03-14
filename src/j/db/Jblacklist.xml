@@ -8,19 +8,19 @@
 	<generator class="assigned" />
 </id>
 
-<property name="blackId" type="java.lang.String" column="BLACK_ID" not-null="true" length="64"/>
+<property name="blackId" type="java.lang.String" column="BLACK_ID" not-null="true" gzip="false" length="64"/>
 
-<property name="uip" type="java.lang.String" column="U_IP" not-null="false" length="64"/>
+<property name="uip" type="java.lang.String" column="U_IP" not-null="false" gzip="false" length="64"/>
 
-<property name="uaddr" type="java.lang.String" column="U_ADDR" not-null="false" length="300"/>
+<property name="uaddr" type="java.lang.String" column="U_ADDR" not-null="false" gzip="false" length="300"/>
 
-<property name="blackType" type="java.lang.String" column="BLACK_TYPE" not-null="false" length="2"/>
+<property name="blackType" type="java.lang.String" column="BLACK_TYPE" not-null="false" gzip="false" length="2"/>
 
-<property name="startTime" type="java.sql.Timestamp" column="START_TIME" not-null="false" length="19"/>
+<property name="startTime" type="java.sql.Timestamp" column="START_TIME" not-null="false" gzip="false" length="19"/>
 
-<property name="endTime" type="java.sql.Timestamp" column="END_TIME" not-null="false" length="19"/>
+<property name="endTime" type="java.sql.Timestamp" column="END_TIME" not-null="false" gzip="false" length="19"/>
 
-<property name="blackRemark" type="java.lang.String" column="BLACK_REMARK" not-null="false" length="90"/>
+<property name="blackRemark" type="java.lang.String" column="BLACK_REMARK" not-null="false" gzip="false" length="90"/>
 
 </class>
 </hibernate-mapping>

@@ -8,19 +8,19 @@
 	<generator class="assigned" />
 </id>
 
-<property name="routerCode" type="java.lang.String" column="ROUTER_CODE" not-null="true" length="64"/>
+<property name="routerCode" type="java.lang.String" column="ROUTER_CODE" not-null="true" gzip="false" length="64"/>
 
-<property name="appMirrorCode" type="java.lang.String" column="APP_MIRROR_CODE" not-null="false" length="64"/>
+<property name="appMirrorCode" type="java.lang.String" column="APP_MIRROR_CODE" not-null="false" gzip="false" length="64"/>
 
-<property name="routerName" type="java.lang.String" column="ROUTER_NAME" not-null="false" length="90"/>
+<property name="routerName" type="java.lang.String" column="ROUTER_NAME" not-null="false" gzip="false" length="90"/>
 
-<property name="commInterface" type="java.lang.String" column="COMM_INTERFACE" not-null="false" length="128"/>
+<property name="commInterface" type="java.lang.String" column="COMM_INTERFACE" not-null="false" gzip="false" length="128"/>
 
-<property name="commKey" type="java.lang.String" column="COMM_KEY" not-null="false" length="128"/>
+<property name="commKey" type="java.lang.String" column="COMM_KEY" not-null="false" gzip="false" length="128"/>
 
-<property name="routerStat" type="java.lang.String" column="ROUTER_STAT" not-null="false" length="3"/>
+<property name="routerStat" type="java.lang.String" column="ROUTER_STAT" not-null="false" gzip="false" length="3"/>
 
-<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" length="21845"/>
+<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" gzip="false" length="21845"/>
 
 </class>
 </hibernate-mapping>

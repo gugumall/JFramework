@@ -8,23 +8,23 @@
 	<generator class="assigned" />
 </id>
 
-<property name="workflowId" type="java.lang.String" column="WORKFLOW_ID" not-null="true" length="64"/>
+<property name="workflowId" type="java.lang.String" column="WORKFLOW_ID" not-null="true" gzip="false" length="64"/>
 
-<property name="workflowCode" type="java.lang.String" column="WORKFLOW_CODE" not-null="false" length="64"/>
+<property name="workflowCode" type="java.lang.String" column="WORKFLOW_CODE" not-null="false" gzip="false" length="64"/>
 
-<property name="startTime" type="java.sql.Timestamp" column="START_TIME" not-null="true" length="19"/>
+<property name="startTime" type="java.sql.Timestamp" column="START_TIME" not-null="true" gzip="false" length="19"/>
 
-<property name="updTime" type="java.sql.Timestamp" column="UPD_TIME" not-null="true" length="19"/>
+<property name="updTime" type="java.sql.Timestamp" column="UPD_TIME" not-null="true" gzip="false" length="19"/>
 
-<property name="workflowStatus" type="java.lang.String" column="WORKFLOW_STATUS" not-null="false" length="3"/>
+<property name="workflowStatus" type="java.lang.String" column="WORKFLOW_STATUS" not-null="false" gzip="false" length="3"/>
 
-<property name="nodeId" type="java.lang.String" column="NODE_ID" not-null="false" length="64"/>
+<property name="nodeId" type="java.lang.String" column="NODE_ID" not-null="false" gzip="false" length="64"/>
 
-<property name="nodeStatus" type="java.lang.String" column="NODE_STATUS" not-null="false" length="3"/>
+<property name="nodeStatus" type="java.lang.String" column="NODE_STATUS" not-null="false" gzip="false" length="3"/>
 
-<property name="nodeResult" type="java.lang.String" column="NODE_RESULT" not-null="false" length="16"/>
+<property name="nodeResult" type="java.lang.String" column="NODE_RESULT" not-null="false" gzip="false" length="16"/>
 
-<property name="nodeData" type="java.lang.String" column="NODE_DATA" not-null="false" length="21845"/>
+<property name="nodeData" type="java.lang.String" column="NODE_DATA" not-null="false" gzip="false" length="21845"/>
 
 </class>
 </hibernate-mapping>

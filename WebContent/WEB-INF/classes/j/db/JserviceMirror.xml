@@ -8,21 +8,21 @@
 	<generator class="assigned" />
 </id>
 
-<property name="serviceMirrorCode" type="java.lang.String" column="SERVICE_MIRROR_CODE" not-null="true" length="64"/>
+<property name="serviceMirrorCode" type="java.lang.String" column="SERVICE_MIRROR_CODE" not-null="true" gzip="false" length="64"/>
 
-<property name="serviceCode" type="java.lang.String" column="SERVICE_CODE" not-null="false" length="64"/>
+<property name="serviceCode" type="java.lang.String" column="SERVICE_CODE" not-null="false" gzip="false" length="64"/>
 
-<property name="appMirrorCode" type="java.lang.String" column="APP_MIRROR_CODE" not-null="false" length="64"/>
+<property name="appMirrorCode" type="java.lang.String" column="APP_MIRROR_CODE" not-null="false" gzip="false" length="64"/>
 
-<property name="serviceMirrorName" type="java.lang.String" column="SERVICE_MIRROR_NAME" not-null="false" length="90"/>
+<property name="serviceMirrorName" type="java.lang.String" column="SERVICE_MIRROR_NAME" not-null="false" gzip="false" length="90"/>
 
-<property name="commInterface" type="java.lang.String" column="COMM_INTERFACE" not-null="false" length="128"/>
+<property name="commInterface" type="java.lang.String" column="COMM_INTERFACE" not-null="false" gzip="false" length="128"/>
 
-<property name="commKey" type="java.lang.String" column="COMM_KEY" not-null="false" length="128"/>
+<property name="commKey" type="java.lang.String" column="COMM_KEY" not-null="false" gzip="false" length="128"/>
 
-<property name="serviceMirrorStat" type="java.lang.String" column="SERVICE_MIRROR_STAT" not-null="false" length="3"/>
+<property name="serviceMirrorStat" type="java.lang.String" column="SERVICE_MIRROR_STAT" not-null="false" gzip="false" length="3"/>
 
-<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" length="21845"/>
+<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" gzip="false" length="21845"/>
 
 </class>
 </hibernate-mapping>

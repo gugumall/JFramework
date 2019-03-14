@@ -8,41 +8,41 @@
 	<generator class="assigned" />
 </id>
 
-<property name="eventId" type="java.lang.String" column="EVENT_ID" not-null="true" length="64"/>
+<property name="eventId" type="java.lang.String" column="EVENT_ID" not-null="true" gzip="false" length="64"/>
 
-<property name="asvrId" type="java.lang.String" column="A_SVR_ID" not-null="false" length="32"/>
+<property name="asvrId" type="java.lang.String" column="A_SVR_ID" not-null="false" gzip="false" length="32"/>
 
-<property name="asysId" type="java.lang.String" column="A_SYS_ID" not-null="false" length="32"/>
+<property name="asysId" type="java.lang.String" column="A_SYS_ID" not-null="false" gzip="false" length="32"/>
 
-<property name="adomain" type="java.lang.String" column="A_DOMAIN" not-null="false" length="64"/>
+<property name="adomain" type="java.lang.String" column="A_DOMAIN" not-null="false" gzip="false" length="64"/>
 
-<property name="aurl" type="java.lang.String" column="A_URL" not-null="false" length="128"/>
+<property name="aurl" type="java.lang.String" column="A_URL" not-null="false" gzip="false" length="128"/>
 
-<property name="auIp" type="java.lang.String" column="A_U_IP" not-null="false" length="128"/>
+<property name="auIp" type="java.lang.String" column="A_U_IP" not-null="false" gzip="false" length="128"/>
 
-<property name="auId" type="java.lang.String" column="A_U_ID" not-null="false" length="128"/>
+<property name="auId" type="java.lang.String" column="A_U_ID" not-null="false" gzip="false" length="128"/>
 
-<property name="bizCode" type="java.lang.String" column="BIZ_CODE" not-null="false" length="32"/>
+<property name="bizCode" type="java.lang.String" column="BIZ_CODE" not-null="false" gzip="false" length="32"/>
 
-<property name="bizId" type="java.lang.String" column="BIZ_ID" not-null="false" length="64"/>
+<property name="bizId" type="java.lang.String" column="BIZ_ID" not-null="false" gzip="false" length="64"/>
 
-<property name="bizName" type="java.lang.String" column="BIZ_NAME" not-null="false" length="150"/>
+<property name="bizName" type="java.lang.String" column="BIZ_NAME" not-null="false" gzip="false" length="150"/>
 
-<property name="bizLink" type="java.lang.String" column="BIZ_LINK" not-null="false" length="128"/>
+<property name="bizLink" type="java.lang.String" column="BIZ_LINK" not-null="false" gzip="false" length="128"/>
 
-<property name="bizIcon" type="java.lang.String" column="BIZ_ICON" not-null="false" length="128"/>
+<property name="bizIcon" type="java.lang.String" column="BIZ_ICON" not-null="false" gzip="false" length="128"/>
 
-<property name="bizData" type="java.lang.String" column="BIZ_DATA" not-null="false" length="21845"/>
+<property name="bizData" type="java.lang.String" column="BIZ_DATA" not-null="false" gzip="false" length="21845"/>
 
-<property name="eventTime" type="java.sql.Timestamp" column="EVENT_TIME" not-null="false" length="19"/>
+<property name="eventTime" type="java.sql.Timestamp" column="EVENT_TIME" not-null="false" gzip="false" length="19"/>
 
-<property name="eventCode" type="java.lang.String" column="EVENT_CODE" not-null="false" length="32"/>
+<property name="eventCode" type="java.lang.String" column="EVENT_CODE" not-null="false" gzip="false" length="32"/>
 
-<property name="eventData" type="java.lang.String" column="EVENT_DATA" not-null="false" length="21845"/>
+<property name="eventData" type="java.lang.String" column="EVENT_DATA" not-null="false" gzip="false" length="21845"/>
 
-<property name="eventStat" type="java.lang.String" column="EVENT_STAT" not-null="false" length="8"/>
+<property name="eventStat" type="java.lang.String" column="EVENT_STAT" not-null="false" gzip="false" length="8"/>
 
-<property name="delBySys" type="java.lang.String" column="DEL_BY_SYS" not-null="false" length="1"/>
+<property name="delBySys" type="java.lang.String" column="DEL_BY_SYS" not-null="false" gzip="false" length="1"/>
 
 </class>
 </hibernate-mapping>

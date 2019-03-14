@@ -21,7 +21,7 @@ public class JResponse{
 	private boolean success;
 	private String code;
 	private String message;
-	private List<JUtilKeyValue> datas=new LinkedList();
+	private List<JUtilKeyValue> datas=new LinkedList<JUtilKeyValue>();
 	
 	public JResponse(boolean success,String code,String message){
 		this.success=success;

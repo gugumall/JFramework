@@ -241,6 +241,24 @@ public class JHttpContext {
 	public String getResponseHeader(String name) {
 		return (String)this.responseHeaders.get(name);
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getSessionId() {
+		//Set-Cookie:JSESSIONID=780D255A35F4BB4E4AC3BA333307F27D; Path=/; Secure; HttpOnly
+		String setCookie=this.getResponseHeader("Set-Cookie");
+		if(setCookie.indexOf("JSESSIONID=")>-1) {
+			setCookie=setCookie.substring(11);
+			if(setCookie.indexOf(";")>0) {
+				setCookie=setCookie.substring(0,setCookie.indexOf(";"));
+			}
+			return setCookie;
+		}else {
+			return null;
+		}
+	}
 
 	/**
 	 * 

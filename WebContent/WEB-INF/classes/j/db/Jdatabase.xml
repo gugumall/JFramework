@@ -8,19 +8,19 @@
 	<generator class="assigned" />
 </id>
 
-<property name="dbsysCode" type="java.lang.String" column="DBSYS_CODE" not-null="true" length="64"/>
+<property name="dbsysCode" type="java.lang.String" column="DBSYS_CODE" not-null="true" gzip="false" length="64"/>
 
-<property name="serverCode" type="java.lang.String" column="SERVER_CODE" not-null="false" length="64"/>
+<property name="serverCode" type="java.lang.String" column="SERVER_CODE" not-null="false" gzip="false" length="64"/>
 
-<property name="dbsysName" type="java.lang.String" column="DBSYS_NAME" not-null="false" length="90"/>
+<property name="dbsysName" type="java.lang.String" column="DBSYS_NAME" not-null="false" gzip="false" length="90"/>
 
-<property name="dbsysType" type="java.lang.String" column="DBSYS_TYPE" not-null="false" length="32"/>
+<property name="dbsysType" type="java.lang.String" column="DBSYS_TYPE" not-null="false" gzip="false" length="32"/>
 
-<property name="dbsysConns" type="java.lang.Integer" column="DBSYS_CONNS" not-null="false" length="11"/>
+<property name="dbsysConns" type="java.lang.Integer" column="DBSYS_CONNS" not-null="false" gzip="false" length="11"/>
 
-<property name="dbsysStat" type="java.lang.String" column="DBSYS_STAT" not-null="false" length="3"/>
+<property name="dbsysStat" type="java.lang.String" column="DBSYS_STAT" not-null="false" gzip="false" length="3"/>
 
-<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" length="21845"/>
+<property name="remarks" type="java.lang.String" column="REMARKS" not-null="false" gzip="false" length="21845"/>
 
 </class>
 </hibernate-mapping>

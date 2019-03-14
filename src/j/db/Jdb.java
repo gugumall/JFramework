@@ -1,5 +1,5 @@
 /*
- * Created on 2016-12-08
+ * Created on 2019-03-14
  *
  */
 package j.db;
@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 
 /**
- * @author JStudio-BeanGenerator
+ * @author JFramework-BeanGenerator
  *
  */
 public class Jdb implements Serializable{

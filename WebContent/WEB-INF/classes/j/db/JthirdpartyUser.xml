@@ -8,13 +8,17 @@
 	<generator class="assigned" />
 </id>
 
-<property name="uuid" type="java.lang.String" column="UUID" not-null="true" length="64"/>
+<property name="uuid" type="java.lang.String" column="UUID" not-null="true" gzip="false" length="64"/>
 
-<property name="uid" type="java.lang.String" column="U_ID" not-null="false" length="64"/>
+<property name="userId" type="java.lang.String" column="USER_ID" not-null="false" gzip="false" length="64"/>
 
-<property name="thirdpartyCode" type="java.lang.String" column="THIRDPARTY_CODE" not-null="false" length="64"/>
+<property name="thirdpartyCode" type="java.lang.String" column="THIRDPARTY_CODE" not-null="false" gzip="false" length="64"/>
 
-<property name="thirdpartyUid" type="java.lang.String" column="THIRDPARTY_UID" not-null="false" length="64"/>
+<property name="thirdpartyUserId" type="java.lang.String" column="THIRDPARTY_USER_ID" not-null="false" gzip="false" length="128"/>
+
+<property name="thirdpartyNickname" type="java.lang.String" column="THIRDPARTY_NICKNAME" not-null="false" gzip="false" length="128"/>
+
+<property name="thirdpartyHeader" type="java.lang.String" column="THIRDPARTY_HEADER" not-null="false" gzip="false" length="256"/>
 
 </class>
 </hibernate-mapping>

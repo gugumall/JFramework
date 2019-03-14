@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<!-- 当需要MD5校验时，指明那些应用节点可访问，并配置相应的密钥 -->
+	<client uuid="j.service.node.ser:00" name="服务节点" key="any"/>
+	<client uuid="j.service.node.app:sso:00" name="应用节点" key="any"/>
+	<client uuid="j.service.node.app:pay:00" name="应用节点" key="any"/>
+	<client uuid="j.service.node.app:shop:00" name="应用节点" key="any"/>
+		
+		
+	<!-- 路由器，一个服务器上可运行多个路由节点 -->
+	<!-- 在服务节点、应用节点都需要这个配置文件，用来创建各路由节点的代理 -->
+	<!-- server-uuid与j.service.uuid(service.xml中配置)相同时，表示是当前机器上的节点，需要启动 -->
+	<router server-uuid="j.service.node.rou:00">		
+		<!-- 节点的ID，此处是路由节点 -->
+		<uuid>j.service.node.rou:00</uuid>
+		
+		<!-- 节点名称 -->
+		<name>服务路由器（一） </name>  
+		
+		<!-- 是否需要校验及校验机制 --> 
+		<privacy>MD5</privacy>
+					
+		<property key="j.service.interface" value="j.service.router.JRouter"/>
+		<property key="j.service.class" value="j.service.router.JRouterImpl"/>
+		<property key="j.service.relatedHttpHandlerPath" value="/j.service.router"/>
+		
+		<!-- 路由节点通过rmi 或者 rmi-接口提供服务，属性值可为rmi或者rmi-->
+		<rmi available="true">		
+			<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>
+		</rmi>
+		
+		<!-- 路由节点通过http接口提供服务 -->
+		<http available="true">
+			<property key="j.service.http" value="http://127.0.0.1/j.service.router.service"/>
+		</http>
+	</router>
+</root>

@@ -1,24 +1,23 @@
 package j.http;
 
-import j.util.JUtilInputStream;
-import j.util.JUtilString;
-
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+
+import j.util.JUtilInputStream;
+import j.util.JUtilString;
 
 /**
  * 
@@ -38,118 +37,89 @@ public class HttpUtil{
 			e.printStackTrace();
 		}
 	}
+	
 	/**
 	 * 
 	 * @param url
+	 * @param encoding
+	 * @param timeout
 	 * @return
 	 * @throws Exception
 	 */
-	public static String getHttp(String url)throws Exception{
-		URL u=new URL(url);
+	public static HttpResponseAndHeaders getHttp(String url,String encoding,int timeout)throws Exception{
+		return getHttp(url,encoding,timeout,null);
+	}
 	
-		InputStream in=u.openStream();
-		return JUtilInputStream.string(in);
+	/**
+	 * 
+	 * @param url
+	 * @param encoding
+	 * @param timeout
+	 * @param headers
+	 * @return
+	 * @throws Exception
+	 */
+	public static HttpResponseAndHeaders getHttp(String url,String encoding,int timeout,Map<String,String> headers)throws Exception{
+		URL u=new URL(url);
+		HttpURLConnection connection=(HttpURLConnection)u.openConnection();
+		connection.setConnectTimeout(timeout);
+		connection.setRequestMethod("GET");
+		
+		if(headers!=null) {
+			for(Iterator i=headers.keySet().iterator();i.hasNext();) {
+				String key=(String)i.next();
+				String val=(String)headers.get(key);
+				connection.setRequestProperty(key, val);
+			}
+		}
+		
+		InputStream in=connection.getInputStream();
+		String ret=encoding==null||"".equals(encoding)?JUtilInputStream.string(in):JUtilInputStream.string(in,encoding);
+
+		connection.disconnect();
+		
+		return new HttpResponseAndHeaders(ret,connection.getHeaderFields());
+	}
+	
+	/**
+	 * 
+	 * @param url
+	 * @param paras
+	 * @param encodePara
+	 * @param encoding
+	 * @param timeout
+	 * @return
+	 * @throws Exception
+	 */
+	public static HttpResponseAndHeaders postHttp(String url,Map paras,boolean encodePara,String encoding,int timeout)throws Exception{
+		return postHttp(url,paras,encodePara,encoding,timeout,null);
 	}	
 	
 	/**
 	 * 
 	 * @param url
+	 * @param paras
+	 * @param encodePara
 	 * @param encoding
-	 * @return
-	 * @throws Exception
-	 */
-	public static String getHttp(String url,String encoding)throws Exception{
-		URL u=new URL(url);
-		
-		InputStream in=u.openStream();
-		return JUtilInputStream.string(in, encoding);
-	}
-	
-	/**
-	 * 
-	 * @param url
 	 * @param timeout
+	 * @param headers
 	 * @return
 	 * @throws Exception
 	 */
-	public static String getHttp(String url,int timeout)throws Exception{
+	public static HttpResponseAndHeaders postHttp(String url,Map paras,boolean encodePara,String encoding,int timeout,Map<String,String> headers)throws Exception{
 		URL u=new URL(url);
 		HttpURLConnection connection=(HttpURLConnection)u.openConnection();
 		connection.setConnectTimeout(timeout);
-		connection.setRequestMethod("GET");
-		
-		InputStream in=connection.getInputStream();
-		String ret=JUtilInputStream.string(in);
-
-		connection.disconnect();
-		
-		return ret;
-	}
-	
-	/**
-	 * 
-	 * @param url
-	 * @param encoding
-	 * @param timeout
-	 * @return
-	 * @throws Exception
-	 */
-	public static String getHttp(String url,String encoding,int timeout)throws Exception{
-		URL u=new URL(url);
-		HttpURLConnection connection=(HttpURLConnection)u.openConnection();
-		connection.setConnectTimeout(timeout);
-		connection.setRequestMethod("GET");
-		
-		InputStream in=connection.getInputStream();
-		String ret=JUtilInputStream.string(in,encoding);
-
-		connection.disconnect();
-		
-		return ret;
-	}
-	
-	/**
-	 * 
-	 * @param url
-	 * @param paras
-	 * @param encodePara
-	 * @return
-	 * @throws Exception
-	 */
-	public static String postHttp(String url,Map paras,boolean encodePara)throws Exception{
-		URL u=new URL(url);
-		HttpURLConnection connection=(HttpURLConnection)u.openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestMethod("POST");
-		OutputStream out = connection.getOutputStream();
-		java.io.Writer writer = new OutputStreamWriter(out);
-		writer.write(generateQueryString(paras,null,encodePara));
-		writer.flush();
-		writer.close();
-		writer=null;
+		if(headers!=null) {
+			for(Iterator i=headers.keySet().iterator();i.hasNext();) {
+				String key=(String)i.next();
+				String val=(String)headers.get(key);
+				connection.setRequestProperty(key, val);
+			}
+		}
 		
-		InputStream in=connection.getInputStream();
-		String ret=JUtilInputStream.string(in);
-
-		connection.disconnect();
-		
-		return ret;
-	}
-	
-	/**
-	 * 
-	 * @param url
-	 * @param paras
-	 * @param encoding
-	 * @param encodePara
-	 * @return
-	 * @throws Exception
-	 */
-	public static String postHttp(String url,Map paras,String encoding,boolean encodePara)throws Exception{
-		URL u=new URL(url);
-		HttpURLConnection connection=(HttpURLConnection)u.openConnection();
-		connection.setDoOutput(true);
-		connection.setRequestMethod("POST");
 		OutputStream out = connection.getOutputStream();
 		java.io.Writer writer = new OutputStreamWriter(out);
 		writer.write(generateQueryString(paras,encoding,encodePara));
@@ -158,41 +128,24 @@ public class HttpUtil{
 		writer=null;
 		
 		InputStream in=connection.getInputStream();
-		String ret=JUtilInputStream.string(in, encoding);
+		String ret=encoding==null||"".equals(encoding)?JUtilInputStream.string(in):JUtilInputStream.string(in,encoding);
 		
 		connection.disconnect();
 		
-		return ret;
+		return new HttpResponseAndHeaders(ret,connection.getHeaderFields());
 	}	
 	
 	/**
 	 * 
 	 * @param url
 	 * @param data
+	 * @param encoding
+	 * @param timeout
 	 * @return
 	 * @throws Exception
 	 */
-	public static String postData(String url,String data)throws Exception{
-		URL u=new URL(url);
-		HttpURLConnection connection=(HttpURLConnection)u.openConnection();
-		connection.setDoInput(true);
-		connection.setDoOutput(true);
-		connection.setUseCaches(false);
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type","multipart/form-data");
-		OutputStream out = connection.getOutputStream();
-		java.io.Writer writer = new OutputStreamWriter(out);
-		writer.write(data);
-		writer.flush();
-		writer.close();
-		writer=null;
-		
-		InputStream in=connection.getInputStream();
-		String ret=JUtilInputStream.string(in);
-
-		connection.disconnect();
-		
-		return ret;
+	public static HttpResponseAndHeaders postData(String url,String data,String encoding,int timeout)throws Exception{
+		return postData(url,data,encoding,timeout,null);
 	}
 	
 	/**
@@ -200,16 +153,27 @@ public class HttpUtil{
 	 * @param url
 	 * @param data
 	 * @param encoding
+	 * @param timeout
+	 * @param headers
 	 * @return
 	 * @throws Exception
 	 */
-	public static String postData(String url,String data,String encoding)throws Exception{
+	public static HttpResponseAndHeaders postData(String url,String data,String encoding,int timeout,Map<String,String> headers)throws Exception{
 		URL u=new URL(url);
 		HttpURLConnection connection=(HttpURLConnection)u.openConnection();
+		connection.setConnectTimeout(timeout);
 		connection.setDoInput(true);
 		connection.setDoOutput(true);
 		connection.setUseCaches(false);
 		connection.setRequestMethod("POST");
+		if(headers!=null) {
+			for(Iterator i=headers.keySet().iterator();i.hasNext();) {
+				String key=(String)i.next();
+				String val=(String)headers.get(key);
+				connection.setRequestProperty(key, val);
+			}
+		}
+		
 		connection.setRequestProperty("Content-Type","multipart/form-data");
 		OutputStream out = connection.getOutputStream();
 		java.io.Writer writer = new OutputStreamWriter(out);
@@ -219,12 +183,84 @@ public class HttpUtil{
 		writer=null;
 		
 		InputStream in=connection.getInputStream();
-		String ret=JUtilInputStream.string(in, encoding);
+		String ret=encoding==null||"".equals(encoding)?JUtilInputStream.string(in):JUtilInputStream.string(in,encoding);
+
+		connection.disconnect();
+		
+		return new HttpResponseAndHeaders(ret,connection.getHeaderFields());
+	}	
+	
+	/**
+	 * 
+	 * @param fileUploadServer
+	 * @param filetoBeUpload
+	 * @param encoding
+	 * @param timeout
+	 * @return
+	 * @throws Exception
+	 */
+	public static HttpResponseAndHeaders uploadFile(String fileUploadServer,File filetoBeUpload,String encoding,int timeout) throws Exception{
+		return uploadFile(fileUploadServer,filetoBeUpload,encoding,timeout,null);
+	}
+	
+	/**
+	 * 
+	 * @param fileUploadServer
+	 * @param filetoBeUpload
+	 * @param encoding
+	 * @param timeout
+	 * @param headers
+	 * @return
+	 * @throws Exception
+	 */
+	public static HttpResponseAndHeaders uploadFile(String fileUploadServer,File filetoBeUpload,String encoding,int timeout,Map<String,String> headers) throws Exception{
+		String end="\r\n";
+		String twoHyphens="--";
+		String boundary="******";
+		
+		URL url=new URL(fileUploadServer);
+		HttpURLConnection connection=(HttpURLConnection)url.openConnection();
+		connection.setConnectTimeout(timeout);
+		connection.setDoInput(true);
+		connection.setDoOutput(true);
+		connection.setUseCaches(false);
+		connection.setRequestMethod("POST");
+		connection.setRequestProperty("Connection","Keep-Alive");
+		connection.setRequestProperty("Charset","UTF-8");
+		connection.setRequestProperty("Content-Type","multipart/form-data;boundary="+boundary);
+		
+		if(headers!=null) {
+			for(Iterator i=headers.keySet().iterator();i.hasNext();) {
+				String key=(String)i.next();
+				String val=(String)headers.get(key);
+				connection.setRequestProperty(key, val);
+			}
+		}
+
+		DataOutputStream dos=new DataOutputStream(connection.getOutputStream());
+		dos.writeBytes(twoHyphens+boundary+end);
+		dos.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\""+filetoBeUpload.getName()+"\""+end);
+		dos.writeBytes(end);
+
+		FileInputStream fis=new FileInputStream(filetoBeUpload);
+		byte[] buffer=new byte[8192]; // 8k
+		int count=0;
+		while((count=fis.read(buffer))!=-1){
+			dos.write(buffer,0,count);
+		}
+		fis.close();
+
+		dos.writeBytes(end);
+		dos.writeBytes(twoHyphens+boundary+twoHyphens+end);
+		dos.flush();
+
+		InputStream in=connection.getInputStream();
+		String ret=encoding==null||"".equals(encoding)?JUtilInputStream.string(in):JUtilInputStream.string(in,encoding);
 		
 		connection.disconnect();
 		
-		return ret;
-	}	
+		return new HttpResponseAndHeaders(ret,connection.getHeaderFields());
+	}
 	
 	/**
 	 * 
@@ -262,67 +298,24 @@ public class HttpUtil{
 	
 	/**
 	 * 
-	 * @param fileUploadServer
-	 * @param filetoBeUpload
-	 */
-	public static void uploadFile(String fileUploadServer,File filetoBeUpload){
-		String end="\r\n";
-		String twoHyphens="--";
-		String boundary="******";
-		HttpURLConnection httpURLConnection=null;
-		try{		
-			URL url=new URL(fileUploadServer);
-			httpURLConnection=(HttpURLConnection)url.openConnection();
-			httpURLConnection.setDoInput(true);
-			httpURLConnection.setDoOutput(true);
-			httpURLConnection.setUseCaches(false);
-			httpURLConnection.setRequestMethod("POST");
-			httpURLConnection.setRequestProperty("Connection","Keep-Alive");
-			httpURLConnection.setRequestProperty("Charset","UTF-8");
-			httpURLConnection.setRequestProperty("Content-Type","multipart/form-data;boundary="+boundary);
-
-			DataOutputStream dos=new DataOutputStream(httpURLConnection.getOutputStream());
-			dos.writeBytes(twoHyphens+boundary+end);
-			dos.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\""+filetoBeUpload.getName()+"\""+end);
-			dos.writeBytes(end);
-
-			FileInputStream fis=new FileInputStream(filetoBeUpload);
-			byte[] buffer=new byte[8192]; // 8k
-			int count=0;
-			while((count=fis.read(buffer))!=-1){
-				dos.write(buffer,0,count);
-			}
-			fis.close();
-
-			dos.writeBytes(end);
-			dos.writeBytes(twoHyphens+boundary+twoHyphens+end);
-			dos.flush();
-
-			InputStream is=httpURLConnection.getInputStream();
-			InputStreamReader isr=new InputStreamReader(is,"utf-8");
-			BufferedReader br=new BufferedReader(isr);
-			
-			StringBuffer resultString=new StringBuffer();
-			String line=br.readLine();
-			while(line!=null){
-				resultString.append(line);
-				line=br.readLine();
-			}
-			
-			br.close();
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * 
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		String url="https://www.gugumall.cn/IOT.jhtml";
-		String s=HttpUtil.postData(url,"contactscontactscontactscontacts");
+		HttpResponseAndHeaders r=HttpUtil.getHttp(url, "UTF-8", 5000);
+		String s=r.responseContent;
+		String sessionId=r.getSessionId();
 		System.out.println(s);
+		
+
+		Map headers=new HashMap();
+		headers.put("Cookie", "JSESSIONID="+sessionId);
+		r=HttpUtil.getHttp(url, "UTF-8", 5000,headers);
+		s=r.responseContent;
+		sessionId=r.getSessionId();
+		System.out.println(s);
+		
+		//screenw=1920; _referer=405916419; LAST_LOGIN_USER=3%2C4354/01*%280%20wkqcvjdfskfsvplfxsakycckmacznxdypflzz; grabbing_agreement_show=true; JSESSIONID=FF991215761394016B9A97C3F4C82137; lang=zh-cn
 	}
 }
