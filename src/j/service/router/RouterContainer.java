@@ -99,7 +99,7 @@ public class RouterContainer implements Runnable {
 			try{
 				remote=UnicastRemoteObject.exportObject(router);
 			}catch(Exception ex){
-				log.log(ex.getMessage(),Logger.LEVEL_ERROR);
+				log.log(ex,Logger.LEVEL_ERROR);
 			}
 			initialNamingContext.rebind(routerConfig.getUuid(),remote==null?router:remote);	
 			

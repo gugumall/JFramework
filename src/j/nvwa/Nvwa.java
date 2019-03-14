@@ -70,12 +70,62 @@ public class Nvwa implements Runnable {
 	}
 	
 	/**
+	 * 代管className类的加载
+	 * @param code
+	 * @param className
+	 * @param singleton
+	 * @param proxy
+	 * @return
+	 */
+	public static NvwaObject entrust(String code,String className,boolean singleton,String proxy){
+		if(code!=null&&!code.equals("")&&objects.containsKey(code)) return (NvwaObject)objects.get(code);//已经有配置，不能托管
+		
+		if(!entrustClassNames.contains(className)) entrustClassNames.add(className);
+
+		String key=(code!=null&&!code.equals(""))?code:(className+singleton);
+		if(!entrusts.containsKey(key)){
+			NvwaObject obj=new NvwaObject();
+			obj.setCode(code);
+			obj.setImplementation(className);
+			obj.setSingleton(singleton);
+			obj.setProxy(proxy);
+			entrusts.put(key,obj);
+			
+			return obj;
+		}else{			
+			NvwaObject obj=(NvwaObject)entrusts.get(key);
+			if(!obj.getImplementation().equals(className)
+					||obj.getSingleton()!=singleton){
+				obj.setImplementation(className);
+				obj.setSingleton(singleton);
+				obj.setProxy(proxy);
+				obj.renew();
+			}
+			
+			return obj;
+		}
+	}
+	
+	/**
 	 * 创建托管类的对象
 	 * @param className
 	 * @return
 	 * @throws Exception
 	 */
 	public static Object entrustCreate(String code,String className,boolean singleton) throws Exception {
+		return entrustCreate(code,className,singleton,null);
+	}
+	
+	/**
+	 *  创建托管类的对象
+	 * @param code
+	 * @param className
+	 * @param singleton
+	 * @param proxy
+	 * @return
+	 * @throws Exception
+	 */
+	public static Object entrustCreate(String code,String className,boolean singleton,String proxy) throws Exception {
 		String key=(code!=null&&!code.equals(""))?code:(className+singleton);
 		if(!entrusts.containsKey(key)){
 			return create(code);
@@ -86,6 +136,7 @@ public class Nvwa implements Runnable {
 				||obj.getSingleton()!=singleton){
 			obj.setImplementation(className);
 			obj.setSingleton(singleton);
+			obj.setProxy(proxy);
 			obj.renew();
 		}
 
@@ -106,6 +157,21 @@ public class Nvwa implements Runnable {
 	 * @throws Exception
 	 */
 	public static Object entrustCreate(String code,String className,boolean singleton,Class[] parameterTypes,Object[] parameters) throws Exception{
+		return entrustCreate(code,className,singleton,null,parameterTypes,parameters);
+	}
+	
+	/**
+	 * 
+	 * @param code
+	 * @param className
+	 * @param singleton
+	 * @param proxy
+	 * @param parameterTypes
+	 * @param parameters
+	 * @return
+	 * @throws Exception
+	 */
+	public static Object entrustCreate(String code,String className,boolean singleton,String proxy,Class[] parameterTypes,Object[] parameters) throws Exception{
 		String key=(code!=null&&!code.equals(""))?code:(className+singleton);
 		if(!entrusts.containsKey(key)){
 			return create(code);
@@ -116,6 +182,7 @@ public class Nvwa implements Runnable {
 				||obj.getSingleton()!=singleton){
 			obj.setImplementation(className);
 			obj.setSingleton(singleton);
+			obj.setProxy(proxy);
 			obj.renew();
 		}
 

@@ -43,14 +43,19 @@ rmic -classpath F:\work\JShop_v1.1\WebContent\WEB-INF\lib\*;. -d F:\work\JShop_v
 2，在classpath环境变量中包含你的类文件存放的根目录或jar包路径。
 d:\tomcat\lib\*;d:\tomcat\webapps\jstudio\WEB-INF\lib\*;d:\tomcat\webapps\jstudio\WEB-INF\classes
 
+
 3，启动rmi服务
 linux中用命令:
-nohup rmiregistry 1099 &
-nohup orbd -ORBInitialHost somedomain -ORBInitialPort 1060 &
+nohup rmiregistry 1520 &
+nohup orbd -ORBInitialPort 1060 &
 
 windows中用命令:
 rmiregistry 1099
 orbd -ORBInitialHost somedomain -ORBInitialPort 1060
+
+如果设置环境变量不起作用，用如下命令启动：
+rmiregistry -J-Dclasspath=F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;F:\work\JFramework_v2.0\WebContent\WEB-INF\classes 1099
+
 
 重点：
 linux中orbd启动出问题时，去掉hosts文件中绑定的域名somedomain（原因？未知）

@@ -51,13 +51,13 @@
 			<uuid>j.service.HelloService:00</uuid>
 			
 			<!-- rmi 或者 rmi-iiop服务接口配置信息，属性值可为rmi或者rmi-->
-			<rmi available="false">	
-				<property key="java.naming.provider.url" value="rmi://sso.jframework.com:1099"/>				
+			<rmi available="true">	
+				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
 			</rmi>
 			
 			<!-- http服务接口配置信息 -->
-			<http available="true">
-				<property key="j.service.http" value="http://sso.jframework.com/j.service.hello.service"/>
+			<http available="false">
+				<property key="j.service.http" value="http://127.0.0.1/j.service.hello.service"/>
 			</http>
 		</node>
 		
@@ -66,8 +66,8 @@
 			<uuid>j.service.HelloService:01</uuid>
 			
 			<!-- rmi 或者 rmi-iiop服务接口配置信息，属性值可为rmi或者rmi-->
-			<rmi available="false">	
-				<property key="java.naming.provider.url" value="rmi://fs.jframework.com:1099"/>
+			<rmi available="true">	
+				<property key="java.naming.provider.url" value="rmi://fs.jframework.com:1520"/>
 			</rmi>
 			
 			<!-- http服务接口配置信息 -->
@@ -98,12 +98,12 @@
 		<node server-uuid="j.service.node.ser:00">
 			<uuid>JCache:00</uuid>
 			
-			<rmi available="false">	
-				<property key="java.naming.provider.url" value="rmi://sso.jframework.com:1099"/>				
+			<rmi available="true">	
+				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
 			</rmi>
 			
 			<http available="true">
-				<property key="j.service.http" value="http://sso.jframework.com/JCache.service"/>
+				<property key="j.service.http" value="http://127.0.0.1/JCache.service"/>
 			</http>
 		</node>
 	</service>
@@ -128,24 +128,24 @@
 		<node server-uuid="j.service.node.ser:00">
 			<uuid>JCache.jshop:00</uuid>
 			
-			<rmi available="false">	
-				<property key="java.naming.provider.url" value="rmi://sso.jframework.com:1099"/>				
+			<rmi available="true">	
+				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
 			</rmi>
 			
 			<http available="true">
-				<property key="j.service.http" value="http://sso.jframework.com/JCache.service"/>
+				<property key="j.service.http" value="http://127.0.0.1/JCache.service"/>
 			</http>
 		</node>
 		
 		<node server-uuid="j.service.node.app:shop:00">
 			<uuid>JCache.jshop:01</uuid>
 			
-			<rmi available="false">	
-				<property key="java.naming.provider.url" value="rmi://www.jframework.com:1099"/>				
+			<rmi available="true">	
+				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
 			</rmi>
 			
 			<http available="true">
-				<property key="j.service.http" value="http://www.jframework.com/JCache.service"/>
+				<property key="j.service.http" value="http://127.0.0.1/JCache.service"/>
 			</http>
 		</node>
 	</service>
@@ -169,24 +169,24 @@
 		<node server-uuid="j.service.node.ser:00">
 			<uuid>JCache.jpay:00</uuid>
 			
-			<rmi available="false">	
-				<property key="java.naming.provider.url" value="rmi://sso.jframework.com:1099"/>				
+			<rmi available="true">	
+				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
 			</rmi>
 			
 			<http available="true">
-				<property key="j.service.http" value="http://sso.jframework.com/JCache.service"/>
+				<property key="j.service.http" value="http://127.0.0.1/JCache.service"/>
 			</http>
 		</node>
 		
 		<node server-uuid="j.service.node.app:pay:00">
 			<uuid>JCache.jpay:01</uuid>
 			
-			<rmi available="false">	
-				<property key="java.naming.provider.url" value="rmi://pay.jframework.com:1099"/>				
+			<rmi available="true">	
+				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
 			</rmi>
 			
 			<http available="true">
-				<property key="j.service.http" value="http://pay.jframework.com/JCache.service"/>
+				<property key="j.service.http" value="http://127.0.0.1/JCache.service"/>
 			</http>
 		</node>
 	</service>
@@ -211,34 +211,34 @@
 		<node server-uuid="j.service.node.ser:00">
 			<uuid>VerifyCode:00</uuid>
 			
-			<rmi available="false">	
-				<property key="java.naming.provider.url" value="rmi://sso.jframework.com:1099"/>				
+			<rmi available="true">	
+				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
 			</rmi>
 			
 			<http available="true">
-				<property key="j.service.http" value="http://sso.jframework.com/VerifyCode.service"/>
+				<property key="j.service.http" value="http://127.0.0.1/VerifyCode.service"/>
 			</http>
 		</node>
 		<node server-uuid="j.service.node.app:pay:00">
 			<uuid>VerifyCode:01</uuid>
 			
-			<rmi available="false">	
-				<property key="java.naming.provider.url" value="rmi://pay.jframework.com:1099"/>				
+			<rmi available="true">	
+				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
 			</rmi>
 			
 			<http available="true">
-				<property key="j.service.http" value="http://pay.jframework.com/VerifyCode.service"/>
+				<property key="j.service.http" value="http://127.0.0.1/VerifyCode.service"/>
 			</http>
 		</node>
 		<node server-uuid="j.service.node.app:shop:00">
 			<uuid>VerifyCode:02</uuid>
 			
-			<rmi available="false">	
-				<property key="java.naming.provider.url" value="rmi://www.jframework.com:1099"/>				
+			<rmi available="true">	
+				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
 			</rmi>
 			
 			<http available="true">
-				<property key="j.service.http" value="http://www.jframework.com/VerifyCode.service"/>
+				<property key="j.service.http" value="http://127.0.0.1/VerifyCode.service"/>
 			</http>
 		</node>
 	</service>

@@ -17,8 +17,9 @@ public class NvwaProxy implements InvocationHandler{
 	 * @param method
 	 * @param args
 	 * @return
+	 * @throws Exception
 	 */
-	protected Object beforeInvoke(Method method, Object[] args){
+	protected Object beforeInvoke(Method method, Object[] args) throws Exception{
 		return null;
 	}
 	
@@ -28,8 +29,9 @@ public class NvwaProxy implements InvocationHandler{
 	 * @param args
 	 * @param returnValue
 	 * @return
+	 * @throws Exception
 	 */
-	protected Object afterInvoke(Method method, Object[] args,Object returnValue){
+	protected Object afterInvoke(Method method, Object[] args,Object returnValue) throws Exception{
 		return null;
 	}
 	
@@ -39,8 +41,9 @@ public class NvwaProxy implements InvocationHandler{
 	 * @param args
 	 * @param e
 	 * @return
+	 * @throws Exception
 	 */
-	protected Object onException(Method method, Object[] args,Exception e){
+	protected Object onException(Method method, Object[] args,Exception e) throws Exception{
 		return null;
 	}
 	
@@ -48,8 +51,9 @@ public class NvwaProxy implements InvocationHandler{
 	 * 
 	 * @param realBody
 	 * @return
+	 * @throws Exception
 	 */
-	public Object bind(Object realBody){
+	public Object bind(Object realBody) throws Exception{
 		this.realBody=realBody;
 		return Proxy.newProxyInstance(realBody.getClass().getClassLoader(),realBody.getClass().getInterfaces(),this);
 	}

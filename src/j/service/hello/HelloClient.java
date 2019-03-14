@@ -35,8 +35,11 @@ public class HelloClient implements Runnable{
 			paras.put("times","4");
 			
 			String entrance=Client.httpGetService(null,null,"HelloService",true);
-			String result=Client.httpCallPost(null,null,"HelloService",entrance,"hello",paras);
-			System.out.println("result2:"+result);			
+			System.out.println("entrance:"+entrance);
+			if(entrance!=null) {
+				String result=Client.httpCallPost(null,null,"HelloService",entrance,"hello",paras);
+				System.out.println("result2:"+result);	
+			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}

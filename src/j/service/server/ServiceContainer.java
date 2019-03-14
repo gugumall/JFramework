@@ -1,5 +1,11 @@
 package j.service.server;
 
+import java.rmi.Remote;
+import java.rmi.server.UnicastRemoteObject;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+
 import j.log.Logger;
 import j.nvwa.Nvwa;
 import j.nvwa.NvwaObject;
@@ -7,12 +13,6 @@ import j.service.Manager;
 import j.service.router.RouterManager;
 import j.util.ConcurrentMap;
 import j.util.JUtilMD5;
-
-import java.rmi.Remote;
-import java.rmi.server.UnicastRemoteObject;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
 
 /**
  * 用户启动服务的线程
@@ -79,7 +79,9 @@ public class ServiceContainer implements Runnable{
 	 * @throws Exception
 	 */
 	private void createServant() throws Exception{
-		servant = (ServiceBase)Nvwa.entrustCreate(serviceConfig.getRelatedHttpHandlerPath(),serviceConfig.getClassName(),true);
+		servant = (ServiceBase)Nvwa.entrustCreate(serviceConfig.getRelatedHttpHandlerPath(),
+				serviceConfig.getClassName(),
+				true);
 		servant.setServiceConfig(serviceConfig);
 		servant.init();
 		servantOfServices.put(serviceConfig.getUuid(),servant);
@@ -93,7 +95,9 @@ public class ServiceContainer implements Runnable{
 	 * @throws Exception
 	 */
 	synchronized protected void startup() throws Exception{	
-		NvwaObject nvwaObject=Nvwa.entrust(serviceConfig.getRelatedHttpHandlerPath(),serviceConfig.getClassName(),true);
+		NvwaObject nvwaObject=Nvwa.entrust(serviceConfig.getRelatedHttpHandlerPath(),
+				serviceConfig.getClassName(),
+				true);
 		nvwaObject.setFiled("serviceConfig","value",true);
 		String[] fieldsKeep=serviceConfig.getFieldsKeep();
 		for(int i=0;fieldsKeep!=null&&i<fieldsKeep.length;i++){
@@ -202,7 +206,7 @@ public class ServiceContainer implements Runnable{
 			initialNamingContext.rebind(serviceConfig.getUuid(), remote==null?servant:remote);	
 		} catch (Exception ex) {
 			log.log("failed to run rmi of service "+serviceConfig.getName()+", the impl class is "+serviceConfig.getClassName(),Logger.LEVEL_INFO);
-			log.log(ex.getMessage(),Logger.LEVEL_ERROR);
+			log.log(ex,Logger.LEVEL_ERROR);
 			
 			try{//如果未启动成功（比如名称服务未启动），则尝试再次启动
 				Thread.sleep(30000);

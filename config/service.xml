@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
 	<!-- 是否测试环境 -->
-	<debug>false</debug>
+	<debug>true</debug>
 	
 	<!-- 是否路由节点，不是的话删除is-router项 -->
 	<is-router>

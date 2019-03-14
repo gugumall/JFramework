@@ -223,6 +223,7 @@ public class JDFSFile extends JFile{
 		}else{
 			if(service!=null){
 				try{
+					log.log("delete from via rmi "+this.getAbsolutePath(), -1);
 					return service.delete(Manager.getClientNodeUuid(),Client.md54Service(serviceCode,"delete"),path);
 				}catch(Exception ex){
 					log.log(ex,Logger.LEVEL_ERROR);
@@ -1022,8 +1023,7 @@ public class JDFSFile extends JFile{
 				Map parts=new HashMap();
 				parts.put("bytes",file);
 
-				Client.httpCallMultiPart(null,
-						jclient,serviceCode,httpChannel,"saveFile",params,parts);
+				Client.httpCallMultiPart(null,jclient,serviceCode,httpChannel,"saveFile",params,parts);
 				
 				params.clear();
 				params.clear();

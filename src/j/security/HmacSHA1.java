@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.SimpleTimeZone;
@@ -11,8 +12,6 @@ import java.util.UUID;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-
-import sun.misc.BASE64Encoder;
 
 public class HmacSHA1{
 	private static final String ALGORITHM="HmacSHA1";
@@ -47,8 +46,7 @@ public class HmacSHA1{
 		if(bytes==null||bytes.length==0){
 			return null;
 		}
-		return new String(new BASE64Encoder().encode(bytes));
-		//return JUtilBase64.encode(bytes);
+		return Base64.getEncoder().encodeToString(bytes);
 	}
 
 	/**

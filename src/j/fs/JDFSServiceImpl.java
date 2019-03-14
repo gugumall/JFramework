@@ -42,7 +42,7 @@ import javax.servlet.http.HttpSession;
  * @author 肖炯
  *
  */
-public class JDFSServiceImpl extends ServiceBaseImpl implements JDFSService,Serializable {	
+public class JDFSServiceImpl extends JDFSServiceAbstract{
 	private static final long serialVersionUID = 1L;
 	private static Logger log=Logger.create(JDFSServiceImpl.class);
 	

@@ -321,7 +321,7 @@ public class HttpUtil{
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String url="https://www.gugumall.cn/utils/handshake.jhtml";
+		String url="https://www.gugumall.cn/IOT.jhtml";
 		String s=HttpUtil.postData(url,"contactscontactscontactscontacts");
 		System.out.println(s);
 	}

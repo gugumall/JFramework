@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * 
- * @author 肖炯
+ * @author JFramework
  *
  */
 public interface JDCacheService extends ServiceBase {	

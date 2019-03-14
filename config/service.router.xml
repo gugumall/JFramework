@@ -25,13 +25,13 @@
 		<property key="j.service.relatedHttpHandlerPath" value="/j.service.router"/>
 		
 		<!-- 路由节点通过rmi 或者 rmi-接口提供服务，属性值可为rmi或者rmi-->
-		<rmi available="false">	
-			<property key="java.naming.provider.url" value="rmi://sso.jframework.com:1099"/>
+		<rmi available="true">		
+			<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>
 		</rmi>
 		
 		<!-- 路由节点通过http接口提供服务 -->
 		<http available="true">
-			<property key="j.service.http" value="http://sso.jframework.com/j.service.router.service"/>
+			<property key="j.service.http" value="http://127.0.0.1/j.service.router.service"/>
 		</http>
 	</router>
 </root>

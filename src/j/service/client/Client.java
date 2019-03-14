@@ -270,7 +270,7 @@ public class Client implements Runnable{
 			ServiceContainer container=ServiceManager.getServiceContainer(code);
 			if(container!=null){
 				ServiceBase servant=container.getServantOfService(code);
-				if(servant!=null){
+				if(servant!=null&&servant.getServiceConfig().getHttp()!=null){
 					return servant.getServiceConfig().getHttp().getEntrance();
 				}
 			}
@@ -292,12 +292,14 @@ public class Client implements Runnable{
 		if(Constants.AUTH_FAILED.equals(entrance)
 				||Constants.SERVICE_NOT_FOUND.equals(entrance)
 				||Constants.SERVICE_NOT_AVAIL.equals(entrance)){
-			throw new Exception("无可用服务(http) - "+entrance+" - "+code);
+			return null;
+			//throw new Exception("无可用服务(http) - "+entrance+" - "+code);
 		} 
 		
 		if(entrance==null
 				||!entrance.startsWith("http")){
-			throw new Exception("无可用服务(http) - "+entrance+" - "+code);
+			return null;
+			//throw new Exception("无可用服务(http) - "+entrance+" - "+code);
 		}
 		
 		return entrance;

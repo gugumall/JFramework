@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
  * @author ceo
  *
  */
-public class JHelloImpl extends ServiceBaseImpl implements JHello,Serializable {	
+public class JHelloImpl extends JHelloAbstract {	
 	private static final long serialVersionUID = 1L;
 	private int counter=0;
 	private JHelloWords words;
@@ -98,14 +98,6 @@ public class JHelloImpl extends ServiceBaseImpl implements JHello,Serializable {
 	 * @see j.service.hello.HelloInterface#hello(java.lang.String, java.lang.String, java.lang.String, java.lang.String, int)
 	 */
 	public String hello(String clientUuid, String md54Service,String words,int times) throws RemoteException {
-		//每个服务方法都必须以这段代码开头
-		try{
-			auth(clientUuid,"hello",md54Service);//hello为本方法的名称
-		}catch(RemoteException e){
-			throw new RemoteException(Constants.AUTH_FAILED);
-		}
-		//每个服务方法都必须以这段代码开头 end
-		
 		counter++;
 		System.out.println(counter);
 		for(int i=0;i<times;i++){
