@@ -29,8 +29,6 @@ public class JCacheUnitMap extends JCacheUnit{
 		this.container=new ConcurrentMap();
 	}
 	
-
-	
 	/*
 	 *  (non-Javadoc)
 	 * @see j.cache.JCacheUnit#getUnitType()
@@ -40,53 +38,20 @@ public class JCacheUnitMap extends JCacheUnit{
 	}
 	
 	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCacheUnit#getLifeCircleType()
-	 */
-	public int getLifeCircleType(){
-		return this.lifeCircleType;
-	}
-	
-	/**
-	 * 
-	 * @param initializing
-	 * @throws Exception
-	 */
-	private void checkStatus(boolean initializing) throws Exception{
-		using();
-	}
-	
-	/*
-	 *  (non-Javadoc)
+	 * (non-Javadoc)
 	 * @see j.cache.JCacheUnit#addOne(java.lang.Object, java.lang.Object)
 	 */
 	public void addOne(Object key,Object value) throws Exception{
-		addOne(key,value,false);
-	}
-	
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCacheUnit#addOne(java.lang.Object, java.lang.Object, boolean)
-	 */
-	public void addOne(Object key,Object value,boolean initializing) throws Exception{
-		checkStatus(initializing);
+		using();
 		container.put(key,value);
 	}
 	
 	/*
-	 *  (non-Javadoc)
+	 * (non-Javadoc)
 	 * @see j.cache.JCacheUnit#addAll(java.util.Map)
 	 */
 	public void addAll(Map mappings) throws Exception{
-		addAll(mappings,false);
-	}
-	
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCacheUnit#addAll(java.util.Map, boolean)
-	 */
-	public void addAll(Map mappings,boolean initializing) throws Exception{
-		checkStatus(initializing);
+		using();
 		this.container.putAll(mappings);
 	}
 	
@@ -95,7 +60,7 @@ public class JCacheUnitMap extends JCacheUnit{
 	 * @see j.cache.JCacheUnit#contains(j.cache.JCacheParams)
 	 */
 	public boolean contains(JCacheParams params) throws Exception{
-		checkStatus(false);
+		using();
 		
 		if(params==null||(params.key==null&&params.value==null&&params.keyFilter==null&&params.valueFilter==null)){
 			return false;
@@ -138,7 +103,7 @@ public class JCacheUnitMap extends JCacheUnit{
 	 * @see j.cache.JCacheUnit#size()
 	 */
 	public int size() throws Exception{
-		checkStatus(false);
+		using();
 		
 		return container.size();
 	}
@@ -156,7 +121,7 @@ public class JCacheUnitMap extends JCacheUnit{
 	 * @see j.cache.JCacheUnit#get(j.cache.JCacheParams)
 	 */
 	public Object get(JCacheParams params) throws Exception{
-		checkStatus(false);
+		using();
 		
 		if(params==null
 				||(params.key==null&&params.keyFilter==null&&params.valueFilter==null&&params.index<0)){
@@ -207,7 +172,7 @@ public class JCacheUnitMap extends JCacheUnit{
 	 * @see j.cache.JCacheUnit#remove(j.cache.JCacheParams)
 	 */
 	public void remove(JCacheParams params) throws Exception{
-		checkStatus(false);
+		using();
 		
 		if(params==null||(params.key==null&&params.keyFilter==null&&params.valueFilter==null)){
 			throw new Exception("no valid operating params.");
@@ -251,7 +216,7 @@ public class JCacheUnitMap extends JCacheUnit{
 	 * @see j.cache.JCacheUnit#update(j.cache.JCacheParams)
 	 */
 	public void update(JCacheParams params) throws Exception{
-		checkStatus(false);
+		using();
 		
 		if(params==null||(params.updater==null)){
 			throw new Exception("no valid operating params.");
@@ -265,7 +230,7 @@ public class JCacheUnitMap extends JCacheUnit{
 	 * @see j.cache.JCacheUnit#updateCollection(j.cache.JCacheParams)
 	 */
 	public void updateCollection(JCacheParams params) throws Exception{
-		checkStatus(false);
+		using();
 		
 		if(params==null||(params.collectionUpdater==null)){
 			throw new Exception("no valid operating params.");
@@ -279,7 +244,7 @@ public class JCacheUnitMap extends JCacheUnit{
 	 * @see j.cache.JCacheUnit#sub(j.cache.JCacheParams)
 	 */
 	public Object sub(JCacheParams params) throws Exception{
-		checkStatus(false);
+		using();
 		
 		JCacheFilter keyFileter=params==null?null:params.keyFilter;
 		JCacheFilter valueFilter=params==null?null:params.valueFilter;
@@ -326,7 +291,7 @@ public class JCacheUnitMap extends JCacheUnit{
 	 * @see j.cache.JCacheUnit#keys(j.cache.JCacheParams)
 	 */
 	public ConcurrentList keys(JCacheParams params) throws Exception{
-		checkStatus(false);
+		using();
 		
 		JCacheFilter keyFileter=params==null?null:params.keyFilter;
 		JCacheFilter valueFilter=params==null?null:params.valueFilter;
@@ -380,7 +345,7 @@ public class JCacheUnitMap extends JCacheUnit{
 	 * @see j.cache.JCacheUnit#values(j.cache.JCacheParams)
 	 */
 	public ConcurrentList values(JCacheParams params) throws Exception{
-		checkStatus(false);
+		using();
 		
 		JCacheFilter keyFileter=params==null?null:params.keyFilter;
 		JCacheFilter valueFilter=params==null?null:params.valueFilter;
@@ -448,14 +413,6 @@ public class JCacheUnitMap extends JCacheUnit{
 	public void addOne(Object value) throws Exception {
 		throw new Exception("Not Supported.");
 	}
-
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCacheUnit#addOne(java.lang.Object, boolean)
-	 */
-	public void addOne(Object value, boolean initializing) throws Exception {
-		throw new Exception("Not Supported.");
-	}
 	
 	/*
 	 *  (non-Javadoc)
@@ -464,28 +421,12 @@ public class JCacheUnitMap extends JCacheUnit{
 	public void addOneIfNotContains(Object value) throws Exception{
 		throw new Exception("Not Supported.");
 	}
-	
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCacheUnit#addOneIfNotContains(java.lang.Object, boolean)
-	 */
-	public void addOneIfNotContains(Object value,boolean initializing) throws Exception{
-		throw new Exception("Not Supported.");
-	}
 
 	/*
 	 *  (non-Javadoc)
 	 * @see j.cache.JCacheUnit#addAll(java.util.Collection)
 	 */
 	public void addAll(Collection values) throws Exception {
-		throw new Exception("Not Supported.");
-	}
-
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCacheUnit#addAll(java.util.Collection, boolean)
-	 */
-	public void addAll(Collection values, boolean initializing) throws Exception {
 		throw new Exception("Not Supported.");
 	}
 }

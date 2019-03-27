@@ -26,8 +26,16 @@ public class ServiceConfig implements Serializable {
 	private Http http=null;//http服务接口配置信息
 	private ConcurrentMap methods=null;//键: 方法名  值: j.service.Server.Method对象
 	private ConcurrentMap clients=null;//键: 客户节点uuid  值: j.service.Client对象
-	private ConcurrentMap config=null;//配置信息
-	private String _toString="";
+	
+	/*
+		<property key="j.service.interface" value="j.cache.JDCacheService"/>
+		<property key="j.service.class" value="j.cache.JDCacheServiceImpl"/>
+		<property key="j.service.relatedHttpHandlerPath" value="/JCache"/>
+		<property key="j.service.fieldsKeep" value="units"/>
+	 * 服务接口类、实现类、对应mvc action的path、重启服务需保持值的变量，以及其它服务所需的自定义配置信息
+	 */
+	private ConcurrentMap config=null;
+	private String _toString="";//配置信息拼串，用来比较配置信息是否已发生变化
 	
 	/**
 	 * 

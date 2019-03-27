@@ -9,7 +9,8 @@ import java.io.InputStream;
 
 
 /**
- * 
+ * 分布式文件服务——实际开发中，通过此类的create方法创建JFile实例（通过对象工厂创建code为<b>FileSystem</b>的实例），并通过该实例使用文件服务。
+ * 该类继承了java.io.File类，并定义了几个实用方法，如把文件读内容取成字符串、保存流至文件等；JDFSFile继承JFile，并实现java.io.File和JFile定义的相关方法。
  * @author 肖炯
  *
  */

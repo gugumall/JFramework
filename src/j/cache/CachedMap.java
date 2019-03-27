@@ -6,7 +6,7 @@ import j.util.ConcurrentMap;
 import java.util.Map;
 
 /**
- * 
+ * 基于缓存实现的Map——实际开发中，请通过此类来使用缓存服务
  * @author 肖炯
  *
  */
@@ -15,8 +15,8 @@ public class CachedMap{
 	private JCache cache=null;
 	
 	/**
-	 * 
-	 * @param cacheId
+	 * 创建JCache.UNIT_LIST类型的缓存单元，缓存服务实现类在对象工厂中的code为<font color="blue">JCache</font>（默认实现）
+	 * @param cacheId 缓存单元ID
 	 * @throws Exception
 	 */
 	public CachedMap(String cacheId) throws Exception{
@@ -27,13 +27,13 @@ public class CachedMap{
 			this.cacheId=cacheId;
 		}
 		cache=JCache.getInstance();
-		cache.createUnit(cacheId,JCache.UNIT_MAP,JCache.LIFECIRCLE_SYNCHRONIZED);
+		cache.createUnit(cacheId,JCache.UNIT_MAP,JCache.LIFECIRCLE_DURABLE);
 	}
 	
 	/**
-	 * 
-	 * @param nvwaObjectCode
-	 * @param cacheId
+	 * 创建JCache.UNIT_LIST类型的缓存单元，缓存服务实现类在对象工厂中的code为参数nvwaObjectCode所指定的值
+	 * @param nvwaObjectCode 缓存服务实现类在对象工厂中的code
+	 * @param cacheId 缓存单元ID
 	 * @throws Exception
 	 */
 	public CachedMap(String nvwaObjectCode,String cacheId) throws Exception{
@@ -44,11 +44,11 @@ public class CachedMap{
 			this.cacheId=cacheId;
 		}
 		cache=JCache.getInstance(nvwaObjectCode);
-		cache.createUnit(cacheId,JCache.UNIT_MAP,JCache.LIFECIRCLE_SYNCHRONIZED);
+		cache.createUnit(cacheId,JCache.UNIT_MAP,JCache.LIFECIRCLE_DURABLE);
 	}
 
 	/**
-	 * 
+	 * 添加一个key-value到缓存单元
 	 * @param key
 	 * @param value
 	 * @throws Exception
@@ -58,17 +58,17 @@ public class CachedMap{
 	}
 
 	/**
-	 * 
-	 * @param mappings
+	 * 添加一组key-value到缓存单元
+	 * @param mappings key-value集合
 	 * @throws Exception
 	 */
-	public void addAll(Map mappings) throws Exception {
+	public void addAll(Map<Object,Object> mappings) throws Exception {
 		cache.addAll(this.cacheId,mappings);
 	}
 
 	/**
-	 * 
-	 * @param params
+	 * 缓存单元中是否包含符合缓存操作参数的key-value
+	 * @param params 缓存操作参数
 	 * @return
 	 * @throws Exception
 	 */
@@ -87,7 +87,7 @@ public class CachedMap{
 	
 	/**
 	 * 
-	 * @param params
+	 * @param params 缓存操作参数
 	 * @return
 	 * @throws Exception
 	 */
@@ -97,7 +97,7 @@ public class CachedMap{
 
 	/**
 	 * 
-	 * @param params
+	 * @param params 缓存操作参数
 	 * @return
 	 * @throws Exception
 	 */
@@ -107,7 +107,7 @@ public class CachedMap{
 
 	/**
 	 * 
-	 * @param params
+	 * @param params 缓存操作参数
 	 * @throws Exception
 	 */
 	public void remove(JCacheParams params) throws Exception {
@@ -124,7 +124,7 @@ public class CachedMap{
 
 	/**
 	 * 
-	 * @param params
+	 * @param params 缓存操作参数
 	 * @throws Exception
 	 */
 	public void update(JCacheParams params) throws Exception {
@@ -133,7 +133,7 @@ public class CachedMap{
 
 	/**
 	 * 
-	 * @param params
+	 * @param params 缓存操作参数
 	 * @throws Exception
 	 */
 	public void updateCollection(JCacheParams params) throws Exception {
@@ -141,8 +141,8 @@ public class CachedMap{
 	}
 
 	/**
-	 * 
-	 * @param params
+	 * 返回符合缓存操作参数的对象集合
+	 * @param params 缓存操作参数
 	 * @return
 	 * @throws Exception
 	 */
@@ -151,8 +151,8 @@ public class CachedMap{
 	}
 
 	/**
-	 * 
-	 * @param params
+	 * 返回符合缓存操作参数的子集的key的list
+	 * @param params 缓存操作参数
 	 * @return
 	 * @throws Exception
 	 */
@@ -161,8 +161,8 @@ public class CachedMap{
 	}
 
 	/**
-	 * 
-	 * @param params
+	 * 返回符合缓存操作参数的子集的value的list
+	 * @param params 缓存操作参数
 	 * @return
 	 * @throws Exception
 	 */

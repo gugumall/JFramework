@@ -2,6 +2,7 @@ package j.cache;
 
 import j.common.JObject;
 import j.log.Logger;
+import j.service.Manager;
 import j.service.client.Client;
 import j.util.ConcurrentList;
 import j.util.ConcurrentMap;
@@ -12,15 +13,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ * 分布式缓存服务的实现
  * @author 肖炯
  *
  */
 public class JDCache extends JCache{
 	private static final long serialVersionUID = 1L;
 	private static Logger log=Logger.create(JDCache.class);
-	private static ConcurrentMap services=new ConcurrentMap();
-	private String serviceUuid;
+	private static ConcurrentMap<String,Servant> services=new ConcurrentMap<String,Servant>();//key-缓存单元ID，value-缓存单元所调用的分布式服务对象（RMI通信时）
+	private String serviceUuid;//指定所调用缓存服务的节点uuid（而不是通过路由器的负载均衡机制随机调用），仅用于同一缓存服务不同镜像间的同步
 
 	/**
 	 * 
@@ -46,62 +47,60 @@ public class JDCache extends JCache{
 	 * @throws Exception
 	 */
 	synchronized private Servant findService(String cacheId) throws Exception{
-		Servant info=(Servant)services.get(cacheId);
+		Servant servant=(Servant)services.get(cacheId);
 
 		JDCacheMapping mapping=JCacheConfig.mapping(cacheId);
-		if(mapping==null){
+		if(mapping==null){//不能根据缓存单元ID找到所需调用的缓存服务
 			log.log("JDCacheMapping can't be found - "+cacheId,Logger.LEVEL_DEBUG);
 			throw new Exception("JDCacheMapping can't be found - "+cacheId);
 		}else{
-			if(info==null) info=new Servant();
-			info.serviceCode=mapping.getServiceCode();
-			info.serviceChannel=mapping.getServiceChannel();
+			if(servant==null) servant=new Servant();
+			servant.serviceCode=mapping.getServiceCode();
+			servant.serviceChannel=mapping.getServiceChannel();
 			
 			if(this.serviceUuid!=null){
-				if("rmi".equalsIgnoreCase(info.serviceChannel)){
-					info.service=(JDCacheService)Client.rmiGetService(this.serviceUuid);			
+				if("rmi".equalsIgnoreCase(servant.serviceChannel)){
+					servant.service=(JDCacheService)Client.rmiGetService(this.serviceUuid);			
 					//log.log("JDCacheService(rmi) found - "+info.service+" - "+cacheId,Logger.LEVEL_DEBUG);
 				}else{	
-					info.httpChannel=Client.httpGetService(info.jhttp,info.jclient,this.serviceUuid);
+					servant.httpChannel=Client.httpGetService(servant.jhttp,servant.jclient,this.serviceUuid);
 					//log.log("JDCacheService(http) found - "+info.httpChannel+" - "+cacheId,Logger.LEVEL_DEBUG);
 					
-					if(info.httpChannel==null||!info.httpChannel.startsWith("http")){
-						throw new Exception("the httpChannel is null or empty - "+info.httpChannel);
+					if(servant.httpChannel==null||!servant.httpChannel.startsWith("http")){
+						throw new Exception("the httpChannel is null or empty - "+servant.httpChannel);
 					}
 				}
 			}else{
 				//log.log("JDCacheMapping found,the related service is - "+info.serviceCode+"("+info.serviceChannel+") - "+cacheId,Logger.LEVEL_DEBUG);
-				info.service=(JDCacheService)Client.rmiGetService(info.serviceCode,true);	
-				if(info.service==null){
-					if("rmi".equalsIgnoreCase(info.serviceChannel)){
-						info.service=(JDCacheService)Client.rmiGetService(info.serviceCode);			
+				servant.service=(JDCacheService)Client.rmiGetService(servant.serviceCode,true);//优先查找本地服务（同一个jvm中，可直接本地调用，不涉及网络通信，效率最高）
+				if(servant.service==null){//如果未找到本地服务
+					if("rmi".equalsIgnoreCase(servant.serviceChannel)){
+						servant.service=(JDCacheService)Client.rmiGetService(servant.serviceCode);			
 						//log.log("JDCacheService(rmi) found - "+info.service+" - "+cacheId,Logger.LEVEL_DEBUG);
 					}else{	
-						info.httpChannel=Client.httpGetService(info.jhttp,info.jclient,info.serviceCode);
-						log.log("JDCacheService(http) found - "+info.httpChannel+" - "+cacheId,Logger.LEVEL_DEBUG);
+						servant.httpChannel=Client.httpGetService(servant.jhttp,servant.jclient,servant.serviceCode);
+						log.log("JDCacheService(http) found - "+servant.httpChannel+" - "+cacheId,Logger.LEVEL_DEBUG);
 						
-						if(info.httpChannel==null||!info.httpChannel.startsWith("http")){
-							throw new Exception("the httpChannel is null or empty - "+info.httpChannel);
+						if(servant.httpChannel==null||!servant.httpChannel.startsWith("http")){
+							throw new Exception("the httpChannel is null or empty - "+servant.httpChannel);
 						}
 					}
 				}
 			}
 			
-			services.put(cacheId,info);
+			services.put(cacheId,servant);
 			
-			return info;
+			return servant;
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#create(java.lang.String, int, int)
-	 */
+
+	@Override
 	public void createUnit(String cacheId, int unitType, int lifeCircleType) throws Exception {		
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			info.service.createUnit(cacheId,unitType,lifeCircleType);
+			info.service.createUnit(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"createUnit"),cacheId,unitType,lifeCircleType);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -113,15 +112,13 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#setActiveTime(java.lang.String)
-	 */
+
+	@Override
 	public void setActiveTime(String cacheId) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			info.service.setActiveTime(cacheId);
+			info.service.setActiveTime(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"setActiveTime"),cacheId);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -131,15 +128,13 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#addOne(java.lang.String, java.lang.Object, java.lang.Object)
-	 */
+
+	@Override
 	public void addOne(String cacheId, Object key, Object value) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			info.service.addOne(cacheId,key,value);
+			info.service.addOne(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"addOne"),cacheId,key,value);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -151,15 +146,13 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#addAll(java.lang.String, java.util.Map)
-	 */
+
+	@Override
 	public void addAll(String cacheId, Map mappings) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			info.service.addAll(cacheId,mappings);
+			info.service.addAll(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"addAll"),cacheId,mappings);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -170,15 +163,13 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#addOne(java.lang.String, java.lang.Object)
-	 */
+
+	@Override
 	public void addOne(String cacheId, Object value) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			info.service.addOne(cacheId,value);
+			info.service.addOne(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"addOne"),cacheId,value);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -189,15 +180,13 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#addAll(java.lang.String, java.util.Collection)
-	 */
+
+	@Override
 	public void addAll(String cacheId, Collection values) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			info.service.addAll(cacheId,values);
+			info.service.addAll(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"addAll"),cacheId,values);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -208,15 +197,13 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#addOneIfNotContains(java.lang.String, java.lang.Object)
-	 */
+
+	@Override
 	public void addOneIfNotContains(String cacheId, Object value) throws Exception{
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			info.service.addOneIfNotContains(cacheId,value);
+			info.service.addOneIfNotContains(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"addOneIfNotContains"),cacheId,value);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -227,15 +214,13 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#contains(java.lang.String, j.cache.JCacheParams)
-	 */
+
+	@Override
 	public boolean contains(String cacheId, JCacheParams jdcParams) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			return info.service.contains(cacheId,jdcParams);
+			return info.service.contains(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"contains"),cacheId,jdcParams);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -248,15 +233,13 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#size(java.lang.String)
-	 */
+
+	@Override
 	public int size(String cacheId) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			return info.service.size(cacheId);
+			return info.service.size(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"size"),cacheId);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -268,15 +251,13 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see j.cache.JCache#size(java.lang.String, j.cache.JCacheParams)
-	 */
+
+	@Override
 	public int size(String cacheId, JCacheParams jdcParams) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			return info.service.size(cacheId);
+			return info.service.size(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"size"),cacheId);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -289,15 +270,13 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#get(java.lang.String, j.cache.JCacheParams)
-	 */
+
+	@Override
 	public Object get(String cacheId, JCacheParams jdcParams) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			return info.service.get(cacheId,jdcParams);
+			return info.service.get(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"get"),cacheId,jdcParams);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -310,15 +289,13 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#remove(java.lang.String, j.cache.JCacheParams)
-	 */
+
+	@Override
 	public void remove(String cacheId, JCacheParams jdcParams) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			info.service.remove(cacheId,jdcParams);
+			info.service.remove(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"remove"),cacheId,jdcParams);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -329,15 +306,13 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#clear(java.lang.String)
-	 */
+
+	@Override
 	public void clear(String cacheId) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			info.service.clear(cacheId);
+			info.service.clear(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"clear"),cacheId);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -347,15 +322,12 @@ public class JDCache extends JCache{
 		}		
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#update(java.lang.String, j.cache.JCacheParams)
-	 */
+	@Override
 	public void update(String cacheId, JCacheParams jdcParams) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			info.service.update(cacheId,jdcParams);
+			info.service.update(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"update"),cacheId,jdcParams);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -366,15 +338,12 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#update(java.lang.String, j.cache.JCacheParams)
-	 */
+	@Override
 	public void updateCollection(String cacheId, JCacheParams jdcParams) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			info.service.update(cacheId,jdcParams);
+			info.service.update(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"updateCollection"),cacheId,jdcParams);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -385,15 +354,12 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#sub(java.lang.String, j.cache.JCacheParams)
-	 */
+	@Override
 	public Object sub(String cacheId, JCacheParams jdcParams) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			return info.service.sub(cacheId,jdcParams);
+			return info.service.sub(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"sub"),cacheId,jdcParams);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -406,15 +372,12 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#keys(java.lang.String, j.cache.JCacheParams)
-	 */
+	@Override
 	public ConcurrentList keys(String cacheId, JCacheParams jdcParams) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			return info.service.keys(cacheId,jdcParams);
+			return info.service.keys(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"keys"),cacheId,jdcParams);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -427,15 +390,12 @@ public class JDCache extends JCache{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#values(java.lang.String, j.cache.JCacheParams)
-	 */
+	@Override
 	public ConcurrentList values(String cacheId, JCacheParams jdcParams) throws Exception {
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			return info.service.values(cacheId,jdcParams);
+			return info.service.values(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"values"),cacheId,jdcParams);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);

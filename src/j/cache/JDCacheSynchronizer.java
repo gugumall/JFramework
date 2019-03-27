@@ -14,8 +14,8 @@ import java.util.Map;
 public class JDCacheSynchronizer implements Runnable{
 	private static Logger log=Logger.create(JDCacheSynchronizer.class);
 	private String serviceUuid;
-	private ConcurrentList tasks=new ConcurrentList();
-	private JDCache target=null;
+	private ConcurrentList<Object[]> tasks=new ConcurrentList<Object[]>();
+	private JDCache target=null;//同步目标（缓存服务镜像节点）
 	
 	/**
 	 * 
@@ -42,7 +42,7 @@ public class JDCacheSynchronizer implements Runnable{
 	public void run() {
 		while(true){
 			try{
-				Thread.sleep(100);
+				Thread.sleep(10);
 			}catch(Exception ex){}
 			
 			while(!tasks.isEmpty()){

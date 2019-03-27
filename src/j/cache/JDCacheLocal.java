@@ -1,20 +1,23 @@
 package j.cache;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import j.log.Logger;
 import j.util.ConcurrentList;
 import j.util.ConcurrentMap;
-
-import java.rmi.RemoteException;
-import java.util.Collection;
-import java.util.Map;
+import j.util.JUtilList;
 
 /**
  * 
  * @author 肖炯
  *
  */
-public class JDCacheLocal extends JCache{
+public class JDCacheLocal extends JCache implements Runnable{
 	private static final long serialVersionUID = 1L;
-	protected ConcurrentMap units=new ConcurrentMap();
+	private static Logger log=Logger.create(JDCacheLocal.class);	
+	protected ConcurrentMap<String,JCacheUnit> units=new ConcurrentMap<String,JCacheUnit>();//key-缓存单元ID，value-缓存单元
 
 	/**
 	 * 
@@ -22,6 +25,10 @@ public class JDCacheLocal extends JCache{
 	 */
 	public JDCacheLocal() {
 		super();
+		
+		Thread thread=new Thread(this);
+		thread.start();
+		log.log("JDCacheLocal monitor thread started.",-1);
 	}
 	
 	/**
@@ -36,7 +43,7 @@ public class JDCacheLocal extends JCache{
 		}
 		
 		if(units.get(cacheId)==null){
-			throw new RemoteException("the cache unit is not exists.");
+			throw new Exception("the cache unit is not exists.");
 		}
 		
 		return (JCacheUnit)units.get(cacheId);
@@ -206,5 +213,34 @@ public class JDCacheLocal extends JCache{
 	public ConcurrentList values(String cacheId, JCacheParams jdcParams) throws Exception {
 		JCacheUnit unit=checkStatus(cacheId);	
 		return unit.values(jdcParams);
+	}
+	
+	/*
+	 *  (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
+	public void run(){
+		while(true){
+			try{
+				Thread.sleep(30000);
+			}catch(Exception e){}
+			
+			//清除过期未使用的临时缓存单元
+			try{
+				List keys=units.listKeys();
+				for(int i=0;i<keys.size();i++){
+					Object key=keys.get(i);
+					JCacheUnit unit=(JCacheUnit)units.get(key);
+					if(unit.isTimeout()){
+						unit.clear();
+						units.remove(key);
+						unit=null;
+					}
+				}
+				JUtilList.clear_AllNull(keys);
+			}catch(Exception e){
+				log.log(e,Logger.LEVEL_ERROR);
+			}
+		}
 	}
 }

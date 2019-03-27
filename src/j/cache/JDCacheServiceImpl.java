@@ -30,9 +30,9 @@ import javax.servlet.http.HttpSession;
  */
 public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnable{
 	private static final long serialVersionUID = 1L;
-	private static Logger log=Logger.create(JCacheDefault.class);	
-	protected ConcurrentMap units=new ConcurrentMap();
-	protected ConcurrentMap synchronizers=new ConcurrentMap();
+	private static Logger log=Logger.create(JDCacheServiceImpl.class);	
+	protected ConcurrentMap<String,JCacheUnit> units=new ConcurrentMap<String,JCacheUnit>();//key-缓存单元ID，value-缓存单元
+	protected ConcurrentMap<String,JDCacheSynchronizer> synchronizers=new ConcurrentMap<String,JDCacheSynchronizer>();//key-服务镜像的节点uuid，value-同步任务执行对象
 	
 
 	/**
@@ -47,8 +47,12 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 		log.log("JDCacheServiceImpl monitor thread started.",-1);
 	}
 	
+	
+	//////////////////////////////多镜像缓存同步////////////////////////
+	//如缓存服务存在多个镜像节点，则除查询、获取类操作外，其它操作均会同步到其它镜像。
+	//同步到其它镜像时，缓存ID的格式为  syn:实际缓存单元ID,缓存单元类型:缓存单元生命周期类型，镜像收到同步任务时，仅执行，不会再次同步给其它镜像。
 	/**
-	 * 
+	 * 添加多镜像缓存同步任务
 	 * @param task
 	 * @param unitType
 	 * @param lifeCircleType
@@ -60,7 +64,7 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 			try{//创建同步线程	
 				ServiceConfig[] members=ServiceManager.getServices(this.getServiceConfig().getCode(),true);
 				for(int t=0;t<members.length;t++){
-					if(members[t].getUuid().equals(this.getServiceConfig().getUuid())) continue;
+					if(members[t].getUuid().equals(this.getServiceConfig().getUuid())) continue;//当前镜像，无需同步
 					
 					List syns=(List)synchronizers.get(members[t].getUuid());
 					if(syns==null) syns=new ArrayList();
@@ -80,6 +84,7 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 			}
 		}
 		
+		//向其它镜像节点的同步线程中添加同步任务
 		ServiceConfig[] members=ServiceManager.getServices(this.getServiceConfig().getCode(),true);
 		for(int t=0;t<members.length;t++){
 			if(members[t].getUuid().equals(this.getServiceConfig().getUuid())) continue;
@@ -96,7 +101,9 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	public JDCacheSynchronizer getSynchronizer(String serviceUuid){
 		List syns=(List)synchronizers.get(serviceUuid);
 		return (JDCacheSynchronizer)syns.get(JUtilRandom.nextInt(syns.size()));
-	}
+	}	
+	//////////////////////////////多镜像缓存同步  END////////////////////////
+	
 	
 	//为Nvwa重启时保持已有对象
 	public ConcurrentMap getUnits(){
@@ -108,12 +115,13 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	}
 	//为Nvwa重启时保持对象 end
 	
+	
 	/**
 	 * 
 	 * @param cacheId
 	 * @throws RemoteException
 	 */
-	private JCacheUnit checkStatus(String cacheId) throws RemoteException{
+	private JCacheUnit checkStatus(String cacheId) throws RemoteException{		
 		if(cacheId==null){
 			throw new RemoteException("the cache id is null.");
 		}
@@ -144,12 +152,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 		return (JCacheUnit)units.get(cacheId);
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#create(java.lang.String, int, int)
-	 */
-	public void createUnit(String cacheId, int unitType, int lifeCircleType) throws RemoteException{
+	@Override
+	public void createUnit(String clientUuid, String md54Service,String cacheId, int unitType, int lifeCircleType) throws RemoteException{
 		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"createUnit",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
 			addTask(new Object[]{"createUnit",cacheId,new Integer(unitType),new Integer(lifeCircleType)});
 		}else{
 			cacheId=cacheId.substring(4,cacheId.lastIndexOf(","));
@@ -167,14 +178,17 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 			throw new RemoteException(e.getMessage());
 		}
 	}
-	
-	/*
-	 *  (non-Javadoc)
-	 * @see j.cache.JCache#setActiveTime(java.lang.String)
-	 */
-	public void setActiveTime(String cacheId) throws RemoteException{
+
+	@Override
+	public void setActiveTime(String clientUuid, String md54Service,String cacheId) throws RemoteException{
 		JCacheUnit unit=checkStatus(cacheId);	
 		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"setActiveTime",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
 			addTask(new Object[]{"setActiveTime",cacheId,new Integer(unit.getUnitType()),new Integer(unit.getLifeCircleType())});
 		}else{
 			cacheId=cacheId.substring(4,cacheId.lastIndexOf(","));
@@ -186,15 +200,22 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#addOne(java.lang.String, java.lang.Object, java.lang.Object)
 	 */
-	public void addOne(String cacheId, Object key, Object value) throws RemoteException {
+	public void addOne(String clientUuid, String md54Service,String cacheId, Object key, Object value) throws RemoteException {
 		JCacheUnit unit=checkStatus(cacheId);	
 		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"addOne",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
 			addTask(new Object[]{"addOne-key-value",cacheId,key,value,new Integer(unit.getUnitType()),new Integer(unit.getLifeCircleType())});
 		}else{
 			cacheId=cacheId.substring(4,cacheId.lastIndexOf(","));
 		}
 		
 		try{
+			//log.log("add key-value to "+cacheId+" via service(rmi channel)",-1);
 			unit.addOne(key,value);
 		}catch(Exception e){
 			log.log(e,Logger.LEVEL_ERROR);
@@ -206,9 +227,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#addAll(java.lang.String, java.util.Map)
 	 */
-	public void addAll(String cacheId, Map mappings) throws RemoteException {
+	public void addAll(String clientUuid, String md54Service,String cacheId, Map mappings) throws RemoteException {
 		JCacheUnit unit=checkStatus(cacheId);	
 		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"addAll",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
 			addTask(new Object[]{"addAll-mappings",cacheId,mappings,new Integer(unit.getUnitType()),new Integer(unit.getLifeCircleType())});
 		}else{
 			cacheId=cacheId.substring(4,cacheId.lastIndexOf(","));
@@ -226,9 +253,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#addOne(java.lang.String, java.lang.Object)
 	 */
-	public void addOne(String cacheId, Object value) throws RemoteException {
+	public void addOne(String clientUuid, String md54Service,String cacheId, Object value) throws RemoteException {
 		JCacheUnit unit=checkStatus(cacheId);	
 		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"addOne",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
 			addTask(new Object[]{"addOne-value",cacheId,value,new Integer(unit.getUnitType()),new Integer(unit.getLifeCircleType())});
 		}else{
 			cacheId=cacheId.substring(4,cacheId.lastIndexOf(","));
@@ -246,9 +279,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#addOneIfNotContains(java.lang.String, java.lang.Object)
 	 */
-	public void addOneIfNotContains(String cacheId, Object value) throws RemoteException{
+	public void addOneIfNotContains(String clientUuid, String md54Service,String cacheId, Object value) throws RemoteException{
 		JCacheUnit unit=checkStatus(cacheId);
 		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"addOneIfNotContains",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
 			addTask(new Object[]{"addOneIfNotContains-value",cacheId,value,new Integer(unit.getUnitType()),new Integer(unit.getLifeCircleType())});
 		}else{
 			cacheId=cacheId.substring(4,cacheId.lastIndexOf(","));
@@ -266,9 +305,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#addAll(java.lang.String, java.util.Collection)
 	 */
-	public void addAll(String cacheId, Collection values) throws RemoteException {
+	public void addAll(String clientUuid, String md54Service,String cacheId, Collection values) throws RemoteException {
 		JCacheUnit unit=checkStatus(cacheId);
 		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"addAll",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
 			addTask(new Object[]{"addAll-values",cacheId,values,new Integer(unit.getUnitType()),new Integer(unit.getLifeCircleType())});
 		}else{
 			cacheId=cacheId.substring(4,cacheId.lastIndexOf(","));
@@ -286,7 +331,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#contains(java.lang.String, j.cache.JCacheParams)
 	 */
-	public boolean contains(String cacheId, JCacheParams params) throws RemoteException {
+	public boolean contains(String clientUuid, String md54Service,String cacheId, JCacheParams params) throws RemoteException {
+		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"contains",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+		}
+		
 		JCacheUnit unit=checkStatus(cacheId);	
 		try{
 			return unit.contains(params);	
@@ -300,7 +353,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#size(java.lang.String)
 	 */
-	public int size(String cacheId) throws RemoteException{
+	public int size(String clientUuid, String md54Service,String cacheId) throws RemoteException{
+		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"size",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+		}
+		
 		JCacheUnit unit=checkStatus(cacheId);	
 		try{
 			return unit.size();
@@ -310,7 +371,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 		}
 	}
 	
-	public int size(String cacheId, JCacheParams params) throws RemoteException{
+	public int size(String clientUuid, String md54Service,String cacheId, JCacheParams params) throws RemoteException{
+		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"size",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+		}
+		
 		JCacheUnit unit=checkStatus(cacheId);	
 		try{
 			return unit.size(params);
@@ -324,7 +393,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#get(java.lang.String, j.cache.JCacheParams)
 	 */
-	public Object get(String cacheId, JCacheParams params) throws RemoteException {
+	public Object get(String clientUuid, String md54Service,String cacheId, JCacheParams params) throws RemoteException {
+		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"get",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+		}
+		
 		JCacheUnit unit=checkStatus(cacheId);	
 		try{
 			return unit.get(params);
@@ -338,9 +415,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#remove(java.lang.String, j.cache.JCacheParams)
 	 */
-	public void remove(String cacheId, JCacheParams params) throws RemoteException {
+	public void remove(String clientUuid, String md54Service,String cacheId, JCacheParams params) throws RemoteException {
 		JCacheUnit unit=checkStatus(cacheId);	
 		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"remove",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
 			addTask(new Object[]{"remove",cacheId,params,new Integer(unit.getUnitType()),new Integer(unit.getLifeCircleType())});
 		}else{
 			cacheId=cacheId.substring(4,cacheId.lastIndexOf(","));
@@ -358,9 +441,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#clear(java.lang.String)
 	 */
-	public void clear(String cacheId) throws RemoteException {
+	public void clear(String clientUuid, String md54Service,String cacheId) throws RemoteException {
 		JCacheUnit unit=checkStatus(cacheId);	
 		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"clear",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
 			addTask(new Object[]{"clear",cacheId,new Integer(unit.getUnitType()),new Integer(unit.getLifeCircleType())});
 		}else{
 			cacheId=cacheId.substring(4,cacheId.lastIndexOf(","));
@@ -378,9 +467,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#update(java.lang.String, j.cache.JCacheParams)
 	 */
-	public void update(String cacheId, JCacheParams params) throws RemoteException {
+	public void update(String clientUuid, String md54Service,String cacheId, JCacheParams params) throws RemoteException {
 		JCacheUnit unit=checkStatus(cacheId);	
 		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"update",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
 			addTask(new Object[]{"update",cacheId,params,new Integer(unit.getUnitType()),new Integer(unit.getLifeCircleType())});
 		}else{
 			cacheId=cacheId.substring(4,cacheId.lastIndexOf(","));
@@ -399,9 +494,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#update(java.lang.String, j.cache.JCacheParams)
 	 */
-	public void updateCollection(String cacheId, JCacheParams params) throws RemoteException {
+	public void updateCollection(String clientUuid, String md54Service,String cacheId, JCacheParams params) throws RemoteException {
 		JCacheUnit unit=checkStatus(cacheId);	
 		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"updateCollection",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
 			addTask(new Object[]{"updateCollection",cacheId,params,new Integer(unit.getUnitType()),new Integer(unit.getLifeCircleType())});
 		}else{
 			cacheId=cacheId.substring(4,cacheId.lastIndexOf(","));
@@ -418,7 +519,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#sub(java.lang.String, j.cache.JCacheParams)
 	 */
-	public Object sub(String cacheId, JCacheParams params) throws RemoteException {
+	public Object sub(String clientUuid, String md54Service,String cacheId, JCacheParams params) throws RemoteException {
+		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"sub",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+		}
+		
 		JCacheUnit unit=checkStatus(cacheId);	
 		try{
 			return unit.sub(params);
@@ -432,7 +541,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#keys(java.lang.String, j.cache.JCacheParams)
 	 */
-	public ConcurrentList keys(String cacheId, JCacheParams params) throws RemoteException {
+	public ConcurrentList keys(String clientUuid, String md54Service,String cacheId, JCacheParams params) throws RemoteException {
+		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"keys",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+		}
+		
 		JCacheUnit unit=checkStatus(cacheId);	
 		try{
 			return unit.keys(params);
@@ -446,7 +563,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 * (non-Javadoc)
 	 * @see j.cache.JDCacheService#values(java.lang.String, j.cache.JCacheParams)
 	 */
-	public ConcurrentList values(String cacheId, JCacheParams params) throws RemoteException {
+	public ConcurrentList values(String clientUuid, String md54Service,String cacheId, JCacheParams params) throws RemoteException {
+		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"values",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+		}
+		
 		JCacheUnit unit=checkStatus(cacheId);
 		try{	
 			return unit.values(params);
@@ -462,11 +587,13 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void createUnit(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			int unitType=Integer.parseInt(SysUtil.getHttpParameter(request,"unitType"));
 			int lifeCircleType=Integer.parseInt(SysUtil.getHttpParameter(request,"lifeCircleType"));
 			
-			this.createUnit(cacheId,unitType,lifeCircleType);
+			this.createUnit(clientUuid,md54Service,cacheId,unitType,lifeCircleType);
 			
 			jsession.resultString=Constants.INVOKING_DONE;
 		}catch(Exception e){
@@ -481,9 +608,11 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void setActiveTime(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			
-			this.setActiveTime(cacheId);
+			this.setActiveTime(clientUuid,md54Service,cacheId);
 			
 			jsession.resultString=Constants.INVOKING_DONE;
 		}catch(Exception e){
@@ -498,14 +627,16 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void addOne(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			String key=SysUtil.getHttpParameter(request,"key");
 			String value=SysUtil.getHttpParameter(request,"value");
 
 			if(key!=null){
-				this.addOne(cacheId,JObject.string2Serializable(key),JObject.string2Serializable(value));
+				this.addOne(clientUuid,md54Service,cacheId,JObject.string2Serializable(key),JObject.string2Serializable(value));
 			}else{
-				this.addOne(cacheId,JObject.string2Serializable(value));		
+				this.addOne(clientUuid,md54Service,cacheId,JObject.string2Serializable(value));		
 			}
 			
 			jsession.resultString=Constants.INVOKING_DONE;
@@ -521,14 +652,16 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void addAll(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			String mappings=SysUtil.getHttpParameter(request,"mappings");
 			String values=SysUtil.getHttpParameter(request,"values");
 			
 			if(mappings!=null){
-				this.addAll(cacheId,(Map)JObject.string2Serializable(mappings));				
+				this.addAll(clientUuid,md54Service,cacheId,(Map)JObject.string2Serializable(mappings));				
 			}else if(values!=null){
-				this.addAll(cacheId,(List)JObject.string2Serializable(values));			
+				this.addAll(clientUuid,md54Service,cacheId,(List)JObject.string2Serializable(values));			
 			}
 			
 			jsession.resultString=Constants.INVOKING_DONE;
@@ -544,10 +677,12 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void addOneIfNotContains(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			String value=SysUtil.getHttpParameter(request,"value");
 			
-			this.addOne(cacheId,JObject.string2Serializable(value));
+			this.addOneIfNotContains(clientUuid,md54Service,cacheId,JObject.string2Serializable(value));
 			
 			jsession.resultString=Constants.INVOKING_DONE;
 		}catch(Exception e){
@@ -562,10 +697,12 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void contains(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			String params=SysUtil.getHttpParameter(request,"params");
 			
-			jsession.resultString=""+this.contains(cacheId,(JCacheParams)JObject.string2Serializable(params));
+			jsession.resultString=""+this.contains(clientUuid,md54Service,cacheId,(JCacheParams)JObject.string2Serializable(params));
 		}catch(Exception e){
 			log.log(e,Logger.LEVEL_ERROR);
 			jsession.resultString=Constants.INVOKING_FAILED;
@@ -578,13 +715,15 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void size(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			String params=SysUtil.getHttpParameter(request,"params");
 			
 			if(params!=null){
-				jsession.resultString=""+this.size(cacheId,(JCacheParams)JObject.string2Serializable(params));
+				jsession.resultString=""+this.size(clientUuid,md54Service,cacheId,(JCacheParams)JObject.string2Serializable(params));
 			}else{
-				jsession.resultString=""+this.size(cacheId);
+				jsession.resultString=""+this.size(clientUuid,md54Service,cacheId);
 			}
 		}catch(Exception e){
 			log.log(e,Logger.LEVEL_ERROR);
@@ -598,9 +737,11 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void get(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			String params=SysUtil.getHttpParameter(request,"params");
-			jsession.resultString=JObject.serializable2String((Serializable)this.get(cacheId,(JCacheParams)JObject.string2Serializable(params)));
+			jsession.resultString=JObject.serializable2String((Serializable)this.get(clientUuid,md54Service,cacheId,(JCacheParams)JObject.string2Serializable(params)));
 		}catch(Exception e){
 			log.log(e,Logger.LEVEL_ERROR);
 			jsession.resultString=Constants.INVOKING_FAILED;
@@ -613,10 +754,12 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void remove(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			String params=SysUtil.getHttpParameter(request,"params");
 			
-			this.remove(cacheId,(JCacheParams)JObject.string2Serializable(params));
+			this.remove(clientUuid,md54Service,cacheId,(JCacheParams)JObject.string2Serializable(params));
 			
 			jsession.resultString=Constants.INVOKING_DONE;
 		}catch(Exception e){
@@ -631,9 +774,11 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void clear(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 
-			this.clear(cacheId);
+			this.clear(clientUuid,md54Service,cacheId);
 			
 			jsession.resultString=Constants.INVOKING_DONE;
 		}catch(Exception e){
@@ -648,10 +793,12 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void update(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			String params=SysUtil.getHttpParameter(request,"params");
 			
-			this.update(cacheId,(JCacheParams)JObject.string2Serializable(params));
+			this.update(clientUuid,md54Service,cacheId,(JCacheParams)JObject.string2Serializable(params));
 			
 			jsession.resultString=Constants.INVOKING_DONE;
 		}catch(Exception e){
@@ -666,10 +813,12 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void updateCollection(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			String params=SysUtil.getHttpParameter(request,"params");
 			
-			this.updateCollection(cacheId,(JCacheParams)JObject.string2Serializable(params));
+			this.updateCollection(clientUuid,md54Service,cacheId,(JCacheParams)JObject.string2Serializable(params));
 			
 			jsession.resultString=Constants.INVOKING_DONE;
 		}catch(Exception e){
@@ -684,10 +833,12 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void sub(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			String params=SysUtil.getHttpParameter(request,"params");
 			
-			jsession.resultString=JObject.serializable2String((Serializable)this.sub(cacheId,(JCacheParams)JObject.string2Serializable(params)));
+			jsession.resultString=JObject.serializable2String((Serializable)this.sub(clientUuid,md54Service,cacheId,(JCacheParams)JObject.string2Serializable(params)));
 		}catch(Exception e){
 			log.log(e,Logger.LEVEL_ERROR);
 			jsession.resultString=Constants.INVOKING_FAILED;
@@ -700,10 +851,12 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void keys(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			String params=SysUtil.getHttpParameter(request,"params");
 			
-			jsession.resultString=JObject.serializable2String((Serializable)this.keys(cacheId,(JCacheParams)JObject.string2Serializable(params)));
+			jsession.resultString=JObject.serializable2String((Serializable)this.keys(clientUuid,md54Service,cacheId,(JCacheParams)JObject.string2Serializable(params)));
 		}catch(Exception e){
 			log.log(e,Logger.LEVEL_ERROR);
 			jsession.resultString=Constants.INVOKING_FAILED;
@@ -716,10 +869,12 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 	 */
 	public void values(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
 		try{
+			String clientUuid=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_CLIENT_UUID);
+			String md54Service=SysUtil.getHttpParameter(request,Constants.JSERVICE_PARAM_MD5_STRING_4SERVICE);
 			String cacheId=SysUtil.getHttpParameter(request,"cacheId");
 			String params=SysUtil.getHttpParameter(request,"params");
 			
-			jsession.resultString=JObject.serializable2String((Serializable)this.values(cacheId,(JCacheParams)JObject.string2Serializable(params)));
+			jsession.resultString=JObject.serializable2String((Serializable)this.values(clientUuid,md54Service,cacheId,(JCacheParams)JObject.string2Serializable(params)));
 		}catch(Exception e){
 			log.log(e,Logger.LEVEL_ERROR);
 			jsession.resultString=Constants.INVOKING_FAILED;
@@ -735,7 +890,8 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 			try{
 				Thread.sleep(30000);
 			}catch(Exception e){}
-			
+
+			//清除过期未使用的临时缓存单元
 			try{
 				List keys=units.listKeys();
 				for(int i=0;i<keys.size();i++){

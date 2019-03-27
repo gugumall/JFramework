@@ -21,7 +21,7 @@
 rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.service.hello.JHelloAbstract
 rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.service.router.JRouterAbstract
 rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.fs.JDFSServiceAbstract
-rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.cache.JDCacheServiceAbstract
+rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep j.cache.JDCacheServiceAbstract
 rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.dao.DBServiceAbstract
 rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.tool.ip.IPServiceAbstract
 rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -poa -iiop -nowrite j.tool.region.RegionServiceAbstract
@@ -32,7 +32,7 @@ rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JF
 rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -nowrite j.fs.JDFSServiceAbstract
 rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -nowrite j.cache.JDCacheServiceAbstract
 rmic -classpath F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;. -d F:\work\JFramework_v2.0\src -keep -nowrite j.dao.DBServiceAbstract
-rmic -classpath F:\work\JShop_v1.1\WebContent\WEB-INF\lib\*;. -d F:\work\JShop_v1.1\src -keep -nowrite j.shop.message.MailSendServiceAbstract
+rmic -classpath F:\work\JShop_v1.1\WebContent\WEB-INF\lib\*;. -d F:\work\JShop_v2.1\src -keep -nowrite j.shop.message.MailSendServiceAbstract
 
 5，部署应用时，将生成的skel、stub与业务处理类放在同一目录。
 
@@ -54,7 +54,7 @@ rmiregistry 1099
 orbd -ORBInitialHost somedomain -ORBInitialPort 1060
 
 如果设置环境变量不起作用，用如下命令启动：
-rmiregistry -J-Dclasspath=F:\work\JFramework_v2.0\WebContent\WEB-INF\lib\*;F:\work\JFramework_v2.0\WebContent\WEB-INF\classes 1099
+nohup rmiregistry -J-Dclasspath=/usr/local/tomcat/lib/*:/usr/local/tomcat/webapps/jshopx/ROOT/WEB-INF/lib/*:/usr/local/tomcat/webapps/jshopx/ROOT/WEB-INF/classes 1520 &
 
 
 重点：

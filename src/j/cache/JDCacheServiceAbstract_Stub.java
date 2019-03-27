@@ -53,45 +53,45 @@ public final class JDCacheServiceAbstract_Stub
     static {
 	try {
 	    $method_addAll_0 = j.cache.JDCacheService.class.getMethod("addAll", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_addAll_1 = j.cache.JDCacheService.class.getMethod("addAll", new java.lang.Class[] {java.lang.String.class, java.util.Collection.class});
-	    $method_addAll_2 = j.cache.JDCacheService.class.getMethod("addAll", new java.lang.Class[] {java.lang.String.class, java.util.Map.class});
+	    $method_addAll_1 = j.cache.JDCacheService.class.getMethod("addAll", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.util.Collection.class});
+	    $method_addAll_2 = j.cache.JDCacheService.class.getMethod("addAll", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.util.Map.class});
 	    $method_addOne_3 = j.cache.JDCacheService.class.getMethod("addOne", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_addOne_4 = j.cache.JDCacheService.class.getMethod("addOne", new java.lang.Class[] {java.lang.String.class, java.lang.Object.class});
-	    $method_addOne_5 = j.cache.JDCacheService.class.getMethod("addOne", new java.lang.Class[] {java.lang.String.class, java.lang.Object.class, java.lang.Object.class});
+	    $method_addOne_4 = j.cache.JDCacheService.class.getMethod("addOne", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class});
+	    $method_addOne_5 = j.cache.JDCacheService.class.getMethod("addOne", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class});
 	    $method_addOneIfNotContains_6 = j.cache.JDCacheService.class.getMethod("addOneIfNotContains", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_addOneIfNotContains_7 = j.cache.JDCacheService.class.getMethod("addOneIfNotContains", new java.lang.Class[] {java.lang.String.class, java.lang.Object.class});
+	    $method_addOneIfNotContains_7 = j.cache.JDCacheService.class.getMethod("addOneIfNotContains", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class});
 	    $method_auth_8 = j.service.server.ServiceBase.class.getMethod("auth", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
 	    $method_auth_9 = j.service.server.ServiceBase.class.getMethod("auth", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class});
 	    $method_clear_10 = j.cache.JDCacheService.class.getMethod("clear", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_clear_11 = j.cache.JDCacheService.class.getMethod("clear", new java.lang.Class[] {java.lang.String.class});
+	    $method_clear_11 = j.cache.JDCacheService.class.getMethod("clear", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class});
 	    $method_contains_12 = j.cache.JDCacheService.class.getMethod("contains", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_contains_13 = j.cache.JDCacheService.class.getMethod("contains", new java.lang.Class[] {java.lang.String.class, j.cache.JCacheParams.class});
+	    $method_contains_13 = j.cache.JDCacheService.class.getMethod("contains", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, j.cache.JCacheParams.class});
 	    $method_createUnit_14 = j.cache.JDCacheService.class.getMethod("createUnit", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_createUnit_15 = j.cache.JDCacheService.class.getMethod("createUnit", new java.lang.Class[] {java.lang.String.class, int.class, int.class});
+	    $method_createUnit_15 = j.cache.JDCacheService.class.getMethod("createUnit", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, int.class, int.class});
 	    $method_get_16 = j.cache.JDCacheService.class.getMethod("get", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_get_17 = j.cache.JDCacheService.class.getMethod("get", new java.lang.Class[] {java.lang.String.class, j.cache.JCacheParams.class});
+	    $method_get_17 = j.cache.JDCacheService.class.getMethod("get", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, j.cache.JCacheParams.class});
 	    $method_getServiceConfig_18 = j.service.server.ServiceBase.class.getMethod("getServiceConfig", new java.lang.Class[] {});
 	    $method_heartbeat_19 = j.service.server.ServiceBase.class.getMethod("heartbeat", new java.lang.Class[] {});
 	    $method_heartbeat_20 = j.service.server.ServiceBase.class.getMethod("heartbeat", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
 	    $method_init_21 = j.service.server.ServiceBase.class.getMethod("init", new java.lang.Class[] {});
 	    $method_keys_22 = j.cache.JDCacheService.class.getMethod("keys", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_keys_23 = j.cache.JDCacheService.class.getMethod("keys", new java.lang.Class[] {java.lang.String.class, j.cache.JCacheParams.class});
+	    $method_keys_23 = j.cache.JDCacheService.class.getMethod("keys", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, j.cache.JCacheParams.class});
 	    $method_remove_24 = j.cache.JDCacheService.class.getMethod("remove", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_remove_25 = j.cache.JDCacheService.class.getMethod("remove", new java.lang.Class[] {java.lang.String.class, j.cache.JCacheParams.class});
+	    $method_remove_25 = j.cache.JDCacheService.class.getMethod("remove", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, j.cache.JCacheParams.class});
 	    $method_setActiveTime_26 = j.cache.JDCacheService.class.getMethod("setActiveTime", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_setActiveTime_27 = j.cache.JDCacheService.class.getMethod("setActiveTime", new java.lang.Class[] {java.lang.String.class});
+	    $method_setActiveTime_27 = j.cache.JDCacheService.class.getMethod("setActiveTime", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class});
 	    $method_setServiceConfig_28 = j.service.server.ServiceBase.class.getMethod("setServiceConfig", new java.lang.Class[] {j.service.server.ServiceConfig.class});
 	    $method_size_29 = j.cache.JDCacheService.class.getMethod("size", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_size_30 = j.cache.JDCacheService.class.getMethod("size", new java.lang.Class[] {java.lang.String.class});
-	    $method_size_31 = j.cache.JDCacheService.class.getMethod("size", new java.lang.Class[] {java.lang.String.class, j.cache.JCacheParams.class});
+	    $method_size_30 = j.cache.JDCacheService.class.getMethod("size", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class});
+	    $method_size_31 = j.cache.JDCacheService.class.getMethod("size", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, j.cache.JCacheParams.class});
 	    $method_sub_32 = j.cache.JDCacheService.class.getMethod("sub", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_sub_33 = j.cache.JDCacheService.class.getMethod("sub", new java.lang.Class[] {java.lang.String.class, j.cache.JCacheParams.class});
+	    $method_sub_33 = j.cache.JDCacheService.class.getMethod("sub", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, j.cache.JCacheParams.class});
 	    $method_update_34 = j.cache.JDCacheService.class.getMethod("update", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_update_35 = j.cache.JDCacheService.class.getMethod("update", new java.lang.Class[] {java.lang.String.class, j.cache.JCacheParams.class});
+	    $method_update_35 = j.cache.JDCacheService.class.getMethod("update", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, j.cache.JCacheParams.class});
 	    $method_updateCollection_36 = j.cache.JDCacheService.class.getMethod("updateCollection", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_updateCollection_37 = j.cache.JDCacheService.class.getMethod("updateCollection", new java.lang.Class[] {java.lang.String.class, j.cache.JCacheParams.class});
+	    $method_updateCollection_37 = j.cache.JDCacheService.class.getMethod("updateCollection", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, j.cache.JCacheParams.class});
 	    $method_values_38 = j.cache.JDCacheService.class.getMethod("values", new java.lang.Class[] {j.app.webserver.JSession.class, javax.servlet.http.HttpSession.class, javax.servlet.http.HttpServletRequest.class, javax.servlet.http.HttpServletResponse.class});
-	    $method_values_39 = j.cache.JDCacheService.class.getMethod("values", new java.lang.Class[] {java.lang.String.class, j.cache.JCacheParams.class});
+	    $method_values_39 = j.cache.JDCacheService.class.getMethod("values", new java.lang.Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, j.cache.JCacheParams.class});
 	} catch (java.lang.NoSuchMethodException e) {
 	    throw new java.lang.NoSuchMethodError(
 		"stub class initialization failed");
@@ -120,12 +120,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of addAll(String, Collection)
-    public void addAll(java.lang.String $param_String_1, java.util.Collection $param_Collection_2)
+    // implementation of addAll(String, String, String, Collection)
+    public void addAll(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, java.util.Collection $param_Collection_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    ref.invoke(this, $method_addAll_1, new java.lang.Object[] {$param_String_1, $param_Collection_2}, 3309852399655061260L);
+	    ref.invoke(this, $method_addAll_1, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_Collection_4}, -5022688481066860842L);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
 	} catch (java.rmi.RemoteException e) {
@@ -135,12 +135,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of addAll(String, Map)
-    public void addAll(java.lang.String $param_String_1, java.util.Map $param_Map_2)
+    // implementation of addAll(String, String, String, Map)
+    public void addAll(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, java.util.Map $param_Map_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    ref.invoke(this, $method_addAll_2, new java.lang.Object[] {$param_String_1, $param_Map_2}, 6322116521815800911L);
+	    ref.invoke(this, $method_addAll_2, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_Map_4}, 3125207590946388589L);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
 	} catch (java.rmi.RemoteException e) {
@@ -165,12 +165,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of addOne(String, Object)
-    public void addOne(java.lang.String $param_String_1, java.lang.Object $param_Object_2)
+    // implementation of addOne(String, String, String, Object)
+    public void addOne(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, java.lang.Object $param_Object_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    ref.invoke(this, $method_addOne_4, new java.lang.Object[] {$param_String_1, $param_Object_2}, 9080884128297830789L);
+	    ref.invoke(this, $method_addOne_4, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_Object_4}, 8137981188906223848L);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
 	} catch (java.rmi.RemoteException e) {
@@ -180,12 +180,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of addOne(String, Object, Object)
-    public void addOne(java.lang.String $param_String_1, java.lang.Object $param_Object_2, java.lang.Object $param_Object_3)
+    // implementation of addOne(String, String, String, Object, Object)
+    public void addOne(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, java.lang.Object $param_Object_4, java.lang.Object $param_Object_5)
 	throws java.rmi.RemoteException
     {
 	try {
-	    ref.invoke(this, $method_addOne_5, new java.lang.Object[] {$param_String_1, $param_Object_2, $param_Object_3}, 3302514589244757609L);
+	    ref.invoke(this, $method_addOne_5, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_Object_4, $param_Object_5}, -1722953507049470831L);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
 	} catch (java.rmi.RemoteException e) {
@@ -210,12 +210,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of addOneIfNotContains(String, Object)
-    public void addOneIfNotContains(java.lang.String $param_String_1, java.lang.Object $param_Object_2)
+    // implementation of addOneIfNotContains(String, String, String, Object)
+    public void addOneIfNotContains(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, java.lang.Object $param_Object_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    ref.invoke(this, $method_addOneIfNotContains_7, new java.lang.Object[] {$param_String_1, $param_Object_2}, -118119434425977653L);
+	    ref.invoke(this, $method_addOneIfNotContains_7, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_Object_4}, -4349897404966930860L);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
 	} catch (java.rmi.RemoteException e) {
@@ -271,12 +271,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of clear(String)
-    public void clear(java.lang.String $param_String_1)
+    // implementation of clear(String, String, String)
+    public void clear(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3)
 	throws java.rmi.RemoteException
     {
 	try {
-	    ref.invoke(this, $method_clear_11, new java.lang.Object[] {$param_String_1}, 7545105760904876619L);
+	    ref.invoke(this, $method_clear_11, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3}, 1497600615318603132L);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
 	} catch (java.rmi.RemoteException e) {
@@ -301,12 +301,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of contains(String, JCacheParams)
-    public boolean contains(java.lang.String $param_String_1, j.cache.JCacheParams $param_JCacheParams_2)
+    // implementation of contains(String, String, String, JCacheParams)
+    public boolean contains(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, j.cache.JCacheParams $param_JCacheParams_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    Object $result = ref.invoke(this, $method_contains_13, new java.lang.Object[] {$param_String_1, $param_JCacheParams_2}, -8935199630258501883L);
+	    Object $result = ref.invoke(this, $method_contains_13, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_JCacheParams_4}, 8888748833328295258L);
 	    return ((java.lang.Boolean) $result).booleanValue();
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
@@ -332,12 +332,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of createUnit(String, int, int)
-    public void createUnit(java.lang.String $param_String_1, int $param_int_2, int $param_int_3)
+    // implementation of createUnit(String, String, String, int, int)
+    public void createUnit(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, int $param_int_4, int $param_int_5)
 	throws java.rmi.RemoteException
     {
 	try {
-	    ref.invoke(this, $method_createUnit_15, new java.lang.Object[] {$param_String_1, new java.lang.Integer($param_int_2), new java.lang.Integer($param_int_3)}, 3083407264095586979L);
+	    ref.invoke(this, $method_createUnit_15, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, new java.lang.Integer($param_int_4), new java.lang.Integer($param_int_5)}, -5277450156474751594L);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
 	} catch (java.rmi.RemoteException e) {
@@ -362,12 +362,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of get(String, JCacheParams)
-    public java.lang.Object get(java.lang.String $param_String_1, j.cache.JCacheParams $param_JCacheParams_2)
+    // implementation of get(String, String, String, JCacheParams)
+    public java.lang.Object get(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, j.cache.JCacheParams $param_JCacheParams_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    Object $result = ref.invoke(this, $method_get_17, new java.lang.Object[] {$param_String_1, $param_JCacheParams_2}, 3756883043475659600L);
+	    Object $result = ref.invoke(this, $method_get_17, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_JCacheParams_4}, 755896339991099218L);
 	    return ((java.lang.Object) $result);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
@@ -455,12 +455,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of keys(String, JCacheParams)
-    public j.util.ConcurrentList keys(java.lang.String $param_String_1, j.cache.JCacheParams $param_JCacheParams_2)
+    // implementation of keys(String, String, String, JCacheParams)
+    public j.util.ConcurrentList keys(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, j.cache.JCacheParams $param_JCacheParams_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    Object $result = ref.invoke(this, $method_keys_23, new java.lang.Object[] {$param_String_1, $param_JCacheParams_2}, 6557539336689350416L);
+	    Object $result = ref.invoke(this, $method_keys_23, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_JCacheParams_4}, 5880167373452676601L);
 	    return ((j.util.ConcurrentList) $result);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
@@ -486,12 +486,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of remove(String, JCacheParams)
-    public void remove(java.lang.String $param_String_1, j.cache.JCacheParams $param_JCacheParams_2)
+    // implementation of remove(String, String, String, JCacheParams)
+    public void remove(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, j.cache.JCacheParams $param_JCacheParams_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    ref.invoke(this, $method_remove_25, new java.lang.Object[] {$param_String_1, $param_JCacheParams_2}, -8358915430931840208L);
+	    ref.invoke(this, $method_remove_25, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_JCacheParams_4}, -4799117966253485800L);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
 	} catch (java.rmi.RemoteException e) {
@@ -516,12 +516,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of setActiveTime(String)
-    public void setActiveTime(java.lang.String $param_String_1)
+    // implementation of setActiveTime(String, String, String)
+    public void setActiveTime(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3)
 	throws java.rmi.RemoteException
     {
 	try {
-	    ref.invoke(this, $method_setActiveTime_27, new java.lang.Object[] {$param_String_1}, -8212987017873020100L);
+	    ref.invoke(this, $method_setActiveTime_27, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3}, 5894651717408209913L);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
 	} catch (java.rmi.RemoteException e) {
@@ -561,12 +561,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of size(String)
-    public int size(java.lang.String $param_String_1)
+    // implementation of size(String, String, String)
+    public int size(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3)
 	throws java.rmi.RemoteException
     {
 	try {
-	    Object $result = ref.invoke(this, $method_size_30, new java.lang.Object[] {$param_String_1}, -6106722299481825686L);
+	    Object $result = ref.invoke(this, $method_size_30, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3}, 6289203834426963621L);
 	    return ((java.lang.Integer) $result).intValue();
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
@@ -577,12 +577,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of size(String, JCacheParams)
-    public int size(java.lang.String $param_String_1, j.cache.JCacheParams $param_JCacheParams_2)
+    // implementation of size(String, String, String, JCacheParams)
+    public int size(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, j.cache.JCacheParams $param_JCacheParams_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    Object $result = ref.invoke(this, $method_size_31, new java.lang.Object[] {$param_String_1, $param_JCacheParams_2}, 3346031947811015926L);
+	    Object $result = ref.invoke(this, $method_size_31, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_JCacheParams_4}, 3788378536362486641L);
 	    return ((java.lang.Integer) $result).intValue();
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
@@ -608,12 +608,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of sub(String, JCacheParams)
-    public java.lang.Object sub(java.lang.String $param_String_1, j.cache.JCacheParams $param_JCacheParams_2)
+    // implementation of sub(String, String, String, JCacheParams)
+    public java.lang.Object sub(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, j.cache.JCacheParams $param_JCacheParams_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    Object $result = ref.invoke(this, $method_sub_33, new java.lang.Object[] {$param_String_1, $param_JCacheParams_2}, 2724071178145700731L);
+	    Object $result = ref.invoke(this, $method_sub_33, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_JCacheParams_4}, 4118576392121554432L);
 	    return ((java.lang.Object) $result);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
@@ -639,12 +639,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of update(String, JCacheParams)
-    public void update(java.lang.String $param_String_1, j.cache.JCacheParams $param_JCacheParams_2)
+    // implementation of update(String, String, String, JCacheParams)
+    public void update(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, j.cache.JCacheParams $param_JCacheParams_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    ref.invoke(this, $method_update_35, new java.lang.Object[] {$param_String_1, $param_JCacheParams_2}, 5893867568674193761L);
+	    ref.invoke(this, $method_update_35, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_JCacheParams_4}, -2607978534295183688L);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
 	} catch (java.rmi.RemoteException e) {
@@ -669,12 +669,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of updateCollection(String, JCacheParams)
-    public void updateCollection(java.lang.String $param_String_1, j.cache.JCacheParams $param_JCacheParams_2)
+    // implementation of updateCollection(String, String, String, JCacheParams)
+    public void updateCollection(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, j.cache.JCacheParams $param_JCacheParams_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    ref.invoke(this, $method_updateCollection_37, new java.lang.Object[] {$param_String_1, $param_JCacheParams_2}, 8718260227827197947L);
+	    ref.invoke(this, $method_updateCollection_37, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_JCacheParams_4}, -3688867267471559803L);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;
 	} catch (java.rmi.RemoteException e) {
@@ -699,12 +699,12 @@ public final class JDCacheServiceAbstract_Stub
 	}
     }
     
-    // implementation of values(String, JCacheParams)
-    public j.util.ConcurrentList values(java.lang.String $param_String_1, j.cache.JCacheParams $param_JCacheParams_2)
+    // implementation of values(String, String, String, JCacheParams)
+    public j.util.ConcurrentList values(java.lang.String $param_String_1, java.lang.String $param_String_2, java.lang.String $param_String_3, j.cache.JCacheParams $param_JCacheParams_4)
 	throws java.rmi.RemoteException
     {
 	try {
-	    Object $result = ref.invoke(this, $method_values_39, new java.lang.Object[] {$param_String_1, $param_JCacheParams_2}, 8256047979250794018L);
+	    Object $result = ref.invoke(this, $method_values_39, new java.lang.Object[] {$param_String_1, $param_String_2, $param_String_3, $param_JCacheParams_4}, -7131545643001403397L);
 	    return ((j.util.ConcurrentList) $result);
 	} catch (java.lang.RuntimeException e) {
 	    throw e;

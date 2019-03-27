@@ -118,6 +118,58 @@ public class JRouterImpl extends JRouterAbstract implements Runnable{
 
 	/*
 	 *  (non-Javadoc)
+	 * @see j.service.router.RouterInterface#register(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	public String register(String clientUuid, String clusterCode, String uuid, String rmi, String http, String interfaceClassName, String md54Routing) throws RemoteException {
+		if(Constants.PRIVICY_PUBLIC.equalsIgnoreCase(routerConfig.getPrivacy())){
+			//is public, nothing to do
+		}else if(Constants.PRIVICY_MD5.equalsIgnoreCase(routerConfig.getPrivacy())){
+			Client client=routerConfig.getClient(clientUuid);
+			if(client==null){
+				log.log("client "+clientUuid+" is not exists.",Logger.LEVEL_DEBUG);
+				return Constants.AUTH_FAILED;
+			}
+			
+			String md5="";
+			md5+=clientUuid;
+			md5+=clusterCode;
+			md5+=uuid;
+			md5+=rmi;
+			md5+=http;
+			md5+=interfaceClassName;
+			md5+=client.getKey();
+			md5=JUtilMD5.MD5EncodeToHex(md5);
+			
+			if(!md5.equalsIgnoreCase(md54Routing)){
+				return Constants.AUTH_FAILED;
+			}
+		}else{//未实现的隐私策略
+			return Constants.AUTH_FAILED;
+		}
+		
+		ConcurrentList clusterNodes=(ConcurrentList)serviceNodesOfClusters.get(clusterCode);
+		if(clusterNodes==null){
+			clusterNodes=new ConcurrentList();			
+		}
+		
+		Service node=new Service(uuid,rmi,http,interfaceClassName,clusterCode);
+		if(!nodeInfoList.contains(node.toString())){
+			log.log("register new service - "+node.toString(),-1);
+			nodeInfoList.add(node.toString());
+			
+			clusterNodes.add(node);
+			
+			update=SysUtil.getNow();
+		}
+		serviceNodesOfClusters.put(clusterCode,clusterNodes);
+		
+		if(!clusterCodes.contains(clusterCode)) clusterCodes.add(clusterCode);
+				
+		return Constants.INVOKING_DONE;
+	}
+
+	/*
+	 *  (non-Javadoc)
 	 * @see j.service.router.RouterInterface#register(j.app.webserver.JSession, javax.servlet.http.HttpSession, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	public void register(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
@@ -136,6 +188,64 @@ public class JRouterImpl extends JRouterAbstract implements Runnable{
 			jsession.resultString=Constants.INVOKING_FAILED;
 		}
 	}
+	/*
+	 *  (non-Javadoc)
+	 * @see j.service.router.RouterInterface#unregister(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	public String unregister(String clientUuid,String clusterCode,String uuid, String md54Routing) throws RemoteException {
+		if(Constants.PRIVICY_PUBLIC.equalsIgnoreCase(routerConfig.getPrivacy())){
+			//is public, nothing to do
+		}else if(Constants.PRIVICY_MD5.equalsIgnoreCase(routerConfig.getPrivacy())){
+			Client client=routerConfig.getClient(clientUuid);
+			if(client==null){
+				log.log("client "+clientUuid+" is not exists.",Logger.LEVEL_DEBUG);
+				return Constants.AUTH_FAILED;
+			}
+			
+			String md5="";
+			md5+=clientUuid;
+			md5+=clusterCode;
+			md5+=uuid;
+			md5+=client.getKey();
+			md5=JUtilMD5.MD5EncodeToHex(md5);
+			
+			if(!md5.equalsIgnoreCase(md54Routing)){
+				return Constants.AUTH_FAILED;
+			}
+		}else{//未实现的隐私策略
+			return Constants.AUTH_FAILED;
+		}
+		
+		ConcurrentList clusterNodes=(ConcurrentList)serviceNodesOfClusters.get(clusterCode);
+		ConcurrentMap servantsOfCluster=(ConcurrentMap)servantsOfClusters.get(clusterCode);
+		ConcurrentMap httpsOfCluster=(ConcurrentMap)httpsOfClusters.get(clusterCode);
+		if(clusterNodes!=null){
+			for(int i=0;i<clusterNodes.size();i++){
+				Service node=(Service)clusterNodes.get(i);
+				if(node.uuid.equals(uuid)){
+					if(nodeInfoList.contains(node.toString())) nodeInfoList.remove(node.toString());
+					
+					clusterNodes.remove(i);
+					
+					if(servantsOfCluster!=null) servantsOfCluster.remove(node.uuid);
+					if(httpsOfCluster!=null) httpsOfCluster.remove(node.uuid);
+					
+					update=SysUtil.getNow();
+					
+					break;
+				}
+			}
+		}
+		
+		if(clusterNodes==null||clusterNodes.isEmpty()){
+			serviceNodesOfClusters.remove(clusterCode);
+			servantsOfClusters.remove(clusterCode);
+			httpsOfClusters.remove(clusterCode);
+			clusterCodes.remove(clusterCode);
+		}
+		
+		return Constants.INVOKING_DONE;
+	}
 
 	/*
 	 *  (non-Javadoc)
@@ -152,6 +262,65 @@ public class JRouterImpl extends JRouterAbstract implements Runnable{
 		}catch(Exception ex){
 			log.log(ex,Logger.LEVEL_ERROR);
 			jsession.resultString=Constants.INVOKING_FAILED;
+		}
+	}
+
+	/*
+	 *  (non-Javadoc)
+	 * @see j.service.router.JRouter#service(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	public ServiceBase service(String clientUuid, String clusterCode, String md54Routing) throws RemoteException {
+		waitWhileMonitoring();
+		if(Constants.PRIVICY_PUBLIC.equalsIgnoreCase(routerConfig.getPrivacy())){
+			//is public, nothing to do
+		}else if(Constants.PRIVICY_MD5.equalsIgnoreCase(routerConfig.getPrivacy())){
+			Client client=routerConfig.getClient(clientUuid);
+			if(client==null){
+				log.log("client "+clientUuid+" is not exists.",Logger.LEVEL_DEBUG);
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
+			String md5="";
+			md5+=clientUuid;
+			md5+=client.getKey();
+			md5=JUtilMD5.MD5EncodeToHex(md5);
+			
+			if(!md5.equalsIgnoreCase(md54Routing)){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+		}else{//未实现的隐私策略
+			throw new RemoteException(Constants.AUTH_FAILED);
+		}		
+		
+		String codeOfUuid=null;
+		for(int i=0;i<nodeInfoList.size();i++){//按uuid获得
+			String[] node=((String)nodeInfoList.get(i)).split(",");
+			if(node[0].equals(clusterCode)){
+				codeOfUuid=node[4];
+				break;
+			}
+		}
+
+		ConcurrentMap servantsOfCluster=(ConcurrentMap)servantsOfClusters.get(codeOfUuid==null?clusterCode:codeOfUuid);
+		if(servantsOfCluster==null){
+			throw new RemoteException("the service(rmi) "+clusterCode +" is not found.");
+		}
+
+		List nodes=servantsOfCluster.listValues();
+		if(nodes.size()==0){
+			throw new RemoteException("no valid node for the service(rmi) "+clusterCode +".");
+		}
+		
+		if(servantsOfCluster.containsKey(clusterCode)){//按uuid获得
+			nodes.clear();
+			nodes=null;
+			return (ServiceBase)servantsOfCluster.get(clusterCode);
+		}else{			
+			ServiceBase servant=(ServiceBase)nodes.get(JUtilRandom.nextInt(nodes.size()));
+			nodes.clear();
+			nodes=null;
+
+			return servant;
 		}
 	}
 	
@@ -229,6 +398,46 @@ public class JRouterImpl extends JRouterAbstract implements Runnable{
 	
 	/*
 	 * (non-Javadoc)
+	 * @see j.service.router.JRouter#getAllServiceNode(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	public ServiceBase[] getAllServiceNodeAvailable(String clientUuid, String clusterCode, String md54Routing) throws RemoteException {
+		waitWhileMonitoring();
+		if(Constants.PRIVICY_PUBLIC.equalsIgnoreCase(routerConfig.getPrivacy())){
+			//is public, nothing to do
+		}else if(Constants.PRIVICY_MD5.equalsIgnoreCase(routerConfig.getPrivacy())){
+			Client client=routerConfig.getClient(clientUuid);
+			if(client==null){
+				log.log("client "+clientUuid+" is not exists.",Logger.LEVEL_DEBUG);
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+			
+			String md5="";
+			md5+=clientUuid;
+			md5+=client.getKey();
+			md5=JUtilMD5.MD5EncodeToHex(md5);
+			
+			if(!md5.equalsIgnoreCase(md54Routing)){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+		}else{//未实现的隐私策略
+			throw new RemoteException(Constants.AUTH_FAILED);
+		}		
+
+		ConcurrentMap servantsOfCluster=(ConcurrentMap)servantsOfClusters.get(clusterCode);
+		if(servantsOfCluster==null){
+			throw new RemoteException("the service(rmi) "+clusterCode +" is not found.");
+		}
+
+		List nodes=servantsOfCluster.listValues();
+		if(nodes.size()==0){
+			throw new RemoteException("no valid node for the service(rmi) "+clusterCode +".");
+		}
+		
+		return (ServiceBase[])nodes.toArray(new ServiceBase[nodes.size()]);
+	}	
+	
+	/*
+	 * (non-Javadoc)
 	 * @see j.service.router.JRouter#getAllServiceNode(j.app.webserver.JSession, javax.servlet.http.HttpSession, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	public void getAllServiceNodeAvailable(JSession jsession, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws RemoteException {
@@ -291,215 +500,6 @@ public class JRouterImpl extends JRouterAbstract implements Runnable{
 		}
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see j.service.router.RouterInterface#register(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	public String register(String clientUuid, String clusterCode, String uuid, String rmi, String http, String interfaceClassName, String md54Routing) throws RemoteException {
-		if(Constants.PRIVICY_PUBLIC.equalsIgnoreCase(routerConfig.getPrivacy())){
-			//is public, nothing to do
-		}else if(Constants.PRIVICY_MD5.equalsIgnoreCase(routerConfig.getPrivacy())){
-			Client client=routerConfig.getClient(clientUuid);
-			if(client==null){
-				log.log("client "+clientUuid+" is not exists.",Logger.LEVEL_DEBUG);
-				return Constants.AUTH_FAILED;
-			}
-			
-			String md5="";
-			md5+=clientUuid;
-			md5+=clusterCode;
-			md5+=uuid;
-			md5+=rmi;
-			md5+=http;
-			md5+=interfaceClassName;
-			md5+=client.getKey();
-			md5=JUtilMD5.MD5EncodeToHex(md5);
-			
-			if(!md5.equalsIgnoreCase(md54Routing)){
-				return Constants.AUTH_FAILED;
-			}
-		}else{//未实现的隐私策略
-			return Constants.AUTH_FAILED;
-		}
-		
-		ConcurrentList clusterNodes=(ConcurrentList)serviceNodesOfClusters.get(clusterCode);
-		if(clusterNodes==null){
-			clusterNodes=new ConcurrentList();			
-		}
-		
-		Service node=new Service(uuid,rmi,http,interfaceClassName,clusterCode);
-		if(!nodeInfoList.contains(node.toString())){
-			log.log("register new service - "+node.toString(),-1);
-			nodeInfoList.add(node.toString());
-			
-			clusterNodes.add(node);
-			
-			update=SysUtil.getNow();
-		}
-		serviceNodesOfClusters.put(clusterCode,clusterNodes);
-		
-		if(!clusterCodes.contains(clusterCode)) clusterCodes.add(clusterCode);
-				
-		return Constants.INVOKING_DONE;
-	}
-
-	/*
-	 *  (non-Javadoc)
-	 * @see j.service.router.RouterInterface#unregister(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	public String unregister(String clientUuid,String clusterCode,String uuid, String md54Routing) throws RemoteException {
-		if(Constants.PRIVICY_PUBLIC.equalsIgnoreCase(routerConfig.getPrivacy())){
-			//is public, nothing to do
-		}else if(Constants.PRIVICY_MD5.equalsIgnoreCase(routerConfig.getPrivacy())){
-			Client client=routerConfig.getClient(clientUuid);
-			if(client==null){
-				log.log("client "+clientUuid+" is not exists.",Logger.LEVEL_DEBUG);
-				return Constants.AUTH_FAILED;
-			}
-			
-			String md5="";
-			md5+=clientUuid;
-			md5+=clusterCode;
-			md5+=uuid;
-			md5+=client.getKey();
-			md5=JUtilMD5.MD5EncodeToHex(md5);
-			
-			if(!md5.equalsIgnoreCase(md54Routing)){
-				return Constants.AUTH_FAILED;
-			}
-		}else{//未实现的隐私策略
-			return Constants.AUTH_FAILED;
-		}
-		
-		ConcurrentList clusterNodes=(ConcurrentList)serviceNodesOfClusters.get(clusterCode);
-		ConcurrentMap servantsOfCluster=(ConcurrentMap)servantsOfClusters.get(clusterCode);
-		ConcurrentMap httpsOfCluster=(ConcurrentMap)httpsOfClusters.get(clusterCode);
-		if(clusterNodes!=null){
-			for(int i=0;i<clusterNodes.size();i++){
-				Service node=(Service)clusterNodes.get(i);
-				if(node.uuid.equals(uuid)){
-					if(nodeInfoList.contains(node.toString())) nodeInfoList.remove(node.toString());
-					
-					clusterNodes.remove(i);
-					
-					if(servantsOfCluster!=null) servantsOfCluster.remove(node.uuid);
-					if(httpsOfCluster!=null) httpsOfCluster.remove(node.uuid);
-					
-					update=SysUtil.getNow();
-					
-					break;
-				}
-			}
-		}
-		
-		if(clusterNodes==null||clusterNodes.isEmpty()){
-			serviceNodesOfClusters.remove(clusterCode);
-			servantsOfClusters.remove(clusterCode);
-			httpsOfClusters.remove(clusterCode);
-			clusterCodes.remove(clusterCode);
-		}
-		
-		return Constants.INVOKING_DONE;
-	}
-
-	/*
-	 *  (non-Javadoc)
-	 * @see j.service.router.JRouter#service(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	public ServiceBase service(String clientUuid, String clusterCode, String md54Routing) throws RemoteException {
-		waitWhileMonitoring();
-		if(Constants.PRIVICY_PUBLIC.equalsIgnoreCase(routerConfig.getPrivacy())){
-			//is public, nothing to do
-		}else if(Constants.PRIVICY_MD5.equalsIgnoreCase(routerConfig.getPrivacy())){
-			Client client=routerConfig.getClient(clientUuid);
-			if(client==null){
-				log.log("client "+clientUuid+" is not exists.",Logger.LEVEL_DEBUG);
-				throw new RemoteException(Constants.AUTH_FAILED);
-			}
-			
-			String md5="";
-			md5+=clientUuid;
-			md5+=client.getKey();
-			md5=JUtilMD5.MD5EncodeToHex(md5);
-			
-			if(!md5.equalsIgnoreCase(md54Routing)){
-				throw new RemoteException(Constants.AUTH_FAILED);
-			}
-		}else{//未实现的隐私策略
-			throw new RemoteException(Constants.AUTH_FAILED);
-		}		
-		
-		String codeOfUuid=null;
-		for(int i=0;i<nodeInfoList.size();i++){//按uuid获得
-			String[] node=((String)nodeInfoList.get(i)).split(",");
-			if(node[0].equals(clusterCode)){
-				codeOfUuid=node[4];
-				break;
-			}
-		}
-
-		ConcurrentMap servantsOfCluster=(ConcurrentMap)servantsOfClusters.get(codeOfUuid==null?clusterCode:codeOfUuid);
-		if(servantsOfCluster==null){
-			throw new RemoteException("the service(rmi) "+clusterCode +" is not found.");
-		}
-
-		List nodes=servantsOfCluster.listValues();
-		if(nodes.size()==0){
-			throw new RemoteException("no valid node for the service(rmi) "+clusterCode +".");
-		}
-		
-		if(servantsOfCluster.containsKey(clusterCode)){//按uuid获得
-			nodes.clear();
-			nodes=null;
-			return (ServiceBase)servantsOfCluster.get(clusterCode);
-		}else{			
-			ServiceBase servant=(ServiceBase)nodes.get(JUtilRandom.nextInt(nodes.size()));
-			nodes.clear();
-			nodes=null;
-
-			return servant;
-		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see j.service.router.JRouter#getAllServiceNode(java.lang.String, java.lang.String, java.lang.String)
-	 */
-	public ServiceBase[] getAllServiceNodeAvailable(String clientUuid, String clusterCode, String md54Routing) throws RemoteException {
-		waitWhileMonitoring();
-		if(Constants.PRIVICY_PUBLIC.equalsIgnoreCase(routerConfig.getPrivacy())){
-			//is public, nothing to do
-		}else if(Constants.PRIVICY_MD5.equalsIgnoreCase(routerConfig.getPrivacy())){
-			Client client=routerConfig.getClient(clientUuid);
-			if(client==null){
-				log.log("client "+clientUuid+" is not exists.",Logger.LEVEL_DEBUG);
-				throw new RemoteException(Constants.AUTH_FAILED);
-			}
-			
-			String md5="";
-			md5+=clientUuid;
-			md5+=client.getKey();
-			md5=JUtilMD5.MD5EncodeToHex(md5);
-			
-			if(!md5.equalsIgnoreCase(md54Routing)){
-				throw new RemoteException(Constants.AUTH_FAILED);
-			}
-		}else{//未实现的隐私策略
-			throw new RemoteException(Constants.AUTH_FAILED);
-		}		
-
-		ConcurrentMap servantsOfCluster=(ConcurrentMap)servantsOfClusters.get(clusterCode);
-		if(servantsOfCluster==null){
-			throw new RemoteException("the service(rmi) "+clusterCode +" is not found.");
-		}
-
-		List nodes=servantsOfCluster.listValues();
-		if(nodes.size()==0){
-			throw new RemoteException("no valid node for the service(rmi) "+clusterCode +".");
-		}
-		
-		return (ServiceBase[])nodes.toArray(new ServiceBase[nodes.size()]);
-	}	
 	
 	/*
 	 *  (non-Javadoc)

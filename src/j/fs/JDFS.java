@@ -21,12 +21,15 @@ import org.dom4j.Element;
  */
 public class JDFS implements Runnable{
 	private static Logger log=Logger.create(JDFS.class);
-	private static ConcurrentList mappings=new ConcurrentList();
-	private static String serviceChannel="http";
+	private static ConcurrentList<JDFSMapping> mappings=new ConcurrentList<JDFSMapping>();//
+	private static String serviceChannel="rmi";//通信方式
 	private static int maxFileSize=102400;
+	
+	//需要监控是文件
+	private static ConcurrentMap<String,JDFSMonitorFile> monitorFiles=new ConcurrentMap<String,JDFSMonitorFile>();
+	
 	private static long configLastModified=0;//配置文件上次修改时间
-	private static volatile boolean loading=true;
-	private static ConcurrentMap monitorFiles=new ConcurrentMap();
+	private static volatile boolean loading=true;//是否正在加载配置文件
 	
 	static{
 		load();
@@ -46,7 +49,7 @@ public class JDFS implements Runnable{
 	}
 	
 	/**
-	 * 
+	 * 根据虚拟路径获得对应的分布式服务及虚拟路径与物理路径映射关系等信息
 	 * @param virtualPath
 	 * @return
 	 */
@@ -60,7 +63,7 @@ public class JDFS implements Runnable{
 	}
 	
 	/**
-	 * 
+	 * 根据虚拟路径获得对应物理路径（如果是本地文件）或虚拟路径（如果是远程文件）
 	 * @param virtualPath
 	 * @return
 	 */
@@ -82,7 +85,7 @@ public class JDFS implements Runnable{
 	}
 	
 	/**
-	 * 
+	 * 根据虚拟路径获得对应物理路径
 	 * @param virtualPath
 	 * @return
 	 */

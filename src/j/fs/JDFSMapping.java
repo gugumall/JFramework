@@ -11,7 +11,7 @@ public class JDFSMapping {
 	private String serviceCode;
 	private String serviceChannel;
 	private String os;
-	private ConcurrentList rules=new ConcurrentList();
+	private ConcurrentList<JDFSMappingRule> rules=new ConcurrentList<JDFSMappingRule>();
 	
 	/**
 	 * 

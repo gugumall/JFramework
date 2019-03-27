@@ -832,9 +832,9 @@ public final class JUtilImage implements ImageObserver {
 		JUtilImage im = new JUtilImage();
 		im.setQuality(1f);
 		
-		int index=339;
+		int index=1;
 		
-		File dir = new File("F:\\images\\时光(容颜)\\temp");
+		File dir = new File("F:\\images\\时光(足迹) III\\temp");
 		File[] fs=dir.listFiles();
 		for(int i=0;i<fs.length;i++){
 			if(fs[i].getName().toLowerCase().endsWith(".jpg")
@@ -843,9 +843,12 @@ public final class JUtilImage implements ImageObserver {
 				
 				String newName=index+"";
 				while(newName.length()<6) newName="0"+newName;
-				
-				im.zoomToSize(fs[i], new File("F:\\images\\时光(容颜)\\"+newName+".jpg"), 1920, JUtilImage.FORMAT_JPEG);
-				
+				try {
+				im.zoomToSize(fs[i], new File("F:\\images\\时光(足迹) III\\"+newName+".jpg"), 1920, JUtilImage.FORMAT_JPEG);
+				fs[i].delete();
+				}catch(Exception e) {
+					
+				}
 				index++;
 			}
 		}

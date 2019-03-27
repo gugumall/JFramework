@@ -44,48 +44,6 @@ public interface JRouter extends Remote {
 	
 	/**
 	 * 
-	 * @param jsession
-	 * @param session
-	 * @param request
-	 * @param response
-	 * @throws RemoteException
-	 */
-	public void register(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws RemoteException;
-
-
-	/**
-	 * 
-	 * @param jsession
-	 * @param session
-	 * @param request
-	 * @param response
-	 * @throws RemoteException
-	 */
-	public void unregister(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws RemoteException;
-
-	/**
-	 * 
-	 * @param jsession
-	 * @param session
-	 * @param request
-	 * @param response
-	 * @throws RemoteException
-	 */
-	public void service(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws RemoteException;
-	
-	/**
-	 * 
-	 * @param jsession
-	 * @param session
-	 * @param request
-	 * @param response
-	 * @throws RemoteException
-	 */
-	public void getAllServiceNodeAvailable(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws RemoteException;
-
-	
-	/**
-	 * 
 	 * @param clientUuid
 	 * @param code
 	 * @param uuid
@@ -98,6 +56,17 @@ public interface JRouter extends Remote {
 	 */
 	public String register(String clientUuid,String code, String uuid, String rmiiiop, String http,String interfaceClassName,String md54Routing) throws RemoteException;
 
+	
+	/**
+	 * 
+	 * @param jsession
+	 * @param session
+	 * @param request
+	 * @param response
+	 * @throws RemoteException
+	 */
+	public void register(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws RemoteException;
+
 
 	/**
 	 * 
@@ -109,6 +78,17 @@ public interface JRouter extends Remote {
 	 * @throws RemoteException
 	 */
 	public String unregister(String clientUuid,String code,String uuid,String md54Routing) throws RemoteException;
+
+
+	/**
+	 * 
+	 * @param jsession
+	 * @param session
+	 * @param request
+	 * @param response
+	 * @throws RemoteException
+	 */
+	public void unregister(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws RemoteException;
 
 	
 	/**
@@ -123,6 +103,16 @@ public interface JRouter extends Remote {
 
 	/**
 	 * 
+	 * @param jsession
+	 * @param session
+	 * @param request
+	 * @param response
+	 * @throws RemoteException
+	 */
+	public void service(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws RemoteException;
+	
+	/**
+	 * 
 	 * @param clientUuid
 	 * @param code
 	 * @param md54Routing
@@ -131,6 +121,15 @@ public interface JRouter extends Remote {
 	 */
 	public ServiceBase[] getAllServiceNodeAvailable(String clientUuid,String code,String md54Routing) throws RemoteException;
 
+	/**
+	 * 
+	 * @param jsession
+	 * @param session
+	 * @param request
+	 * @param response
+	 * @throws RemoteException
+	 */
+	public void getAllServiceNodeAvailable(JSession jsession,HttpSession session,HttpServletRequest request,HttpServletResponse response) throws RemoteException;
 	
 	/**
 	 * 

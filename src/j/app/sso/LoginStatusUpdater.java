@@ -48,10 +48,7 @@ public class LoginStatusUpdater implements JCacheUpdater{
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see j.cache.JCacheUpdater#update(java.util.Map)
-	 */
+	@Override
 	public void update(ConcurrentMap map) throws Exception {
 		List values=map.listValues();
 		for(int i=0;i<values.size();i++){
@@ -65,19 +62,18 @@ public class LoginStatusUpdater implements JCacheUpdater{
 		values=null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see j.cache.JCacheUpdater#update(java.util.Map)
-	 */
+	@Override
 	public void updateCollection(ConcurrentMap collection) throws Exception {
 		
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see j.cache.JCacheUpdater#update(java.util.List)
-	 */
+	@Override
 	public void update(ConcurrentList list) throws Exception {
 		//nothing to do
+	}
+
+	@Override
+	public void updateCollection(ConcurrentList list) throws Exception {
+		
 	}
 }

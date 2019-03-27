@@ -37,9 +37,9 @@ public class Client implements Runnable{
 	private static Logger log=Logger.create(Client.class);
 	
 	private static ConcurrentMap services=new ConcurrentMap();
-	private static String callLocalServiceIfExists="random";//如果服务存在于本应用中，是否直接调用本地服务
+	private static String callLocalServiceIfExists="true";//如果服务存在于本应用中，是否直接调用本地服务
 	private static long configLastModified=0;//配置文件上次修改时间
-	private static volatile boolean loading=true;
+	private static volatile boolean loading=true;//是否正在加载配置文件
 	
 	static{
 		Client m=new Client();
@@ -163,7 +163,7 @@ public class Client implements Runnable{
 		if(callLocal){//调用本地服务
 			ServiceContainer container=ServiceManager.getServiceContainer(code);
 			if(container!=null){
-				ServiceBase servant=container.getServantOfService(code);
+				ServiceBase servant=container.getServant();
 				if(servant!=null){
 					return servant;
 				}
@@ -269,7 +269,7 @@ public class Client implements Runnable{
 		if(callLocal){//调用本地服务
 			ServiceContainer container=ServiceManager.getServiceContainer(code);
 			if(container!=null){
-				ServiceBase servant=container.getServantOfService(code);
+				ServiceBase servant=container.getServant();
 				if(servant!=null&&servant.getServiceConfig().getHttp()!=null){
 					return servant.getServiceConfig().getHttp().getEntrance();
 				}

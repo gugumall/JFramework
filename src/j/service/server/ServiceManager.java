@@ -1,5 +1,12 @@
 package j.service.server;
 
+import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.dom4j.Document;
+import org.dom4j.Element;
+
 import j.Properties;
 import j.log.Logger;
 import j.service.Client;
@@ -10,13 +17,6 @@ import j.util.ConcurrentList;
 import j.util.ConcurrentMap;
 import j.util.JUtilDom4j;
 import j.util.JUtilList;
-
-import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.dom4j.Document;
-import org.dom4j.Element;
 
 /**
  * 加载服务信息，并启动服务，将服务注册到路由器
@@ -29,18 +29,18 @@ public class ServiceManager implements Runnable {
 	/*
 	 * 键: 服务uuid  值: j.service.server.ServiceConfig
 	 */
-	private static ConcurrentMap services=new ConcurrentMap();
+	private static ConcurrentMap<String,ServiceConfig> services=new ConcurrentMap<String,ServiceConfig>();
 	
 	/*
-	 * 键: 服务code 值: ConcurrentList[ServiceConfig]
+	 * 键: 服务code 值: ConcurrentList<ServiceConfig>
 	 * 用于得到同一服务集群的所有节点（当各节点间需要协作、同步等时）
 	 */
-	private static ConcurrentMap servicesOfClusters=new ConcurrentMap();
+	private static ConcurrentMap<String,ConcurrentList<ServiceConfig>> nodesOfServices=new ConcurrentMap<String,ConcurrentList<ServiceConfig>>();
 	
 	/*
 	 * 键: 服务uuid或服务集群编码  值: j.service.server.ServiceContainer
 	 */
-	private static ConcurrentMap serviceContainers=new ConcurrentMap();
+	private static ConcurrentMap<String,ServiceContainer> serviceContainers=new ConcurrentMap<String,ServiceContainer>();
 	
 	private static long configLastModified=0;//配置文件上次修改时间
 	private static volatile boolean loading=true;//是否正在加载配置文件
@@ -86,7 +86,7 @@ public class ServiceManager implements Runnable {
 	 */
 	public static ServiceConfig[] getServices(String code,boolean initializing){
 		if(!initializing) waitWhileLoading();
-		ConcurrentList ls=(ConcurrentList)servicesOfClusters.get(code);
+		ConcurrentList ls=(ConcurrentList)nodesOfServices.get(code);
 		if(ls==null) return null;
 		else{
 			ServiceConfig[] array=new ServiceConfig[ls.size()];
@@ -104,7 +104,7 @@ public class ServiceManager implements Runnable {
 		try{
 			loading=true;
 			
-			servicesOfClusters.clear();
+			nodesOfServices.clear();
 			
 			List currentServices=new LinkedList();
 			
@@ -218,10 +218,10 @@ public class ServiceManager implements Runnable {
 					currentServices.add(service);	
 					
 					//分组保存
-					ConcurrentList ls=(ConcurrentList)servicesOfClusters.get(service.getCode());
+					ConcurrentList ls=(ConcurrentList)nodesOfServices.get(service.getCode());
 					if(ls==null){
 						ls=new ConcurrentList();
-						servicesOfClusters.put(service.getCode(),ls);
+						nodesOfServices.put(service.getCode(),ls);
 					}
 					ls.add(service);
 				}

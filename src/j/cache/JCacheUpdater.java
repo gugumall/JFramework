@@ -12,23 +12,30 @@ import java.io.Serializable;
  */
 public interface JCacheUpdater extends Serializable{
 	/**
-	 * 遍历所有缓存数据进行按需更新
+	 * 根据实现类自定义的规则对缓存单元中的元素进行更新
 	 * @param map
 	 * @throws Exception
 	 */
 	public void update(ConcurrentMap map) throws Exception;
 	
 	/**
-	 * 更新指定集合中的元素
+	 * 根据实现类自定义的规则对缓存单元中的一组元素进行更新
 	 * @param collection
 	 * @throws Exception
 	 */
 	public void updateCollection(ConcurrentMap collection) throws Exception;
 	
 	/**
-	 * 
+	 * 根据实现类自定义的规则对缓存单元中的元素进行更新
 	 * @param list
 	 * @throws Exception
 	 */
 	public void update(ConcurrentList list) throws Exception;
+	
+	/**
+	 * 根据实现类自定义的规则对缓存单元中的一组元素进行更新
+	 * @param list
+	 * @throws Exception
+	 */
+	public void updateCollection(ConcurrentList list) throws Exception;
 }

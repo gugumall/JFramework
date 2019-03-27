@@ -51,9 +51,8 @@
 		<mapping resource="j/db/JserviceMirror.xml" />
 		<mapping resource="j/db/JserviceRouter.xml" />
 		<mapping resource="j/db/Jtest.xml" />
-		<mapping resource="j/db/JthirdpartyForLogin.xml" />
 		<mapping resource="j/db/JthirdpartyUser.xml" />
-		<mapping resource="j/db/Juser.xml" />
+		<mapping resource="j/db/JuserLogin.xml" />
 		<mapping resource="j/db/JuserCertification.xml" />
 		<mapping resource="j/db/Jwebserver.xml" />
 		<mapping resource="j/db/JwebserverToAppserver.xml" />

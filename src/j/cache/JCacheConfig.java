@@ -1,29 +1,29 @@
 package j.cache;
 
-import j.Properties;
-import j.log.Logger;
-import j.util.ConcurrentList;
-import j.util.JUtilDom4j;
-
 import java.io.File;
 import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
 
+import j.Properties;
+import j.log.Logger;
+import j.util.ConcurrentList;
+import j.util.JUtilDom4j;
+
 /**
- * 
+ * 分布式缓存服务的配置信息，从$配置文件目录/JCache.xml中加载，当JCache.xml被修改后会自动重新加载
  * @author 肖炯
  *
  */
 public class JCacheConfig implements Runnable{
 	private static Logger log=Logger.create(JCacheConfig.class);	
-	private static ConcurrentList mappings=new ConcurrentList();
-	private static String defaultChannel="http";
-	private static volatile long cacheTimeout=0;
-	private static volatile int synchronizers=1;
+	private static ConcurrentList mappings=new ConcurrentList();//缓存单元ID与分布式缓存服务映射关系
+	private static String defaultChannel="http";//默认传输方式（http/rmi）
+	private static volatile long cacheTimeout=0;//对于临时缓存，对象多久（单位毫秒）没被使用将从缓存中移除
+	private static volatile int synchronizers=1;//向每个镜像节点同步数据所使用的同步线程数
 	private static volatile long configLastModified=0;//配置文件上次修改时间
-	private static volatile boolean loading=true;
+	private static volatile boolean loading=true;//是否正在加载配置文件，加载时将阻塞其它一切操作
 	
 	static{
 		load();
@@ -114,8 +114,7 @@ public class JCacheConfig implements Runnable{
 
 				JDCacheMapping mapping=new JDCacheMapping(mappingEle.attributeValue("selector"),
 						mappingEle.attributeValue("service-code"),
-						mappingEle.attributeValue("service-channel"),
-						mappingEle.attributeValue("os"));
+						mappingEle.attributeValue("service-channel"));
 				
 				mappings.add(mapping);
 			}

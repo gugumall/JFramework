@@ -92,9 +92,9 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("f:\\work\\JFramework_v2.0\\src");
+		File dir=new File("f:\\work\\JShop_v2.1\\src");
 		replace(dir,
-				"@author 肖炯",
+				"@author ceo",
 				"@author 肖炯",
 				".java");
 //		count(dir,

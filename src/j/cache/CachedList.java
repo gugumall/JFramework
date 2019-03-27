@@ -5,17 +5,17 @@ import j.util.ConcurrentList;
 import java.util.Collection;
 
 /**
- * 
+ * 基于缓存实现的List——实际开发中，请通过此类来使用缓存服务
  * @author 肖炯
  *
  */
 public class CachedList{
-	private String cacheId=null;
-	private JCache cache=null;
+	private String cacheId=null;//缓存单元ID
+	private JCache cache=null;//缓存单元
 	
 	/**
-	 * 
-	 * @param cacheId
+	 * 创建JCache.UNIT_LIST类型的缓存单元，缓存服务实现类在对象工厂中的code为<font color="blue">JCache</font>（默认实现）
+	 * @param cacheId 缓存单元ID
 	 * @throws Exception
 	 */
 	public CachedList(String cacheId) throws Exception{
@@ -26,13 +26,13 @@ public class CachedList{
 			this.cacheId=cacheId;
 		}
 		cache=JCache.getInstance();
-		cache.createUnit(cacheId,JCache.UNIT_LIST,JCache.LIFECIRCLE_SYNCHRONIZED);
+		cache.createUnit(cacheId,JCache.UNIT_LIST,JCache.LIFECIRCLE_DURABLE);
 	}
 	
 	/**
-	 * 
-	 * @param nvwaObjectCode
-	 * @param cacheId
+	 * 创建JCache.UNIT_LIST类型的缓存单元，缓存服务实现类在对象工厂中的code为参数nvwaObjectCode所指定的值
+	 * @param nvwaObjectCode 缓存服务实现类在对象工厂中的code
+	 * @param cacheId 缓存单元ID
 	 * @throws Exception
 	 */
 	public CachedList(String nvwaObjectCode,String cacheId) throws Exception{
@@ -43,13 +43,13 @@ public class CachedList{
 			this.cacheId=cacheId;
 		}
 		cache=JCache.getInstance(nvwaObjectCode);
-		cache.createUnit(cacheId,JCache.UNIT_LIST,JCache.LIFECIRCLE_SYNCHRONIZED);
+		cache.createUnit(cacheId,JCache.UNIT_LIST,JCache.LIFECIRCLE_DURABLE);
 	}
 	
 	
 
 	/**
-	 * 
+	 * 添加一个对象到缓存单元
 	 * @param value
 	 * @throws Exception
 	 */
@@ -58,17 +58,17 @@ public class CachedList{
 	}
 
 	/**
-	 * 
+	 * 添加一个对象集合到缓存单元
 	 * @param values
 	 * @throws Exception
 	 */
-	public void addAll(Collection values) throws Exception {
+	public void addAll(Collection<Object> values) throws Exception {
 		cache.addAll(this.cacheId,values);
 	}
 
 	/**
-	 * 
-	 * @param params
+	 * 缓存单元是否存在符合缓存操作参数的对象
+	 * @param params 缓存操作参数
 	 * @return
 	 * @throws Exception
 	 */
@@ -77,7 +77,7 @@ public class CachedList{
 	}
 	
 	/**
-	 * 
+	 * 缓存单元中全部对象的数量
 	 * @return
 	 * @throws Exception
 	 */
@@ -86,8 +86,8 @@ public class CachedList{
 	}
 	
 	/**
-	 * 
-	 * @param params
+	 * 缓存单元中符合缓存操作参数的对象的数量
+	 * @param params 缓存操作参数
 	 * @return
 	 * @throws Exception
 	 */
@@ -96,8 +96,8 @@ public class CachedList{
 	}
 
 	/**
-	 * 
-	 * @param params
+	 * 获得符合缓存操作参数的对象，如有多个符合，返回索引位置最靠前的那个
+	 * @param params 缓存操作参数
 	 * @return
 	 * @throws Exception
 	 */
@@ -106,8 +106,8 @@ public class CachedList{
 	}
 
 	/**
-	 * 
-	 * @param params
+	 * 移除符合缓存操作参数的对象
+	 * @param params 缓存操作参数
 	 * @throws Exception
 	 */
 	public void remove(JCacheParams params) throws Exception {
@@ -115,7 +115,7 @@ public class CachedList{
 	}
 
 	/**
-	 * 
+	 * 清空缓存单元
 	 * @throws Exception
 	 */
 	public void clear() throws Exception {
@@ -123,8 +123,8 @@ public class CachedList{
 	}
 
 	/**
-	 * 
-	 * @param params
+	 * 调用缓存操作参数中指定的更新器对缓存单元中特定对象进行更新，更新规则由更新器定义
+	 * @param params 缓存操作参数
 	 * @throws Exception
 	 */
 	public void update(JCacheParams params) throws Exception {
@@ -132,8 +132,8 @@ public class CachedList{
 	}
 
 	/**
-	 * 
-	 * @param params
+	 * 调用缓存操作参数中指定的更新器对缓存单元中特定对象集合进行更新，更新规则由更新器定义
+	 * @param params 缓存操作参数
 	 * @throws Exception
 	 */
 	public void updateCollection(JCacheParams params) throws Exception {
@@ -141,12 +141,12 @@ public class CachedList{
 	}
 
 	/**
-	 * 
-	 * @param params
+	 * 返回符合缓存操作参数的对象集合
+	 * @param params 缓存操作参数
 	 * @return
 	 * @throws Exception
 	 */
-	public ConcurrentList sub(JCacheParams params) throws Exception {
+	public ConcurrentList<Object> sub(JCacheParams params) throws Exception {
 		return (ConcurrentList)cache.sub(this.cacheId,params);
 	}
 }

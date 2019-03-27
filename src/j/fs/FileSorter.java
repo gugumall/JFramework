@@ -6,20 +6,20 @@ import j.util.JUtilSorter;
 import java.io.File;
 
 /**
- * 
+ * 文件排序器
  * @author 肖炯
  *
  */
 public class FileSorter extends JUtilSorter{
 	private static final long serialVersionUID=1L;
 	
-	public static final int ORDER_BY_TIME_MODIFIED=2;
-	public static final int ORDER_BY_FILENAME=3;
-	public static final int ORDER_BY_LENGTH=4;
+	public static final int ORDER_BY_TIME_MODIFIED=1;//按最后修改时间排序
+	public static final int ORDER_BY_FILENAME=2;//按文件名排序
+	public static final int ORDER_BY_LENGTH=3;//按文件大小排序
 	
-	private static ConcurrentMap instances=new ConcurrentMap();
+	private static ConcurrentMap<String,FileSorter> instances=new ConcurrentMap<String,FileSorter>();//排序类对象
 	
-	private int orderBy=3;
+	private int orderBy=2;//排序方式（默认为按名称排序）
 	
 	/**
 	 * 

@@ -1,5 +1,7 @@
 package j.cache;
 
+import j.service.server.ServiceConfig;
+import j.service.server.ServiceManager;
 
 /**
  * 
@@ -10,21 +12,18 @@ public class JDCacheMapping {
 	private String selector;
 	private String serviceCode;
 	private String serviceChannel;
-	private String os;
 	
 	/**
 	 * 
 	 * @param selector
 	 * @param serviceCode
 	 * @param serviceChannel
-	 * @param os
 	 */
-	protected JDCacheMapping(String selector,String serviceCode,String serviceChannel,String os) {
+	protected JDCacheMapping(String selector,String serviceCode,String serviceChannel) {
 		super();
 		this.selector=selector;
 		this.serviceCode=serviceCode;
 		this.serviceChannel=serviceChannel;
-		this.os=os;
 	}
 	
 	/**
@@ -72,7 +71,7 @@ public class JDCacheMapping {
 	 * 
 	 * @return
 	 */
-	public String getOs(){
-		return os;
+	public ServiceConfig[] getServiceNodes() {
+		return ServiceManager.getServices(serviceCode);
 	}
 }

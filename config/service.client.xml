@@ -2,12 +2,18 @@
 <root>		
 	<!-- 如果服务存在于本应用中，是否直接调用本地服务 -->
 	<!-- true: 是  false:否  random:随机 -->
-	<callLocalServiceIfExists>false</callLocalServiceIfExists>
+	<callLocalServiceIfExists>true</callLocalServiceIfExists>
 		
 	<!-- 应用节点必须有各服务的基本信息和与服务节点进行MD5校验的密钥（如果需要的话） -->
 	<service>		
 		<code>HelloService</code> 
 		<name>测试服务</name>	
+		<property key="j.service.key" value="any"/>
+	</service>	
+	
+	<service>		
+		<code>JFS.jshop</code> 
+		<name></name>	
 		<property key="j.service.key" value="any"/>
 	</service>	
 	
@@ -27,7 +33,7 @@
 		<code>JCache.jpay</code> 
 		<name></name>	
 		<property key="j.service.key" value="any"/>
-	</service>		
+	</service>	
 	
 	<service>		
 		<code>VerifyCode</code> 

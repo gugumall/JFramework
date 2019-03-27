@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>		
+<root>			
 	<!-- 一个节点上可运行多个服务 -->
 	<!-- 
 	服务框架流程：
@@ -25,12 +25,23 @@
 		<!-- 是否需要校验及校验机制 -->
 		<privacy>MD5</privacy>
 				
+		<!-- 服务接口类 -->	
 		<property key="j.service.interface" value="j.service.hello.JHello"/>
+		
+		<!-- 服务实现类 -->
 		<property key="j.service.class" value="j.service.hello.JHelloImpl"/>
+		
+		<!-- 当服务基于http通信时，如果服务端基于本框架mvc实现，则此处为action配置文件中的Handler的path -->
 		<property key="j.service.relatedHttpHandlerPath" value="/j.service.hello"/>
 		
+		<!-- 当服务重启、服务实现类需要重新加载时，服务对象的那些变量需要保持，多个变量名称以英文逗号分隔
+		<property key="j.service.fieldsKeep" value="somefields"/> -->
 		
-		<!-- 服务提供的方法，可以多个 -->
+		<!-- 其它服务自定义的key-value
+		<property key="somepropertykey" value="somepropertyvalue"/> -->
+		
+		
+		<!-- 服务提供的方法，可以多个，如果方法的认证机制与整个服务的申明一直，则无需在此显式申明此方法 -->
 		<method>
 			<!-- 方法名 -->
 			<name>hello</name>
@@ -39,7 +50,7 @@
 			<privacy>MD5</privacy>
 		</method>
 		
-		<!-- 当服务或方法需要MD5校验时，指明那些应用节点可访问，并配置相应的密钥 -->		
+		<!-- 当服务或方法需要MD5校验时，指明那些应用节点可访问，并配置相应的密钥 -->	
 		<client uuid="j.service.node.ser:00" name="服务节点" key="any"/>
 		<client uuid="j.service.node.app:sso:00" name="应用节点" key="any"/>
 		<client uuid="j.service.node.app:pay:00" name="应用节点" key="any"/>
@@ -57,7 +68,7 @@
 			
 			<!-- http服务接口配置信息 -->
 			<http available="false">
-				<property key="j.service.http" value="http://127.0.0.1/j.service.hello.service"/>
+				<property key="j.service.http" value="https://127.0.0.1/j.service.hello.service"/>
 			</http>
 		</node>
 		
@@ -67,21 +78,50 @@
 			
 			<!-- rmi 或者 rmi-iiop服务接口配置信息，属性值可为rmi或者rmi-->
 			<rmi available="true">	
-				<property key="java.naming.provider.url" value="rmi://fs.jframework.com:1520"/>
+				<property key="java.naming.provider.url" value="rmi://www.gugumall.cn:1520"/>
 			</rmi>
 			
 			<!-- http服务接口配置信息 -->
 			<http available="true">
-				<property key="j.service.http" value="http://fs.jframework.com/j.service.hello.service"/>
+				<property key="j.service.http" value="https://www.gugumall.cn/j.service.hello.service"/>
 			</http>
 		</node>
 	</service>
 	
-	<!-- JCache 分布式缓存系统（不可删除或随意修改） -->
+	<!-- JFS 分布式文件系统（不可删除或随意修改） -->
+	<service>		
+		<code>JFS.jshop</code>
+		
+		<name>文件系统服务</name>
+		
+		<privacy>MD5</privacy>
+				
+		<property key="j.service.interface" value="j.fs.JDFSService"/>
+		<property key="j.service.class" value="j.fs.JDFSServiceImpl"/>
+		<property key="j.service.relatedHttpHandlerPath" value="/JFS"/>
+		
+		<client uuid="j.service.node.ser:00" name="服务节点" key="any"/>
+		<client uuid="j.service.node.app:sso:00" name="应用节点" key="any"/>
+		<client uuid="j.service.node.app:pay:00" name="应用节点" key="any"/>
+		<client uuid="j.service.node.app:shop:00" name="应用节点" key="any"/>
+		
+		<node server-uuid="j.service.node.app:shop:00">
+			<uuid>JFS.jshop:00</uuid>
+			
+			<rmi available="true">	
+				<property key="java.naming.provider.url" value="rmi://www.gugumall.cn:1520"/>				
+			</rmi>
+			
+			<http available="true">
+				<property key="j.service.http" value="https://www.gugumall.cn/JFS.service"/>
+			</http>
+		</node>
+	</service>
+	
 	<service>		
 		<code>JCache</code>
 		
-		<name>JCache</name>
+		<name>默认缓存服务</name>
 		
 		<privacy>MD5</privacy>
 				
@@ -95,23 +135,23 @@
 		<client uuid="j.service.node.app:pay:00" name="应用节点" key="any"/>
 		<client uuid="j.service.node.app:shop:00" name="应用节点" key="any"/>
 		
-		<node server-uuid="j.service.node.ser:00">
+		<node server-uuid="j.service.node.app:shop:00">
 			<uuid>JCache:00</uuid>
 			
 			<rmi available="true">	
-				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
+				<property key="java.naming.provider.url" value="rmi://www.gugumall.cn:1520"/>				
 			</rmi>
 			
 			<http available="true">
-				<property key="j.service.http" value="http://127.0.0.1/JCache.service"/>
+				<property key="j.service.http" value="https://www.gugumall.cn/JCache.service"/>
 			</http>
 		</node>
 	</service>
-
+	
 	<service>		
 		<code>JCache.jshop</code>
 		
-		<name>JCache</name>
+		<name>商城缓存服务</name>
 		
 		<privacy>MD5</privacy>
 				
@@ -125,34 +165,23 @@
 		<client uuid="j.service.node.app:pay:00" name="应用节点" key="any"/>
 		<client uuid="j.service.node.app:shop:00" name="应用节点" key="any"/>
 		
-		<node server-uuid="j.service.node.ser:00">
+		<node server-uuid="j.service.node.app:shop:00">
 			<uuid>JCache.jshop:00</uuid>
 			
 			<rmi available="true">	
-				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
+				<property key="java.naming.provider.url" value="rmi://www.gugumall.cn:1520"/>				
 			</rmi>
 			
 			<http available="true">
-				<property key="j.service.http" value="http://127.0.0.1/JCache.service"/>
-			</http>
-		</node>
-		
-		<node server-uuid="j.service.node.app:shop:00">
-			<uuid>JCache.jshop:01</uuid>
-			
-			<rmi available="true">	
-				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
-			</rmi>
-			
-			<http available="true">
-				<property key="j.service.http" value="http://127.0.0.1/JCache.service"/>
+				<property key="j.service.http" value="https://www.gugumall.cn/JCache.service"/>
 			</http>
 		</node>
 	</service>
+	
 	<service>		
 		<code>JCache.jpay</code>
 		
-		<name>JCache</name>
+		<name>资金系统缓存服务</name>
 		
 		<privacy>MD5</privacy>
 				
@@ -166,27 +195,15 @@
 		<client uuid="j.service.node.app:pay:00" name="应用节点" key="any"/>
 		<client uuid="j.service.node.app:shop:00" name="应用节点" key="any"/>
 		
-		<node server-uuid="j.service.node.ser:00">
+		<node server-uuid="j.service.node.app:shop:00">
 			<uuid>JCache.jpay:00</uuid>
 			
 			<rmi available="true">	
-				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
+				<property key="java.naming.provider.url" value="rmi://www.gugumall.cn:1520"/>				
 			</rmi>
 			
 			<http available="true">
-				<property key="j.service.http" value="http://127.0.0.1/JCache.service"/>
-			</http>
-		</node>
-		
-		<node server-uuid="j.service.node.app:pay:00">
-			<uuid>JCache.jpay:01</uuid>
-			
-			<rmi available="true">	
-				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
-			</rmi>
-			
-			<http available="true">
-				<property key="j.service.http" value="http://127.0.0.1/JCache.service"/>
+				<property key="j.service.http" value="https://www.gugumall.cn/JCache.service"/>
 			</http>
 		</node>
 	</service>
@@ -208,37 +225,15 @@
 		<client uuid="j.service.node.app:pay:00" name="应用节点" key="any"/>
 		<client uuid="j.service.node.app:shop:00" name="应用节点" key="any"/>
 		
-		<node server-uuid="j.service.node.ser:00">
+		<node server-uuid="j.service.node.app:shop:00">
 			<uuid>VerifyCode:00</uuid>
 			
 			<rmi available="true">	
-				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
+				<property key="java.naming.provider.url" value="rmi://www.gugumall.cn:1520"/>				
 			</rmi>
 			
 			<http available="true">
-				<property key="j.service.http" value="http://127.0.0.1/VerifyCode.service"/>
-			</http>
-		</node>
-		<node server-uuid="j.service.node.app:pay:00">
-			<uuid>VerifyCode:01</uuid>
-			
-			<rmi available="true">	
-				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
-			</rmi>
-			
-			<http available="true">
-				<property key="j.service.http" value="http://127.0.0.1/VerifyCode.service"/>
-			</http>
-		</node>
-		<node server-uuid="j.service.node.app:shop:00">
-			<uuid>VerifyCode:02</uuid>
-			
-			<rmi available="true">	
-				<property key="java.naming.provider.url" value="rmi://127.0.0.1:1520"/>				
-			</rmi>
-			
-			<http available="true">
-				<property key="j.service.http" value="http://127.0.0.1/VerifyCode.service"/>
+				<property key="j.service.http" value="https://www.gugumall.cn/VerifyCode.service"/>
 			</http>
 		</node>
 	</service>

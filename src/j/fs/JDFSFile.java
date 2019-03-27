@@ -45,7 +45,8 @@ public class JDFSFile extends JFile{
 	private JHttp jhttp=null;
 	private HttpClient jclient=null;
 	private String httpChannel=null;
-	
+
+	///////////////一些实用的静态方法////////////////////////
 	/**
 	 * 将文件读取成指定编码的字符串
 	 * @param encoding
@@ -134,6 +135,8 @@ public class JDFSFile extends JFile{
 			log.log(e,Logger.LEVEL_ERROR);
 		}
 	}
+	///////////////一些实用的静态方法  end////////////////////////
+	
 	
 	/**
 	 * 

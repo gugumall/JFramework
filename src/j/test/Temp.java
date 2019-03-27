@@ -1,5 +1,8 @@
 package j.test;
 
+import java.io.File;
+
+import j.util.JUtilString;
 
 /**
  * 
@@ -13,11 +16,19 @@ public class Temp {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception{
-		int lost=0;
-		for(int i=1;i<=25;i++){
-			int ifWin=lost+i;
-			lost+=ifWin;
-			System.out.println("第"+i+"次 下注"+ifWin+"元，如赢，利润为"+i+"元");
+		File dir=new File("F:\\images\\时光组\\temp");
+		File[] fs=dir.listFiles();
+		for(int i=0;i<fs.length;i++){
+			String name=fs[i].getName();
+			if(name.startsWith(".")&&name.endsWith(".hwbk")) {
+				String p=JUtilString.replaceAll(fs[i].getAbsolutePath(), name, name.substring(1,name.length()-5));
+				
+				File to=new File(p);
+				
+				fs[i].renameTo(to);
+				
+				System.out.println(name);
+			}
 		}
 	}
 }
