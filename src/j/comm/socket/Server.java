@@ -98,6 +98,19 @@ public class Server implements Runnable{
 	public ConcurrentList getClients() {
 		return clients;
 	}
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public ClientBase getClient(String id) {
+		for(int i=0;i<clients.size();i++) {
+			ClientBase c=(ClientBase)clients.get(i);
+			if(c.getId().equals(id)) return c;
+		}
+		return null;
+	}
 
 	@Override
 	public void run() {

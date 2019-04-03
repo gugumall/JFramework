@@ -7,7 +7,6 @@ import java.net.Socket;
 
 import j.log.Logger;
 import j.sys.SysUtil;
-import j.util.JUtilMath;
 
 /**
  * 
@@ -38,6 +37,14 @@ public class ClientBase implements Runnable{
 		this.addr=socket.getInetAddress();
 		this.maxIdle=maxIdle;
 		lastActive=SysUtil.getNow();
+	}
+	
+	/**
+	 * 获得区分于其它客户端的ID，特定业务中可能需要根据此ID来获得此Client对象，并通过其与客户端进行交互
+	 * @return
+	 */
+	public String getId() {
+		return this.addr.getHostAddress();
 	}
 	
 	/**
