@@ -40,6 +40,9 @@ public class Server implements Runnable{
 		Server instance=(Server)servers.get(port);
 		if(instance!=null) return instance;
 		
+		//纠正参数
+		if(clientMaxIdle<=0) clientMaxIdle=30000;
+		
 		//启动服务端socket
 		instance =new Server(port,client,clientMaxIdle);
 		Thread serverThread=new Thread(instance);
@@ -119,7 +122,7 @@ public class Server implements Runnable{
 			this.serverSocket = new ServerSocket(this.getPort());
 			while(true) {
 				try {
-					while(this.clients.size()>=this.maxClients) {//超出允许最大连接数
+					while(this.maxClients>0&&this.clients.size()>=this.maxClients) {//超出允许最大连接数
 						try {
 							Thread.sleep(100);
 						}catch(Exception e) {}
