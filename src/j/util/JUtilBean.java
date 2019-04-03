@@ -1,11 +1,5 @@
 package j.util;
 
-import j.common.JProperties;
-import j.dao.DAOFactory;
-import j.db.JactionLog;
-import j.log.Logger;
-import j.sys.SysUtil;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
@@ -23,6 +17,12 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.json.JSONObject;
+
+import j.common.JProperties;
+import j.dao.DAOFactory;
+import j.db.JactionLog;
+import j.log.Logger;
+import j.sys.SysUtil;
 
 /**
  * @author 肖炯
@@ -595,6 +595,99 @@ public class JUtilBean {
 		jsonString.append("]");
 		
 		return jsonString.toString();
+	}
+	
+
+
+	/**
+	 * 通过命名规则对应，将json（不考虑子对象）转换为beanClass的对象
+	 * @param beanClass
+	 * @param json
+	 * @return
+	 */
+	public static Object json2Bean(Class beanClass, JSONObject json){
+		if (json == null||beanClass == null){
+			return null;
+		}
+		
+		try {
+			return json2Bean(beanClass.newInstance(), json);
+		} catch (Exception e){
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		}
+	}
+
+	/**
+	 * 通过命名规则对应，将json（不考虑子对象）的变量赋值给bean的相应变量
+	 * @param bean
+	 * @param json
+	 * @return
+	 */
+	public static Object json2Bean(Object bean, JSONObject json){
+		if (json == null||bean == null){
+			return null;
+		}
+		
+		Class beanClass = bean.getClass();
+		try {
+			Field[] fields=beanClass.getDeclaredFields();
+			for(int i=0;i<fields.length;i++){
+				try{
+					String fieldName=fields[i].getName();
+					String type = fields[i].getType().getName();
+					String value = JUtilJSON.string(json, fieldName);
+
+					if (value == null|| (value.equals("") && !type.equals("java.lang.String"))){
+						continue;
+					}
+					
+					if (type.equals("java.lang.String")){
+						JUtilBean.getSetter(beanClass, fieldName,new Class[] { java.lang.String.class }).invoke(bean, new Object[] { value });
+					} else if (type.equals("java.lang.Long")){
+						if(JUtilMath.isLong(value)){
+							JUtilBean.getSetter(beanClass, fieldName,new Class[] { java.lang.Long.class }).invoke(bean,new Object[] { new Long(value) });
+						}
+					} else if (type.equals("java.lang.Integer")){
+						if(JUtilMath.isInt(value)){
+							JUtilBean.getSetter(beanClass, fieldName,new Class[] { java.lang.Integer.class }).invoke(bean, new Object[] { new Integer(value) });
+						}
+					} else if (type.equals("java.lang.Short")){
+						if(JUtilMath.isShort(value)){
+							JUtilBean.getSetter(beanClass, fieldName,new Class[] { java.lang.Short.class }).invoke(bean, new Object[] { new Short(value) });
+						}
+					} else if (type.equals("java.lang.Float")){
+						if(JUtilMath.isNumber(value)){
+							JUtilBean.getSetter(beanClass, fieldName,new Class[] { java.lang.Float.class }).invoke(bean,new Object[] { new Float(value) });
+						}
+					} else if (type.equals("java.lang.Double")){
+						if(JUtilMath.isNumber(value)){
+							JUtilBean.getSetter(beanClass, fieldName,new Class[] { java.lang.Double.class }).invoke(bean, new Object[] { new Double(value) });
+						}
+					} else if (type.equals("java.sql.Timestamp")){
+						value = value.trim();
+						if (value.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}$")){
+							value += ":00";
+						} else if (value.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}$")){
+							value += ":00:00";
+						} else if (JUtilString.isDate(value)){
+							value += " 00:00:00";
+						}
+						if (JUtilTimestamp.isTimestamp(value)){
+							JUtilBean.getSetter(beanClass,fieldName,new Class[] { java.sql.Timestamp.class }).invoke(bean,new Object[] { Timestamp.valueOf(value) });
+						}
+					}
+				} catch (Exception e){
+					log.log(e, Logger.LEVEL_ERROR);
+					return null;
+				}
+			}
+
+			return bean;
+		} catch (Exception e){
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		}
 	}
 	
 	/**

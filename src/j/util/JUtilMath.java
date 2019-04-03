@@ -529,7 +529,109 @@ public class JUtilMath {
 		}
 	}
 	
+	/**
+	 * 单byte转int
+	 * @param b 字节
+	 * @param unsigned 是否无符号
+	 * @return
+	 */
+	public static int byteToInt(byte b,boolean unsigned) {
+		return (unsigned&&b<0)?(b&0xFF):b;
+	}
+	
+	/**
+	 * 4 bytes转int
+	 * @param bytes 4字节，不足4字节的高位补0，多于4字节则丢弃高位
+	 * @param reverse bytes是否反转（即低位在左、高位在右）
+	 * @return
+	 */
+	public static int byteToInt(byte[] _bytes,boolean reverse) {
+		byte[] _int=new byte[] {0,0,0,0};
+		
+		if(reverse) {//反转，反转后为高位在左
+			byte[] _bytesReverse=new byte[_bytes.length];
+			for(int i=0;i<_bytes.length;i++) _bytesReverse[i]=_bytes[_bytes.length-i-1];
+			_bytes=_bytesReverse;
+		}
+		
+		int maxBytes=_bytes.length>4?4:_bytes.length;//最多取4 byte
+		
+		for(int i=_bytes.length-1;i>=_bytes.length-maxBytes;i--) _int[i+(4-maxBytes)]=_bytes[i];
+		
+		return (_int[0] & 0xff) << 24 | (_int[1] & 0xff) << 16 | (_int[2] & 0xff) << 8 | _int[3] & 0xff;
+	}
+	
+	/**
+	 * int转byte数组
+	 * @param _int int值
+	 * @param length 转换成字节数组的长度（1~4）
+	 * @param reverse 返回的bytes是否反转（即低位在左、高位在右）
+	 * @return
+	 */
+	public static byte[] intToBytes(int _int,int length,boolean reverse) {
+		if(length<1) length=1;//最少1字节
+		if(length>4) length=4;//最多4字节
+		
+	    byte[] _bytes = new byte[length];  
+	    
+    	for(int i=3;i>=(4-length);i--) _bytes[i-(4-length)]=(byte) ((_int >> ((4-i-1)*8)) & 0xFF);  
+	    
+		if(reverse) {//反转
+			byte[] _bytesReverse=new byte[_bytes.length];
+			for(int i=0;i<_bytes.length;i++) _bytesReverse[i]=_bytes[_bytes.length-i-1];
+			_bytes=_bytesReverse;
+		}
+		
+	    return _bytes;  
+	}
+	
+	/**
+	 * 校验和
+	 * @param bytes
+	 * @param len
+	 * @return
+	 */
+	public static byte checkSum(byte[] bytes, int len){
+        int sum = 0;
+        for(int i = 0; i < len; i++) sum = sum + bytes[i];
+        return (byte) (sum & 0xff);
+    }
+	
+	/**
+	 * 
+	 * @param bytes 字节数组
+	 * @param unsigned 是否无符号
+	 * @param radix 进制
+	 * @param space 是否添加空格
+	 * @return
+	 */
+	public static String bytesToString(byte[] bytes,boolean unsigned,int radix,boolean space) {
+		StringBuffer sb=new StringBuffer();
+		for(int i=0;i<bytes.length;i++) {
+			if(i>0&&space) sb.append(" ");
+			
+			int v=byteToInt(bytes[i],unsigned);
+			
+			if(v<=0xF) sb.append("0");
+			sb.append(Integer.toString(v, radix));
+		}
+		return sb.toString().toUpperCase();
+	}
+	
+	/**
+	 * 
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args)throws Exception{
-		System.out.println(equals(0.0001d,0.00011d,6));
+		byte[] a = new byte[]{(byte)255,(byte)24,(byte)00,(byte)23};
+		int i=JUtilMath.byteToInt(a, true);
+		System.out.println(i);
+		System.out.println(Integer.toString(i, 16));
+		
+		byte[] bs=JUtilMath.intToBytes(i, 4, true);
+		System.out.println(JUtilMath.bytesToString(bs, true, 16, false));
+		
+		System.out.println(JUtilMath.bytesToString(new byte[] {checkSum(bs,bs.length)}, true, 16, false));
 	}
 }
