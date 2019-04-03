@@ -48,6 +48,13 @@ public class ClientBase implements Runnable{
 	}
 	
 	/**
+	 * 当收到信息时
+	 * @throws Exception
+	 */
+	public void onReceive(Object data) throws Exception{
+	}
+	
+	/**
 	 * 当关闭连接时
 	 * @throws Exception
 	 */
@@ -86,22 +93,19 @@ public class ClientBase implements Runnable{
 	 * @return
 	 * @throws Exception
 	 */
-	public Object receive() throws Exception{
+	public void receive() throws Exception{
 		byte[] data=new byte[in.available()];
 		in.read(data);
-		log.log("receive data from "+this.toString()+": "+JUtilMath.bytesToString(data, true, 16, true), -1);
 		
-		return data;
+		this.onReceive(data);
 	}
 	
 	/**
-	 * 根据收到的内容响应客户端
-	 * @param received 收到的内容
+	 * 发送内容可客户端
+	 * @param data 需要发送的内容
 	 * @throws Exception
 	 */
-	public void respond(Object received) throws Exception{
-		out.write((byte[])received);
-		out.flush();
+	public void send(Object data) throws Exception{
 	}
 	
 	/**
@@ -156,10 +160,7 @@ public class ClientBase implements Runnable{
 					this.lastActive=SysUtil.getNow();
 					
 					//接收
-					Object received=this.receive();
-					
-					//响应
-					this.respond(received);
+					this.receive();
 				}
 			} 
 		}catch(Exception e) {

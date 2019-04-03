@@ -22,6 +22,7 @@ public class Server implements Runnable{
 	private Integer port;
 	private Class client;
 	private long clientMaxIdle;
+	private int maxClients=100;
 	private ConcurrentList<ClientBase> clients=new ConcurrentList<ClientBase>();
 	private ServerSocket serverSocket=null;
 	private Monitor monitor=null;
@@ -31,10 +32,11 @@ public class Server implements Runnable{
 	 * @param port 端口
 	 * @param client 处理客户端交互的类
 	 * @param clientMaxIdle 最大空闲时间，超过此时间未收到客户端消息将强制关闭连接，单位毫秒
+	 * @param maxClients 最大同时连接客户端数
 	 * @return
 	 * @throws Exception
 	 */
-	public static Server start(Integer port,Class client,long clientMaxIdle) throws Exception{
+	public static Server start(Integer port,Class client,long clientMaxIdle,int maxClients) throws Exception{
 		Server instance=(Server)servers.get(port);
 		if(instance!=null) return instance;
 		
@@ -104,6 +106,12 @@ public class Server implements Runnable{
 			this.serverSocket = new ServerSocket(this.getPort());
 			while(true) {
 				try {
+					while(this.clients.size()>=this.maxClients) {//超出允许最大连接数
+						try {
+							Thread.sleep(100);
+						}catch(Exception e) {}
+					}
+					
 					Socket socket=serverSocket.accept();
 					
 					ClientBase client=(ClientBase)this.getClient().getConstructor(new Class[] {Socket.class,long.class}).newInstance(new Object[] {socket,this.getClientMaxIdle()});

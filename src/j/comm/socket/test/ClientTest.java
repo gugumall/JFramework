@@ -27,6 +27,12 @@ public class ClientTest extends ClientBase{
 	public void onConnect() throws Exception{
 		System.out.println(this.addr.getHostAddress()+" connected.");
 	}
+
+	@Override
+	public void onReceive(Object received) throws Exception{
+		byte[] bytes=(byte[])received;
+		System.out.println("receive data from "+this.toString()+": "+JUtilMath.bytesToString(bytes, true, 16, true));
+	}
 	
 	@Override
 	public void onClose() throws Exception{
@@ -37,19 +43,10 @@ public class ClientTest extends ClientBase{
 	public void onError() throws Exception{
 		System.out.println(this.addr.getHostAddress()+" error occurred.");
 	}
-	
-	@Override
-	public Object receive() throws Exception{
-		byte[] data=new byte[in.available()];
-		in.read(data);
-		System.out.println("receive data from "+this.toString()+": "+JUtilMath.bytesToString(data, true, 16, false));
-		
-		return "Bingo";
-	}
 
 	@Override
-	public void respond(Object received) throws Exception{
-		out.write(((String)received).getBytes());
+	public void send(Object data) throws Exception{
+		out.write("Bingo".getBytes());
 		out.flush();
 	}
 }
