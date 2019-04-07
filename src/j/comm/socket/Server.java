@@ -53,7 +53,7 @@ public class Server implements Runnable{
 		Thread monitorThread=new Thread(instance.monitor);
 		monitorThread.start();
 		
-		servers.put(port,client);
+		servers.put(port,instance);
 		
 		return instance;
 	}

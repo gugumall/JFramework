@@ -40,6 +40,13 @@ public class ClientBase implements Runnable{
 	}
 	
 	/**
+	 * 
+	 */
+	public ClientBase() {
+		
+	}
+	
+	/**
 	 * 获得区分于其它客户端的ID，特定业务中可能需要根据此ID来获得此Client对象，并通过其与客户端进行交互
 	 * @return
 	 */
@@ -130,6 +137,8 @@ public class ClientBase implements Runnable{
 	 */
 	protected boolean end(boolean force) {
 		synchronized(this) {
+			if(this.end) return true;
+			
 			if(!this.isIdle()&&!force) return false;//空闲为超过最大允许时间，且不是强制关闭
 			
 			this.end=true;
@@ -153,6 +162,8 @@ public class ClientBase implements Runnable{
 	@Override
 	public void run() {
 		try {
+			this.connect();
+			
 			while(!end) {
 				synchronized(this) {
 					if(end) break;

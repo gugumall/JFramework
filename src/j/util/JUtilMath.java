@@ -587,13 +587,32 @@ public class JUtilMath {
 	
 	/**
 	 * 校验和
-	 * @param bytes
+	 * @param bytes 源数据
+	 * @param unsigned
 	 * @param len
 	 * @return
 	 */
-	public static byte checkSum(byte[] bytes, int len){
+	public static byte checkSum(byte[] bytes, boolean unsigned, int len){
         int sum = 0;
-        for(int i = 0; i < len; i++) sum = sum + bytes[i];
+        for(int i = 0; i < len; i++) {
+        	sum += (JUtilMath.byteToInt(bytes[i], unsigned) & 0xff);
+        }
+        return (byte) (sum & 0xff);
+    }
+	
+	/**
+	 * 校验和
+	 * @param bytes
+	 * @param unsigned
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	public static byte checkSum(byte[] bytes, boolean unsigned, int from,int to){
+        int sum = 0;
+        for(int i = from; i < to; i++) {
+        	sum += (JUtilMath.byteToInt(bytes[i], unsigned) & 0xff);
+        }
         return (byte) (sum & 0xff);
     }
 	
@@ -612,7 +631,7 @@ public class JUtilMath {
 			
 			int v=byteToInt(bytes[i],unsigned);
 			
-			if(v<=0xF) sb.append("0");
+			if(radix==16&&v<0xF) sb.append("0");
 			sb.append(Integer.toString(v, radix));
 		}
 		return sb.toString().toUpperCase();
@@ -624,14 +643,9 @@ public class JUtilMath {
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
-		byte[] a = new byte[]{(byte)255,(byte)24,(byte)00,(byte)23};
-		int i=JUtilMath.byteToInt(a, true);
-		System.out.println(i);
-		System.out.println(Integer.toString(i, 16));
-		
-		byte[] bs=JUtilMath.intToBytes(i, 4, true);
-		System.out.println(JUtilMath.bytesToString(bs, true, 16, false));
-		
-		System.out.println(JUtilMath.bytesToString(new byte[] {checkSum(bs,bs.length)}, true, 16, false));
+		byte[] bytes = new byte[]{(byte)170,(byte)245,(byte)178,(byte)0,(byte)16,(byte)10,(byte)104,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)49,(byte)55,(byte)48,(byte)50,(byte)52,(byte)53,(byte)48,(byte)48,(byte)48,(byte)48,(byte)48,(byte)48,(byte)48,(byte)48,(byte)48,(byte)50,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)1,(byte)0,(byte)2,(byte)6,(byte)0,(byte)30,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)255,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)25,(byte)112,(byte)1,(byte)1,(byte)8,(byte)0,(byte)0,(byte)255,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)53};
+	
+		System.out.println(JUtilMath.bytesToString(bytes, true, 16, true));
+		System.out.println(JUtilMath.checkSum(bytes, true, 6, bytes.length-1));
 	}
 }
