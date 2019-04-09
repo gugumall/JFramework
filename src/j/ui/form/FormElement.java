@@ -21,6 +21,8 @@ public class FormElement extends JObject{
 	private String type;//元素类型
 	private String id;
 	private String name;
+	private String label;
+	private String placeholder;
 	private String value;
 	private int maxValueChars=0;//值最大字符数，小于等于0表示不限制
 	private int maxValueBytes=0;//值最大字节数（按UTF-8编码计算)，小于等于0表示不限制
@@ -32,15 +34,27 @@ public class FormElement extends JObject{
 	 * @param type
 	 * @param id
 	 * @param name
+	 * @param label
+	 * @param placeholder
 	 * @param value
 	 * @param maxValueChars
 	 * @param maxValueBytes
 	 * @param validator
 	 */
-	public FormElement(String type,String id,String name,String value,int maxValueChars,int maxValueBytes,String validator) {
+	public FormElement(String type,
+			String id,
+			String name,
+			String label,
+			String placeholder,
+			String value,
+			int maxValueChars,
+			int maxValueBytes,
+			String validator) {
 		this.type=type;
 		this.id=id;
 		this.name=name;
+		this.label=label;
+		this.placeholder=placeholder;
 		this.value=value;
 		this.maxValueChars=maxValueChars;
 		this.maxValueBytes=maxValueBytes;
@@ -62,6 +76,8 @@ public class FormElement extends JObject{
 	public String getType() {return this.type;}
 	public String getId() {return this.id;}
 	public String getName() {return this.name;}
+	public String getLabel() {return this.label;}
+	public String getPlaceholder() {return this.placeholder;}
 	public String getValue() {return this.value;}
 	public int getMaxValueChars() {return this.maxValueChars;}
 	public int getMaxValueBytes() {return this.maxValueBytes;}
