@@ -254,7 +254,9 @@ public class JObject implements Serializable{
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
-		String s1="jis:2p,3a,2p,2x,30,2p,2q,30,2t";
-		System.out.println(JObject.intSequence2String(s1));
+		String[] arr=new String[] {"11","22","33"};
+		String[] arr2=(String[])JArray.subArray(arr, new String[2], 1, 3);
+		System.out.println(arr2[0]);
+		System.out.println(arr2[1]);
 	}
 }

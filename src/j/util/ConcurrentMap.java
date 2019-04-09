@@ -15,7 +15,7 @@ import java.util.Set;
  * @author 肖炯
  *
  */
-public class ConcurrentMap<K,V> implements Map,Serializable{
+public class ConcurrentMap<K,V> implements Map<K,V>,Serializable{
 	private static final long serialVersionUID = 1L;
 	private JObject lock=null;
 	private Map container=null;//实际数据存储对象
@@ -27,7 +27,7 @@ public class ConcurrentMap<K,V> implements Map,Serializable{
 	 */
 	public ConcurrentMap(){
 		lock=new JObject();
-		container=new LinkedHashMap();
+		container=new LinkedHashMap<K,V>();
 	}
 	
 	/**
@@ -98,9 +98,9 @@ public class ConcurrentMap<K,V> implements Map,Serializable{
 	 *  (non-Javadoc)
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
-	public Object get(Object key){
+	public V get(Object key){
 		synchronized(lock){
-			return container.get(key);
+			return (V)container.get(key);
 		}
 	}
 	
@@ -128,9 +128,9 @@ public class ConcurrentMap<K,V> implements Map,Serializable{
 	 *  (non-Javadoc)
 	 * @see java.util.Map#put(java.lang.Object,java.lang.Object)
 	 */
-	public Object put(Object key,Object value){
+	public V put(Object key,Object value){
 		synchronized(lock){
-			return container.put(key,value);
+			return (V)container.put(key,value);
 		}
 	}
 	
@@ -148,9 +148,9 @@ public class ConcurrentMap<K,V> implements Map,Serializable{
 	 *  (non-Javadoc)
 	 * @see java.util.Map#remove(java.lang.Object)
 	 */
-	public Object remove(Object key){
+	public V remove(Object key){
 		synchronized(lock){
-			return container.remove(key);
+			return (V)container.remove(key);
 		}
 	}
 	

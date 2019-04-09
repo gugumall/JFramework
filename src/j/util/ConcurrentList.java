@@ -14,7 +14,7 @@ import java.util.ListIterator;
  * @author 肖炯
  * 
  */
-public class ConcurrentList<E> implements List, Serializable {
+public class ConcurrentList<E> implements List<E>, Serializable {
 	private static final long serialVersionUID = 1L;
 	private JObject lock = null;
 
@@ -27,7 +27,7 @@ public class ConcurrentList<E> implements List, Serializable {
 	 */
 	public ConcurrentList() {
 		lock = new JObject();
-		container = new ArrayList();
+		container = new ArrayList<E>();
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class ConcurrentList<E> implements List, Serializable {
 	 * @param e
 	 * @return
 	 */
-	public boolean add(Object e) {
+	public boolean add(E e) {
 		synchronized(lock){
 			boolean r= container.add(e);
 			return r;
@@ -139,10 +139,10 @@ public class ConcurrentList<E> implements List, Serializable {
 	 *  (non-Javadoc)
 	 * @see java.util.List#get(int)
 	 */
-	public Object get(int index) {
+	public E get(int index) {
 		try{
 			synchronized(lock){
-				return container.get(index);
+				return (E)container.get(index);
 			}
 		}catch(Exception e){
 			return null;
@@ -213,11 +213,10 @@ public class ConcurrentList<E> implements List, Serializable {
 	 *  (non-Javadoc)
 	 * @see java.util.List#remove(int)
 	 */
-	public Object remove(int index) {
+	public E remove(int index) {
 		try{
 			synchronized(lock){
-				Object r= container.remove(index);
-				return r;
+				return (E)container.remove(index);
 			}
 		}catch(Exception e){
 			return null;
@@ -265,10 +264,9 @@ public class ConcurrentList<E> implements List, Serializable {
 	 * @param element
 	 * @return
 	 */
-	public Object set(int index, Object element) {
+	public E set(int index, Object element) {
 		synchronized(lock){
-			Object r= container.set(index,element);
-			return r;
+			return (E)container.set(index,element);
 		}
 	}
 
@@ -286,7 +284,7 @@ public class ConcurrentList<E> implements List, Serializable {
 	 *  (non-Javadoc)
 	 * @see java.util.List#subList(int, int)
 	 */
-	public List subList(int fromIndex, int toIndex) {
+	public List<E> subList(int fromIndex, int toIndex) {
 		synchronized(lock){
 			return container.subList(fromIndex,toIndex);
 		}
@@ -296,9 +294,9 @@ public class ConcurrentList<E> implements List, Serializable {
 	 *  (non-Javadoc)
 	 * @see java.util.Collection#toArray()
 	 */
-	public Object[] toArray() {
+	public E[] toArray() {
 		synchronized(lock){
-			return container.toArray();
+			return (E[])container.toArray();
 		}
 	}
 
@@ -307,9 +305,9 @@ public class ConcurrentList<E> implements List, Serializable {
 	 * @param a
 	 * @return
 	 */
-	public Object[] toArray(Object[] a) {
+	public E[] toArray(Object[] a) {
 		synchronized(lock){
-			return container.toArray(a);
+			return (E[])container.toArray(a);
 		}
 	}
 	
@@ -317,8 +315,8 @@ public class ConcurrentList<E> implements List, Serializable {
 	 * 
 	 * @return
 	 */
-	public ConcurrentList snapshot() {
-		ConcurrentList _snapshot=new ConcurrentList();
+	public ConcurrentList<E> snapshot() {
+		ConcurrentList<E> _snapshot=new ConcurrentList<E>();
 		synchronized(lock){
 			_snapshot.addAll(container);
 		}

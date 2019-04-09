@@ -545,7 +545,7 @@ public class JUtilMath {
 	 * @param reverse bytes是否反转（即低位在左、高位在右）
 	 * @return
 	 */
-	public static int byteToInt(byte[] _bytes,boolean reverse) {
+	public static int fourBytesToInt(byte[] _bytes,boolean reverse) {
 		byte[] _int=new byte[] {0,0,0,0};
 		
 		if(reverse) {//反转，反转后为高位在左
@@ -604,8 +604,8 @@ public class JUtilMath {
 	 * 校验和
 	 * @param bytes
 	 * @param unsigned
-	 * @param from
-	 * @param to
+	 * @param from 包含
+	 * @param to 不包含
 	 * @return
 	 */
 	public static byte checkSum(byte[] bytes, boolean unsigned, int from,int to){
