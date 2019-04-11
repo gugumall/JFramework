@@ -70,11 +70,14 @@ public class Handlers implements Runnable{
 	 */
 	public static String isActionPath(String requestURI){
 		waitWhileLoading();
+		
 		for(int i=0;i<actionPathPatterns.length;i++){
 			if(requestURI.endsWith(actionPathPatterns[i])) return actionPathPatterns[i];
 		}
 		
 		if(requestURI.lastIndexOf("/")>1){
+			if(requestURI.indexOf(".")>0) return null;//RESTful风格的路径不能包含点(.)
+			
 			String RESTPath=requestURI.substring(0,requestURI.lastIndexOf("/"));
 			//String action=requestURI.substring(requestURI.lastIndexOf("/")+1);
 			Handler handler=Handlers.getHandlerByRESTPath(RESTPath);

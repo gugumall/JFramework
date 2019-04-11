@@ -51,6 +51,30 @@ public class JUtilBean {
 
 		return method;
 	}
+	
+	/**
+	 * 根据字段名和参数，得到setter方法，不抛异常
+	 * @param cls
+	 * @param propertyName
+	 * @param paras
+	 * @return
+	 */
+	public static Method getSetterIgnoreException(Class cls, String propertyName, Class[] paras){
+		try {
+			Method method = null;
+			String methodName = "set" + upperFirstChar(propertyName);
+			try{
+				method = cls.getDeclaredMethod(methodName, paras);
+			}catch(Exception e){
+				method = cls.getMethod(methodName, paras);
+			}
+	
+			return method;
+		}catch(Exception e) {
+			return null;
+		}
+	}
+
 
 	/**
 	 * 根据字段名和参数，得到getter方法
@@ -928,7 +952,14 @@ public class JUtilBean {
 						}
 					}else if(type.equals("java.lang.Integer")){
 						if(JUtilMath.isInt(value)){
-							JUtilBean.getSetter(_beanClass,fieldName,new Class[]{java.lang.Integer.class}).invoke(bean,new Object[]{new Integer(value)});
+							Method method=JUtilBean.getSetterIgnoreException(_beanClass,fieldName,new Class[]{java.lang.Integer.class});
+							if(method==null) {
+								//没找到参数类型为Integer的Setter，则尝试Double型的（为了应对数据字段类型改变的情况）
+								method=JUtilBean.getSetterIgnoreException(_beanClass,fieldName,new Class[]{java.lang.Double.class});
+								method.invoke(bean,new Object[]{new Double(value)});
+							}else {
+								method.invoke(bean,new Object[]{new Integer(value)});
+							}
 						}
 					}else if(type.equals("java.lang.Short")){
 						if(JUtilMath.isShort(value)){
@@ -940,7 +971,14 @@ public class JUtilBean {
 						}
 					}else if(type.equals("java.lang.Double")){
 						if(JUtilMath.isNumber(value)){
-							JUtilBean.getSetter(_beanClass,fieldName,new Class[]{java.lang.Double.class}).invoke(bean,new Object[]{new Double(value)});
+							Method method=JUtilBean.getSetterIgnoreException(_beanClass,fieldName,new Class[]{java.lang.Double.class});
+							if(method==null) {
+								//没找到参数类型为Double的Setter，则尝试Integer型的（为了应对数据字段类型改变的情况）
+								method=JUtilBean.getSetterIgnoreException(_beanClass,fieldName,new Class[]{java.lang.Integer.class});
+								method.invoke(bean,new Object[]{new Integer(value)});
+							}else {
+								method.invoke(bean,new Object[]{new Double(value)});
+							}
 						}
 					}else if(type.equals("java.sql.Timestamp")){
 						value=value.trim();
