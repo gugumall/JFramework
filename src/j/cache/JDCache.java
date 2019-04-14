@@ -257,7 +257,7 @@ public class JDCache extends JCache{
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			return info.service.size(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"size"),cacheId);
+			return info.service.size(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"size"),cacheId,jdcParams);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
@@ -267,6 +267,28 @@ public class JDCache extends JCache{
 			params=null;
 			
 			return Integer.parseInt(response);	
+		}
+	}
+
+	@Override
+	public int[] sizes(String cacheId,JCacheParams[] jdcParams) throws Exception{
+		Servant info=findService(cacheId);
+		
+		if(info.service!=null){
+			return info.service.sizes(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"sizes"),cacheId,jdcParams);
+		}else{ 
+			Map params=new HashMap();
+			params.put("cacheId",cacheId);
+			params.put("params",JObject.serializable2String((Serializable)jdcParams));
+			String response=Client.httpCallPost(info.jhttp,info.jclient,info.serviceCode,info.httpChannel,"sizes",params);
+			params.clear();
+			params=null;
+			
+			String[] _sizes=response.split(",");
+			int[] sizes=new int[_sizes.length];
+			for(int i=0;i<sizes.length;i++) sizes[i]=Integer.parseInt(_sizes[i]);
+			
+			return sizes;	
 		}
 	}
 

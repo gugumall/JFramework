@@ -388,6 +388,26 @@ public class JDCacheServiceImpl extends JDCacheServiceAbstract implements Runnab
 			throw new RemoteException(e.getMessage());
 		}
 	}
+	
+	public int[] sizes(String clientUuid, String md54Service,String cacheId, JCacheParams[] params) throws RemoteException{
+		if(!cacheId.startsWith("syn:")){
+			try{
+				auth(clientUuid,"sizes",md54Service);
+			}catch(RemoteException e){
+				throw new RemoteException(Constants.AUTH_FAILED);
+			}
+		}
+		
+		JCacheUnit unit=checkStatus(cacheId);	
+		try{
+			int[] sizes=new int[params.length];
+			for(int i=0;i<sizes.length;i++) sizes[i]=unit.size(params[i]);
+			return sizes;
+		}catch(Exception e){
+			log.log(e,Logger.LEVEL_ERROR);
+			throw new RemoteException(e.getMessage());
+		}
+	}
 
 	/*
 	 *  (non-Javadoc)

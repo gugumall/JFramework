@@ -251,8 +251,20 @@ public class ConcurrentMap<K,V> implements Map<K,V>,Serializable{
 	public static void main(String[] args)throws Exception{
 		ConcurrentMap m=new ConcurrentMap();
 		m.put("a","a");
-		m.put("b",new Integer(2));
-		m.put("c","a");
+		//m.put("b",new Integer(2));
+		//m.put("c","x");
+		
+		int recordsPerPage=100;
+		int pageNum=1;
+		
+		int start=recordsPerPage*(pageNum-1);
+		int to=recordsPerPage*pageNum;
+		
+		ConcurrentMap mappings=JUtilMap.subConcurrentMap(m,start,to>m.size()?m.size():to);
+		List keys=mappings.listKeys();
+		for(int i=0;i<keys.size();i++) {
+			System.out.println(keys.get(i));
+		}
 		
 		System.out.println(m.toXml());
 	}

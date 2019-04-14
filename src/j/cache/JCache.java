@@ -128,13 +128,22 @@ public abstract class JCache implements Serializable{
 	public abstract int size(String cacheId) throws Exception;
 	
 	/**
-	 * 缓存单元中符合指定缓存操作参数的对象数量
+	 * 缓存单元中符合操作参数的对象数量
 	 * @param cacheId 缓存单元ID
 	 * @param jdcParams 缓存操作参数
 	 * @return
 	 * @throws Exception
 	 */
 	public abstract int size(String cacheId,JCacheParams jdcParams) throws Exception;
+	
+	/**
+	 * 缓存单元中符合各个操作参数的对象数量，返回结果数与指定的多个缓存操作参数对应
+	 * @param cacheId 缓存单元ID
+	 * @param jdcParams 多个缓存操作参数
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract int[] sizes(String cacheId,JCacheParams[] jdcParams) throws Exception;
 	
 	/**
 	 * 获得符合缓存操作参数的对象，如有多个符合则返回第一个

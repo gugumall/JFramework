@@ -144,6 +144,17 @@ public class JDCacheLocal extends JCache implements Runnable{
 	}
 
 	/*
+	 * (non-Javadoc)
+	 * @see j.cache.JCache#sizes(java.lang.String, j.cache.JCacheParams[])
+	 */
+	public int[] sizes(String cacheId, JCacheParams[] jdcParams) throws Exception {
+		JCacheUnit unit=checkStatus(cacheId);	
+		int[] sizes=new int[jdcParams.length];
+		for(int i=0;i<sizes.length;i++) sizes[i]=unit.size(jdcParams[i]);
+		return sizes;
+	}
+
+	/*
 	 *  (non-Javadoc)
 	 * @see j.cache.JCache#get(java.lang.String, j.cache.JCacheParams)
 	 */
