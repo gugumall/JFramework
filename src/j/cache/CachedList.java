@@ -94,6 +94,16 @@ public class CachedList{
 	public int size(JCacheParams params) throws Exception {
 		return cache.size(this.cacheId,params);
 	}
+	
+	/**
+	 * 
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	public int[] sizes(JCacheParams[] params) throws Exception {
+		return cache.sizes(this.cacheId,params);
+	}
 
 	/**
 	 * 获得符合缓存操作参数的对象，如有多个符合，返回索引位置最靠前的那个
