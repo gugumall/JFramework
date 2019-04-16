@@ -92,11 +92,11 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("f:\\work\\JShop_v2.1\\src");
+		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages\\");
 		replace(dir,
-				"@author ceo",
-				"@author 肖炯",
-				".java");
+				" / \"+adapter.translateSkuName()+\")\";",
+				" / I{iot,度}\";",
+				".jsp");
 //		count(dir,
 //		"花卉大全",
 //		".java");
