@@ -94,8 +94,8 @@ public class FileReplace {
 		
 		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages\\");
 		replace(dir,
-				" / \"+adapter.translateSkuName()+\")\";",
-				" / I{iot,度}\";",
+				"IotThings.jhtml",
+				"IotThings.handler",
 				".jsp");
 //		count(dir,
 //		"花卉大全",

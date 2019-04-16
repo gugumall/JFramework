@@ -75,6 +75,18 @@ public class Waitings implements Runnable{
 		return result;
 	}
 	
+	/**
+	 * 设置结果
+	 * @param UUID
+	 * @param result
+	 */
+	public static void setResult(String UUID,Object result) {
+		Waiting waiting=waitings.get(UUID);
+		if(waiting==null) return;
+		
+		waiting.setResult(result);
+	}
+	
 	@Override
 	public void run() {
 		while(true) {
