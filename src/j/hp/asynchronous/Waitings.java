@@ -40,6 +40,19 @@ public class Waitings implements Runnable{
 	}
 	
 	/**
+	 * @param UUID
+	 * @param timeout
+	 * @param defaultResultWhenTimeout
+	 * @return 返回为任务分配的uuid
+	 */
+	public static String waiting(String UUID,long timeout,Object defaultResultWhenTimeout) {
+		if(UUID==null) UUID=JUtilUUID.genUUID();
+		Waiting waiting=new Waiting(UUID,timeout,defaultResultWhenTimeout);
+		waitings.put(UUID,waiting);
+		return UUID;
+	}
+	
+	/**
 	 * 得到结果（直到结果返回或超时）
 	 * @param UUID
 	 * @return
