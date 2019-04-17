@@ -94,8 +94,8 @@ public class FileReplace {
 		
 		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages\\");
 		replace(dir,
-				"IotThings.jhtml",
-				"IotThings.handler",
+				"I{iot,<%=btnName%>}",
+				"<%=btnName%>",
 				".jsp");
 //		count(dir,
 //		"花卉大全",

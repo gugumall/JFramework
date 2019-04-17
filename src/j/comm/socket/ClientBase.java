@@ -23,21 +23,11 @@ public class ClientBase implements Runnable{
 	protected InetAddress addr;
 	protected InputStream in;
 	protected OutputStream out;
-	protected long maxIdle;
-	protected long lastActive;
-	protected boolean end=false;
-	
-	/**
-	 * 
-	 * @param socket 客户端socket
-	 * @param maxIdle 最大空闲时间，超过此时间未收到客户端消息将强制关闭连接，单位毫秒
-	 */
-	public ClientBase(Socket socket,long maxIdle) {
-		this.socket=socket;
-		this.addr=socket.getInetAddress();
-		this.maxIdle=maxIdle;
-		lastActive=SysUtil.getNow();
-	}
+	protected long maxIdle;//最大空闲时间，超过自动关闭连接，单位ms
+	protected long mustSendAfterConnectedWithin;//建立连接后多久内必须发生交互，否则关闭连接，单位ms
+	protected long lastActive;//最近交互时间，单位ms
+	protected long interactions=0;//交互次数
+	protected boolean end=false;//是否已经结束
 	
 	/**
 	 * 
@@ -47,11 +37,46 @@ public class ClientBase implements Runnable{
 	}
 	
 	/**
+	 * 
+	 * @param socket 客户端socket
+	 * @param maxIdle 最大空闲时间，超过此时间未收到客户端消息将强制关闭连接，单位毫秒
+	 */
+	public ClientBase(Socket socket,long maxIdle) {
+		this.socket=socket;
+		this.addr=socket.getInetAddress();
+		this.mustSendAfterConnectedWithin=3000;//默认三秒
+		this.maxIdle=maxIdle;
+		lastActive=SysUtil.getNow();
+	}
+	
+	/**
+	 * 
+	 * @param socket 客户端socket
+	 * @param maxIdle 最大空闲时间，超过此时间未收到客户端消息将强制关闭连接，单位毫秒
+	 * @param mustSendAfterConnectedWithin 建立连接后多久内必须发生交互，否则关闭连接，单位ms
+	 */
+	public ClientBase(Socket socket,long maxIdle,long mustSendAfterConnectedWithin) {
+		this.socket=socket;
+		this.addr=socket.getInetAddress();
+		this.mustSendAfterConnectedWithin=mustSendAfterConnectedWithin;
+		this.maxIdle=maxIdle;
+		lastActive=SysUtil.getNow();
+	}
+	
+	/**
 	 * 获得区分于其它客户端的ID，特定业务中可能需要根据此ID来获得此Client对象，并通过其与客户端进行交互
 	 * @return
 	 */
 	public String getId() {
 		return this.addr.getHostAddress();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public InetAddress getAddress() {
+		return this.addr;
 	}
 	
 	/**
@@ -128,6 +153,15 @@ public class ClientBase implements Runnable{
 	 */
 	private boolean isIdle() {
 		return SysUtil.getNow()-this.lastActive>this.maxIdle;
+	}
+
+	
+	/**
+	 * 是否建立连接后在规定时间内未发生交互
+	 * @return
+	 */
+	public boolean notActiveAfterConnectedWithin() {
+		return interactions==0&&SysUtil.getNow()-this.lastActive>this.mustSendAfterConnectedWithin;
 	}	
 	
 	/**
@@ -139,7 +173,9 @@ public class ClientBase implements Runnable{
 		synchronized(this) {
 			if(this.end) return true;
 			
-			if(!this.isIdle()&&!force) return false;//空闲为超过最大允许时间，且不是强制关闭
+			if(!this.isIdle()
+					&&!this.notActiveAfterConnectedWithin()
+					&&!force) return false;//未满足两个需关闭连接的条件之一，且不是强制关闭
 			
 			this.end=true;
 			try {
@@ -176,6 +212,9 @@ public class ClientBase implements Runnable{
 					
 					//记录最新活动时间
 					this.lastActive=SysUtil.getNow();
+					
+					//交互次数
+					interactions++;
 					
 					//接收
 					this.receive();

@@ -22,6 +22,16 @@ public class ClientTest extends ClientBase{
 	public ClientTest(Socket socket,long maxIdle) {
 		super(socket,maxIdle);
 	}
+	
+	/**
+	 * 
+	 * @param socket
+	 * @param maxIdle
+	 * @param mustSendAfterConnectedWithin
+	 */
+	public ClientTest(Socket socket,long maxIdle,long mustSendAfterConnectedWithin) {
+		super(socket,maxIdle,mustSendAfterConnectedWithin);
+	}
 
 	@Override
 	public String getId() {
