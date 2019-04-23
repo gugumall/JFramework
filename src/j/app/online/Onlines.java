@@ -631,6 +631,12 @@ public class Onlines implements Filter,Runnable{
 		}
 
 		try{	
+			if(handler!=null){
+				if(!handler.doFilterBefore(_request, _response, chain)) {
+					return;
+				}
+			}
+			
 			HttpSession session=request.getSession(true);			
 	
 			User user=SSOClient.getCurrentUser(session);

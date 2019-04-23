@@ -638,14 +638,34 @@ public class JUtilMath {
 	}
 	
 	/**
+	 * 解析16进制字符串格式的byte数组
+	 * @param s 每个byte必须是2个字符表示，不足两位的用0补齐，如08
+	 * @return
+	 */
+	public static byte[] hexToBytes(String s) {
+		if(s==null) return null;
+		s=s.toUpperCase();
+		s=JUtilString.replaceAll(s, " ", "");//去掉空格
+		s=JUtilString.replaceAll(s, "0X", "");//去掉0X
+		if("".equals(s)) return new byte[0];
+		
+		int hexNumbers=s.length()/2;
+		byte[] bytes=new byte[hexNumbers];
+		for(int i=0;i<hexNumbers;i++) {
+			bytes[i]=(byte)Integer.parseInt(s.substring(2*i,2*(i+1)), 16);
+		}
+		
+		return bytes;
+	}
+	
+	/**
 	 * 
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
-		byte[] bytes = new byte[]{(byte)170,(byte)245,(byte)178,(byte)0,(byte)16,(byte)10,(byte)104,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)49,(byte)55,(byte)48,(byte)50,(byte)52,(byte)53,(byte)48,(byte)48,(byte)48,(byte)48,(byte)48,(byte)48,(byte)48,(byte)48,(byte)48,(byte)50,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)1,(byte)0,(byte)2,(byte)6,(byte)0,(byte)30,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)255,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)25,(byte)112,(byte)1,(byte)1,(byte)8,(byte)0,(byte)0,(byte)255,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)53};
-	
+		byte[] bytes = hexToBytes("FF F5 B2 00 10 D7 68 00 00 00 00 00");
+				
 		System.out.println(JUtilMath.bytesToString(bytes, true, 16, true));
-		System.out.println(JUtilMath.checkSum(bytes, true, 6, bytes.length-1));
 	}
 }

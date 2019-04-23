@@ -73,6 +73,16 @@ public interface OnlineHandler {
 	 * @param request
 	 */
 	public void onLogout(Online online,User user,HttpSession session,HttpServletRequest request);
+
+	/**
+	 * 
+	 * @param _request
+	 * @param _response
+	 * @param chain
+	 */
+	public boolean doFilterBefore(ServletRequest _request, 
+			ServletResponse _response,
+			FilterChain chain) throws IOException, ServletException;
 	
 	/**
 	 * 

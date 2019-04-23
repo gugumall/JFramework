@@ -696,11 +696,11 @@ public class QueryPool implements Runnable{
 			}catch(Exception e){}
 			
 			try{
-				log.log("db executor pool "+poolName+", commands - "+commands,-1);
+				//log.log("db executor pool "+poolName+", commands - "+commands,-1);
 				for(int i=0;i<threads.size();i++){
 					QueryExecutor exe=(QueryExecutor)threads.get(i);
 					if(exe.getQueueLength()>10||exe.getResults()>10){
-						log.log("excutor-"+i+" of pool "+poolName+",queue - "+exe.getQueueLength()+",results - "+exe.getResults(), -1);
+						//log.log("excutor-"+i+" of pool "+poolName+",queue - "+exe.getQueueLength()+",results - "+exe.getResults(), -1);
 					}
 				}
 			}catch(Exception e){

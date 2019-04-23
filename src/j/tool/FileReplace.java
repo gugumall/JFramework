@@ -94,8 +94,8 @@ public class FileReplace {
 		
 		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages\\");
 		replace(dir,
-				"I{iot,<%=btnName%>}",
-				"<%=btnName%>",
+				" hand red\"",
+				" hand\"",
 				".jsp");
 //		count(dir,
 //		"花卉大全",
