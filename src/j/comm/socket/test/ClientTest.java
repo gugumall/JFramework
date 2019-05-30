@@ -61,7 +61,7 @@ public class ClientTest extends ClientBase{
 
 	@Override
 	public void send(Object data) throws Exception{
-		out.write("Bingo".getBytes());
-		out.flush();
+		this.getOutputStream().write("Bingo".getBytes());
+		this.getOutputStream().flush();
 	}
 }

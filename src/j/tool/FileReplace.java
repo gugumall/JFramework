@@ -92,10 +92,10 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages\\");
+		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
 		replace(dir,
-				" hand red\"",
-				" hand\"",
+				"btnSmall65 marginL10\">');",
+				"btnLongLight marginL10\">');",
 				".jsp");
 //		count(dir,
 //		"花卉大全",
@@ -147,14 +147,33 @@ public class FileReplace {
 			if(!file.getName().endsWith(ext)) return;
 			
 			String s=JDFSFile.read(file, "UTF-8");
-			if(s.indexOf(src)>-1){
-				
-				s=JUtilString.replaceAll(s, src, alt);
-				
-				JDFSFile.saveString(file.getAbsolutePath(), s, false, "UTF-8");
-				
-				System.out.println(file.getAbsolutePath());
+			
+			int start=s.indexOf("class=\"searcher\"");
+			int end=0;
+			if(start>0) {
+				end=s.indexOf("</form>",start);
 			}
+			if(end>0&&end>start) {
+				String s1=s.substring(0,start);
+				String s2=s.substring(start,end);
+				String s3=s.substring(end);
+				if(s2.indexOf("<div class=\"btnLongLight marginL10\">")>0) {
+					s2=JUtilString.replaceAll(s2, "<div class=\"btnLongLight marginL10\">", "<div class=\"btnSmall65 marginL10\">");
+					s=s1+s2+s3;
+					JDFSFile.saveString(file.getAbsolutePath(), s, false, "UTF-8");
+					
+					System.out.println(file.getAbsolutePath());
+				}
+			}
+			
+//			if(s.indexOf(src)>-1){
+//				
+//				s=JUtilString.replaceAll(s, src, alt);
+//				
+//				JDFSFile.saveString(file.getAbsolutePath(), s, false, "UTF-8");
+//				
+//				System.out.println(file.getAbsolutePath());
+//			}
 		}		
 	}
 	

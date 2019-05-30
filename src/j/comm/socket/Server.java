@@ -60,6 +60,8 @@ public class Server implements Runnable{
 		//纠正参数
 		if(clientMaxIdle<=0) clientMaxIdle=30000;
 		if(mustSendAfterConnectedWithin<=0) mustSendAfterConnectedWithin=3000;
+		if(maxClients<=0) maxClients=1;
+		if(maxClientsPerIp<=0) maxClientsPerIp=1;
 		
 		//启动服务端socket
 		instance =new Server(port,client,clientMaxIdle,mustSendAfterConnectedWithin,maxClients,maxClientsPerIp);

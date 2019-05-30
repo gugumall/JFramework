@@ -75,12 +75,8 @@ public class Server{
 		
 		String navigateType =SysUtil.getHttpParameter(request,Constants.J_BACK_TYPE);//调转到返回地址所使用的机制	
 		String navigateUrl=SysUtil.getHttpParameter(request,Constants.J_BACK_URL);//返回给用户的地址
-		if(navigateType==null){
-			navigateType=(String)request.getAttribute(Constants.J_BACK_TYPE);
-		}
-		if(navigateUrl==null){
-			navigateUrl=(String)request.getAttribute(Constants.J_BACK_URL);
-		}
+		if(navigateType==null) navigateType=(String)request.getAttribute(Constants.J_BACK_TYPE);
+		if(navigateUrl==null) navigateUrl=(String)request.getAttribute(Constants.J_BACK_URL);
 
 		
 		ActionLogger logger=Handlers.selectLogger();
@@ -104,6 +100,7 @@ public class Server{
 			action=handler.getAction(actionId);
 			if(action==null) throw new Exception(handler.getPath()+" - 找不到请求的方法 - "+actionId);
 			
+
 			if(".service".equals(handler.getPathPattern())
 					&&JUtilString.contain(ignoredLogActionsOfService, actionId)){
 				toLog=false;
@@ -221,15 +218,8 @@ public class Server{
 			}
 		
 			if(jsession.getIsBackToGlobalNavigation()){//执行全局导航定义
-				if(navigateUrl==null||(!navigateUrl.startsWith("http")&&!navigateUrl.startsWith("/"))){
-					navigateUrl=jsession.getDynamicBackUrl();//动态返回url
-					if(navigateUrl==null){//如果未设置了动态返回url
-						navigateUrl=Handlers.getGlobalNavigateUrl(processResult);//返回地址
-					}
-				}
-				if(!"forward".equals(navigateType)&&!"redirect".equals(navigateType)){
-					navigateType=Handlers.getGlobalNavigateType(processResult);//返回类型
-				}
+				navigateType=Handlers.getGlobalNavigateType(processResult);//返回类型
+				navigateUrl=Handlers.getGlobalNavigateUrl(processResult);//返回地址
 			}else{
 				if(navigateUrl==null||(!navigateUrl.startsWith("http")&&!navigateUrl.startsWith("/"))){
 					navigateUrl=jsession.getDynamicBackUrl();//动态返回url
@@ -237,6 +227,7 @@ public class Server{
 						navigateUrl=action.getNavigateUrl(processResult);//返回地址
 					}
 				}
+				
 				if(!"forward".equals(navigateType)&&!"redirect".equals(navigateType)){
 					navigateType=action.getNavigateType(processResult);//返回类型
 				}

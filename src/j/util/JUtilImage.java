@@ -804,16 +804,13 @@ public final class JUtilImage implements ImageObserver {
          }
      }
 	
-	public static void webp2jpg(){
-		File file1= new File("F:\\gugu\\products\\nike\\04 Nike Shift One\\001.webp");  
-		File file2= new File("F:\\gugu\\products\\nike\\04 Nike Shift One\\001.jpg");  
-		
-		          
+	public static void webp2jpg(File from,File to){
+		System.load("F:\\work\\JFramework_v2.0\\WebContent\\WEB-INF\\lib\\webp-imageio.so");
 		System.out.println(System.getProperty("java.library.path"));  
 		          
 		try {  		          
-		    BufferedImage im = ImageIO.read(file1);   
-		    ImageIO.write(im, "jpg", file2);  
+		    BufferedImage im = ImageIO.read(from);   
+		    ImageIO.write(im, "jpg", to);  
 		} catch (IOException e) {  
 		    e.printStackTrace();  
 		} 
@@ -829,29 +826,29 @@ public final class JUtilImage implements ImageObserver {
 
 	public static void main(String[] args) throws Exception {	
 //		//webp2jpg();
-		JUtilImage im = new JUtilImage();
-		im.setQuality(1f);
-		
-		int index=1;
-		
-		File dir = new File("F:\\images\\时光(足迹) III\\temp");
-		File[] fs=dir.listFiles();
-		for(int i=0;i<fs.length;i++){
-			if(fs[i].getName().toLowerCase().endsWith(".jpg")
-					||fs[i].getName().toLowerCase().endsWith(".jpeg")){
-				System.out.println(fs[i].getAbsolutePath());
-				
-				String newName=index+"";
-				while(newName.length()<6) newName="0"+newName;
-				try {
-				im.zoomToSize(fs[i], new File("F:\\images\\时光(足迹) III\\"+newName+".jpg"), 1920, JUtilImage.FORMAT_JPEG);
-				fs[i].delete();
-				}catch(Exception e) {
-					
-				}
-				index++;
-			}
-		}
+//		JUtilImage im = new JUtilImage();
+//		im.setQuality(1f);
+//		
+//		int index=86;
+//		
+//		File dir = new File("F:\\images\\时光(足迹) III\\temp");
+//		File[] fs=dir.listFiles();
+//		for(int i=0;i<fs.length;i++){
+//			if(fs[i].getName().toLowerCase().endsWith(".jpg")
+//					||fs[i].getName().toLowerCase().endsWith(".jpeg")){
+//				System.out.println(fs[i].getAbsolutePath());
+//				
+//				String newName=index+"";
+//				while(newName.length()<6) newName="0"+newName;
+//				try {
+//				im.zoomToSize(fs[i], new File("F:\\images\\时光(足迹) III\\"+newName+".jpg"), 1920, JUtilImage.FORMAT_JPEG);
+//				fs[i].delete();
+//				}catch(Exception e) {
+//					
+//				}
+//				index++;
+//			}
+//		}
 		
 //		im.zoomToSize(new File("F:\\work\\商城\\衣服\\狼爪\\1388\\1388A.gif"), new File("F:\\work\\商城\\衣服\\狼爪\\1388\\temp.gif"), 300, "JPEG");
 
@@ -871,6 +868,14 @@ public final class JUtilImage implements ImageObserver {
 //				new File("F:\\work\\JShop_v2.0\\WebContent\\img\\shop_default.png"),
 //				new File("F:\\work\\JShop_v2.0\\WebContent\\img\\QRCODE_BGx.png"),0,0,"png",JUtilImage.POS_CE,
 //				"ERGOWEAR BOXER 我是一个好人 我是一个好人我是一个好人",font,new Color(0,0,0),JUtilImage.POS_CT,0,100);
+		
+		File dir=new File("F:\\temp");
+		File[] files=dir.listFiles();
+		for(int i=0;i<files.length;i++) {
+			if(files[i].getName().endsWith("webp")) {
+				webp2jpg(files[i],new File(files[i].getAbsolutePath().replace(".webp", "jpg")));
+			}
+		}
 		
 	    
 		System.exit(0);

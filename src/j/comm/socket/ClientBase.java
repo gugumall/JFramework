@@ -21,8 +21,6 @@ public class ClientBase implements Runnable{
 	
 	protected Socket socket;
 	protected InetAddress addr;
-	protected InputStream in;
-	protected OutputStream out;
 	protected long maxIdle;//最大空闲时间，超过自动关闭连接，单位ms
 	protected long mustSendAfterConnectedWithin;//建立连接后多久内必须发生交互，否则关闭连接，单位ms
 	protected long lastActive;//最近交互时间，单位ms
@@ -112,10 +110,33 @@ public class ClientBase implements Runnable{
 	 * @throws Exception
 	 */
 	public void connect() throws Exception{
-		in = socket.getInputStream();
-		out = socket.getOutputStream();
-		
 		this.onConnect();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public OutputStream getOutputStream() {
+		try {
+			return socket.getOutputStream();
+		}catch(Exception e) {
+			log.log(e,Logger.LEVEL_ERROR);
+			return null;
+		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public InputStream getInputStream() {
+		try {
+			return socket.getInputStream();
+		}catch(Exception e) {
+			log.log(e,Logger.LEVEL_ERROR);
+			return null;
+		}
 	}
 	
 	/**
@@ -124,6 +145,8 @@ public class ClientBase implements Runnable{
 	 * @throws Exception
 	 */
 	public boolean readyToRead() throws Exception{
+		InputStream in=this.getInputStream();
+		if(in==null) return false;
 		return in.available()>0;
 	}
 	
@@ -133,6 +156,9 @@ public class ClientBase implements Runnable{
 	 * @throws Exception
 	 */
 	public void receive() throws Exception{
+		InputStream in=this.getInputStream();
+		if(in==null) return;
+		
 		byte[] data=new byte[in.available()];
 		in.read(data);
 		
@@ -198,9 +224,9 @@ public class ClientBase implements Runnable{
 	@Override
 	public void run() {
 		try {
-			this.connect();
-			
 			while(!end) {
+				this.connect();
+				
 				synchronized(this) {
 					if(end) break;
 					

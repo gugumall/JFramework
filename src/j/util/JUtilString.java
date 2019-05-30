@@ -1463,9 +1463,9 @@ public class JUtilString extends JUtilSorter {
 //		JDFSFile.saveString("F://temp//temp.sql",sb.toString(),false,"UTF-8");
 		System.out.println("111\\\"");
 		
-		String src=JDFSFile.read(new File("f:/temp/s.txt"),"UTF-8");
-		src=JUtilString.replaceAll(src,"\\\"","\"");
-		src=JUtilString.decodeUnicode(src);
-		System.out.println(src);
+
+		System.out.println(getHost("/ddd/dd.htm"));
+		System.out.println(getHost(""));
+		System.out.println(getHost("www.ddd.com"));
 	}
 }

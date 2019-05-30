@@ -631,7 +631,7 @@ public class JUtilMath {
 			
 			int v=byteToInt(bytes[i],unsigned);
 			
-			if(radix==16&&v<0xF) sb.append("0");
+			if(radix==16&&v<=0xF) sb.append("0");
 			sb.append(Integer.toString(v, radix));
 		}
 		return sb.toString().toUpperCase();
