@@ -62,6 +62,21 @@ public class ClientBase implements Runnable{
 	}
 	
 	/**
+	 * 
+	 * @param socket 客户端socket
+	 * @param maxIdle 最大空闲时间，超过此时间未收到客户端消息将强制关闭连接，单位毫秒
+	 * @param mustSendAfterConnectedWithin 建立连接后多久内必须发生交互，否则关闭连接，单位ms
+	 * @param args 自定义业务参数
+	 */
+	public ClientBase(Socket socket,long maxIdle,long mustSendAfterConnectedWithin,Object[] args) {
+		this.socket=socket;
+		this.addr=socket.getInetAddress();
+		this.mustSendAfterConnectedWithin=mustSendAfterConnectedWithin;
+		this.maxIdle=maxIdle;
+		lastActive=SysUtil.getNow();
+	}
+	
+	/**
 	 * 获得区分于其它客户端的ID，特定业务中可能需要根据此ID来获得此Client对象，并通过其与客户端进行交互
 	 * @return
 	 */
@@ -103,6 +118,9 @@ public class ClientBase implements Runnable{
 	 * @throws Exception
 	 */
 	public void onError() throws Exception{
+		try {
+			log.log("socket exception("+addr.getHostName()+":"+socket.getLocalPort()+","+socket.getPort()+") 是否空闲:"+isIdle()+", 连接后是否超时未收到数据："+notActiveAfterConnectedWithin(), -1);
+		}catch(Exception ex) {}
 	}
 	
 	/**
@@ -177,7 +195,7 @@ public class ClientBase implements Runnable{
 	 * 是否超过最大空闲时间
 	 * @return
 	 */
-	private boolean isIdle() {
+	public boolean isIdle() {
 		return SysUtil.getNow()-this.lastActive>this.maxIdle;
 	}
 
@@ -203,18 +221,18 @@ public class ClientBase implements Runnable{
 					&&!this.notActiveAfterConnectedWithin()
 					&&!force) return false;//未满足两个需关闭连接的条件之一，且不是强制关闭
 			
+			try {
+				this.onClose();
+			}catch(Exception ex) {
+				log.log(ex, Logger.LEVEL_ERROR);
+			}
+			
 			this.end=true;
 			try {
 				this.socket.close();
 				this.socket=null;
 			}catch(Exception e) {
 				log.log(e, Logger.LEVEL_ERROR);
-			}
-			
-			try {
-				this.onClose();
-			}catch(Exception ex) {
-				log.log(ex, Logger.LEVEL_ERROR);
 			}
 			
 			return true;
@@ -254,7 +272,7 @@ public class ClientBase implements Runnable{
 				log.log(ex, Logger.LEVEL_ERROR);
 			}
 			
-			this.end(true);
+			//this.end(true);
 		}
 	}
 	

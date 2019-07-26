@@ -54,8 +54,9 @@ rmiregistry 1099
 orbd -ORBInitialHost somedomain -ORBInitialPort 1060
 
 如果设置环境变量不起作用，用如下命令启动：
-nohup rmiregistry -J-Dclasspath=/usr/local/tomcat/lib/*:/usr/local/tomcat/webapps/jshopx/ROOT/WEB-INF/lib/*:/usr/local/tomcat/webapps/jshopx/ROOT/WEB-INF/classes 1520 &
+nohup rmiregistry -J-Djava.class.path=/usr/local/tomcat/lib/*:/usr/local/tomcat/webapps/jshopx/ROOT/WEB-INF/lib/*:/usr/local/tomcat/webapps/jshopx/ROOT/WEB-INF/classes 1520 &
 
+rmiregistry -J-Djava.class.path=d:\tomcat\lib;d:\tomcat\webapps\btn\ROOT\WEB-INF\lib;d:\tomcat\webapps\btn\ROOT\WEB-INF\classes 1520
 
 重点：
 linux中orbd启动出问题时，去掉hosts文件中绑定的域名somedomain（原因？未知）

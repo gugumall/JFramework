@@ -386,7 +386,9 @@ public class SSOServer extends JHandler implements Runnable{
 			
 			//如果启用了登录验证码，判断验证码是否正确
 			
-			if(SSOConfig.getVerifierCodeEnabled()&&!Verifier.isCorrect(verifierUuid,verifierCode)){//统一判断验证码	
+			if((SSOConfig.getVerifierCodeEnabled()
+					||(verifierCode!=null&&!"".equals(verifierCode)))
+					&&!Verifier.isCorrect(verifierUuid,verifierCode)){//统一判断验证码	
 				result=new LoginResult();
 				result.setResult(LoginResult.RESULT_VERIFIER_CODE_INCORRECT);
 			}else{
@@ -472,6 +474,7 @@ public class SSOServer extends JHandler implements Runnable{
 				}else{
 					loginPage+="?"+Constants.SSO_LOGIN_RESULT_CODE+"="+result.getResult();
 				}
+				loginPage+="&"+Constants.SSO_LOGIN_CHANCES+"="+result.getChances();
 				loginPage+="&"+Constants.SSO_LOGIN_TYPE+"="+loginType;
 				loginPage+="&"+Constants.SSO_BACK_URL+"="+JUtilString.encodeURI(back,SysConfig.sysEncoding);
 				if(loginPageDefined!=null){

@@ -88,18 +88,18 @@ public class AppConfig implements Runnable{
 	}
 	
 	/**
-	 * 返回组名为groupName的全部参数的List，每个参数以KeyValue对象返回，key为参数名，value为参数值
-	 * @param groupName
+	 * 返回组名为group的全部参数的List，每个参数以KeyValue对象返回，key为参数名，value为参数值
+	 * @param group
 	 * @return
 	 */
-	public static List getParas(String groupName){
+	public static List getParas(String group){
 		AppConfig instance=getInstance();
 		if(instance==null||instance.params==null) return null;
 		List lst=new LinkedList();
 		List keys=instance.params.listKeys();
 		for(int i=0;i<keys.size();i++){
 			String key=(String)keys.get(i);
-			if(key.startsWith(groupName+"*")){
+			if(key.startsWith(group+"*")){
 				AppPara bean=(AppPara)instance.params.get(key);
 				lst.add(bean);
 			}
@@ -110,18 +110,18 @@ public class AppConfig implements Runnable{
 	/**
 	 * 得到某个参数的值
 	 * 
-	 * @param groupName
+	 * @param group
 	 * @param paraName
 	 * @return
 	 */
-	public static String getPara(String groupName,String paraName){
-		if(groupName==null||paraName==null){
+	public static String getPara(String group,String paraName){
+		if(group==null||paraName==null){
 			return null;
 		}
 		
 		AppConfig instance=getInstance();
 		
-		String key=groupName+"*"+paraName;
+		String key=group+"*"+paraName;
 		if(instance.params.containsKey(key)){
 			AppPara bean=(AppPara)instance.params.get(key);
 			return bean.getValue().toString();
@@ -132,29 +132,56 @@ public class AppConfig implements Runnable{
 	
 	/**
 	 * 设置参数值
-	 * @param groupName
+	 * @param group
 	 * @param paraName
 	 * @param value
 	 */
-	public static void setPara(String groupName,String paraName,String value){
-		setParaInCertainFile(groupName,paraName,value,"para.xml");
+	public static void setPara(String group,String paraName,String value){
+		setParaInCertainFile(group,paraName,value,"para.xml");
 	}
 	
 	/**
 	 * 设置参数值
-	 * @param groupName
+	 * @param group
+	 * @param paraName
+	 * @param value
+	 * @param desc
+	 * @param placeholder
+	 */
+	public static void setPara(String group,String paraName,String value,String desc){
+		setParaInCertainFile(group,paraName,value,desc,"para.xml");
+	}
+	
+	/**
+	 * 
+	 * @param group
+	 * @param paraName
+	 * @param value
+	 * @param desc
+	 * @param placeholder
+	 * @throws Exception
+	 */
+	public static void setPara(String group,String paraName,String value,String desc,String placeholder) throws Exception{
+		setParaInCertainFile(group,paraName,value,desc,placeholder,"");
+	}
+	
+
+	
+	/**
+	 * 设置参数值
+	 * @param group
 	 * @param paraName
 	 * @param value
 	 */
-	public static void setParaInCertainFile(String groupName,String paraName,String value,String fileName){
-		if(groupName==null||paraName==null||value==null){
+	public static void setParaInCertainFile(String group,String paraName,String value,String fileName){
+		if(group==null||paraName==null||value==null){
 			return;
 		}
 		AppConfig instance=getInstance();
-		if(!instance.groups.containsKey(groupName)){
-			instance.groups.put(groupName,new AppParaGroup(groupName,""));
+		if(!instance.groups.containsKey(group)){
+			instance.groups.put(group,new AppParaGroup(group,""));
 		}
-		String key=groupName+"*"+paraName;
+		String key=group+"*"+paraName;
 		if(instance.params.containsKey(key)){
 			AppPara bean=(AppPara)instance.params.get(key);
 			bean.setValue(value);
@@ -165,34 +192,22 @@ public class AppConfig implements Runnable{
 	
 	/**
 	 * 设置参数值
-	 * @param groupName
-	 * @param paraName
-	 * @param value
-	 * @param desc
-	 * @param placeholder
-	 */
-	public static void setPara(String groupName,String paraName,String value,String desc){
-		setParaInCertainFile(groupName,paraName,value,desc,"para.xml");
-	}
-	
-	/**
-	 * 设置参数值
-	 * @param groupName
+	 * @param group
 	 * @param paraName
 	 * @param value
 	 * @param desc
 	 * @param placeholder
 	 * @param fileName
 	 */
-	public static void setParaInCertainFile(String groupName,String paraName,String value,String desc,String fileName){
-		if(groupName==null||paraName==null||value==null){
+	public static void setParaInCertainFile(String group,String paraName,String value,String desc,String fileName){
+		if(group==null||paraName==null||value==null){
 			return;
 		}
 		AppConfig instance=getInstance();
-		if(!instance.groups.containsKey(groupName)){
-			instance.groups.put(groupName,new AppParaGroup(groupName,""));
+		if(!instance.groups.containsKey(group)){
+			instance.groups.put(group,new AppParaGroup(group,""));
 		}
-		String key=groupName+"*"+paraName;
+		String key=group+"*"+paraName;
 		if(instance.params.containsKey(key)){
 			AppPara bean=(AppPara)instance.params.get(key);
 			bean.setValue(value);
@@ -202,18 +217,250 @@ public class AppConfig implements Runnable{
 	}		
 	
 	/**
-	 * 设置参数值
-	 * @param groupName
+	 * 
+	 * @param group
 	 * @param paraName
 	 * @param value
+	 * @param desc
+	 * @param placeholder
+	 * @param fileName
+	 * @throws Exception
 	 */
-	public static void removePara(String groupName,String paraName){
-		if(groupName==null||paraName==null){
+	public static void setParaInCertainFile(String group,String paraName,String value,String desc,String placeholder,String fileName) throws Exception{
+		if(group==null||paraName==null||value==null){
 			return;
 		}
 		AppConfig instance=getInstance();
-		instance.params.remove(groupName+"*"+paraName);
+		if(!instance.groups.containsKey(group)){
+			instance.groups.put(group,new AppParaGroup(group,""));
+		}
+		String key=group+"*"+paraName;
+		if(instance.params.containsKey(key)){
+			AppPara bean=(AppPara)instance.params.get(key);
+			bean.setValue(value);
+		}else{			
+			instance.params.put(key,new AppPara(paraName,value,desc,placeholder,true,fileName));
+		}
+	}
+	
+	/**
+	 * 设置参数值
+	 * @param group
+	 * @param paraName
+	 * @param value
+	 */
+	public static void removePara(String group,String paraName){
+		if(group==null||paraName==null){
+			return;
+		}
+		AppConfig instance=getInstance();
+		instance.params.remove(group+"*"+paraName);
 	}		
+	
+	///////////////////针对每个域名的设置///////////////////////////
+	/**
+	 * 
+	 * @param group
+	 * @return
+	 */
+	public static AppParaGroup getGroupX(String domain,String group){
+		AppConfig instance=getInstance();
+		AppParaGroup _group=(AppParaGroup)instance.groups.get(group+"."+domain);
+		if(_group==null) return getGroup(group);
+		else return _group;
+	} 
+	
+	/**
+	 * 返回组名为group的全部参数的List，每个参数以KeyValue对象返回，key为参数名，value为参数值
+	 * @param group
+	 * @return
+	 */
+	public static List getParasX(String domain,String group){
+		AppConfig instance=getInstance();
+		if(instance==null||instance.params==null) return null;
+		List lst=new LinkedList();
+		List keys=instance.params.listKeys();
+		for(int i=0;i<keys.size();i++){
+			String key=(String)keys.get(i);
+			if(key.startsWith(group+"."+domain+"*")){
+				AppPara bean=(AppPara)instance.params.get(key);
+				lst.add(bean);
+			}
+		}
+		
+		if(lst.isEmpty()) return getParas(group);
+		else return lst;
+	}
+	
+	/**
+	 * 得到某个参数的值
+	 * 
+	 * @param group
+	 * @param paraName
+	 * @return
+	 */
+	public static String getParaX(String domain,String group,String paraName){
+		if(group==null||paraName==null){
+			return null;
+		}
+		
+		AppConfig instance=getInstance();
+		
+		String key=group+"."+domain+"*"+paraName;
+		if(instance.params.containsKey(key)){
+			AppPara bean=(AppPara)instance.params.get(key);
+			return bean.getValue().toString();
+		}else{
+			return getPara(group,paraName);
+		}
+	}
+	
+	/**
+	 * 设置参数值
+	 * @param group
+	 * @param paraName
+	 * @param value
+	 */
+	public static void setParaX(String domain,String group,String paraName,String value){
+		setParaInCertainFileX(domain,group,paraName,value,"para.xml");
+	}
+	
+	/**
+	 * 设置参数值
+	 * @param group
+	 * @param paraName
+	 * @param value
+	 * @param desc
+	 * @param placeholder
+	 */
+	public static void setParaX(String domain,String group,String paraName,String value,String desc){
+		setParaInCertainFileX(domain,group,paraName,value,desc,"para.xml");
+	}
+	
+	/**
+	 * 
+	 * @param group
+	 * @param paraName
+	 * @param value
+	 * @param desc
+	 * @param placeholder
+	 * @throws Exception
+	 */
+	public static void setParaX(String domain,String group,String paraName,String value,String desc,String placeholder) throws Exception{
+		setParaInCertainFileX(domain,group,paraName,value,desc,placeholder,"para.xml");
+	}
+	
+
+	
+	/**
+	 * 设置参数值
+	 * @param group
+	 * @param paraName
+	 * @param value
+	 */
+	public static void setParaInCertainFileX(String domain,String group,String paraName,String value,String fileName){
+		if(group==null||paraName==null||value==null){
+			return;
+		}
+		
+		AppConfig instance=getInstance();
+		AppPara beanDefault=(AppPara)instance.params.get(group+"*"+paraName);
+		AppParaGroup groupDefault=(AppParaGroup)instance.groups.get(group);
+		
+		group+="."+domain;
+		
+		if(!instance.groups.containsKey(group)){
+			instance.groups.put(group,new AppParaGroup(group,groupDefault==null?"":groupDefault.getDesc()));
+		}
+		String key=group+"*"+paraName;
+		if(instance.params.containsKey(key)){
+			AppPara bean=(AppPara)instance.params.get(key);
+			bean.setValue(value);
+		}else{		
+			
+			instance.params.put(key,new AppPara(paraName,value,beanDefault==null?"":beanDefault.getDesc(),"",true,fileName));
+		}
+	}
+	
+	/**
+	 * 设置参数值
+	 * @param group
+	 * @param paraName
+	 * @param value
+	 * @param desc
+	 * @param placeholder
+	 * @param fileName
+	 */
+	public static void setParaInCertainFileX(String domain,String group,String paraName,String value,String desc,String fileName){
+		if(group==null||paraName==null||value==null){
+			return;
+		}
+		
+		AppConfig instance=getInstance();
+		AppPara beanDefault=(AppPara)instance.params.get(group+"*"+paraName);
+		AppParaGroup groupDefault=(AppParaGroup)instance.groups.get(group);
+		
+		group+="."+domain;
+		
+		if(!instance.groups.containsKey(group)){
+			instance.groups.put(group,new AppParaGroup(group,groupDefault==null?"":groupDefault.getDesc()));
+		}
+		String key=group+"*"+paraName;
+		if(instance.params.containsKey(key)){
+			AppPara bean=(AppPara)instance.params.get(key);
+			bean.setValue(value);
+		}else{			
+			instance.params.put(key,new AppPara(paraName,value,desc,"",true,fileName));
+		}
+	}		
+	
+	/**
+	 * 
+	 * @param group
+	 * @param paraName
+	 * @param value
+	 * @param desc
+	 * @param placeholder
+	 * @param fileName
+	 * @throws Exception
+	 */
+	public static void setParaInCertainFileX(String domain,String group,String paraName,String value,String desc,String placeholder,String fileName) throws Exception{
+		if(group==null||paraName==null||value==null){
+			return;
+		}
+		
+		AppConfig instance=getInstance();
+		AppPara beanDefault=(AppPara)instance.params.get(group+"*"+paraName);
+		AppParaGroup groupDefault=(AppParaGroup)instance.groups.get(group);
+		
+		group+="."+domain;
+		
+		if(!instance.groups.containsKey(group)){
+			instance.groups.put(group,new AppParaGroup(group,groupDefault==null?"":groupDefault.getDesc()));
+		}
+		String key=group+"*"+paraName;
+		if(instance.params.containsKey(key)){
+			AppPara bean=(AppPara)instance.params.get(key);
+			bean.setValue(value);
+		}else{			
+			instance.params.put(key,new AppPara(paraName,value,desc,placeholder,true,fileName));
+		}
+	}
+	
+	/**
+	 * 
+	 * @param domain
+	 * @param group
+	 * @param paraName
+	 */
+	public static void removePara(String domain,String group,String paraName){
+		if(group==null||paraName==null){
+			return;
+		}
+		AppConfig instance=getInstance();
+		instance.params.remove(group+"."+domain+"*"+paraName);
+	}		
+	///////////////////针对每个域名的设置 end////////////////////////
 	
 	/**
 	 * 
@@ -472,13 +719,13 @@ public class AppConfig implements Runnable{
 	}
 	
 	/**
-	 * 返回组名为groupName的全部参数的List，每个参数以KeyValue对象返回，key为参数名，value为参数值
+	 * 返回组名为group的全部参数的List，每个参数以KeyValue对象返回，key为参数名，value为参数值
 	 * @param user
-	 * @param groupName
+	 * @param group
 	 * @return
 	 * @throws Exception
 	 */
-	public static List getParas(User user,String groupName) throws Exception{
+	public static List getParas(User user,String group) throws Exception{
 		AppConfig instance=getInstance(user);
 		if(!instance.loaded) AppConfig.load(user);
 		
@@ -486,7 +733,7 @@ public class AppConfig implements Runnable{
 		List keys=instance.params.listKeys();
 		for(int i=0;i<keys.size();i++){
 			String key=(String)keys.get(i);
-			if(key.startsWith(groupName+"*")){
+			if(key.startsWith(group+"*")){
 				AppPara bean=(AppPara)instance.params.get(key);
 				lst.add(bean);
 			}
@@ -497,20 +744,20 @@ public class AppConfig implements Runnable{
 	/**
 	 * 得到某个参数的值
 	 * @param user
-	 * @param groupName
+	 * @param group
 	 * @param paraName
 	 * @return
 	 * @throws Exception
 	 */
-	public static String getPara(User user,String groupName,String paraName) throws Exception{
-		if(groupName==null||paraName==null){
+	public static String getPara(User user,String group,String paraName) throws Exception{
+		if(group==null||paraName==null){
 			return null;
 		}
 		
 		AppConfig instance=getInstance(user);
 		if(!instance.loaded) AppConfig.load(user);
 		
-		String key=groupName+"*"+paraName;
+		String key=group+"*"+paraName;
 		if(instance.params.containsKey(key)){
 			AppPara bean=(AppPara)instance.params.get(key);
 			return bean.getValue().toString();
@@ -522,35 +769,62 @@ public class AppConfig implements Runnable{
 	/**
 	 * 
 	 * @param user
-	 * @param groupName
+	 * @param group
 	 * @param paraName
 	 * @param value
 	 * @throws Exception
 	 */
-	public static void setPara(User user,String groupName,String paraName,String value) throws Exception{
-		setParaInCertainFile(user,groupName,paraName,value,"");
+	public static void setPara(User user,String group,String paraName,String value) throws Exception{
+		setParaInCertainFile(user,group,paraName,value,"");
 	}
 	
 	/**
 	 * 
 	 * @param user
-	 * @param groupName
+	 * @param group
+	 * @param paraName
+	 * @param value
+	 * @param desc
+	 * @throws Exception
+	 */
+	public static void setPara(User user,String group,String paraName,String value,String desc) throws Exception{
+		setParaInCertainFile(user,group,paraName,value,desc,"");
+	}
+	
+	/**
+	 * 
+	 * @param user
+	 * @param group
+	 * @param paraName
+	 * @param value
+	 * @param desc
+	 * @param placeholder
+	 * @throws Exception
+	 */
+	public static void setPara(User user,String group,String paraName,String value,String desc,String placeholder) throws Exception{
+		setParaInCertainFile(user,group,paraName,value,desc,placeholder,"");
+	}
+	
+	/**
+	 * 
+	 * @param user
+	 * @param group
 	 * @param paraName
 	 * @param value
 	 * @param fileName
 	 * @throws Exception
 	 */
-	public static void setParaInCertainFile(User user,String groupName,String paraName,String value,String fileName) throws Exception{
-		if(groupName==null||paraName==null||value==null){
+	public static void setParaInCertainFile(User user,String group,String paraName,String value,String fileName) throws Exception{
+		if(group==null||paraName==null||value==null){
 			return;
 		}
 		AppConfig instance=getInstance(user);
 		if(!instance.loaded) AppConfig.load(user);
 		
-		if(!instance.groups.containsKey(groupName)){
-			instance.groups.put(groupName,new AppParaGroup(groupName,""));
+		if(!instance.groups.containsKey(group)){
+			instance.groups.put(group,new AppParaGroup(group,""));
 		}
-		String key=groupName+"*"+paraName;
+		String key=group+"*"+paraName;
 		if(instance.params.containsKey(key)){
 			AppPara bean=(AppPara)instance.params.get(key);
 			bean.setValue(value);
@@ -563,37 +837,24 @@ public class AppConfig implements Runnable{
 	/**
 	 * 
 	 * @param user
-	 * @param groupName
-	 * @param paraName
-	 * @param value
-	 * @param desc
-	 * @throws Exception
-	 */
-	public static void setPara(User user,String groupName,String paraName,String value,String desc) throws Exception{
-		setParaInCertainFile(user,groupName,paraName,value,desc,"");
-	}
-	
-	/**
-	 * 
-	 * @param user
-	 * @param groupName
+	 * @param group
 	 * @param paraName
 	 * @param value
 	 * @param desc
 	 * @param fileName
 	 * @throws Exception
 	 */
-	public static void setParaInCertainFile(User user,String groupName,String paraName,String value,String desc,String fileName) throws Exception{
-		if(groupName==null||paraName==null||value==null){
+	public static void setParaInCertainFile(User user,String group,String paraName,String value,String desc,String fileName) throws Exception{
+		if(group==null||paraName==null||value==null){
 			return;
 		}
 		AppConfig instance=getInstance(user);
 		if(!instance.loaded) AppConfig.load(user);
 		
-		if(!instance.groups.containsKey(groupName)){
-			instance.groups.put(groupName,new AppParaGroup(groupName,""));
+		if(!instance.groups.containsKey(group)){
+			instance.groups.put(group,new AppParaGroup(group,""));
 		}
-		String key=groupName+"*"+paraName;
+		String key=group+"*"+paraName;
 		if(instance.params.containsKey(key)){
 			AppPara bean=(AppPara)instance.params.get(key);
 			bean.setValue(value);
@@ -606,21 +867,7 @@ public class AppConfig implements Runnable{
 	/**
 	 * 
 	 * @param user
-	 * @param groupName
-	 * @param paraName
-	 * @param value
-	 * @param desc
-	 * @param placeholder
-	 * @throws Exception
-	 */
-	public static void setPara(User user,String groupName,String paraName,String value,String desc,String placeholder) throws Exception{
-		setParaInCertainFile(user,groupName,paraName,value,desc,placeholder,"");
-	}
-	
-	/**
-	 * 
-	 * @param user
-	 * @param groupName
+	 * @param group
 	 * @param paraName
 	 * @param value
 	 * @param desc
@@ -628,17 +875,17 @@ public class AppConfig implements Runnable{
 	 * @param fileName
 	 * @throws Exception
 	 */
-	public static void setParaInCertainFile(User user,String groupName,String paraName,String value,String desc,String placeholder,String fileName) throws Exception{
-		if(groupName==null||paraName==null||value==null){
+	public static void setParaInCertainFile(User user,String group,String paraName,String value,String desc,String placeholder,String fileName) throws Exception{
+		if(group==null||paraName==null||value==null){
 			return;
 		}
 		AppConfig instance=getInstance(user);
 		if(!instance.loaded) AppConfig.load(user);
 		
-		if(!instance.groups.containsKey(groupName)){
-			instance.groups.put(groupName,new AppParaGroup(groupName,""));
+		if(!instance.groups.containsKey(group)){
+			instance.groups.put(group,new AppParaGroup(group,""));
 		}
-		String key=groupName+"*"+paraName;
+		String key=group+"*"+paraName;
 		if(instance.params.containsKey(key)){
 			AppPara bean=(AppPara)instance.params.get(key);
 			bean.setValue(value);
@@ -651,18 +898,18 @@ public class AppConfig implements Runnable{
 	/**
 	 * 
 	 * @param user
-	 * @param groupName
+	 * @param group
 	 * @param paraName
 	 * @throws Exception
 	 */
-	public static void removePara(User user,String groupName,String paraName) throws Exception{
-		if(groupName==null||paraName==null){
+	public static void removePara(User user,String group,String paraName) throws Exception{
+		if(group==null||paraName==null){
 			return;
 		}
 		AppConfig instance=getInstance(user);
 		if(!instance.loaded) AppConfig.load(user);
 		
-		instance.params.remove(groupName+"*"+paraName);
+		instance.params.remove(group+"*"+paraName);
 		_instances.put(user.getUserId(),instance);
 	}		
 	

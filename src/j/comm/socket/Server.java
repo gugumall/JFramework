@@ -25,6 +25,7 @@ public class Server implements Runnable{
 	private long mustSendAfterConnectedWithin;
 	private int maxClients=100;
 	private int maxClientsPerIp=1;
+	private Object[] args=null;
 	private ConcurrentList<ClientBase> clients=new ConcurrentList<ClientBase>();
 	private ServerSocket serverSocket=null;
 	private Monitor monitor=null;
@@ -34,26 +35,14 @@ public class Server implements Runnable{
 	 * @param port 端口
 	 * @param client 处理客户端交互的类
 	 * @param clientMaxIdle 最大空闲时间，超过此时间未收到客户端消息将强制关闭连接，单位毫秒
-	 * @param maxClients 最大同时连接客户端数
-	 * @return
-	 * @throws Exception
-	 */
-	public static Server start(Integer port,Class client,long clientMaxIdle,int maxClients) throws Exception{
-		return start(port,client,clientMaxIdle,3000,maxClients,1);
-	}
-	
-	/**
-	 * 
-	 * @param port 端口
-	 * @param client 处理客户端交互的类
-	 * @param clientMaxIdle 最大空闲时间，超过此时间未收到客户端消息将强制关闭连接，单位毫秒
 	 * @param mustSendAfterConnectedWithin 建立连接后多久内必须发生交互，否则关闭连接，单位ms
 	 * @param maxClients 最大同时连接客户端数
 	 * @param maxClientsPerIp 每个IP最大同时连接客户端数
+	 * @param args
 	 * @return
 	 * @throws Exception
 	 */
-	public static Server start(Integer port,Class client,long clientMaxIdle,long mustSendAfterConnectedWithin,int maxClients,int maxClientsPerIp) throws Exception{
+	public static Server start(Integer port,Class client,long clientMaxIdle,long mustSendAfterConnectedWithin,int maxClients,int maxClientsPerIp,Object[] args) throws Exception{
 		Server instance=(Server)servers.get(port);
 		if(instance!=null) return instance;
 		
@@ -64,7 +53,7 @@ public class Server implements Runnable{
 		if(maxClientsPerIp<=0) maxClientsPerIp=1;
 		
 		//启动服务端socket
-		instance =new Server(port,client,clientMaxIdle,mustSendAfterConnectedWithin,maxClients,maxClientsPerIp);
+		instance =new Server(port,client,clientMaxIdle,mustSendAfterConnectedWithin,maxClients,maxClientsPerIp,args);
 		Thread serverThread=new Thread(instance);
 		serverThread.start();
 		
@@ -77,7 +66,7 @@ public class Server implements Runnable{
 		
 		return instance;
 	}
-	
+
 	/**
 	 * 
 	 * @param port
@@ -86,14 +75,16 @@ public class Server implements Runnable{
 	 * @param mustSendAfterConnectedWithin
 	 * @param maxClients
 	 * @param maxClientsPerIp
+	 * @param args
 	 */
-	private Server(Integer port,Class client,long clientMaxIdle,long mustSendAfterConnectedWithin,int maxClients,int maxClientsPerIp) {
+	private Server(Integer port,Class client,long clientMaxIdle,long mustSendAfterConnectedWithin,int maxClients,int maxClientsPerIp,Object[] args) {
 		this.port=port;
 		this.client=client;
 		this.clientMaxIdle=clientMaxIdle;
 		this.mustSendAfterConnectedWithin=mustSendAfterConnectedWithin;
 		this.maxClients=maxClients;
 		this.maxClientsPerIp=maxClientsPerIp;
+		this.args=args;
 	}
 	
 	/**
@@ -175,7 +166,7 @@ public class Server implements Runnable{
 					if(clientOnIP(socket.getInetAddress().getHostAddress())>=this.maxClientsPerIp) {
 						socket.close();
 					}else {
-						ClientBase client=(ClientBase)this.getClient().getConstructor(new Class[] {Socket.class,long.class,long.class}).newInstance(new Object[] {socket,this.getClientMaxIdle(),this.mustSendAfterConnectedWithin});
+						ClientBase client=(ClientBase)this.getClient().getConstructor(new Class[] {Socket.class,long.class,long.class,Object[].class}).newInstance(new Object[] {socket,this.getClientMaxIdle(),this.mustSendAfterConnectedWithin,this.args});
 						Thread task=new Thread(client);
 						task.start();
 						

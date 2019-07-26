@@ -2,13 +2,19 @@ package j.util;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * 
  * @author 肖炯
  *
  */
-public class JUtilMath {	
+public class JUtilMath extends JUtilSorter {
+	private static final long serialVersionUID = 1L;
+	private static final JUtilMath instance=new JUtilMath();
+	public static JUtilMath getInstance() {return instance;}
+	
 	/**
 	 * 是否数字
 	 * @param src
@@ -211,9 +217,12 @@ public class JUtilMath {
 			if(i==0) format+=".0";
 			else format+="0";
 		}
+		
 		DecimalFormat df = new DecimalFormat(format); 
 		df.setRoundingMode(RoundingMode.HALF_UP);
-		String num = df.format(src);  
+		
+		//在原值基础上+/-比指定精度更小一个数量级的数，避免出现0.015四舍五入为0.01的情况，比如0.015后面是加0.0001
+		String num = df.format(src+(src>=0?(1/Math.pow(10, precision+2)):(-1/Math.pow(10, precision+2))));  
 		df=null;
 		return num;
 	}
@@ -658,14 +667,61 @@ public class JUtilMath {
 		return bytes;
 	}
 	
+	/*
+	 *  (non-Javadoc)
+	 * @see j.util.JUtilSorter#compare(java.lang.Object, java.lang.Object)
+	 */
+	public String compare(Object pre, Object after){
+		if (pre == null) {
+			if (after == null) return JUtilSorter.EQUAL;
+			else return JUtilSorter.SMALLER;
+		} else {
+			if (after == null) return JUtilSorter.BIGGER;
+			else if(pre instanceof Double){
+				Double p = (Double) pre;
+				Double a = (Double) after;
+				if (JUtilMath.equals(p, a)) return JUtilSorter.EQUAL;
+				else if (JUtilMath.isSmaller(p, a, 6)) return JUtilSorter.SMALLER;
+				else return JUtilSorter.BIGGER;
+			}else if(pre instanceof Integer){
+				Integer p = (Integer) pre;
+				Integer a = (Integer) after;
+				if (p==a) return JUtilSorter.EQUAL;
+				else if (p<a) return JUtilSorter.SMALLER;
+				else return JUtilSorter.BIGGER;
+			}else if(pre instanceof Long){
+				Long p = (Long) pre;
+				Long a = (Long) after;
+				if (p==a) return JUtilSorter.EQUAL;
+				else if (p<a) return JUtilSorter.SMALLER;
+				else return JUtilSorter.BIGGER;
+			}else {
+				return JUtilSorter.EQUAL;
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param array
+	 * @param number
+	 * @return
+	 */
+	public static boolean contains(Integer[] array,Integer number) {
+		if(array==null||number==null) return false;
+		
+		for(int i=0;i<array.length;i++) {
+			if(JUtilMath.equals(array[i], number)) return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * 
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
-		byte[] bytes = hexToBytes("FF F5 B2 00 10 D7 68 00 00 00 00 00");
-				
-		System.out.println(JUtilMath.bytesToString(bytes, true, 16, true));
+		System.out.println(JUtilMath.formatPrintWithoutZero(-0.014, 2));
 	}
 }

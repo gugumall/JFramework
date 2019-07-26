@@ -293,7 +293,7 @@ public class JQRCode {
 	 */
 	public static void main(String[] args)throws Exception{
 		String imgPath = "F:\\temp\\taobao2.png";
-//		String encoderContent = "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM={'k1':'','k2':'023','k3':'','k4':'T6','k5':'755123456789','k6':''}";
+		String encoderContent = "https://m.gugumall.cn/goods/items.jhtml?c=1856&features=INWILD";
 		
 //
 //		String pathToCMYKProfile="E:\\software\\adobe\\Adobe ICC Profiles\\CMYK\\UncoatedFOGRA29.icc";
@@ -302,7 +302,7 @@ public class JQRCode {
 //		
 //		Color color=new Color(cspace,new float[]{0,0,0,1},1);
 		
-//		JQRCode.encode(encoderContent, imgPath, "png",8);//路径形式操作
+		JQRCode.encode(encoderContent, imgPath, "png",8);//路径形式操作
 		
 		//输出流形式操作
 		//File tdcFile=File.createTempFile("jframework",".tdc",new File("E:/tmp"));

@@ -35,6 +35,7 @@
 	
 	<!--初始化系统-->
 	<Initializers>
+		<Initializer init-handler="j.comm.rmi.RMI"/>
 		<!-- <command retries="1">d:/tomcat/webapps/jservice/WEB-INF/classes/config/startup.bat</command> -->
 		<Initializer init-handler="j.I18N.I18N"/>
 		<Initializer init-handler="j.service.Manager"/>

@@ -1,13 +1,15 @@
 
 package j.util;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import j.sys.SysUtil;
+import org.json.JSONObject;
+
+import j.common.JArray;
+import j.common.JObject;
 
 
 /**
@@ -220,18 +222,9 @@ public final class JUtilUUID {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		String now=(new Timestamp(SysUtil.getNow())).toString().substring(0,19);
-		System.out.println((byte)Integer.parseInt(now.substring(0,2)));
-		System.out.println((byte)Integer.parseInt(now.substring(2,4)));
-		System.out.println((byte)Integer.parseInt(now.substring(5,7)));
-		System.out.println((byte)Integer.parseInt(now.substring(8,10)));
-		System.out.println((byte)Integer.parseInt(now.substring(11,13)));
-		System.out.println((byte)Integer.parseInt(now.substring(14,16)));
-		System.out.println(JUtilMD5.MD5EncodeToHex("111111"));
-		
-		byte[] balance=JUtilMath.intToBytes(0xFFFF, 4, true);
-		System.out.println(JUtilMath.bytesToString(balance, true, 16, true));
-		
+	
+		System.out.println("1a1a".matches("^[a-z]{1,}[a-z0-9]{2,}$"));
+
 		System.exit(0);
 	}
 }

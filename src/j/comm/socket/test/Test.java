@@ -17,7 +17,7 @@ public class Test {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception{
-		Server server=Server.start(1900, ClientTest.class, 30000,3000,10,1);
+		Server server=Server.start(1900, ClientTest.class, 30000,3000,10,1,(Object[])null);
 		
 		
 	}

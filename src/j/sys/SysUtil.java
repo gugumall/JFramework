@@ -4,6 +4,7 @@ import j.I18N.I18N;
 import j.I18N.I18NResponseWrapper;
 import j.app.Constants;
 import j.app.sso.Client;
+import j.app.sso.SSOConfig;
 import j.common.JObject;
 import j.log.Logger;
 import j.util.JUtilDom4j;
@@ -519,7 +520,34 @@ public class SysUtil {
 	 * @return
 	 */
 	public static String getHttpDomain(HttpServletRequest request){
+		if(request==null) return SSOConfig.getMainDomain(SysConfig.getSysId());
 		return JUtilString.getHost(request.getRequestURL().toString());
+	}
+	
+	/**
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static String getHttpMainDomain(HttpServletRequest request){
+		String useDomain=SysUtil.getHttpParameter(request, "use_domain");
+		if(useDomain!=null&&!"".equals(useDomain)) return getHttpMainDomain(useDomain);
+		
+		String domain=getHttpDomain(request);
+		String[] cells=JUtilString.getTokens(domain, ".");
+		if(cells.length<2) return domain;
+		else return cells[cells.length-2]+"."+cells[cells.length-1];
+	}
+	
+	/**
+	 * 
+	 * @param domain
+	 * @return
+	 */
+	public static String getHttpMainDomain(String domain){
+		String[] cells=JUtilString.getTokens(domain, ".");
+		if(cells.length<2) return domain;
+		else return cells[cells.length-2]+"."+cells[cells.length-1];
 	}
 	
 	

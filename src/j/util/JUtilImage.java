@@ -416,8 +416,23 @@ public final class JUtilImage implements ImageObserver {
 	 * @param position
 	 * @throws Exception
 	 */
-	public void logo(File srcFile, File logo, File destFile, int offsetX,int offsetY, String imageFormat, String position) throws Exception {
-		logoWithTitle(srcFile,logo,destFile,offsetX,offsetY,imageFormat,position,null,null,null,null,0,0);
+	public BufferedImage logo(File srcFile, File logo, File destFile, int offsetX,int offsetY, String imageFormat, String position) throws Exception {
+		return logoWithTitle(srcFile,logo,destFile,offsetX,offsetY,imageFormat,position,null,null,null,null,0,0);
+	}
+	
+	/**
+	 * 
+	 * @param srcFile
+	 * @param logo
+	 * @param offsetX
+	 * @param offsetY
+	 * @param imageFormat
+	 * @param position
+	 * @return
+	 * @throws Exception
+	 */
+	public BufferedImage logo(BufferedImage srcFile, File logo, int offsetX,int offsetY, String imageFormat, String position) throws Exception {
+		return logoWithTitle(srcFile,logo,offsetX,offsetY,imageFormat,position,null,null,null,null,0,0);
 	}
 
 	/**
@@ -436,7 +451,7 @@ public final class JUtilImage implements ImageObserver {
 	 * @param titleColor
 	 * @throws Exception
 	 */
-	public void logoWithTitle(File srcFile, File logo, File destFile, int offsetX,int offsetY, String imageFormat, String position,String title,Font titleFont,Color titleColor,String titlePos,int titleOffsetX,int titleOffsetY) throws Exception {
+	public BufferedImage logoWithTitle(File srcFile, File logo, File destFile, int offsetX,int offsetY, String imageFormat, String position,String title,Font titleFont,Color titleColor,String titlePos,int titleOffsetX,int titleOffsetY) throws Exception {
 		if (!chkImageFormat(imageFormat)) {
 			throw new Exception("图片类型不合法");
 		}
@@ -454,8 +469,8 @@ public final class JUtilImage implements ImageObserver {
 		int logoWidth = logoImg.getWidth(this);
 		int logoHeight = logoImg.getHeight(this);
 
-		BufferedImage tag = new BufferedImage(srcWidth, srcHeight,BufferedImage.TYPE_INT_RGB);
-		tag.getGraphics().drawImage(srcImg, 0, 0, srcWidth, srcHeight, this);// 绘制大图
+		BufferedImage original = new BufferedImage(srcWidth, srcHeight,BufferedImage.TYPE_INT_RGB);
+		original.getGraphics().drawImage(srcImg, 0, 0, srcWidth, srcHeight, this);// 绘制大图
 		int realOffsetX;
 		int realOffsetY;
 		if(position.equals(JUtilImage.POS_CE)){
@@ -480,10 +495,10 @@ public final class JUtilImage implements ImageObserver {
 			realOffsetX = srcWidth - offsetX - logoWidth;
 			realOffsetY = srcHeight - offsetY - logoHeight;
 		}
-		tag.getGraphics().drawImage(logoImg, realOffsetX, realOffsetY,logoWidth, logoHeight, this);// 绘制logo
+		original.getGraphics().drawImage(logoImg, realOffsetX, realOffsetY,logoWidth, logoHeight, this);// 绘制logo
 		
 		if(title!=null&&!title.equals("")){
-			Graphics graphics=tag.getGraphics();
+			Graphics graphics=original.getGraphics();
 			
 			FontMetrics metrics = graphics.getFontMetrics(titleFont);
 			int charHeight = metrics.getHeight();
@@ -549,11 +564,131 @@ public final class JUtilImage implements ImageObserver {
 		ImageWriteParam param = new JPEGImageWriteParam(Locale.getDefault());
 		param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 		param.setCompressionQuality(quality);
-		writer.write(null, new IIOImage(tag, null, null), param);
+		writer.write(null, new IIOImage(original, null, null), param);
 		writer.dispose();
 		ios.flush();
 		ios.close();
 		os.close();
+		
+		return original;
+	}
+	
+	/**
+	 * 
+	 * @param srcFile
+	 * @param logo
+	 * @param offsetX
+	 * @param offsetY
+	 * @param imageFormat
+	 * @param position
+	 * @param title
+	 * @param titleFont
+	 * @param titleColor
+	 * @param titlePos
+	 * @param titleOffsetX
+	 * @param titleOffsetY
+	 * @return
+	 * @throws Exception
+	 */
+	public BufferedImage logoWithTitle(BufferedImage original, File logo, int offsetX,int offsetY, String imageFormat, String position,String title,Font titleFont,Color titleColor,String titlePos,int titleOffsetX,int titleOffsetY) throws Exception {
+		if (!chkImageFormat(imageFormat)) {
+			throw new Exception("图片类型不合法");
+		}
+		if (!chkLogoPos(position)) {
+			throw new Exception("logo位置不合法");
+		}
+	
+		Image logoImg = Toolkit.getDefaultToolkit().getImage(logo.getAbsolutePath());
+		logoImg = new ImageIcon(logoImg).getImage();
+		
+		int srcWidth = original.getWidth();
+		int srcHeight = original.getHeight();
+		int logoWidth = logoImg.getWidth(this);
+		int logoHeight = logoImg.getHeight(this);
+
+		int realOffsetX;
+		int realOffsetY;
+		if(position.equals(JUtilImage.POS_CE)){
+			realOffsetX = (srcWidth - logoWidth) / 2;
+			realOffsetY = (srcHeight - logoHeight) / 2;
+		}else if (position.equals(JUtilImage.POS_CT)){
+			realOffsetX = (srcWidth - logoWidth) / 2;
+			realOffsetY = offsetY;
+		}else if (position.equals(JUtilImage.POS_CB)){
+			realOffsetX = (srcWidth - logoWidth) / 2;
+			realOffsetY = srcHeight - offsetY - logoHeight;
+		} else if (position.equals(JUtilImage.POS_LT)){
+			realOffsetX = offsetX;
+			realOffsetY = offsetY;
+		}else if (position.equals(JUtilImage.POS_LB)){
+			realOffsetX = offsetX;
+			realOffsetY = srcHeight - offsetY - logoHeight;
+		}else if (position.equals(JUtilImage.POS_RT)){
+			realOffsetX = srcWidth - offsetX - logoWidth;
+			realOffsetY = offsetY;
+		}else{
+			realOffsetX = srcWidth - offsetX - logoWidth;
+			realOffsetY = srcHeight - offsetY - logoHeight;
+		}
+		original.getGraphics().drawImage(logoImg, realOffsetX, realOffsetY,logoWidth, logoHeight, this);// 绘制logo
+		
+		if(title!=null&&!title.equals("")){
+			Graphics graphics=original.getGraphics();
+			
+			FontMetrics metrics = graphics.getFontMetrics(titleFont);
+			int charHeight = metrics.getHeight();
+			int titleWidth=metrics.charsWidth(title.toCharArray(),0,title.length());
+			int titleHeight=charHeight;
+			
+			//换行
+			int maxTitleWidth=srcWidth-30;
+			List printTitleLines=new ArrayList();
+			if(titleWidth>maxTitleWidth){
+				for(int i=1;i<=title.length();i++){
+					int temp=metrics.charsWidth(title.toCharArray(),0,i);
+					if(temp>maxTitleWidth){
+						printTitleLines.add(title.substring(0,i));
+						title=title.substring(i);
+						i=1;
+					}
+				}
+			}
+			printTitleLines.add(title);
+			//换行 end
+			
+			if(titlePos.equals(JUtilImage.POS_CE)){
+				realOffsetX = (srcWidth - titleWidth) / 2;
+				realOffsetY = (srcHeight - titleHeight) / 2;
+			}else if (titlePos.equals(JUtilImage.POS_CT)){
+				realOffsetX = (srcWidth - titleWidth) / 2;
+				realOffsetY = titleOffsetY;
+			}else if (titlePos.equals(JUtilImage.POS_CB)){
+				realOffsetX = (srcWidth - titleWidth) / 2;
+				realOffsetY = srcHeight - titleOffsetY - titleHeight;
+			} else if (titlePos.equals(JUtilImage.POS_LT)){
+				realOffsetX = titleOffsetX;
+				realOffsetY = titleOffsetY;
+			}else if (titlePos.equals(JUtilImage.POS_LB)){
+				realOffsetX = titleOffsetX;
+				realOffsetY = srcHeight - titleOffsetY - titleHeight;
+			}else if (titlePos.equals(JUtilImage.POS_RT)){
+				realOffsetX = srcWidth - titleOffsetX - titleWidth;
+				realOffsetY = titleOffsetY;
+			}else{
+				realOffsetX = titleOffsetX;
+				realOffsetY = titleOffsetY;
+			}
+			
+			if(titleWidth>maxTitleWidth) realOffsetX=10;
+			    
+			graphics.setFont(titleFont);
+			graphics.setColor(titleColor);
+			for(int i=0;i<printTitleLines.size();i++){
+				graphics.drawString((String)printTitleLines.get(i),realOffsetX,realOffsetY+(i*charHeight));
+			}
+		}
+
+		return original;
 	}
 
 	/**
@@ -568,6 +703,21 @@ public final class JUtilImage implements ImageObserver {
 	 * @throws Exception
 	 */
 	public BufferedImage logo(File srcFile, BufferedImage logoImg, int offsetX,int offsetY, String imageFormat, String position) throws Exception {
+		return logoWithTitle(srcFile,logoImg,offsetX,offsetY,imageFormat,position,null,null,null,null,0,0);
+	}
+	
+	/**
+	 * 
+	 * @param srcFile
+	 * @param logoImg
+	 * @param offsetX
+	 * @param offsetY
+	 * @param imageFormat
+	 * @param position
+	 * @return
+	 * @throws Exception
+	 */
+	public BufferedImage logo(BufferedImage srcFile, BufferedImage logoImg, int offsetX,int offsetY, String imageFormat, String position) throws Exception {
 		return logoWithTitle(srcFile,logoImg,offsetX,offsetY,imageFormat,position,null,null,null,null,0,0);
 	}
 
@@ -603,8 +753,8 @@ public final class JUtilImage implements ImageObserver {
 		int logoWidth = logoImg.getWidth(this);
 		int logoHeight = logoImg.getHeight(this);
 
-		BufferedImage tag = new BufferedImage(srcWidth, srcHeight,BufferedImage.TYPE_INT_RGB);
-		tag.getGraphics().drawImage(srcImg, 0, 0, srcWidth, srcHeight, this);// 绘制大图
+		BufferedImage original = new BufferedImage(srcWidth, srcHeight,BufferedImage.TYPE_INT_RGB);
+		original.getGraphics().drawImage(srcImg, 0, 0, srcWidth, srcHeight, this);// 绘制大图
 		int realOffsetX;
 		int realOffsetY;
 		if(position.equals(JUtilImage.POS_CE)){
@@ -629,10 +779,10 @@ public final class JUtilImage implements ImageObserver {
 			realOffsetX = srcWidth - offsetX - logoWidth;
 			realOffsetY = srcHeight - offsetY - logoHeight;
 		}
-		tag.getGraphics().drawImage(logoImg, realOffsetX, realOffsetY,logoWidth, logoHeight, this);// 绘制logo
+		original.getGraphics().drawImage(logoImg, realOffsetX, realOffsetY,logoWidth, logoHeight, this);// 绘制logo
 		
 		if(title!=null&&!title.equals("")){
-			Graphics graphics=tag.getGraphics();
+			Graphics graphics=original.getGraphics();
 			
 			FontMetrics metrics = graphics.getFontMetrics(titleFont);
 			int charHeight = metrics.getHeight();
@@ -687,7 +837,122 @@ public final class JUtilImage implements ImageObserver {
 			}
 		}
 		
-		return tag;
+		return original;
+	}
+	
+	/**
+	 * 
+	 * @param original
+	 * @param logoImg
+	 * @param offsetX
+	 * @param offsetY
+	 * @param imageFormat
+	 * @param position
+	 * @param title
+	 * @param titleFont
+	 * @param titleColor
+	 * @param titlePos
+	 * @param titleOffsetX
+	 * @param titleOffsetY
+	 * @return
+	 * @throws Exception
+	 */
+	public BufferedImage logoWithTitle(BufferedImage original, BufferedImage logoImg, int offsetX,int offsetY, String imageFormat, String position,String title,Font titleFont,Color titleColor,String titlePos,int titleOffsetX,int titleOffsetY) throws Exception {
+		if (!chkImageFormat(imageFormat)) {
+			throw new Exception("图片类型不合法");
+		}
+		if (!chkLogoPos(position)) {
+			throw new Exception("logo位置不合法");
+		}
+	
+		int srcWidth = original.getWidth();
+		int srcHeight = original.getHeight();
+		int logoWidth = logoImg.getWidth();
+		int logoHeight = logoImg.getHeight();
+
+		int realOffsetX;
+		int realOffsetY;
+		if(position.equals(JUtilImage.POS_CE)){
+			realOffsetX = (srcWidth - logoWidth) / 2;
+			realOffsetY = (srcHeight - logoHeight) / 2;
+		}else if (position.equals(JUtilImage.POS_CT)){
+			realOffsetX = (srcWidth - logoWidth) / 2;
+			realOffsetY = offsetY;
+		}else if (position.equals(JUtilImage.POS_CB)){
+			realOffsetX = (srcWidth - logoWidth) / 2;
+			realOffsetY = srcHeight - offsetY - logoHeight;
+		} else if (position.equals(JUtilImage.POS_LT)){
+			realOffsetX = offsetX;
+			realOffsetY = offsetY;
+		}else if (position.equals(JUtilImage.POS_LB)){
+			realOffsetX = offsetX;
+			realOffsetY = srcHeight - offsetY - logoHeight;
+		}else if (position.equals(JUtilImage.POS_RT)){
+			realOffsetX = srcWidth - offsetX - logoWidth;
+			realOffsetY = offsetY;
+		}else{
+			realOffsetX = srcWidth - offsetX - logoWidth;
+			realOffsetY = srcHeight - offsetY - logoHeight;
+		}
+		original.getGraphics().drawImage(logoImg, realOffsetX, realOffsetY,logoWidth, logoHeight, this);// 绘制logo
+		
+		if(title!=null&&!title.equals("")){
+			Graphics graphics=original.getGraphics();
+			
+			FontMetrics metrics = graphics.getFontMetrics(titleFont);
+			int charHeight = metrics.getHeight();
+			int titleWidth=metrics.charsWidth(title.toCharArray(),0,title.length());
+			int titleHeight=charHeight;
+			
+			//换行
+			int maxTitleWidth=srcWidth-30;
+			List printTitleLines=new ArrayList();
+			if(titleWidth>maxTitleWidth){
+				for(int i=1;i<=title.length();i++){
+					int temp=metrics.charsWidth(title.toCharArray(),0,i);
+					if(temp>maxTitleWidth){
+						printTitleLines.add(title.substring(0,i));
+						title=title.substring(i);
+						i=1;
+					}
+				}
+			}
+			printTitleLines.add(title);
+			//换行 end
+			
+			if(titlePos.equals(JUtilImage.POS_CE)){
+				realOffsetX = (srcWidth - titleWidth) / 2;
+				realOffsetY = (srcHeight - titleHeight) / 2;
+			}else if (titlePos.equals(JUtilImage.POS_CT)){
+				realOffsetX = (srcWidth - titleWidth) / 2;
+				realOffsetY = titleOffsetY;
+			}else if (titlePos.equals(JUtilImage.POS_CB)){
+				realOffsetX = (srcWidth - titleWidth) / 2;
+				realOffsetY = srcHeight - titleOffsetY - titleHeight;
+			} else if (titlePos.equals(JUtilImage.POS_LT)){
+				realOffsetX = titleOffsetX;
+				realOffsetY = titleOffsetY;
+			}else if (titlePos.equals(JUtilImage.POS_LB)){
+				realOffsetX = titleOffsetX;
+				realOffsetY = srcHeight - titleOffsetY - titleHeight;
+			}else if (titlePos.equals(JUtilImage.POS_RT)){
+				realOffsetX = srcWidth - titleOffsetX - titleWidth;
+				realOffsetY = titleOffsetY;
+			}else{
+				realOffsetX = titleOffsetX;
+				realOffsetY = titleOffsetY;
+			}
+			
+			if(titleWidth>maxTitleWidth) realOffsetX=10;
+			    
+			graphics.setFont(titleFont);
+			graphics.setColor(titleColor);
+			for(int i=0;i<printTitleLines.size();i++){
+				graphics.drawString((String)printTitleLines.get(i),realOffsetX,realOffsetY+(i*charHeight));
+			}
+		}
+		
+		return original;
 	}
 	
 	/**
@@ -702,8 +967,8 @@ public final class JUtilImage implements ImageObserver {
 	 * @param position
 	 * @throws Exception
 	 */
-	public void logo(OutputStream output, File srcFile, BufferedImage logoImg, int offsetX,int offsetY, String imageFormat, String position) throws Exception {
-		logoWithTitle(output,srcFile,logoImg,offsetX,offsetY,imageFormat,position,null,null,null,null,0,0);	
+	public BufferedImage logo(OutputStream output, File srcFile, BufferedImage logoImg, int offsetX,int offsetY, String imageFormat, String position) throws Exception {
+		return logoWithTitle(output,srcFile,logoImg,offsetX,offsetY,imageFormat,position,null,null,null,null,0,0);	
 	}
 	
 	/**
@@ -717,14 +982,16 @@ public final class JUtilImage implements ImageObserver {
 	 * @param position
 	 * @throws Exception
 	 */
-	public void logoWithTitle(OutputStream output, File srcFile, BufferedImage logoImg, int offsetX,int offsetY, String imageFormat, String position,String title,Font titleFont,Color titleColor,String titlePos,int titleOffsetX,int titleOffsetY) throws Exception {
+	public BufferedImage logoWithTitle(OutputStream output, File srcFile, BufferedImage logoImg, int offsetX,int offsetY, String imageFormat, String position,String title,Font titleFont,Color titleColor,String titlePos,int titleOffsetX,int titleOffsetY) throws Exception {
 		BufferedImage img=logoWithTitle(srcFile, logoImg, offsetX,offsetY, imageFormat, position,title,titleFont,titleColor,titlePos,titleOffsetX,titleOffsetY);
 		
 		// 生成二维码QRCode图片
 		ImageIO.write(img, imageFormat, output);
 		
 		output.flush();
-		output.close();			
+		output.close();	
+		
+		return img;
 	}
 
 	/*

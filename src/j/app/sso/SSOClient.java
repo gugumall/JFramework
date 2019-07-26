@@ -716,6 +716,9 @@ public class SSOClient extends JHandler implements Runnable{
 				Element e5=root.addElement(Constants.SSO_LOGIN_RESULT_MSG);
 				e5.setText(loginResult.getResultMsg());
 				
+				Element e6=root.addElement(Constants.SSO_LOGIN_CHANCES);
+				e6.setText(loginResult.getChances()+"");
+				
 				Element eMessages=root.addElement("messages");
 				Map messages=loginResult.getMessages();
 				for(Iterator keys=messages.keySet().iterator();keys.hasNext();){

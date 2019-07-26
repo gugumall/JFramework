@@ -56,6 +56,8 @@ public class JUtilString extends JUtilSorter {
 	public static final String RegExpRegularName="^[\\S ]{0,}$"; 
 	private static final char[] hexDigit = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
+	private static final JUtilString instance=new JUtilString();
+	public static JUtilString getInstance() {return instance;}
 
 	/*
 	 *  (non-Javadoc)
@@ -678,6 +680,7 @@ public class JUtilString extends JUtilSorter {
 	 * @return
 	 */
 	public static final String getMainDomain(String url,int cells){
+		if(url==null||"".equals(url)) return "";
 		String host=getHost(url);
 		String[] _cells=host.split("\\.");
 		if(_cells.length<cells) return host;

@@ -182,6 +182,7 @@ public class LoginAgent implements Serializable{
 			String userId=root.elementText(Constants.SSO_USER_ID);
 			String code=root.elementText(Constants.SSO_LOGIN_RESULT_CODE);
 			String msg=root.elementText(Constants.SSO_LOGIN_RESULT_MSG);
+			String chances=root.elementText(Constants.SSO_LOGIN_CHANCES);
 		
 			LoginResult loginResult=new LoginResult();
 			loginResult.setSysId(sysId);
@@ -189,6 +190,7 @@ public class LoginAgent implements Serializable{
 			loginResult.setUserId(userId);
 			loginResult.setResult(Integer.parseInt(code));
 			loginResult.setResultMsg(msg);
+			loginResult.setChances(Integer.parseInt(chances));
 			
 			List ms=root.element("messages").elements();
 			for(int i=0;i<ms.size();i++){

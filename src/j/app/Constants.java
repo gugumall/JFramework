@@ -30,6 +30,7 @@ public class Constants {
 	public static final String SSO_LOGIN_RESULT_CODE="sso_login_result_code";
 	public static final String SSO_LOGIN_TYPE="login_type";
 	public static final String SSO_LOGIN_RESULT_MSG="sso_login_result_msg";
+	public static final String SSO_LOGIN_CHANCES="sso_login_chances";
 	public static final String SSO_LOGIN_INFO="sso_login_info";
 	public static final String SSO_TOKEN="sso_token";
 	public static final String SSO_PNAMES="sso_parameter_names";

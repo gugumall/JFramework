@@ -37,6 +37,7 @@ public class LoginResult implements Serializable{
 	private String userId=null;//用户ID，登录成功时必须正确设置
 	private int    result=0;//登录结果
 	private String resultMsg="";//登录结果提示信息
+	private int    chances=-1;//登陆失败的情况下，还可尝试登陆次数
 	private Map messages=new HashMap();//自定义键值对
 		
 	
@@ -55,6 +56,9 @@ public class LoginResult implements Serializable{
 	}
 	public String getResultMsg(){
 		return this.resultMsg;
+	}
+	public int getChances() {
+		return this.chances;
 	}
 	public Object getMessage(Object key){
 		return messages.get(key);
@@ -78,6 +82,9 @@ public class LoginResult implements Serializable{
 	}
 	public void setResultMsg(String resultMsg){
 		this.resultMsg=resultMsg;
+	}
+	public void setChances(int chances) {
+		this.chances=chances;
 	}
 	public void setMessage(Object key,Object value){
 		messages.put(key,value);
