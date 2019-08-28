@@ -15,12 +15,16 @@ import javax.servlet.http.HttpServletRequest;
  *
  */
 public class ResourceUrl implements Resource{
+	public static final String MODE_WILD="";//通配符匹配（默认模式）
+	public static final String MODE_EQUAL="equal";//完全一致匹配
+	
 	/*
 	 * url模式，如：/roar/user/i*.jsp，其中*表示0个或多个任意字符，
 	 * 如果用户请求的URL中包含符合该模式的子串，则表示匹配该模式，
 	 * 只有具备roles中的一个或多个角色才可访问
 	 */
 	private String urlPattern;	
+	private String mode="";//匹配模式
 	private String[] roles;//可访问该资源的角色，多个用|分隔	
 	private String noPermissionPage;//当用户已经登录，但不具备访问该资源权限时转向的页面，如不设置则转向SSOServer.noRightPage
 	private String loginPage;//当用户未登录时转向的页面，如不设置则转向SSOServer.LOGIN_PAGE
@@ -40,6 +44,10 @@ public class ResourceUrl implements Resource{
 		this.urlPattern=urlPattern;
 	}
 	
+	public void setMode(String mode) {
+		this.mode=mode;
+	}
+	
 	public void setRoles(String _roles){
 		this.roles=_roles.split("\\|");
 	}
@@ -55,7 +63,6 @@ public class ResourceUrl implements Resource{
 	public void addExclude(String exclude){
 		this.excludes.add(exclude);
 	}
-	
 	
 	
 	/*
@@ -81,11 +88,14 @@ public class ResourceUrl implements Resource{
 	 */
 	public boolean matches(HttpServletRequest request){
 		String requestUrl=SysUtil.getRequestURL(request,"sso_");
-		
 		requestUrl=JUtilString.replaceAll(requestUrl,"https://","");
 		requestUrl=JUtilString.replaceAll(requestUrl,"http://","");
 		
-		if(JUtilString.match(requestUrl,this.urlPattern,"*")<0) return false;
+		if(MODE_EQUAL.equals(this.mode)) {
+			return matchesComplete(request);
+		}else {
+			if(JUtilString.match(requestUrl,this.urlPattern,"*")<0) return false;
+		}
 		
 		for(int i=0;i<this.excludes.size();i++){
 			String exclude=(String)this.excludes.get(i);
@@ -121,6 +131,6 @@ public class ResourceUrl implements Resource{
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString(){
-		return this.urlPattern+";"+this.noPermissionPage+";"+this.loginPage;
+		return this.mode+";"+this.urlPattern+";"+this.noPermissionPage+";"+this.loginPage;
 	}
 }

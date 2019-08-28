@@ -248,7 +248,7 @@ public class SSOClient extends JHandler implements Runnable{
      * @return
      */    
 	public static User getCurrentUser(HttpSession session){
-    	return (User)session.getAttribute(Constants.SSO_USER);
+    	return session==null?null:(User)session.getAttribute(Constants.SSO_USER);
     } 
     
     /**
@@ -257,6 +257,8 @@ public class SSOClient extends JHandler implements Runnable{
      */
 	private static void removeCurrentUser(HttpSession session){
     	try{
+    		if(session==null) return;
+    		
 			Object obj=session.getAttribute(Constants.SSO_USER);
 	    	session.removeAttribute(Constants.SSO_USER);
 			if(obj!=null){
@@ -279,6 +281,8 @@ public class SSOClient extends JHandler implements Runnable{
 	 * @param user
 	 */
 	public static void saveUserInformation(HttpSession session,LoginStatus loginStatus,User user){
+		if(session==null) return;
+		
 		setLoginStatus(session,loginStatus);
 		setCurrentUser(session,user);						
 		session.setAttribute(Constants.SSO_TIME,SysUtil.getNow()+"");

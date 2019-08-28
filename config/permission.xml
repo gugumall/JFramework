@@ -15,7 +15,7 @@
 		<url pattern="/dba/" roles="ROLE_DBA|ROLE_ADMIN" no-permission-page="/common/forbidden.htm" login-page="/sso/login.jhtml"/>
 		<url pattern="/index.jhtml" roles="ROLE_ADMIN" no-permission-page="/common/forbidden.htm"/>
 		<url pattern="/config.jhtml" roles="ROLE_ADMIN" no-permission-page="/common/forbidden.htm"/>
-		<url pattern="/overview.jhtml" roles="ROLE_ADMIN" no-permission-page="/common/forbidden.htm"/>
+		<url mode="equal" pattern="/" roles="ROLE_ADMIN" no-permission-page="/common/forbidden.htm"/>
 	</urls>
 	
 	<!--需要具备某角色权限（不一定需要登录）才能访问的Action-->

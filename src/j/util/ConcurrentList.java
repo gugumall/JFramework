@@ -322,4 +322,16 @@ public class ConcurrentList<E> implements List<E>, Serializable {
 		}
 		return _snapshot;
 	}
+	
+	public static void main(String[] args) {
+		ConcurrentList lst=new ConcurrentList();
+		lst.add("aaa");
+		lst.add("bbb");
+		
+		ConcurrentList lst2=lst.snapshot();
+		lst.remove(0);
+		
+		System.out.println(lst.size());
+		System.out.println(lst2.size());
+	}
 }

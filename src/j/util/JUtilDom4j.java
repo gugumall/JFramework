@@ -12,6 +12,8 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
+import j.fs.JDFSFile;
+
 /**
  * 
  * @author 肖炯
@@ -96,5 +98,17 @@ public final class JUtilDom4j {
 		writer.close();		
 		
 		return byteOS.toString(encoding);
-	}	
+	}
+	
+	public static void main(String[] args)throws Exception{
+		String xml=JDFSFile.read(new File("f:/temp/para.xml"), "utf-8");
+		System.out.println(xml);
+		
+		System.out.println(System.currentTimeMillis()/1000);
+		for(int i=0;i<100000;i++) {
+			Document doc=JUtilDom4j.parseString(xml, "utf-8");
+			doc=null;
+		}
+		System.out.println(System.currentTimeMillis()/1000);
+	}
 }

@@ -329,6 +329,7 @@ public class SSOConfig implements Runnable{
 				JHttpContext context=new JHttpContext();
 				context.setAllowedErrorCodes(new String[]{"301"});
 				context=http.post(context,hclient,loginUrl,paras);
+				//log.log("tell server to login context.getStatus():"+context.getStatus()+",context.getResponseText():"+context.getResponseText()+","+loginUrl, -1);
 				_response=context.getStatus()==200?context.getResponseText():null;
 				context.finalize();
 				context=null;

@@ -504,7 +504,7 @@ public class JUtilMath extends JUtilSorter {
 	 * @param digit
 	 * @return
 	 */
-	private static String digit2CnChar(int digit){
+	public static String digit2CnChar(int digit){
 		if(digit==0){
 			return "零";
 		}else if(digit==1){
@@ -531,6 +531,45 @@ public class JUtilMath extends JUtilSorter {
 			return "佰";
 		}else if(digit==1000){
 			return "仟";
+		}else if(digit==10000){
+			return "万";
+		}else{
+			return "亿";
+		}
+	}
+	
+	/**
+	 * 
+	 * @param digit
+	 * @return
+	 */
+	public static String digit2CnCharSimple(int digit){
+		if(digit==0){
+			return "零";
+		}else if(digit==1){
+			return "一";
+		}else if(digit==2){
+			return "二";
+		}else if(digit==3){
+			return "三";
+		}else if(digit==4){
+			return "四";
+		}else if(digit==5){
+			return "五";
+		}else if(digit==6){
+			return "六";
+		}else if(digit==7){
+			return "七";
+		}else if(digit==8){
+			return "八";
+		}else if(digit==9){
+			return "九";
+		}else if(digit==10){
+			return "十";
+		}else if(digit==100){
+			return "百";
+		}else if(digit==1000){
+			return "千";
 		}else if(digit==10000){
 			return "万";
 		}else{

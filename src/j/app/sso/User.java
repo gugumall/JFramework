@@ -145,7 +145,7 @@ public abstract class User implements Serializable{
 			return true;
 		}
 		
-		return uid.matches("[0-9a-z]{1}[0-9a-z\\-._]{4,30}[0-9a-z]{1}$");
+		return uid.matches("[0-9a-z]{1}[0-9a-z\\-._]{1,32}[0-9a-z]{1}$");
 	}
 	
 	/**

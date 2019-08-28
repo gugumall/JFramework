@@ -32,10 +32,7 @@ public class Monitor implements Runnable{
 				ConcurrentList clients=server.getClients();
 				for(int i=0;i<clients.size();i++) {
 					ClientBase c=(ClientBase)clients.get(i);
-					if(c.end(false)) {
-						clients.remove(i);
-						i--;
-					}
+					c.end(false);
 				}
 			}catch(Exception e) {}
 		}

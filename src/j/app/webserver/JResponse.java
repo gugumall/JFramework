@@ -1,16 +1,19 @@
 package j.app.webserver;
 
-import j.I18N.I18N;
-import j.util.JUtilBean;
-import j.util.JUtilJSON;
-import j.util.JUtilKeyValue;
-import j.util.JUtilMath;
-
+import java.io.File;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
+
+import j.I18N.I18N;
+import j.fs.JDFSFile;
+import j.util.JUtilBean;
+import j.util.JUtilJSON;
+import j.util.JUtilKeyValue;
+import j.util.JUtilMath;
 
 /**
  * 
@@ -141,9 +144,32 @@ public class JResponse{
 	}
 	
 	public static void main(String[] args){
-		JResponse r=new JResponse(true,"done","操作\"成功");
-		r.putData("aaa","哈哈\"DFD");
-		r.putData("bbb","cc");
-		System.out.println(r);
+		String content=JDFSFile.read(new File("f:/temp/aaa.html"), "UTF-8");
+		List cells=new ArrayList();
+
+		System.out.println(System.currentTimeMillis());
+		String[] contents=content.split("I\\{");
+		System.out.println(System.currentTimeMillis()+","+contents.length);
+		
+		boolean startsWith=content.startsWith("I{");
+
+		StringBuffer _content=new StringBuffer(startsWith?"":contents[0]);
+		for(int i=(startsWith?0:1);i<contents.length;i++) {
+			int end=contents[i].indexOf("}");
+			if(end<0) {
+				_content.append(contents[i]);
+				continue;
+			}
+			
+			String alt="BBB";
+			_content.append(alt);
+			_content.append(contents[i].substring(end+1));
+		}
+		
+	
+		content=_content.toString();
+		
+		System.out.println(System.currentTimeMillis());
+		JDFSFile.saveString("f:/temp/bbb.html", content, false, "UTF-8");
 	}
 }

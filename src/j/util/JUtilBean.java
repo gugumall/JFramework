@@ -906,6 +906,33 @@ public class JUtilBean {
 	 * @return
 	 */
 	public static List xml2Beans(String xml,String encoding,Class beanClass){
+		return xml2Beans(null,xml,encoding,beanClass);
+	}
+	
+	/**
+	 * 
+	 * @param xml
+	 * @param encoding
+	 * @return
+	 */
+	public static List xml2Beans(Map cache, String xml,String encoding){
+		return xml2Beans(cache, xml,encoding,null);
+	}
+	
+	/**=
+	 * 
+	 * @param xml
+	 * @param encoding
+	 * @param bean
+	 * @return
+	 */
+	public static List xml2Beans(Map cache, String xml,String encoding,Class beanClass){
+		String key=null;
+		if(cache!=null) {
+			key=JUtilMD5.MD5EncodeToHex(xml);
+			if(cache.containsKey(key)) return (List)cache.get(key);
+		}
+		
 		List beans=new LinkedList();
 		
 		if(xml==null||"".equals(xml)) return beans;
@@ -1001,6 +1028,10 @@ public class JUtilBean {
 		}catch (Exception e){
 			log.log(e, Logger.LEVEL_ERROR);
 			return null;
+		}
+		
+		if(cache!=null) {
+			cache.put(key,beans);
 		}
 		
 		return beans;

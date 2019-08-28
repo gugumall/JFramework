@@ -7,6 +7,7 @@ import java.net.Socket;
 
 import j.log.Logger;
 import j.sys.SysUtil;
+import j.util.JUtilUUID;
 
 /**
  * 
@@ -18,20 +19,27 @@ import j.sys.SysUtil;
  */
 public class ClientBase implements Runnable{
 	private static Logger log=Logger.create(ClientBase.class);
-	
+
+	protected Server server=null;
+	protected String uuid=null;//唯一ID
 	protected Socket socket;
 	protected InetAddress addr;
 	protected long maxIdle;//最大空闲时间，超过自动关闭连接，单位ms
 	protected long mustSendAfterConnectedWithin;//建立连接后多久内必须发生交互，否则关闭连接，单位ms
+	protected Object[] args;//自定义参数
+	protected long createAt;
 	protected long lastActive;//最近交互时间，单位ms
 	protected long interactions=0;//交互次数
+	protected long lastValidCommunication=0;//最近有效交互时间
 	protected boolean end=false;//是否已经结束
 	
 	/**
 	 * 
 	 */
 	public ClientBase() {
-		
+		this.uuid=JUtilUUID.genUUID();
+		lastActive=SysUtil.getNow();
+		createAt=SysUtil.getNow();
 	}
 	
 	/**
@@ -40,11 +48,13 @@ public class ClientBase implements Runnable{
 	 * @param maxIdle 最大空闲时间，超过此时间未收到客户端消息将强制关闭连接，单位毫秒
 	 */
 	public ClientBase(Socket socket,long maxIdle) {
+		this.uuid=JUtilUUID.genUUID();
 		this.socket=socket;
 		this.addr=socket.getInetAddress();
 		this.mustSendAfterConnectedWithin=3000;//默认三秒
 		this.maxIdle=maxIdle;
 		lastActive=SysUtil.getNow();
+		createAt=SysUtil.getNow();
 	}
 	
 	/**
@@ -54,11 +64,13 @@ public class ClientBase implements Runnable{
 	 * @param mustSendAfterConnectedWithin 建立连接后多久内必须发生交互，否则关闭连接，单位ms
 	 */
 	public ClientBase(Socket socket,long maxIdle,long mustSendAfterConnectedWithin) {
+		this.uuid=JUtilUUID.genUUID();
 		this.socket=socket;
 		this.addr=socket.getInetAddress();
 		this.mustSendAfterConnectedWithin=mustSendAfterConnectedWithin;
 		this.maxIdle=maxIdle;
 		lastActive=SysUtil.getNow();
+		createAt=SysUtil.getNow();
 	}
 	
 	/**
@@ -69,11 +81,30 @@ public class ClientBase implements Runnable{
 	 * @param args 自定义业务参数
 	 */
 	public ClientBase(Socket socket,long maxIdle,long mustSendAfterConnectedWithin,Object[] args) {
+		this.uuid=JUtilUUID.genUUID();
 		this.socket=socket;
 		this.addr=socket.getInetAddress();
 		this.mustSendAfterConnectedWithin=mustSendAfterConnectedWithin;
 		this.maxIdle=maxIdle;
+		this.args=args;
 		lastActive=SysUtil.getNow();
+		createAt=SysUtil.getNow();
+	}
+	
+	/**
+	 * 
+	 * @param server
+	 */
+	public void setServer(Server server) {
+		this.server=server;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getUuid() {
+		return this.uuid;
 	}
 	
 	/**
@@ -90,6 +121,22 @@ public class ClientBase implements Runnable{
 	 */
 	public InetAddress getAddress() {
 		return this.addr;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Socket getSocket() {
+		return socket;
+	}
+	
+	/**
+	 * 是否禁用Nagle's algorithm
+	 * @return
+	 */
+	public boolean disableNagleAlgorithm() {
+		return false;
 	}
 	
 	/**
@@ -111,6 +158,9 @@ public class ClientBase implements Runnable{
 	 * @throws Exception
 	 */
 	public void onClose() throws Exception{
+		//if(server.getDebug()) {
+			log.log("关闭连接：("+socket.getInetAddress().getHostName()+":"+socket.getLocalPort()+","+socket.getPort()+","+getUuid()+")", -1);
+		//}
 	}
 	
 	/**
@@ -118,9 +168,9 @@ public class ClientBase implements Runnable{
 	 * @throws Exception
 	 */
 	public void onError() throws Exception{
-		try {
-			log.log("socket exception("+addr.getHostName()+":"+socket.getLocalPort()+","+socket.getPort()+") 是否空闲:"+isIdle()+", 连接后是否超时未收到数据："+notActiveAfterConnectedWithin(), -1);
-		}catch(Exception ex) {}
+		//if(server.getDebug()) {
+			log.log("连接异常：("+addr.getHostName()+":"+socket.getLocalPort()+","+socket.getPort()+","+getUuid()+") 是否空闲:"+isIdle()+", 连接后是否超时未收到数据："+notActiveAfterConnectedWithin(), -1);
+		//}
 	}
 	
 	/**
@@ -137,7 +187,7 @@ public class ClientBase implements Runnable{
 	 */
 	public OutputStream getOutputStream() {
 		try {
-			return socket.getOutputStream();
+			return socket==null?null:socket.getOutputStream();
 		}catch(Exception e) {
 			log.log(e,Logger.LEVEL_ERROR);
 			return null;
@@ -150,7 +200,7 @@ public class ClientBase implements Runnable{
 	 */
 	public InputStream getInputStream() {
 		try {
-			return socket.getInputStream();
+			return socket==null?null:socket.getInputStream();
 		}catch(Exception e) {
 			log.log(e,Logger.LEVEL_ERROR);
 			return null;
@@ -174,13 +224,16 @@ public class ClientBase implements Runnable{
 	 * @throws Exception
 	 */
 	public void receive() throws Exception{
-		InputStream in=this.getInputStream();
-		if(in==null) return;
+		byte[] data=null;
+		synchronized(this) {
+			InputStream in=this.getInputStream();
+			if(in==null) return;
+			
+			data=new byte[in.available()];
+			in.read(data);
+		}
 		
-		byte[] data=new byte[in.available()];
-		in.read(data);
-		
-		this.onReceive(data);
+		if(data!=null) this.onReceive(data);
 	}
 	
 	/**
@@ -189,6 +242,7 @@ public class ClientBase implements Runnable{
 	 * @throws Exception
 	 */
 	public void send(Object data) throws Exception{
+		
 	}
 	
 	/**
@@ -235,33 +289,68 @@ public class ClientBase implements Runnable{
 				log.log(e, Logger.LEVEL_ERROR);
 			}
 			
+			//从client列表中移除
+			server.removeClient(this);
+			
 			return true;
 		}
+	}
+	
+	/**
+	 * 
+	 */
+	public void setLastValidCommunication() {
+		this.lastValidCommunication=SysUtil.getNow();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public long getLastValidCommunication() {
+		return this.lastValidCommunication;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public long getCreateAt() {
+		return createAt;
 	}
 
 	@Override
 	public void run() {
 		try {
+			this.connect();
+			
 			while(!end) {
-				this.connect();
+				try {
+					Thread.sleep(100);
+				}catch(Exception e) {}
 				
-				synchronized(this) {
-					if(end) break;
-					
-					try {
-						Thread.sleep(10);
-					}catch(Exception e) {}
-					
-					if(!this.readyToRead()) continue;
-					
-					//记录最新活动时间
-					this.lastActive=SysUtil.getNow();
-					
-					//交互次数
-					interactions++;
+				try {					
+					synchronized(this) {	
+						if(end) break;
+						
+						if(!this.readyToRead()) continue;
+						
+						//记录最新活动时间
+						this.lastActive=SysUtil.getNow();
+						
+						//交互次数
+						interactions++;
+					}
 					
 					//接收
 					this.receive();
+				}catch(Exception e) {
+					log.log(e, Logger.LEVEL_ERROR);
+					try {
+						this.onError();
+					}catch(Exception ex) {
+						log.log(ex, Logger.LEVEL_ERROR);
+					}
 				}
 			} 
 		}catch(Exception e) {
@@ -271,8 +360,6 @@ public class ClientBase implements Runnable{
 			}catch(Exception ex) {
 				log.log(ex, Logger.LEVEL_ERROR);
 			}
-			
-			//this.end(true);
 		}
 	}
 	

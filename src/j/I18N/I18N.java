@@ -1,23 +1,8 @@
 package j.I18N;
 
-import j.app.Constants;
-import j.app.webserver.JHandler;
-import j.app.webserver.JResponse;
-import j.app.webserver.JSession;
-import j.common.JProperties;
-import j.dao.util.SQLUtil;
-import j.fs.JDFSFile;
-import j.log.Logger;
-import j.sys.Initializer;
-import j.sys.SysUtil;
-import j.tool.ip.IP;
-import j.util.ConcurrentList;
-import j.util.ConcurrentMap;
-import j.util.JUtilDom4j;
-import j.util.JUtilSorter;
-
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +18,22 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import com.maxmind.geoip2.model.CountryResponse;
+
+import j.app.Constants;
+import j.app.webserver.JHandler;
+import j.app.webserver.JResponse;
+import j.app.webserver.JSession;
+import j.common.JProperties;
+import j.dao.util.SQLUtil;
+import j.fs.JDFSFile;
+import j.log.Logger;
+import j.sys.Initializer;
+import j.sys.SysUtil;
+import j.tool.ip.IP;
+import j.util.ConcurrentList;
+import j.util.ConcurrentMap;
+import j.util.JUtilDom4j;
+import j.util.JUtilSorter;
 
 /**
  * 
@@ -472,7 +473,7 @@ public class I18N extends JHandler implements Initializer,Runnable{
 	 * @return
 	 */
 	public static String getCurrentLanguage(HttpSession session){
-		String lang=(String)session.getAttribute(Constants.I18N_LANGUAGE);
+		String lang=session==null?null:(String)session.getAttribute(Constants.I18N_LANGUAGE);
 		return lang==null?I18N.defaultLanguage:lang;
 	}
 	
@@ -566,25 +567,32 @@ public class I18N extends JHandler implements Initializer,Runnable{
 	/**
 	 * 
 	 * @param _content
-	 * @param request
+	 * @param group
 	 * @param session
 	 * @return
 	 */
-	public static String convert(String _content,String uri,HttpSession session){
-		if(_content==null||_content.indexOf("")<0) return _content;
+	public static String convert(String content,String group,HttpSession session){		
+		//log.log("convert "+group, -1);
 		
-		StringBuffer content=new StringBuffer(_content);
+		if(content==null||content.indexOf("I{")<0) return content;
 		
 		String lang=getCurrentLanguage(session);
 		
-		int start=content.indexOf("I{");
-		int end=-1;
-		while(start>-1){
-			end=content.indexOf("}",start);
-			if(end<=start) break;
+		List<String> cells=new ArrayList<String>();
+		
+		String[] contents=content.split("I\\{");
+
+		boolean startsWith=content.startsWith("I{");
+
+		StringBuffer _content=new StringBuffer(startsWith?"":contents[0]);
+		for(int i=(startsWith?0:1);i<contents.length;i++) {
+			int end=contents[i].indexOf("}");
+			if(end<0) {
+				_content.append(contents[i]);
+				continue;
+			}
 			
-			String src=content.substring(start,end+1);
-			String key=src.substring(2,src.length()-1);
+			String key=contents[i].substring(0,end);
 			
 			String theKey=key;
 			if(key.startsWith(".")){
@@ -595,37 +603,35 @@ public class I18N extends JHandler implements Initializer,Runnable{
 				theKey=key;
 			}
 			
-			String alt=getTextIgnoreGlobal(uri,theKey,lang);//强制优先获取针对本网页定义的多语言资源
+			String alt=getTextIgnoreGlobal(group,theKey,lang);//强制优先获取针对本网页定义的多语言资源
 			if(alt==null){
-				if(key.startsWith(".")) alt=getText(uri,theKey,lang);
+				if(key.startsWith(".")) alt=getText(group,theKey,lang);
 				else alt=getText(key,lang);
 			}
 			
-			if(alt==null){
-				if(!_showUnknownTag(lang)){
-					if(key.startsWith(".")){
-						alt=key.substring(1);
-					}else if(key.indexOf(",")>0){
-						alt=key.substring(key.indexOf(",")+1);
-					}else{
-						alt=key;
-					}
-					if(alt.startsWith("NON-JS")){
-						alt=alt.substring(6).replaceAll("'", "\\\\'");
-					}
-					replaceAll(content,src,alt);
-					end+=alt.length()-src.length();
+			if(alt==null) {
+				if(key.startsWith(".")){
+					alt=key.substring(1);
+				}else if(key.indexOf(",")>0){
+					alt=key.substring(key.indexOf(",")+1);
+				}else{
+					alt=key;
 				}
-				//content=JUtilString.replaceAll(content,src,"I18N:"+key+"");
-			}else{
-				replaceAll(content,src,alt);
-				end+=alt.length()-src.length();
+				if(alt.startsWith("NON-JS")){
+					alt=alt.substring(6).replaceAll("'", "\\\\'");
+				}
 			}
 			
-			start=content.indexOf("I{",end);
+			_content.append(alt);
+			_content.append(contents[i].substring(end+1));
 		}
 		
-		return content.toString();
+		cells.clear();
+		cells=null;
+		
+		//log.log("convert "+group+" done", -1);
+		
+		return _content.toString();
 	}
 	
 	/**
@@ -634,19 +640,27 @@ public class I18N extends JHandler implements Initializer,Runnable{
 	 * @param lang
 	 * @return
 	 */
-	public static String convert(String _content,String lang){
-		if(_content==null||_content.indexOf("")<0) return _content;
+	public static String convert(String content,String lang){
+		////log.log("convert "+group, -1);
 		
-		StringBuffer content=new StringBuffer(_content);
+		if(content==null||content.indexOf("I{")<0) return content;
 		
-		int start=content.indexOf("I{");
-		int end=-1;
-		while(start>-1){
-			end=content.indexOf("}",start);
-			if(end<=start) break;
+		List<String> cells=new ArrayList<String>();
+		
+		String[] contents=content.split("I\\{");
+
+		boolean startsWith=content.startsWith("I{");
+
+		StringBuffer _content=new StringBuffer(startsWith?"":contents[0]);
+		for(int i=(startsWith?0:1);i<contents.length;i++) {
+			int end=contents[i].indexOf("}");
+			if(end<0) {
+				_content.append(contents[i]);
+				continue;
+			}
 			
-			String src=content.substring(start,end+1);
-			String key=content.substring(start+2,end);
+			String key=contents[i].substring(0,end);
+			
 			String alt=null;
 			if(key.startsWith(".")){
 				alt=getText(key.substring(1),lang);
@@ -654,31 +668,29 @@ public class I18N extends JHandler implements Initializer,Runnable{
 				alt=getText(key,lang);
 			}
 			
-			if(alt==null){
-				if(!_showUnknownTag(lang)){
-					if(key.startsWith(".")){
-						alt=key.substring(1);
-					}else if(key.indexOf(",")>0){
-						alt=key.substring(key.indexOf(",")+1);
-					}else{
-						alt=key;
-					}
-					if(alt.startsWith("NON-JS")){
-						alt=alt.substring(6).replaceAll("'", "\\\\'");
-					}
-					replaceAll(content,src,alt);
-					end+=alt.length()-src.length();
+			if(alt==null) {
+				if(key.startsWith(".")){
+					alt=key.substring(1);
+				}else if(key.indexOf(",")>0){
+					alt=key.substring(key.indexOf(",")+1);
+				}else{
+					alt=key;
 				}
-				//content=JUtilString.replaceAll(content,src,"I18N:"+key+"");
-			}else{
-				replaceAll(content,src,alt);
-				end+=alt.length()-src.length();
+				if(alt.startsWith("NON-JS")){
+					alt=alt.substring(6).replaceAll("'", "\\\\'");
+				}
 			}
 			
-			start=content.indexOf("I{",end);
+			_content.append(alt);
+			_content.append(contents[i].substring(end+1));
 		}
-
-		return content.toString();
+		
+		cells.clear();
+		cells=null;
+		
+		//log.log("convert "+group+" done", -1);
+		
+		return _content.toString();
 	}
 	
 	/**
@@ -686,14 +698,11 @@ public class I18N extends JHandler implements Initializer,Runnable{
 	 * @param sb
 	 * @param substring
 	 * @param alt
+	 * @return 替换前后长度差
 	 */
-	private static void replaceAll(StringBuffer sb, String substring, String alt) {
-		int tokenPos = sb.indexOf(substring);
-		int tokenLen = substring.length();
-		while (tokenPos != -1) {
-			sb.replace(tokenPos, tokenPos + tokenLen, alt);
-			tokenPos = sb.indexOf(substring, tokenPos + alt.length());
-		}
+	private static String replaceAll(String content, String substring, String alt) {
+		substring=substring.replaceAll("\\{", "\\\\{").replaceAll("\\}", "\\\\}").replaceAll("\\+", "\\\\+");
+		return content.replaceAll(substring, alt);
 	}
 	
 	/**
