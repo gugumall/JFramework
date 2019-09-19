@@ -520,6 +520,13 @@ public interface DAO{
 	public void updateByKeysIgnoreNulls(String tblName,Object vo,String[] conditionKeys)throws Exception;
 	public void updateByKeysIgnoreNulls(String tblName,Object vo)throws Exception;
 	
+	//updateNullCols指定的列即时为null也更新
+	public void updateByKeysIgnoreNulls(Object vo,String[] conditionKeys,List<String> updateNullCols)throws Exception;
+	public void updateByKeysIgnoreNulls(Object vo,List<String> updateNullCols)throws Exception;
+	
+	public void updateByKeysIgnoreNulls(String tblName,Object vo,String[] conditionKeys,List<String> updateNullCols)throws Exception;
+	public void updateByKeysIgnoreNulls(String tblName,Object vo,List<String> updateNullCols)throws Exception;
+	
 	
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////

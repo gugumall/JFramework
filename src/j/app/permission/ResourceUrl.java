@@ -25,6 +25,8 @@ public class ResourceUrl implements Resource{
 	 */
 	private String urlPattern;	
 	private String mode="";//匹配模式
+	private String[] includeDomains=null;
+	private String[] excludeDomains=null;
 	private String[] roles;//可访问该资源的角色，多个用|分隔	
 	private String noPermissionPage;//当用户已经登录，但不具备访问该资源权限时转向的页面，如不设置则转向SSOServer.noRightPage
 	private String loginPage;//当用户未登录时转向的页面，如不设置则转向SSOServer.LOGIN_PAGE
@@ -46,6 +48,15 @@ public class ResourceUrl implements Resource{
 	
 	public void setMode(String mode) {
 		this.mode=mode;
+	}
+	
+	public void setDomains(String includes, String excludes) {
+		if(includes==null||"".equals(includes)) this.includeDomains=null;
+		else this.includeDomains=includes.split(",");
+		
+		
+		if(excludes==null||"".equals(excludes)) this.excludeDomains=null;
+		else this.excludeDomains=excludes.split(",");
 	}
 	
 	public void setRoles(String _roles){
@@ -102,6 +113,34 @@ public class ResourceUrl implements Resource{
 			if(JUtilString.match(requestUrl,exclude,"*")>-1) return false;
 		}
 		
+		String domain=SysUtil.getHttpDomain(request);
+		
+		//对排除的域名不限制访问
+		boolean exclude=false;
+		if(this.excludeDomains!=null) {
+			for(int i=0;i<this.excludeDomains.length;i++) {
+				if(this.excludeDomains[i].equalsIgnoreCase(domain)
+						||JUtilString.matchIgnoreCase(domain, this.excludeDomains[i], "*")>-1) {
+					exclude=true;
+					break;
+				}
+			}
+		}
+		if(exclude) return false;
+		
+		//只限制特定域名
+		if(this.includeDomains!=null&&this.includeDomains.length>0) {
+			boolean include=false;
+			for(int i=0;i<this.includeDomains.length;i++) {
+				if(this.includeDomains[i].equalsIgnoreCase(domain)
+						||JUtilString.matchIgnoreCase(domain, this.includeDomains[i], "*")>-1) {
+					include=true;
+					break;
+				}
+			}
+			if(!include) return false;
+		}
+		
 		return true;
 	}
 	
@@ -112,7 +151,40 @@ public class ResourceUrl implements Resource{
 	public boolean matchesComplete(HttpServletRequest request){
 		String requestUrl=request.getRequestURI();
 		
-		return requestUrl.equals(this.urlPattern);
+		boolean matches = requestUrl.equals(this.urlPattern);
+		
+
+		if(matches) {
+			String domain=SysUtil.getHttpDomain(request);
+			
+			//对排除的域名不限制访问
+			boolean exclude=false;
+			if(this.excludeDomains!=null) {
+				for(int i=0;i<this.excludeDomains.length;i++) {
+					if(this.excludeDomains[i].equalsIgnoreCase(domain)
+							||JUtilString.matchIgnoreCase(domain, this.excludeDomains[i], "*")>-1) {
+						exclude=true;
+						break;
+					}
+				}
+			}
+			if(exclude) return false;
+			
+			//只限制特定域名
+			if(this.includeDomains!=null&&this.includeDomains.length>0) {
+				boolean include=false;
+				for(int i=0;i<this.includeDomains.length;i++) {
+					if(this.includeDomains[i].equalsIgnoreCase(domain)
+							||JUtilString.matchIgnoreCase(domain, this.includeDomains[i], "*")>-1) {
+						include=true;
+						break;
+					}
+				}
+				if(!include) return false;
+			}
+		}
+		
+		return matches;
 	}
 	
 	/*

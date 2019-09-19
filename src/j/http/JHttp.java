@@ -1,19 +1,5 @@
 package j.http;
 
-import it.sauronsoftware.base64.Base64;
-import j.Properties;
-import j.common.Global;
-import j.sys.AppConfig;
-import j.sys.SysUtil;
-import j.tool.javascript.JavaScriptBridge;
-import j.util.ConcurrentMap;
-import j.util.JUtilCompressor;
-import j.util.JUtilInputStream;
-import j.util.JUtilMD5;
-import j.util.JUtilMath;
-import j.util.JUtilRandom;
-import j.util.JUtilString;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +11,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -45,6 +30,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -52,6 +38,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
@@ -64,6 +51,7 @@ import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -71,6 +59,20 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+
+import it.sauronsoftware.base64.Base64;
+import j.Properties;
+import j.common.Global;
+import j.sys.AppConfig;
+import j.sys.SysUtil;
+import j.tool.javascript.JavaScriptBridge;
+import j.util.ConcurrentMap;
+import j.util.JUtilCompressor;
+import j.util.JUtilInputStream;
+import j.util.JUtilMD5;
+import j.util.JUtilMath;
+import j.util.JUtilRandom;
+import j.util.JUtilString;
 
 /**
  * @author 肖炯
@@ -102,6 +104,11 @@ public class JHttp{
 	 */
 	public static JHttp getInstance(){
 		synchronized(default_user_agent){
+			CookieStore cookieStore = new BasicCookieStore();
+			
+			HttpClientContext context = HttpClientContext.create();
+			context.setCookieStore(cookieStore);
+			
 			int random=instances.length==1?0:JUtilRandom.nextInt(instances.length);
 			JHttp jhttp =instances[random];
 			if(jhttp==null){
@@ -989,125 +996,22 @@ public class JHttp{
 	public static void main(String[] args)throws Exception{
 		System.out.println("begin");
 		
-		JHttp http=JHttp.getInstance();
-		HttpClient client=http.createClient();
-		JHttpContext context=new JHttpContext();
-		context.setAllowedErrorCodes(new String[]{"all"});
-		
-		String url="http://www.knlotto.kr/keno.aspx?method=kenoWinNoList";
-		String response="";
-		
-		http.getStream(context, client, url);
-		if(context.getStatus()==503){
-			InputStream is=context.getResponseStream();
-			response=JUtilInputStream.string(is);
-			
-			if(response.indexOf("jschl_vc\" value=\"")<0
-					||response.indexOf("pass\" value=\"")<0){
-				System.out.println("fail!");
-				System.exit(0);
-			}
-			
-			int startx=response.indexOf("jschl_vc\" value=\"")+"jschl_vc\" value=\"".length();
-			int endx=response.indexOf("\"",startx);
-			String jschl_vc=response.substring(startx,endx);
-			
-			startx=response.indexOf("pass\" value=\"")+"pass\" value=\"".length();
-			endx=response.indexOf("\"",startx);
-			String pass=response.substring(startx,endx);
-			String domain=JUtilString.getHost(url);
-			
-			String _js="function _hey(){";
-			
-			//System.out.println("response:"+response);
-			
-			response=response.replaceAll(" ", "");
-			startx=response.indexOf("vars,t,o,p");
-			endx=response.indexOf(";",startx);
-			_js+=response.substring(startx,endx)+";";
-			
-			startx=response.indexOf("challenge-form');")+"challenge-form');".length();
-			endx=response.indexOf("+t.length",startx);
-			_js+=response.substring(startx+2,endx)+";";
-			
-			_js=JUtilString.replaceAll(_js, "a.value=", "var hey=");
-			_js=JUtilString.replaceAll(_js, "vars,t,o,p", "var s,t,o,p");
-			_js=JUtilString.replaceAll(_js, ";", ";\r\n");
-			_js+="return hey;}";
-			//System.out.println("_js:"+_js);
-			
-			JavaScriptBridge js=JavaScriptBridge.getInstanceOfJsString(JUtilMD5.MD5EncodeToHex(_js), _js);
-			
-			Double jschl_answer=(Double) js.call("_hey");
-			int _jschl_answer=jschl_answer.intValue()+domain.length();
-			
-			String passUrl="http://"+domain+"/cdn-cgi/l/chk_jschl?jschl_vc="+jschl_vc+"&pass="+pass+"&jschl_answer="+_jschl_answer;
-			//System.out.println("passUrl:"+passUrl);
-			
-			context.addRequestHeader("Referer", "http://"+domain+"/");
-			http.getResponse(context, client, passUrl);
-			
-			response=http.getResponse(context, client, url,"EUC-KR");
-			//System.out.println("1:"+response);
-		}else{
-			InputStream is=context.getResponseStream();
-			response=JUtilInputStream.string(is,"EUC-KR");
-			//System.out.println("2:"+response);
-		}
-		System.exit(0);
-	}
-	
-	/**
-	 * 
-	 * @param to
-	 * @param content
-	 * @param validMins
-	 * @return
-	 */
-	private static boolean sendTemplateSMS(String to, String content,int validMins) {
 		String result = "";
 		try {
-			String templateId="1";
-			String timestamp = DateUtil.dateToStr(new Date(), DateUtil.DATE_TIME_NO_SLASH);
-			String ACCOUNT_SID="aaf98f894f402f15014f46b1316b058d";
-			String ACCOUNT_TOKEN="b51578bb2e6a4d2f82c3ef4a1712c75f";
-			String sid=ACCOUNT_SID + ACCOUNT_TOKEN + timestamp;
-			String signature = JUtilMD5.MD5EncodeToHex(sid);
-			
-			//String url="https://app.cloopen.com:8883/2013-12-26/Accounts/"+ACCOUNT_SID+"/SMS/TemplateSMS?sig="+signature;
-			String url="https://sandboxapp.cloopen.com:8883/2013-12-26/Accounts/"+ACCOUNT_SID+"/SMS/TemplateSMS?sig="+signature;
-			String App_ID="aaf98f894f402f15014f46b1dcdb0590";
-			
-			String requestBody = "";
-			StringBuilder sb = new StringBuilder("<?xml version='1.0' encoding='utf-8'?><TemplateSMS>");
-			sb.append("<appId>").append(App_ID).append("</appId>").append("<to>").append(to).append("</to>").append("<templateId>").append(templateId).append("</templateId>");
-			sb.append("<datas>");
-			sb.append("<data>").append(content).append("</data>");
-			sb.append("<data>").append(validMins).append("</data>");
-			sb.append("</datas>");
-			sb.append("</TemplateSMS>").toString();
-			requestBody = sb.toString();
-			
-			System.out.println("requestBody:"+requestBody);
-			
-
 			JHttp http=JHttp.getInstance();
 			JHttpContext context=new JHttpContext();
-			context.setRequestBody(requestBody);
-			context.setRequestEncoding("UTF-8");
-		
-			context.addRequestHeader("Accept", "application/xml");
-			context.addRequestHeader("Content-Type", "application/xml;charset=utf-8");
-			context.addRequestHeader("Authorization", Base64.encode(ACCOUNT_SID+":"+timestamp));
-			result=http.postResponse(context, null, url,null);
+			
+			HttpClient client=http.createClient(30000);
+
+			context.addRequestHeader("Referer","https://bet.hkjc.com/marksix/default.aspx?lang=ch");
+			
+			
+			result=http.getResponse(context, client, "https://bet.hkjc.com/marksix/default.aspx?lang=ch");
 			
 			System.out.println("result:"+result);
-			
-			return true;
 		}catch (Exception e) {
 			e.printStackTrace();
-			
-			return false;
 		}
+		System.exit(0);
 	}
 }

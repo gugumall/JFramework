@@ -461,7 +461,65 @@ public final class SQLUtil {
 		return string;
 	}
 	
+	/**
+	 * 是否可能sql注入
+	 * @param sql
+	 * @return null表示不存在，如存在则放回可能是sql注入的字符串
+	 */
+	public static String sqlInjection(String sql) {
+		if(sql==null||"".equals(sql)) return null;
+		
+		sql=sql.toLowerCase();
+		sql=JUtilString.replaceAll(sql,";"," ");
+		sql=JUtilString.replaceAll(sql,"--"," --");
+		sql=JUtilString.replaceAll(sql,"/*"," /*");
+		String[] cells=JUtilString.getTokens(sql, " ");
+		for(int i=0; i<cells.length; i++) {
+			cells[i]=cells[i].trim();
+			if(cells[i].endsWith(";")) return cells[i];
+			else if(cells[i].startsWith("--")) return cells[i];
+			else if(cells[i].startsWith("/*")) return cells[i];
+			else if(cells[i].startsWith("drop")) return cells[i];
+			else if(cells[i].startsWith("grant")) return cells[i];
+			
+			if(i>0) {
+				if(cells[i].startsWith("create")) return cells[i];
+				else if(cells[i].startsWith("delete")) return cells[i];
+				else if(cells[i].startsWith("update")) return cells[i];
+				else if(cells[i].startsWith("execute")) return cells[i];
+			}
+		}
+		
+		//去掉已经转义的单、双引号
+		sql=JUtilString.replaceAll(sql, "\\\'", "");
+		sql=JUtilString.replaceAll(sql, "\\\"", "");
+		//System.out.println(sql);
+		
+		char[] chars=sql.toCharArray();
+
+		//单引号必须成对出现
+		int singleQuotes=0;
+		for(int i=0; i<chars.length; i++) {
+			if(chars[i]=='\'') singleQuotes++;
+		}
+		if(singleQuotes%2!=0) return "singleQuotes";
+		
+		//双引号必须成对出现
+		int doubleQuotes=0;
+		for(int i=0; i<chars.length; i++) {
+			if(chars[i]=='"') doubleQuotes++;
+		}
+		if(doubleQuotes%2!=0) return "doubleQuotes";
+		
+		return null;
+	}
+	
 	public static void main(String[] args){
-		System.out.println(deleteCriminalChars("d'a"));
+		//String sql="select * from users where username='' or 1=1; --' and password=''";
+		String sql="update * from users where username='\\''";
+		System.out.println(sql);
+		
+		String SQLInjectionUtil=sqlInjection(sql);
+		System.out.println(SQLInjectionUtil);
 	}
 }

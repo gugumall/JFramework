@@ -138,6 +138,7 @@ public class Permission implements Runnable{
 	        	ResourceUrl r=new ResourceUrl();
 	        	r.setUrlPattern(rEle.attributeValue("pattern"));
 	        	r.setMode(rEle.attributeValue("mode"));
+	        	r.setDomains(rEle.attributeValue("include-domains"), rEle.attributeValue("exclude-domains"));
 	        	r.setRoles(rEle.attributeValue("roles"));
 	        	r.setNoPermissionPage(rEle.attributeValue("no-permission-page"));
 	        	r.setLoginPage(rEle.attributeValue("login-page"));

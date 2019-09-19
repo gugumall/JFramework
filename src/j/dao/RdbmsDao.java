@@ -328,6 +328,8 @@ public class RdbmsDao implements DAO {
 	 * @see j.dao.DAO#findScale(java.lang.String, int, int)
 	 */
 	public StmtAndRs findScale(String sql,int start, int end) throws Exception {
+		if(SQLUtil.sqlInjection(sql)!=null) return null;
+		
 		Statement stmt = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
 		ResultSet rs = null;
 		try {
@@ -383,6 +385,8 @@ public class RdbmsDao implements DAO {
 	 * @see j.dao.DAO#findScale(java.lang.String, java.lang.Class, java.lang.String, int, int)
 	 */
 	public List findScale(String sql,Class cls,String except,int start,int end)throws Exception{
+		if(SQLUtil.sqlInjection(sql)!=null) return null;
+		
 		StmtAndRs sr=null;
 		try {			
 			sr=findScale(sql,start,end);
@@ -1531,6 +1535,39 @@ public class RdbmsDao implements DAO {
 	 * @see j.dao.DAO#updateByKeysIgnoreNulls(java.lang.String, java.lang.Object, java.lang.String[])
 	 */
 	public void updateByKeysIgnoreNulls(String tblName,Object vo,String[] conditionKeys)throws Exception{
+		updateByKeysIgnoreNulls(tblName,vo,conditionKeys,null);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#updateByKeysIgnoreNulls(java.lang.Object, java.util.List)
+	 */
+	public void updateByKeysIgnoreNulls(Object vo,List<String> updateNullCols) throws Exception{	
+		updateByKeysIgnoreNulls(vo,new String[]{factory.getPkColumnName(vo)},updateNullCols);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#updateByKeysIgnoreNulls(java.lang.Object, java.lang.String[], java.util.List)
+	 */
+	public void updateByKeysIgnoreNulls(Object vo,String[] conditionKeys,List<String> updateNullCols)throws Exception{
+		String tblName=factory.getTrueTblName(vo);
+		updateByKeysIgnoreNulls(tblName,vo,conditionKeys,updateNullCols);
+	}	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#updateByKeysIgnoreNulls(java.lang.String, java.lang.Object, java.util.List)
+	 */
+	public void updateByKeysIgnoreNulls(String tblName,Object vo,List<String> updateNullCols) throws Exception{	
+		updateByKeysIgnoreNulls(tblName,vo,new String[]{factory.getPkColumnName(vo)},updateNullCols);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#updateByKeysIgnoreNulls(java.lang.String, java.lang.Object, java.lang.String[], java.util.List)
+	 */
+	public void updateByKeysIgnoreNulls(String tblName,Object vo,String[] conditionKeys,List<String> updateNullCols)throws Exception{
 		PreparedStatement pstmt=null;
 		try{
 			if(factory.getPlugin()!=null&&pluginEnabled){
@@ -1551,19 +1588,39 @@ public class RdbmsDao implements DAO {
 			List cols=factory.getColumns(tblName);
 			for(int i=0;i<cols.size();i++){
 				String colName=((Column)cols.get(i)).colName;
+				String fieldName=JUtilBean.colNameToVariableName(colName);
+				
+				//作为条件的字段或JDAO.xml中配置的不可通过对象操作更新的字段
 				if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tblName, colName)){
 					continue;
 				}
+				
 				Method method=JUtilBean.getGetter(cls,JUtilBean.colNameToVariableName(colName),null);
 				Object value=method.invoke(vo,(Object[])null);
-				if(value==null){
-					continue;
+				if(value==null){//如果值为null
+					if(updateNullCols==null) {
+						//未指定即使为null也更新的字段列表
+						continue;
+					}else if(!updateNullCols.contains(fieldName)
+							&&!updateNullCols.contains(colName.toUpperCase())
+							&&!updateNullCols.contains(colName.toLowerCase())) {
+						//未包含在指定的即使为null也更新的字段列表中
+						continue;
+					}
+					sql+=colName+"=null,";
+				}else{
+					sql+=colName+"=?,";
 				}
-				sql+=colName+"=?,";
 			}
 			if(sql.indexOf("?")==-1){
-				throw new Exception("没有值需要更新！");
+				//throw new Exception("没有值需要更新！");
+				if(factory.getPlugin()!=null&&pluginEnabled){
+					factory.getPlugin().afterUpdateByKeysIgnoreNulls(vo, conditionKeys);
+				}
+				return;
 			}
+			
+			
 			sql=sql.substring(0,sql.length()-1);
 			String condition="";
 			for(int i=0;i<conditionKeys.length;i++){
@@ -1592,6 +1649,8 @@ public class RdbmsDao implements DAO {
 					int index=1;
 					for(int i=0;i<cols.size();i++){
 						String colName=((Column)cols.get(i)).colName;
+						
+						//作为条件的字段或JDAO.xml中配置的不可通过对象操作更新的字段
 						if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tblName, colName)){
 							continue;
 						}
@@ -1600,7 +1659,7 @@ public class RdbmsDao implements DAO {
 						Object[] paras=null;	
 						Method method=JUtilBean.getGetter(cls,JUtilBean.colNameToVariableName(colName),null);
 						Object value=method.invoke(vo,(Object[])null);
-						if(value==null){
+						if(value==null){//如果值为null
 							continue;
 						}
 						
@@ -1714,19 +1773,19 @@ public class RdbmsDao implements DAO {
 				factory.getPlugin().beforeExecuteSQL(sql);
 			}
 			String tblName=SQLUtil.retrieveTableNameFromSQL(sql);
+			String trueTblName=factory.getTrueTblName(tblName);
+			sql=JUtilString.replaceAll(sql,tblName, trueTblName);
+			if(SQLUtil.sqlInjection(sql)!=null) return;
+			
 			if(factory.isSynchronized(tblName)){
 				Object lock=factory.getTableLock(tblName);
 				synchronized(lock){
 					stmt = connection.createStatement();
-					String trueTblName=factory.getTrueTblName(tblName);
-					sql=JUtilString.replaceAll(sql,tblName, trueTblName);
 					stmt.execute(sql);
 					stmt.close();
 				}
 			}else{
 				stmt = connection.createStatement();
-				String trueTblName=factory.getTrueTblName(tblName);
-				sql=JUtilString.replaceAll(sql,tblName, trueTblName);
 				stmt.execute(sql);
 				stmt.close();
 			}
@@ -1764,6 +1823,9 @@ public class RdbmsDao implements DAO {
 				String trueTblName=factory.getTrueTblName(tblName);
 				sql=JUtilString.replaceAll(sql,tblName, trueTblName);
 				//log.log("sql:"+sql,Logger.LEVEL_DEBUG);
+				
+				if(SQLUtil.sqlInjection(sql)!=null) continue;
+				
 				stmt.addBatch(sql);
 			}	
 			stmt.executeBatch();

@@ -870,9 +870,18 @@ public class JUtilBean {
 					Object o=JUtilBean.getPropertyValue(bean,name);
 					if(o==null) continue;
 					
+					String type=fields[f].getType().getName();
+					if(type.equals("java.lang.String")) type="s";
+					else if(type.equals("java.lang.Integer")) type="I";
+					else if(type.equals("java.lang.Double")) type="D";
+					else if(type.equals("java.lang.Long")) type="L";
+					else if(type.equals("java.lang.Short")) type="S";
+					else if(type.equals("java.lang.Float")) type="F";
+					else if(type.equals("java.sql.Timestamp")) type="T";
+					
 					Element ele=b.addElement("field");
 					ele.addAttribute("name",name);
-					ele.addAttribute("type",fields[f].getType().getName());
+					ele.addAttribute("type",type);
 					
 					ele.setText(o.toString());
 					
@@ -955,6 +964,15 @@ public class JUtilBean {
 					Element fe=(Element)fields.get(f);
 					String fieldName=fe.attributeValue("name");
 					String type=fe.attributeValue("type");
+					
+					if(type.equals("s")) type="java.lang.String";
+					else if(type.equals("I")) type="java.lang.Integer";
+					else if(type.equals("D")) type="java.lang.Double";
+					else if(type.equals("L")) type="java.lang.Long";
+					else if(type.equals("S")) type="java.lang.Short";
+					else if(type.equals("F")) type="java.lang.Float";
+					else if(type.equals("T")) type="java.sql.Timestamp";
+					
 					String value=fe.getText();
 					
 					Field field=null;
