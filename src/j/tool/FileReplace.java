@@ -1,6 +1,7 @@
 package j.tool;
 
 import j.fs.JDFSFile;
+import j.util.JUtilImage;
 import j.util.JUtilString;
 
 import java.io.File;
@@ -92,14 +93,17 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("F:\\backup\\9X_Final\\src");
-//		replace(dir,
-//				"设备分组",
-//				"站点管理",
-//				".jsp");
-		count(dir,
-		"半信用",
-		".java");
+		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
+		replace(dir,
+				"请至拍市拍市",
+				"请至拍市购买",
+				".jsp");
+		
+//		rotate(new File("D:\\176\\10.4 桃江一中 活动\\形象照\\temp"),180,".jpg");
+		
+//		count(dir,
+//		"半信用",
+//		".java");
 		
 //		File root=new File("F://tempx/");
 //		File[] children=(File[])root.listFiles();
@@ -176,6 +180,54 @@ public class FileReplace {
 			}
 		}		
 	}
+	
+	/**
+	 * 
+	 * @param file
+	 * @param ext
+	 */
+	private static void resize(File file,String ext){
+		if(file.isDirectory()){
+			File[] fs=file.listFiles();
+			for(int i=0;i<fs.length;i++){
+				resize(fs[i],ext);
+			}
+		}else{
+			if(!file.getName().toLowerCase().endsWith(ext)) return;
+			
+			JUtilImage im = new JUtilImage();
+			im.setQuality(0.9f);
+			
+			try {
+				im.zoomToSize(file, file, 1920, JUtilImage.FORMAT_JPEG);
+			}catch(Exception e) {}
+			
+			System.out.println(file.getAbsolutePath());
+		}		
+	}
+	
+	private static void rotate(File file,int angel, String ext){
+		if(file.isDirectory()){
+			File[] fs=file.listFiles();
+			for(int i=0;i<fs.length;i++){
+				rotate(fs[i], angel, ext);
+			}
+		}else{
+			if(!file.getName().toLowerCase().endsWith(ext)) return;
+			
+			JUtilImage im = new JUtilImage();
+			im.setQuality(1f);
+			
+			try {
+				im.rotate(file, file, angel, JUtilImage.FORMAT_JPEG);
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			
+			System.out.println(file.getAbsolutePath());
+		}		
+	}
+	
 	
 	/**
 	 * 

@@ -266,7 +266,7 @@ public class ServiceManager implements Runnable {
 				
 				services.put(serviceConfig.getUuid(),serviceConfig);//保存服务，可通过uuid找到
 				
-				if(serviceConfig.getServerUuid().equals(Manager.getServerNodeUuid())){//本地服务才启动					
+				//if(serviceConfig.getServerUuid().equals(Manager.getServerNodeUuid())){//本地服务才启动					
 					ServiceConfig _old=null;
 					for(int j=0;j<olds.size();j++){
 						ServiceConfig s=(ServiceConfig)olds.get(j);
@@ -286,12 +286,12 @@ public class ServiceManager implements Runnable {
 						}
 						
 						//启动服务
-						ServiceContainer container=new ServiceContainer(serviceConfig);
+						ServiceContainer container=new ServiceContainer(serviceConfig, serviceConfig.getServerUuid().equals(Manager.getServerNodeUuid()));
 						serviceContainers.put(serviceConfig.getUuid(),container);
 						serviceContainers.put(serviceConfig.getCode(),container);
 						container.startup();
 					}
-				}
+				//}
 			}
 			currentServices.clear();
 			currentServices=null;

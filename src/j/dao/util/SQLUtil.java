@@ -477,16 +477,16 @@ public final class SQLUtil {
 		for(int i=0; i<cells.length; i++) {
 			cells[i]=cells[i].trim();
 			if(cells[i].endsWith(";")) return cells[i];
-			else if(cells[i].startsWith("--")) return cells[i];
+			//else if(cells[i].startsWith("--")) return cells[i];
 			else if(cells[i].startsWith("/*")) return cells[i];
-			else if(cells[i].startsWith("drop")) return cells[i];
-			else if(cells[i].startsWith("grant")) return cells[i];
+			else if(cells[i].equals("drop")) return cells[i];
+			else if(cells[i].equals("grant")) return cells[i];
 			
 			if(i>0) {
-				if(cells[i].startsWith("create")) return cells[i];
-				else if(cells[i].startsWith("delete")) return cells[i];
-				else if(cells[i].startsWith("update")) return cells[i];
-				else if(cells[i].startsWith("execute")) return cells[i];
+				if(cells[i].equals("create")) return cells[i];
+				else if(cells[i].equals("delete")) return cells[i];
+				else if(cells[i].equals("update")) return cells[i];
+				else if(cells[i].equals("execute")) return cells[i];
 			}
 		}
 		
@@ -516,7 +516,7 @@ public final class SQLUtil {
 	
 	public static void main(String[] args){
 		//String sql="select * from users where username='' or 1=1; --' and password=''";
-		String sql="update * from users where username='\\''";
+		String sql="update table * from ddd order by update_time";
 		System.out.println(sql);
 		
 		String SQLInjectionUtil=sqlInjection(sql);

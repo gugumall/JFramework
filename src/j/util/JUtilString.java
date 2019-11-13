@@ -58,6 +58,32 @@ public class JUtilString extends JUtilSorter {
 
 	private static final JUtilString instance=new JUtilString();
 	public static JUtilString getInstance() {return instance;}
+	
+	/**
+	 * 
+	 * @param s1
+	 * @param s2
+	 * @return
+	 */
+	public static boolean equals(String s1, String s2) {
+		if(s1==null && s2==null) return true;
+		else if(s1==null && s2!=null) return false;
+		else if(s1!=null && s2==null) return false;
+		else return s1.equals(s2);
+	}
+	
+	/**
+	 * 
+	 * @param s1
+	 * @param s2
+	 * @return
+	 */
+	public static boolean equalsIgnoreCase(String s1, String s2) {
+		if(s1==null && s2==null) return true;
+		else if(s1==null && s2!=null) return false;
+		else if(s1!=null && s2==null) return false;
+		else return s1.equalsIgnoreCase(s2);
+	}
 
 	/*
 	 *  (non-Javadoc)

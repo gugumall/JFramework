@@ -1,5 +1,7 @@
 package j.common;
 
+import java.util.List;
+
 /**
  * 
  * @author 肖炯
@@ -101,5 +103,59 @@ public final class JArray {
 			sub[i-from]=all[i];
 		}
 		return sub;
+	}
+	
+	/**
+	 * 
+	 * @param array
+	 * @return
+	 */
+	public static boolean duplicatedElements(Object[] array) {
+		if(array==null||array.length==0) return false;
+		
+		for(int i=0; i<array.length; i++) {
+			for(int j=0; j<array.length; j++) {
+				if(i==j) continue;
+				
+				if(array[i]==null && array[j]==null) return true;
+				else if(array[i]!=null && array[j]!=null && array[i].equals(array[j])) return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param objects
+	 * @return
+	 */
+	public static String toString(List objects) {
+		return toString(objects, null);
+	}
+	
+	/**
+	 * 
+	 * @param objects
+	 * @param splitter
+	 * @return
+	 */
+	public static String toString(List objects, String splitter) {
+		if(objects==null) return null;
+		if(objects.isEmpty()) return "";
+		
+		StringBuffer sb=new StringBuffer();
+		
+		for(int i=0; i<objects.size(); i++) {
+			if(splitter!=null&&i>0) sb.append(splitter);
+			sb.append(objects.get(i).toString());
+		}
+		
+		return sb.toString();
+	}
+	
+	public static void main(String[] args) {
+		String[] arr=new String[] {"b", "b", "c", null};
+		System.out.println(duplicatedElements(arr));
 	}
 }

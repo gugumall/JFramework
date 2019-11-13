@@ -1,31 +1,9 @@
 package j.app.online;
 
-import j.app.Constants;
-import j.app.permission.Permission;
-import j.app.permission.Resource;
-import j.app.sso.Client;
-import j.app.sso.LoginStatus;
-import j.app.sso.SSOClient;
-import j.app.sso.SSOConfig;
-import j.app.sso.User;
-import j.app.webserver.Handlers;
-import j.cache.JCacheParams;
-import j.common.JProperties;
-import j.http.JHttp;
-import j.log.Logger;
-import j.sys.SysConfig;
-import j.sys.SysUtil;
-import j.tool.ip.IP;
-import j.util.ConcurrentList;
-import j.util.ConcurrentMap;
-import j.util.JUtilDom4j;
-import j.util.JUtilMD5;
-import j.util.JUtilMath;
-import j.util.JUtilString;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,6 +19,31 @@ import javax.servlet.http.HttpSession;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
+
+import j.app.Constants;
+import j.app.permission.Permission;
+import j.app.permission.Resource;
+import j.app.sso.Client;
+import j.app.sso.LoginStatus;
+import j.app.sso.SSOClient;
+import j.app.sso.SSOConfig;
+import j.app.sso.User;
+import j.app.webserver.Handlers;
+import j.app.webserver.JResponser;
+import j.cache.JCacheParams;
+import j.common.JObject;
+import j.common.JProperties;
+import j.http.JHttp;
+import j.log.Logger;
+import j.sys.SysConfig;
+import j.sys.SysUtil;
+import j.tool.ip.IP;
+import j.util.ConcurrentList;
+import j.util.ConcurrentMap;
+import j.util.JUtilDom4j;
+import j.util.JUtilMD5;
+import j.util.JUtilMath;
+import j.util.JUtilString;
 
 /**
  * 
@@ -71,6 +74,7 @@ public class Onlines implements Filter,Runnable{
 	private static ConcurrentList blackIps=new ConcurrentList();
 	private static ConcurrentList blackRegions=new ConcurrentList();
 	private static ConcurrentList domainLimits=new ConcurrentList();
+	private static ConcurrentMap sessions=new ConcurrentMap();//与Online对象关联的HttpSession
 	private static String[] fileUploadAllowedUrls;
 	private static String[] ignoredUrls;
 	private static String[] forbiddenSpiders;
@@ -392,6 +396,16 @@ public class Onlines implements Filter,Runnable{
 	
 	/**
 	 * 
+	 * @param sessionId
+	 * @return
+	 */
+	public static HttpSession findSession(String sessionId){
+		if(sessionId==null||"".equals(sessionId)) return null;
+		return (HttpSession)sessions.get(sessionId);
+	}
+	
+	/**
+	 * 
 	 * @return
 	 */
 	public static List getActiveUsers(){
@@ -631,13 +645,58 @@ public class Onlines implements Filter,Runnable{
 		}
 
 		try{	
+			
+			HttpSession session=request.getSession(true);
+			
+			//设置响应节点
+			String responser=SysUtil.getHttpParameter(request,Constants.J_ACTION_RESPONSER_SET);
+			if(responser!=null) {
+				JResponser _responser=Handlers.getResponser(responser);
+				if(_responser!=null) {
+					session.setAttribute(Constants.J_ACTION_RESPONSER, responser);
+				}else {
+					session.removeAttribute(Constants.J_ACTION_RESPONSER);
+				}
+			}		
+
+			//处理来自远程节点的调用
+			String requestFrom=SysUtil.getHttpParameter(request, Constants.J_ACTION_RESPONSER_FROM);
+			if(requestFrom!=null) {
+				//log.log("request from "+requestFrom, -1);
+				String responserKey=SysUtil.getHttpParameter(request, Constants.J_ACTION_RESPONSER_KEY);
+				if(responserKey==null || !responserKey.equals(Handlers.getResponserKey())) {
+					try {
+						SysUtil.outHttpResponse(response, "invalid responser key:"+responserKey);
+					}catch(Exception ex) {}
+					return;
+				}
+				
+				//参数
+				Enumeration parameters=request.getParameterNames();
+		    	try{
+		    		while(parameters.hasMoreElements()){
+			        	String parameter=(String)parameters.nextElement();
+			        	if(parameter.startsWith(Constants.J_ACTION_RESPONSER_SESSION_PREFIX)) {
+			        		String value=SysUtil.getHttpParameter(request, parameter);
+			    			//log.log("request from session object "+parameter+"="+value, -1);
+			        		try {
+			        			Object _value=JObject.string2Serializable(value);
+			        			session.setAttribute(parameter.substring(Constants.J_ACTION_RESPONSER_SESSION_PREFIX.length()), _value);
+			        		}catch(Exception e){
+			        			log.log(e, Logger.LEVEL_ERROR);
+			        		}
+			        	}
+		        	}
+		    	}catch(Exception e){}
+			}
+	    	//处理来自远程节点的调用 end
+			
+			
 			if(handler!=null){
 				if(!handler.doFilterBefore(_request, _response, chain)) {
 					return;
 				}
 			}
-			
-			HttpSession session=request.getSession(true);			
 	
 			User user=SSOClient.getCurrentUser(session);
 			
@@ -1063,6 +1122,8 @@ public class Onlines implements Filter,Runnable{
 					update(online);
 				}
 				
+				sessions.put(online.getCurrentSessionId(), session);
+				
 				if(handler!=null){
 					handler.doFilter(_request, _response, chain);
 				}else{
@@ -1143,6 +1204,7 @@ public class Onlines implements Filter,Runnable{
 				Online o=(Online)onlines.get(key);
 				if(o==null||now-o.getUpdateTime()>SSOConfig.getOnlineActiveTime()*1000){
 					onlines.remove(key);
+					sessions.remove(key);
 				}
 			}
 			keys.clear();

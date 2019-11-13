@@ -11,8 +11,8 @@ import j.nvwa.Nvwa;
 import j.nvwa.NvwaObject;
 import j.service.Manager;
 import j.service.router.RouterManager;
-import j.util.ConcurrentMap;
 import j.util.JUtilMD5;
+import j.util.JUtilMath;
 
 /**
  * 用户启动服务的线程
@@ -27,6 +27,7 @@ public class ServiceContainer implements Runnable{
 
 	private boolean started=false;//是否正在运行
 	private boolean shutdown=false;//是否已经停止
+	private boolean isLocalService=true;//是否本节点服务
 	
 	/**
 	 * 
@@ -39,10 +40,12 @@ public class ServiceContainer implements Runnable{
 	/**
 	 * 
 	 * @param config
+	 * @param isLocalService
 	 */
-	public ServiceContainer(ServiceConfig config) {
+	public ServiceContainer(ServiceConfig config, boolean isLocalService) {
 		super();
 		this.config=config;
+		this.isLocalService=isLocalService;
 	}
 	
 	/**
@@ -82,27 +85,29 @@ public class ServiceContainer implements Runnable{
 	 * @throws Exception
 	 */
 	synchronized protected void startup() throws Exception{	
-		//将服务实现类托管至对象工厂（实现热加载）
-		NvwaObject nvwaObject=Nvwa.entrust(config.getRelatedHttpHandlerPath(),
-				config.getClassName(),
-				true);
-		nvwaObject.setFiled("config","value",true);
-		String[] fieldsKeep=config.getFieldsKeep();
-		for(int i=0;fieldsKeep!=null&&i<fieldsKeep.length;i++){
-			nvwaObject.setFiled(fieldsKeep[i],"value",true);
+		if(isLocalService) {
+			//将服务实现类托管至对象工厂（实现热加载）
+			NvwaObject nvwaObject=Nvwa.entrust(config.getRelatedHttpHandlerPath(),
+					config.getClassName(),
+					true);
+			nvwaObject.setFiled("config","value",true);
+			String[] fieldsKeep=config.getFieldsKeep();
+			for(int i=0;fieldsKeep!=null&&i<fieldsKeep.length;i++){
+				nvwaObject.setFiled(fieldsKeep[i],"value",true);
+			}
+	
+			//创建服务对象
+			createServant();
 		}
-
-		//创建服务对象
-		createServant();
 		
 		//启动监控线程，用于向路由节点注册/卸载服务、并在需要时自动重启服务
 		Thread thread=new Thread(this);
 		thread.start();
 		
+		log.log("service "+config.getUuid()+" started.",-1);
+		
 		this.started=true;
 		this.shutdown=false;
-		
-		log.log("service "+config.getUuid()+" started.",-1);
 	}
 
 	
@@ -117,11 +122,13 @@ public class ServiceContainer implements Runnable{
 			log.log(e,Logger.LEVEL_WARNING);			
 		}
 		
-		if(config.getRmi()!=null){
-			try{
-				initialNamingContext.unbind(config.getUuid());	
-			}catch(Exception e){
-				log.log(e,Logger.LEVEL_WARNING);			
+		if(isLocalService) {
+			if(config.getRmi()!=null){
+				try{
+					initialNamingContext.unbind(config.getUuid());	
+				}catch(Exception e){
+					log.log(e,Logger.LEVEL_WARNING);			
+				}
 			}
 		}
 		
@@ -185,15 +192,22 @@ public class ServiceContainer implements Runnable{
 			
 			initialNamingContext = new InitialContext(config.getRmi().getConfig());
 			
+			String providerUrl=config.getRmi().getConfig("java.naming.provider.url");
+			int port=0;
+			if(providerUrl.indexOf(":")>0) {
+				String _port=providerUrl.substring(providerUrl.indexOf(":")+1);
+				if(JUtilMath.isInt(_port)) port=Integer.parseInt(_port);
+			}
+			
 			//因为服务实现类继承了ServiceBase，而java不能多继承，所以必须调用UnicastRemoteObject.exportObject方法使对象成为合法的rmi对象
 			Remote remote=null;
 			try{
-				remote=UnicastRemoteObject.exportObject(servant,0);
+				remote=UnicastRemoteObject.exportObject(servant, port);
 			}catch(Exception ex){
 				log.log(ex.getMessage(),Logger.LEVEL_ERROR);
 			}
 		
-			initialNamingContext.rebind(config.getUuid(), remote==null?servant:remote);	
+			initialNamingContext.rebind(providerUrl+"/"+config.getUuid(), remote==null?servant:remote);	
 		} catch (Exception ex) {
 			log.log("failed to run rmi of service "+config.getName()+", the impl class is "+config.getClassName(),Logger.LEVEL_INFO);
 			log.log(ex,Logger.LEVEL_ERROR);
@@ -229,15 +243,17 @@ public class ServiceContainer implements Runnable{
 	 * @see java.lang.Runnable#run()
 	 */
 	public void run() {	
-		if(config.getRmi()!=null){
+		if(isLocalService && config.getRmi()!=null){
 			startRmi(true);
 		}
 
 		while(!this.shutdown){
-			try{
-				autoRenew();
-			}catch(Exception e){
-				log.log("failed to autoRenew of service "+config.getName()+", the impl class is "+config.getClassName(),Logger.LEVEL_FATAL);		
+			if(isLocalService) {
+				try{
+					autoRenew();
+				}catch(Exception e){
+					log.log("failed to autoRenew of service "+config.getName()+", the impl class is "+config.getClassName(),Logger.LEVEL_FATAL);		
+				}
 			}
 			
 			try{

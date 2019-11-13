@@ -390,6 +390,8 @@ public class RdbmsDao implements DAO {
 		StmtAndRs sr=null;
 		try {			
 			sr=findScale(sql,start,end);
+			if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+			
 			ResultSet rs = sr.resultSet();
 			List results=new ArrayList();
 			Field[] fields=cls.getDeclaredFields();
@@ -490,6 +492,8 @@ public class RdbmsDao implements DAO {
 			results=new ArrayList();
 			
 	        sr=findScale(sql, start, end);
+	        if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+	        
 	        ResultSet rs = sr.resultSet();
 	
 	        List cols=factory.getColumns(tableName);
@@ -580,6 +584,8 @@ public class RdbmsDao implements DAO {
 			results=new ArrayList();
 			
 	        sr=findScale(sql, start, end);
+	        if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+	        
 	        ResultSet rs=sr.resultSet();
 	
 			Field[] fields=cls.getDeclaredFields();
@@ -730,6 +736,8 @@ public class RdbmsDao implements DAO {
 			//得到与数据库表名对应的类名
 			//log.log("sql:"+sql,Logger.LEVEL_DEBUG);
 			sr=findScale(sql,start,end);
+	        if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+	        
 			ResultSet rs=sr.resultSet();
 			Class[] classes=new Class[tblNames.length];
 			for(int i=0;i<tblNames.length;i++){
@@ -888,6 +896,8 @@ public class RdbmsDao implements DAO {
 			//得到与数据库表名对应的类名
 			//log.log("sql:"+sql,Logger.LEVEL_DEBUG);
 			sr=find(sql,start,end);
+	        if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+	        
 			ResultSet rs=sr.resultSet();
 			
 			Class[] classes=CLSs;
@@ -2058,6 +2068,8 @@ public class RdbmsDao implements DAO {
 		try {
 			sql="select count(*) from ("+sql+") row_";
 			sr=find(sql);
+	        if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+	        
 			ResultSet rs=sr.resultSet();
 			int cnt=0;
 			while(rs.next()){
@@ -2098,7 +2110,10 @@ public class RdbmsDao implements DAO {
 				}
 			}
 			sr=find(sql);
+	        if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+	        
 			ResultSet rs=sr.resultSet();
+	        
 			int cnt=0;
 			while(rs.next()){
 				String cntString=rs.getString(1);
@@ -2156,6 +2171,8 @@ public class RdbmsDao implements DAO {
 			//System.out.println(sql);
 			
 			sr=find(sql);
+			if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+			
 			ResultSet rs=sr.resultSet();
 			int cnt=0;
 			while(rs.next()){
@@ -2185,6 +2202,8 @@ public class RdbmsDao implements DAO {
 				sql+=" where "+condition;	
 			}
 			sr=find(sql);
+			if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+			
 			ResultSet rs=sr.resultSet();
 			String ret="";
 			while(rs.next()){
@@ -2214,6 +2233,8 @@ public class RdbmsDao implements DAO {
 				sql+=" where "+condition;	
 			}
 			sr=find(sql);
+			if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+			
 			ResultSet rs=sr.resultSet();
 			String ret="";
 			while(rs.next()){
@@ -2247,6 +2268,8 @@ public class RdbmsDao implements DAO {
 				sql+=" where "+condition;			
 			}
 			sr=find(sql);
+			if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+			
 			ResultSet rs=sr.resultSet();
 			String ret="";
 			while(rs.next()){
@@ -2274,6 +2297,8 @@ public class RdbmsDao implements DAO {
 				sql+=" where "+condition;			
 			}
 			sr=find(sql);
+			if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+			
 			ResultSet rs=sr.resultSet();
 			String ret="";
 			while(rs.next()){
@@ -2308,6 +2333,8 @@ public class RdbmsDao implements DAO {
 				sql+=" where "+condition;		
 			}
 			sr=find(sql);
+			if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+			
 			ResultSet rs=sr.resultSet();
 			String ret="";
 			while(rs.next()){
@@ -2355,6 +2382,8 @@ public class RdbmsDao implements DAO {
 				sql+=" where "+condition;		
 			}
 			sr=find(sql);
+			if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
+			
 			ResultSet rs=sr.resultSet();
 			String[] ret=new String[colNames.length];
 			while(rs.next()){

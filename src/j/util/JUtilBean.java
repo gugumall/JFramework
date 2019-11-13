@@ -563,6 +563,16 @@ public class JUtilBean {
 	 * @return
 	 */
 	public static String bean2Json(Object bean){
+		return bean2Json(bean, true);
+	}
+	
+	/**
+	 * 
+	 * @param bean
+	 * @param encode
+	 * @return
+	 */
+	public static String bean2Json(Object bean, boolean encode){
 		if(bean==null) return "{}";
 		
 		StringBuffer jsonString=new StringBuffer();
@@ -576,8 +586,10 @@ public class JUtilBean {
 				Object o=JUtilBean.getPropertyValue(bean,name);
 				if(o==null){
 					jsonString.append("\""+name+"\":null,");
-				}else{
+				}else if(encode){
 					jsonString.append("\""+name+"\":\""+JUtilJSON.format(o.toString())+"\",");
+				}else {
+					jsonString.append("\""+name+"\":\""+o.toString()+"\",");
 				}
 			} catch (Exception e){
 				log.log(e, Logger.LEVEL_ERROR);
@@ -1063,7 +1075,7 @@ public class JUtilBean {
 	 */
 	public static Object copyObjectIgnoreNulls(Object from, Object to){
 		if (from == null || to == null){
-			return null;
+			return to;
 		}
 		try {
 			Class beanClass = from.getClass();
@@ -1095,7 +1107,7 @@ public class JUtilBean {
 	 */
 	public static Object copyObject(Object from, Object to){
 		if (from == null || to == null){
-			return null;
+			return to;
 		}
 		try {
 			Class beanClass = from.getClass();

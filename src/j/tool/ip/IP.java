@@ -152,7 +152,7 @@ public final class IP{
 
 		    return response;
 		}catch(Exception e){
-			log.log(e,Logger.LEVEL_ERROR);
+			//log.log(e,Logger.LEVEL_ERROR);
 		    return null;
 		}
 	}
@@ -178,7 +178,7 @@ public final class IP{
 
 		    return response;
 		}catch(Exception e){
-			log.log(e,Logger.LEVEL_ERROR);
+			//log.log(e,Logger.LEVEL_ERROR);
 		    return null;
 		}
 	}

@@ -1,7 +1,9 @@
 package j.service.router;
 
 import j.log.Logger;
+import j.util.JUtilMath;
 
+import java.rmi.Naming;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -91,18 +93,25 @@ public class RouterContainer implements Runnable {
 	 */
 	private void startRmi(){
 		try {
-			log.log("init rmi of service "+routerConfig.getName()+", the impl class is "+routerConfig.getClassName(),-1);
+			log.log("init rmi of service "+routerConfig.getName()+", the impl class is "+routerConfig.getClassName()+", provider url is "+routerConfig.getRmi().getConfig("java.naming.provider.url"),-1);
 
 			initialNamingContext = new InitialContext(routerConfig.getRmi().getConfig());
 			
 			Remote remote=null;
+			String providerUrl=routerConfig.getRmi().getConfig("java.naming.provider.url");
 			try{
-				remote=UnicastRemoteObject.exportObject(router);
+				int port=0;
+				if(providerUrl.indexOf(":")>0) {
+					String _port=providerUrl.substring(providerUrl.indexOf(":")+1);
+					if(JUtilMath.isInt(_port)) port=Integer.parseInt(_port);
+				}
+				
+				remote=UnicastRemoteObject.exportObject(router, port);
 			}catch(Exception ex){
 				log.log(ex,Logger.LEVEL_ERROR);
 			}
-			initialNamingContext.rebind(routerConfig.getUuid(),remote==null?router:remote);	
 			
+			initialNamingContext.rebind(providerUrl+"/"+routerConfig.getUuid(),remote==null?router:remote);				
 		} catch (Exception ex) {
 			log.log("failed to run rmi of service "+routerConfig.getName()+", the impl class is "+routerConfig.getClassName(),Logger.LEVEL_INFO);
 			log.log(ex,Logger.LEVEL_ERROR);

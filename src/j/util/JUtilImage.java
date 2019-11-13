@@ -1,8 +1,7 @@
 package j.util;
 
-import j.fs.JDFSFile;
-
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -37,6 +36,8 @@ import com.gif4j.GifDecoder;
 import com.gif4j.GifEncoder;
 import com.gif4j.GifImage;
 import com.gif4j.GifTransformer;
+
+import j.fs.JDFSFile;
 
 /**
  * 
@@ -146,6 +147,7 @@ public final class JUtilImage implements ImageObserver {
 		}
 		
 		Image src = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		src.flush();
 		src = new ImageIcon(src).getImage();
 		
 		BufferedImage tag = new BufferedImage(newWidth, newHeight,BufferedImage.TYPE_INT_RGB);
@@ -196,6 +198,7 @@ public final class JUtilImage implements ImageObserver {
 		
 		
 		Image src = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		src.flush();
 		src = new ImageIcon(src).getImage();
 
 		double oldWidth = (double) src.getWidth(this);
@@ -255,6 +258,7 @@ public final class JUtilImage implements ImageObserver {
 			throw new Exception("图片类型不合法");
 		}
 		Image src = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		src.flush();
 		src = new ImageIcon(src).getImage();
 		double oldWidth = (double) src.getWidth(this);
 		double oldHeight = (double) src.getHeight(this);
@@ -283,6 +287,7 @@ public final class JUtilImage implements ImageObserver {
 			throw new Exception("图片类型不合法");
 		}
 		Image src = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		src.flush();
 		src = new ImageIcon(src).getImage();
 		double oldWidth = (double) src.getWidth(this);
 		double oldHeight = (double) src.getHeight(this);
@@ -316,6 +321,7 @@ public final class JUtilImage implements ImageObserver {
 			throw new Exception("图片类型不合法");
 		}
 		Image src = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		src.flush();
 		src = new ImageIcon(src).getImage();
 		double oldWidth = (double) src.getWidth(this);
 		double oldHeight = (double) src.getHeight(this);
@@ -344,6 +350,7 @@ public final class JUtilImage implements ImageObserver {
 			throw new Exception("图片类型不合法");
 		}
 		Image src = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		src.flush();
 		src = new ImageIcon(src).getImage();
 		double oldWidth = (double) src.getWidth(this);
 		double oldHeight = (double) src.getHeight(this);
@@ -377,6 +384,7 @@ public final class JUtilImage implements ImageObserver {
 			throw new Exception("图片类型不合法");
 		}
 		Image src = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		src.flush();
 		src = new ImageIcon(src).getImage();
 		double oldHeight = (double) src.getHeight(this);
 		double scale = height / oldHeight;
@@ -398,6 +406,7 @@ public final class JUtilImage implements ImageObserver {
 			throw new Exception("图片类型不合法");
 		}
 		Image src = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		src.flush();
 		src = new ImageIcon(src).getImage();
 		double oldWidth = (double) src.getWidth(this);
 		double scale = width / oldWidth;
@@ -459,9 +468,11 @@ public final class JUtilImage implements ImageObserver {
 			throw new Exception("logo位置不合法");
 		}
 		Image srcImg = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		srcImg.flush();
 		srcImg = new ImageIcon(srcImg).getImage();
 		
 		Image logoImg = Toolkit.getDefaultToolkit().getImage(logo.getAbsolutePath());
+		logoImg.flush();
 		logoImg = new ImageIcon(logoImg).getImage();
 		
 		int srcWidth = srcImg.getWidth(this);
@@ -599,6 +610,7 @@ public final class JUtilImage implements ImageObserver {
 		}
 	
 		Image logoImg = Toolkit.getDefaultToolkit().getImage(logo.getAbsolutePath());
+		logoImg.flush();
 		logoImg = new ImageIcon(logoImg).getImage();
 		
 		int srcWidth = original.getWidth();
@@ -746,6 +758,7 @@ public final class JUtilImage implements ImageObserver {
 		}
 		
 		Image srcImg = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		srcImg.flush();
 		srcImg = new ImageIcon(srcImg).getImage();
 	
 		int srcWidth = srcImg.getWidth(this);
@@ -1093,29 +1106,29 @@ public final class JUtilImage implements ImageObserver {
 
 	public static void main(String[] args) throws Exception {	
 //		//webp2jpg();
-//		JUtilImage im = new JUtilImage();
-//		im.setQuality(1f);
-//		
-//		int index=86;
-//		
-//		File dir = new File("F:\\images\\时光(足迹) III\\temp");
-//		File[] fs=dir.listFiles();
-//		for(int i=0;i<fs.length;i++){
-//			if(fs[i].getName().toLowerCase().endsWith(".jpg")
-//					||fs[i].getName().toLowerCase().endsWith(".jpeg")){
-//				System.out.println(fs[i].getAbsolutePath());
-//				
-//				String newName=index+"";
-//				while(newName.length()<6) newName="0"+newName;
-//				try {
-//				im.zoomToSize(fs[i], new File("F:\\images\\时光(足迹) III\\"+newName+".jpg"), 1920, JUtilImage.FORMAT_JPEG);
-//				fs[i].delete();
-//				}catch(Exception e) {
-//					
-//				}
-//				index++;
-//			}
-//		}
+		JUtilImage im = new JUtilImage();
+		im.setQuality(1f);
+		
+		int index=54;
+		
+		File dir = new File("F:\\images\\时光(重庆) III\\temp");
+		File[] fs=dir.listFiles();
+		for(int i=0;i<fs.length;i++){
+			if(fs[i].getName().toLowerCase().endsWith(".jpg")
+					||fs[i].getName().toLowerCase().endsWith(".jpeg")){
+				System.out.println(fs[i].getAbsolutePath());
+				
+				String newName=index+"";
+				while(newName.length()<6) newName="0"+newName;
+				try {
+				im.zoomToSize(fs[i], new File("F:\\images\\时光(重庆) III\\"+newName+".jpg"), 1920, JUtilImage.FORMAT_JPEG);
+				fs[i].delete();
+				}catch(Exception e) {
+					
+				}
+				index++;
+			}
+		}
 		
 //		im.zoomToSize(new File("F:\\work\\商城\\衣服\\狼爪\\1388\\1388A.gif"), new File("F:\\work\\商城\\衣服\\狼爪\\1388\\temp.gif"), 300, "JPEG");
 
@@ -1136,14 +1149,27 @@ public final class JUtilImage implements ImageObserver {
 //				new File("F:\\work\\JShop_v2.0\\WebContent\\img\\QRCODE_BGx.png"),0,0,"png",JUtilImage.POS_CE,
 //				"ERGOWEAR BOXER 我是一个好人 我是一个好人我是一个好人",font,new Color(0,0,0),JUtilImage.POS_CT,0,100);
 		
-		File dir=new File("F:\\temp");
-		File[] files=dir.listFiles();
-		for(int i=0;i<files.length;i++) {
-			if(files[i].getName().endsWith("webp")) {
-				webp2jpg(files[i],new File(files[i].getAbsolutePath().replace(".webp", "jpg")));
-			}
-		}
+//		File dir=new File("F:\\temp");
+//		File[] files=dir.listFiles();
+//		for(int i=0;i<files.length;i++) {
+//			if(files[i].getName().endsWith("webp")) {
+//				webp2jpg(files[i],new File(files[i].getAbsolutePath().replace(".webp", "jpg")));
+//			}
+//		}
 		
+		System.out.println(111);
+		
+//		JUtilImage img=new JUtilImage();
+//		img.zoomToWidth(new File("f:/aa.jpg"), 
+//				new File("f:/aaabb.jpg"), 
+//				1000, 
+//				JUtilImage.FORMAT_JPEG);
+//		
+//
+//		img.zoomToWidth(new File("f:/aa.jpg"), 
+//				new File("f:/aaabbx.jpg"), 
+//				1000, 
+//				JUtilImage.FORMAT_JPEG);
 	    
 		System.exit(0);
 	}
@@ -1245,6 +1271,7 @@ public final class JUtilImage implements ImageObserver {
 		}
 		
 		Image src = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		src.flush();
 		src = new ImageIcon(src).getImage();
 		double oldWidth = (double) src.getWidth(this);
 		double oldHeight = (double) src.getHeight(this);
@@ -1277,4 +1304,100 @@ public final class JUtilImage implements ImageObserver {
 		fos.flush();
 		fos.close();	
 	}
+	
+	/**
+	 * 
+	 * @param srcFile
+	 * @param destFile
+	 * @param angel
+	 * @param imageFormat
+	 * @throws Exception
+	 */
+	public void rotate(File srcFile, File destFile, int angel, String imageFormat) throws Exception {
+		if (!chkImageFormat(imageFormat)) {
+			throw new Exception("图片类型不合法");
+		}
+		
+		Image src = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		src.flush();
+		src = new ImageIcon(src).getImage();
+		
+		BufferedImage rotated=Rotate(src, angel);
+		
+		// 如果父目录不存在，则创建目录
+		if (!destFile.getParentFile().exists()) {
+			destFile.getParentFile().mkdirs();
+		}
+		FileOutputStream os = new FileOutputStream(destFile); // 输出到文件流
+		ImageWriter writer = (ImageWriter) ImageIO.getImageWritersByFormatName(imageFormat).next();
+		ImageOutputStream ios = ImageIO.createImageOutputStream(os);
+		writer.setOutput(ios);
+		
+		ImageWriteParam param = new JPEGImageWriteParam(Locale.getDefault());
+		param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+		param.setCompressionQuality(quality);
+		
+		writer.write(null, new IIOImage(rotated, null, null), param);
+		writer.dispose();
+		ios.flush();
+		ios.close();
+		os.close();				
+	}
+	
+	
+	/**
+     * 对图片进行旋转
+     *
+     * @param src 被旋转图片
+     * @param angel 旋转角度
+     * @return 旋转后的图片
+     */
+    public static BufferedImage Rotate(Image src, int angel) {
+        int src_width = src.getWidth(null);
+        int src_height = src.getHeight(null);
+       
+        // 计算旋转后图片的尺寸
+        Rectangle rect_des = CalcRotatedSize(new Rectangle(new Dimension(src_width, src_height)), angel);
+        BufferedImage res = new BufferedImage(rect_des.width, rect_des.height,BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = res.createGraphics();
+      
+        // 进行转换
+        g2.translate((rect_des.width - src_width) / 2, (rect_des.height - src_height) / 2);
+        g2.rotate(Math.toRadians(angel), src_width / 2, src_height / 2);
+ 
+        g2.drawImage(src, null, null);
+        
+        return res;
+    }
+ 
+    /**
+     * 计算旋转后的图片
+     *
+     * @param src 被旋转的图片
+     * @param angel 旋转角度
+     * @return 旋转后的图片
+     */
+    public static Rectangle CalcRotatedSize(Rectangle src, int angel) {
+        // 如果旋转的角度大于90度做相应的转换
+        if (angel >= 90) {
+            if (angel / 90 % 2 == 1) {
+                int temp = src.height;
+                src.height = src.width;
+                src.width = temp;
+            }
+            angel = angel % 90;
+        }
+ 
+        double r = Math.sqrt(src.height * src.height + src.width * src.width) / 2;
+        double len = 2 * Math.sin(Math.toRadians(angel) / 2) * r;
+        double angel_alpha = (Math.PI - Math.toRadians(angel)) / 2;
+        double angel_dalta_width = Math.atan((double) src.height / src.width);
+        double angel_dalta_height = Math.atan((double) src.width / src.height);
+ 
+        int len_dalta_width = (int) (len * Math.cos(Math.PI - angel_alpha - angel_dalta_width));
+        int len_dalta_height = (int) (len * Math.cos(Math.PI - angel_alpha - angel_dalta_height));
+        int des_width = src.width + len_dalta_width * 2;
+        int des_height = src.height + len_dalta_height * 2;
+        return new Rectangle(new Dimension(des_width, des_height));
+    }
 }

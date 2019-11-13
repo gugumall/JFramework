@@ -569,11 +569,12 @@ public class JRouterImpl extends JRouterAbstract implements Runnable{
 					context=null;
 					//log.log(e,Logger.LEVEL_DEBUG);
 				}
+				String providerUrl=node.rmi;
 				
 				ServiceBase servant=(ServiceBase)servantsOfCluster.get(node.uuid);
 				if(serviceRmiAvailable){
 					try {
-						servant=(ServiceBase)context.lookup(node.uuid);					
+						servant=(ServiceBase)context.lookup(providerUrl+"/"+node.uuid);					
 						servantsOfCluster.put(node.uuid,servant);
 						
 						if(!Constants.STATUS_OK.equals(servant.heartbeat())){

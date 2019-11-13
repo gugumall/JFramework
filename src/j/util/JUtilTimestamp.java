@@ -23,6 +23,7 @@ public class JUtilTimestamp implements Runnable{
 	public static final long millisOfMinute=60000L;
 	public static final long millisOfHour=3600000L;
 	public static final long millisOfDay=86400000L;
+	public static final long millisOfWeek=86400000*7L;
 	
 	private static volatile long bjTime=0;//北京时间与本地时间只差
 	
@@ -78,6 +79,22 @@ public class JUtilTimestamp implements Runnable{
             return 6;
     	}
     }
+	
+	/**
+	 * 得到符合中国习惯的周一~周日的日期
+	 * @param time
+	 * @return
+	 */
+	public static String[] getDatesOfWeekCn(long time) {
+		Timestamp t=new Timestamp(time);
+		String[] dates=new String[7];
+		int weekDay=getWeekDayUsualOrderCn(time);
+		for(int i=1; i<=7; i++) {
+			Timestamp _time=JUtilTimestamp.addToTime(t, i-weekDay);
+			dates[i-1]=_time.toString().substring(0,10);
+		}
+		return dates;
+	}
 	
 	
 	/**
@@ -145,7 +162,7 @@ public class JUtilTimestamp implements Runnable{
      * @return
      */
     public static String getWeekDayEn(){
-        return getWeekDayCn(SysUtil.getNow());
+        return getWeekDayEn(SysUtil.getNow());
     }  
     
     /**
@@ -454,12 +471,6 @@ public class JUtilTimestamp implements Runnable{
      */
 	
 	public static void main(String[] args){
-		System.out.println(new Timestamp(1492394298492L));
-		System.out.println(isLeapYear(2004));
-		Timestamp now=Timestamp.valueOf("2016-02-29 01:01:01");
-		System.out.println(JUtilTimestamp.nextWeek(now));
-		System.out.println(JUtilTimestamp.nextMonth(now));
-		System.out.println(JUtilTimestamp.nextSeason(now));
-		System.out.println(JUtilTimestamp.nextYear(now));
+		System.out.println(JUtilTimestamp.getValue(System.currentTimeMillis(), Calendar.YEAR));
 	}
 }

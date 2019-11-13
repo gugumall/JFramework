@@ -145,8 +145,7 @@ public class JResponse{
 	
 	public static void main(String[] args){
 		String content=JDFSFile.read(new File("f:/temp/aaa.html"), "UTF-8");
-		List cells=new ArrayList();
-
+		
 		System.out.println(System.currentTimeMillis());
 		String[] contents=content.split("I\\{");
 		System.out.println(System.currentTimeMillis()+","+contents.length);

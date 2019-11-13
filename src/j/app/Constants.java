@@ -73,6 +73,11 @@ public class Constants {
 	public static final String J_PAGE_CONTENT="j_page_content";
 	public static final String J_ILLEGAL_VISITOR="j_illegal_visitor";
 	public static final String J_NO_ACTION="j_no_action";
+	public static final String J_ACTION_RESPONSER="j_responser";//改变当前
+	public static final String J_ACTION_RESPONSER_SET="j_responser_set";//指定响应节点
+	public static final String J_ACTION_RESPONSER_FROM="j_responser_from";//远程响应标志
+	public static final String J_ACTION_RESPONSER_SESSION_PREFIX="j_session_object_";//远程session参数名前缀
+	public static final String J_ACTION_RESPONSER_KEY="j_responser_key";//远程响应交互密钥
 	
 	public static final String RESPONSE_FILE_NOT_LOGIN="/WEB-INF/pages/helper/NOT_LOGIN.jsp";
 	public static final String RESPONSE_FILE_MAX_UPLOAD_SIZE="/WEB-INF/pages/helper/MAX_UPLOAD_SIZE.jsp";

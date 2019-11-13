@@ -38,6 +38,7 @@ public class Query {
 	int pn=0;
 	String sql;
 	String column;
+	String[] columns;
 	Object bean;
 	int tries=0;
 	Class _class;

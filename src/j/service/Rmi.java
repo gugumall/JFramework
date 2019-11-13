@@ -27,7 +27,7 @@ public class Rmi implements Serializable{
 	 */
 	public Rmi(Properties config) {
 		super();
-		this.config=config;
+		this.config=new Properties(config);
 	}
 
 	/**
@@ -36,7 +36,7 @@ public class Rmi implements Serializable{
 	 * @param value
 	 */
 	public void addConfig(String key,String value){
-		config.put(key,value);
+		config.setProperty(key,value);
 	}
 	
 	/**
@@ -54,5 +54,16 @@ public class Rmi implements Serializable{
 	 */
 	public Properties getConfig(){
 		return config;
+	}
+	
+	public static void main(String[] args) {
+		Properties p1=new Properties();
+		Properties p2=new Properties();
+		
+		p1.setProperty("111", "aaa");
+		p2.setProperty("111", "bbb");
+		
+		System.out.println(p1.getProperty("111"));
+		System.out.println(p2.getProperty("111"));
 	}
 }

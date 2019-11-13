@@ -425,9 +425,22 @@ public class QueryPool implements Runnable{
 	 * @param condition
 	 * @return
 	 */
-	public Double sum(String uuid,String table,String column,String condition){
+	public String sum(String uuid,String table,String column,String condition){
 		commands++;
 		return selectExecutor().sum(uuid!=null?uuid:JUtilUUID.genUUID(),table,column,condition,true);
+	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @param table
+	 * @param column
+	 * @param condition
+	 * @return
+	 */
+	public String[] sum(String uuid,String table,String[] columns,String condition){
+		commands++;
+		return selectExecutor().sum(uuid!=null?uuid:JUtilUUID.genUUID(),table,columns,condition,true);
 	}
 	
 	/**

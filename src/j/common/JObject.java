@@ -171,7 +171,9 @@ public class JObject implements Serializable{
 		}
 
 		if(!str.startsWith("jserializable:")){
-			str=JUtilZip.readGzipString(str,"ISO-8859-1");
+			try {
+				str=JUtilZip.readGzipString(str,"ISO-8859-1");
+			}catch(Exception e) {}
 		}
 		str=JObject.intSequence2String(str.substring(14));
 		

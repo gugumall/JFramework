@@ -11,6 +11,7 @@ import j.util.ConcurrentList;
 import j.util.ConcurrentMap;
 import j.util.JUtilString;
 
+import java.rmi.Naming;
 import java.rmi.RemoteException;
 
 import javax.naming.Context;
@@ -296,17 +297,21 @@ public class RouterAgent implements Runnable {
 		if(this.routerConfig.getRmi()!=null){//监测rmi接口状态
 			try {
 				synchronized(Constants.GLOBAL_LOCK){
+					//log.log("initialNamingContext "+this.routerConfig.getRmi().getConfig().size()+","+this.routerConfig.getRmi().getConfig().getProperty("java.naming.provider.url"), -1);
 					initialNamingContext = new InitialContext(this.routerConfig.getRmi().getConfig());
 				}
 			} catch (Exception e) {			
 				available=false;
 				initialNamingContext=null;
-				log.log(e,Logger.LEVEL_DEBUG_ADV);
+				log.log(e,Logger.LEVEL_DEBUG);
 			}
 			
 			if(available){		
 				try {
-					servant=(JRouter)initialNamingContext.lookup(this.routerConfig.getUuid());
+					String providerUrl=this.routerConfig.getRmi().getConfig().getProperty("java.naming.provider.url");
+			
+					//log.log("lookup Router servant "+this.routerConfig.getUuid(), -1);
+					servant=(JRouter)initialNamingContext.lookup(providerUrl+"/"+this.routerConfig.getUuid());
 					
 					String heartbeat=servant.heartbeat();
 					if(!heartbeat.startsWith(Constants.STATUS_OK)){
@@ -321,7 +326,7 @@ public class RouterAgent implements Runnable {
 				} catch (Exception e) {
 					available=false;
 					servant=null;
-					log.log(e,Logger.LEVEL_DEBUG_ADV);
+					log.log(e,Logger.LEVEL_DEBUG);
 				}
 			}
 		}else{
@@ -363,8 +368,8 @@ public class RouterAgent implements Runnable {
 		}
 		routerHttpAvailable=available;
 		
-		log.log("rmi of router "+routerConfig.getUuid()+","+routerConfig.getName()+" is "+(routerRmiAvailable?"available":"unavailable")+".",Logger.LEVEL_DEBUG);
-		log.log("http of router "+routerConfig.getUuid()+","+routerConfig.getName()+" is "+(routerHttpAvailable?"available":"unavailable")+".",Logger.LEVEL_DEBUG);
+		//log.log("rmi of router "+routerConfig.getUuid()+","+routerConfig.getName()+" is "+(routerRmiAvailable?"available":"unavailable")+".",Logger.LEVEL_ERROR);
+		//log.log("http of router "+routerConfig.getUuid()+","+routerConfig.getName()+" is "+(routerHttpAvailable?"available":"unavailable")+".",Logger.LEVEL_ERROR);
 
 		if(routerRmiAvailable){
 			RouterManager.setAvailableRmi(this.routerConfig.getUuid(),true);

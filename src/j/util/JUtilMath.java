@@ -2,7 +2,7 @@ package j.util;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -439,6 +439,32 @@ public class JUtilMath extends JUtilSorter {
 	}
 	
 	/**
+	 * 打印出所有排列：从先选择1个元素，再从生下元素中选择selected-1个元素......以此递归
+	 * @param objects 对象列表
+	 * @param selected 排列元素数
+	 * @param assembled 已经选出的排列
+	 * @param assembling 正在组装的排列
+	 * @return
+	 */
+	public static void pPrint(List objects, int selected, List<List> assembled, List assembling){
+		for(int j=0; j<objects.size(); j++) {
+			List assemblingCopy=new ArrayList();
+			assemblingCopy.addAll(assembling);
+			assemblingCopy.add(objects.get(j));
+			
+			if(assemblingCopy.size()==selected) {
+				assembled.add(assemblingCopy);
+			}else {
+				List objectsCopy=new ArrayList();
+				objectsCopy.addAll(objects);
+				objectsCopy.remove(objects.get(j));
+				
+				pPrint(objectsCopy, selected, assembled, assemblingCopy);
+			}
+		}
+	}
+	
+	/**
 	 * 
 	 * @param scope
 	 * @param selected
@@ -449,6 +475,59 @@ public class JUtilMath extends JUtilSorter {
 		long p=1;
 		for(int i=1;i<=selected;i++) p*=i;
 		return p(scope,selected)/p;
+	}
+	
+	/**
+	 * 打印出所有组合：从先选择1个元素，再从生下元素中选择selected-1个元素......以此递归，并去掉重复组合
+	 * @param objects 对象列表
+	 * @param selected 组合元素数
+	 * @param assembled 已经选出的组合
+	 * @param assembling 正在组装的组合
+	 * @return
+	 */
+	public static void cPrint(List objects, int selected, List<List> assembled, List assembling){
+		for(int j=0; j<objects.size(); j++) {
+			List assemblingCopy=new ArrayList();
+			assemblingCopy.addAll(assembling);
+			assemblingCopy.add(objects.get(j));
+			
+			if(assemblingCopy.size()==selected) {
+				if(!cPermutationExists(assembled, assemblingCopy)) assembled.add(assemblingCopy);
+			}else {
+				List objectsCopy=new ArrayList();
+				objectsCopy.addAll(objects);
+				objectsCopy.remove(objects.get(j));
+				
+				cPrint(objectsCopy, selected, assembled, assemblingCopy);
+			}
+		}
+	}
+	
+	/**
+	 * 对组合内元素进行排序，然后拼串（为去掉重复组合）
+	 * @param array
+	 * @return
+	 */
+	private static String cPermutationFeature(List array) {
+		array=JUtilString.getInstance().bubble(array, JUtilSorter.ASC);
+		StringBuffer s=new StringBuffer();
+		for(int i=0; i<array.size(); i++) s.append(array.get(i).toString());
+		return s.toString();
+	}
+	
+	/**
+	 * 组合（assembling）是否已经存在列表中（assembled）
+	 * @param assembled
+	 * @param assembling
+	 * @return
+	 */
+	private static boolean cPermutationExists(List assembled, List assembling) {
+		String assemblingFeature=cPermutationFeature(assembling);
+		for(int i=0; i<assembled.size(); i++) {
+			List array=(List)assembled.get(i);
+			if(assemblingFeature.equals(cPermutationFeature(array))) return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -761,6 +840,26 @@ public class JUtilMath extends JUtilSorter {
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
-		System.out.println(JUtilMath.formatPrintWithoutZero(-0.014, 2));
+		System.out.println("start");
+		
+		List objects=new ArrayList();
+		objects.add("a");
+		objects.add("b");
+		objects.add("c");
+		objects.add("d");
+		
+		List assembled=new ArrayList();
+		
+		cPrint(objects, 3, assembled, new ArrayList());
+		
+		for(int i=0;i<assembled.size();i++) {
+			List x=(List)assembled.get(i);
+			for(int j=0; j<x.size();j++) {
+				System.out.print(x.get(j)+",");
+			}
+			System.out.println("");
+		}
+		
+		System.out.println(assembled.size());
 	}
 }

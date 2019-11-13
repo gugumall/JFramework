@@ -1,15 +1,11 @@
 
 package j.util;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.json.JSONObject;
-
-import j.common.JArray;
-import j.common.JObject;
 
 
 /**
@@ -222,8 +218,9 @@ public final class JUtilUUID {
 	}
 	
 	public static void main(String[] args) throws Exception{
+		String s="aaa";
 	
-		System.out.println("1a1a".matches("^[a-z]{1,}[a-z0-9]{2,}$"));
+		System.out.println(genUUID());
 
 		System.exit(0);
 	}

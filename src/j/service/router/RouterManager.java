@@ -1,6 +1,16 @@
 package j.service.router;
 
+import java.io.File;
+import java.rmi.RemoteException;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.http.client.HttpClient;
+import org.dom4j.Document;
+import org.dom4j.Element;
+
 import j.Properties;
+import j.common.JProperties;
 import j.http.JHttp;
 import j.log.Logger;
 import j.nvwa.Nvwa;
@@ -16,15 +26,6 @@ import j.util.ConcurrentMap;
 import j.util.JUtilDom4j;
 import j.util.JUtilList;
 import j.util.JUtilRandom;
-
-import java.io.File;
-import java.rmi.RemoteException;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.http.client.HttpClient;
-import org.dom4j.Document;
-import org.dom4j.Element;
 
 /**
  * 加载路由信息并启动路由器（只在server.xml中标记为is-router才会启动）与路由代理
@@ -96,7 +97,7 @@ public class RouterManager implements Runnable {
 				
 				Element rmiEle=routerEle.element("rmi");
 				if(rmiEle!=null&&"true".equalsIgnoreCase(rmiEle.attributeValue("available"))){
-					Rmi rmi=new Rmi(Properties.getProperties("rmi"));
+					Rmi rmi=new Rmi(JProperties.getProperties("rmi"));
 					
 					List props=rmiEle.elements("property");
 					for(int j=0;j<props.size();j++){
@@ -168,13 +169,14 @@ public class RouterManager implements Runnable {
 				routerConfigs.put(routerConfig.getUuid(),routerConfig);
 				uuidOfRouters.add(routerConfig.getUuid());
 				
-				if(routerConfig.getServerUuid().equals(Manager.getRouterNodeUuid())){//如果是路由节点，启动路由服务						
+				if(routerConfig.getServerUuid().equals(Manager.getRouterNodeUuid())){//如果是路由节点，启动路由服务	
 					NvwaObject nvwaObject=Nvwa.entrust(routerConfig.getRelatedHttpHandlerPath(),routerConfig.getClassName(),true);//托管至nvwa
 					nvwaObject.setFiled("routerConfig","ref",true);
 					
 					JRouter router=(JRouter)Nvwa.entrustCreate(routerConfig.getRelatedHttpHandlerPath(),routerConfig.getClassName(),true);	
 					router.setRouterConfig(routerConfig);
 
+					log.log(routerConfig.getName()+" start router container, the provider url is "+routerConfig.getRmi().getConfig("java.naming.provider.url"), -1);
 					RouterContainer container=new RouterContainer(routerConfig,router);
 					routerContainers.put(routerConfig.getUuid(),container);
 					container.startup();
@@ -296,6 +298,7 @@ public class RouterManager implements Runnable {
 	 */
 	public static String register(String clientUuid,String code, String uuid, String rmi, String http,String interfaceClassName,String md5){
 		waitWhileLoading();
+		//log.log("uuidOfRouters:"+uuidOfRouters.size(), -1);
 		for(int i=0;i<uuidOfRouters.size();i++){
 			getAgent((String)uuidOfRouters.get(i)).register(clientUuid,code,uuid,rmi,http,interfaceClassName,md5);
 		}

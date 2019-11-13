@@ -1,6 +1,12 @@
 package j.app.webserver;
 
 
+import java.io.File;
+import java.util.List;
+
+import org.dom4j.Document;
+import org.dom4j.Element;
+
 import j.common.JProperties;
 import j.log.Logger;
 import j.nvwa.Nvwa;
@@ -8,12 +14,7 @@ import j.util.ConcurrentList;
 import j.util.ConcurrentMap;
 import j.util.JUtilDom4j;
 import j.util.JUtilMath;
-
-import java.io.File;
-import java.util.List;
-
-import org.dom4j.Document;
-import org.dom4j.Element;
+import j.util.JUtilString;
 
 /**
  * 配置信息
@@ -26,6 +27,10 @@ public class Handlers implements Runnable{
 	
 	private static ConcurrentMap<String,Handler> handlersByPath=new ConcurrentMap();//动作列表	
 	private static ConcurrentMap<String,Handler> handlersByRESTPath=new ConcurrentMap();//动作列表	
+	private static ConcurrentMap<String,JResponser> responsers=new ConcurrentMap();//响应节点	
+	private static String responserId=null;//本地作为响应节点的id
+	private static String responserKey=null;//本地作为响应节点的key
+	private static ConcurrentList<String> responsersClusterActions=new ConcurrentList();//需要同步的响应节点的请求地址
 	
 	private static ConcurrentMap globalNavigates=new ConcurrentMap();//全局导航配置（global-navigate）
 	
@@ -157,6 +162,50 @@ public class Handlers implements Runnable{
 		return handlersByPath.listValues();
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	public static List<JResponser> getResponsers(){
+		return responsers.listValues();
+	}
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public static JResponser getResponser(String id) {
+		return responsers.get(id);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static String getResponserId() {
+		return responserId;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static String getResponserKey() {
+		return responserKey;
+	}
+	
+	/**
+	 * 
+	 * @param url
+	 * @return
+	 */
+	public static boolean isResponserClusterAction(String url) {
+		for(int i=0; i<responsersClusterActions.size(); i++) {
+			if(JUtilString.match(url, responsersClusterActions.get(i), "*")>-1) return true;
+		}
+		return false;
+	}
 
 	/**
 	 * 
@@ -234,12 +283,59 @@ public class Handlers implements Runnable{
 				actionPathPatterns[i]=e.getTextTrim();
 			}
 	     
+			//配置文件列表
 	      	Element actionsEle=root.element("actions");
-	      	List modules=actionsEle.elements("module");//配置文件列表
+	      	List modules=actionsEle.elements("module");
 	      	for(int i=0;i<modules.size();i++){
 	      		Element module=(Element)modules.get(i);
 	      		actionDefinitionFileNames.add(module.getText());
 	          	log.log("Actions Definition File:"+module.getText(),-1);
+	      	}
+	      	
+	      	//响应节点
+	      	responsers.clear();
+	      	responserId=null;
+	      	responserKey=null;
+	      	responsersClusterActions.clear();
+	      	
+	      	Element responsersEle=root.element("responsers");
+	      	if(responsersEle!=null) {
+	      		responserId=responsersEle.attributeValue("id");
+		      	responserKey=responsersEle.attributeValue("key");
+		      	
+		      	Element responsersClusterEle=responsersEle.element("cluster");
+		      	if(responsersClusterEle!=null) {
+			      	List urls=responsersClusterEle.elements("url");
+		      		if(urls!=null&&urls.size()>0) {
+		      			for(int j=0; j<urls.size(); j++) {
+		    	      		Element urlEle=(Element)urls.get(j);
+		    	      		responsersClusterActions.add(urlEle.getTextTrim());
+		      			}
+		      		}
+		      	}
+		      	
+		      	List responserEles=responsersEle.elements("responser");
+		      	for(int i=0;i<responserEles.size();i++){
+		      		Element responserEle=(Element)responserEles.get(i);
+		      		List urls=responserEle.elements("url");
+		      		String[] urlPatterns=null;
+		      		if(urls!=null&&urls.size()>0) {
+		      			urlPatterns=new String[urls.size()];
+		      			for(int j=0; j<urls.size(); j++) {
+		    	      		Element urlEle=(Element)urls.get(j);
+		    	      		urlPatterns[j]=urlEle.getTextTrim();
+		      			}
+		      		}
+		      		
+		      		JResponser responser=new JResponser(responserEle.elementText("id"),
+		      				responserEle.elementText("name"),
+		      				responserEle.elementText("urlBase"),
+		      				responserEle.elementText("key"),
+		      				urlPatterns);
+		      		responsers.put(responser.getId(), responser);
+		      		
+		          	log.log("JResponser:"+responser,-1);
+		      	}
 	      	}
 			
 			for(int x=0;x<actionDefinitionFileNames.size();x++){

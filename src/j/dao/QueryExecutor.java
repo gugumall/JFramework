@@ -539,7 +539,7 @@ public class QueryExecutor implements Runnable{
 	 * @param syn
 	 * @return
 	 */
-	protected Double sum(String uuid,String table,String column,String condition,boolean syn){
+	protected String sum(String uuid,String table,String column,String condition,boolean syn){
 		if(tasks.containsKey(uuid)) return null;
 		
 		Query query=new Query(uuid,Query.TYPE_SUM);
@@ -555,7 +555,35 @@ public class QueryExecutor implements Runnable{
 			//	Thread.sleep(100);
 			//}catch(Exception e){}
 		}
-		return (Double)results.remove(uuid);
+		return (String)results.remove(uuid);
+	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @param table
+	 * @param columns
+	 * @param condition
+	 * @param syn
+	 * @return
+	 */
+	protected String[] sum(String uuid,String table,String[] columns,String condition,boolean syn){
+		if(tasks.containsKey(uuid)) return null;
+		
+		Query query=new Query(uuid,Query.TYPE_SUM);
+		query.tableNames=new String[]{table};
+		query.condition=condition;
+		query.columns=columns;
+		tasks.put(uuid,query);
+		
+		if(!syn) return null;
+		
+		while(tasks.containsKey(uuid)){
+			//try{
+			//	Thread.sleep(100);
+			//}catch(Exception e){}
+		}
+		return (String[])results.remove(uuid);
 	}
 	
 	/**
@@ -682,12 +710,13 @@ public class QueryExecutor implements Runnable{
 						}
 						results.put(query.uuid, new Integer(count));
 					}else if(query.type==Query.TYPE_SUM){
-						double count=0;
-						String sum=dao.getSum(query.tableNames[0],query.column,query.condition);
-						if(JUtilMath.isNumber(sum)){
-							count=Double.parseDouble(sum);
+						if(query.columns!=null) {
+							String[] sum=dao.getSum(query.tableNames[0],query.columns,query.condition);
+							results.put(query.uuid, sum);
+						}else {
+							String sum=dao.getSum(query.tableNames[0],query.column,query.condition);
+							results.put(query.uuid, sum);
 						}
-						results.put(query.uuid, new Double(count));
 					}else if(query.type==Query.TYPE_INSERT){
 						dao.insert(query.bean);
 						//results.put(query.uuid, "");

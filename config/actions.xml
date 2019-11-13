@@ -20,4 +20,23 @@
 		<module desc="">actions.JFS.xml</module>
 		<module desc="">actions.VerifyCode.xml</module>
 	</actions>
+	
+	<!--响应节点-->
+	<responsers id="111" key="111">
+		<cluster>
+			<url>/AdminNotification.handler*request=addCatalog</url>
+			<url>/AdminNotification.handler*request=updCatalog</url>
+			<url>/AdminNotification.handler*request=delCatalog</url>
+			<url>/AdminNotification.handler*request=add</url>
+			<url>/AdminNotification.handler*request=upd</url>
+			<url>/AdminNotification.handler*request=del</url>
+		</cluster>
+		<responser>
+			<id>isomorphism</id>
+			<name>同构系统</name>
+			<urlBase>http://www.xxx.com</urlBase>
+			<key>110</key>
+			<url>*</<url>
+		</responser>
+	</responsers>
 </sys-config>
