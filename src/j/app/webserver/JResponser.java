@@ -92,10 +92,11 @@ public class JResponser extends JObject{
 	 * @param session
 	 * @param request
 	 * @param requestURI
+	 * @param ignoreParameters
 	 * @return
 	 * @throws Exception
 	 */
-	public JHttpContext call(HttpSession session, HttpServletRequest request, String requestURI) throws Exception{
+	public JHttpContext call(HttpSession session, HttpServletRequest request, String requestURI, String[] ignoreParameters) throws Exception{
 		Map map=new LinkedHashMap();//需要传递到远程节点的参数
 		//log.log("call responser["+this+"]:"+this.getUrlBase()+requestURI, -1);
         
@@ -104,7 +105,8 @@ public class JResponser extends JObject{
     	try{
     		while(parameters.hasMoreElements()){
 	        	String parameter=(String)parameters.nextElement();
-	        	if(parameter.equals(Constants.J_ACTION_RESPONSER_SET)) continue;
+	        	if(parameter.equals(Constants.J_ACTION_RESPONSER_SET)
+	        			||(ignoreParameters!=null && JUtilString.contain(ignoreParameters, parameter))) continue;
         		String value=SysUtil.getHttpParameter(request, parameter);
         		map.put(parameter,value);
 				//log.log("call this parameter "+parameter+"="+value, -1);

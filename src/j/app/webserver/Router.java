@@ -70,7 +70,7 @@ public class Router implements Filter{
 			List<JResponser> responsers=Handlers.getResponsers();
 			for(int i=0; i<responsers.size(); i++) {
 				try {
-					JHttpContext httpContext=responsers.get(i).call(session, httpRequest, requestURI);
+					JHttpContext httpContext=responsers.get(i).call(session, httpRequest, requestURI, null);
 					if(httpContext==null || httpContext.getStatus()!=200) {
 						try {
 							SysUtil.outHttpResponse(httpResponse, new JResponse(false, "invalid_http_response_state", "I{同步调用远程站点失败}", session).toString());
@@ -91,7 +91,7 @@ public class Router implements Filter{
 			//指定了当前操作的远程节点，且当前uri需要调用远程节点
 			if(responser!=null && responser.matches(requestURI)) {
 				try {
-					JHttpContext httpContext=responser.call(session, httpRequest, requestURI);
+					JHttpContext httpContext=responser.call(session, httpRequest, requestURI, null);
 					String resp=httpContext.getResponseText();
 					httpContext.finalize();
 					httpContext=null;

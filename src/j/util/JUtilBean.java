@@ -1056,8 +1056,7 @@ public class JUtilBean {
 				beans.add(bean);
 			}
 		}catch (Exception e){
-			log.log(e, Logger.LEVEL_ERROR);
-			return null;
+			//log.log(e, Logger.LEVEL_ERROR);
 		}
 		
 		if(cache!=null) {
