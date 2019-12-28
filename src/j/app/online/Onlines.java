@@ -740,6 +740,13 @@ public class Onlines implements Filter,Runnable{
 				return;
 			}
 			
+			//是否允许通过
+			if(handler!=null&&!handler.canPass(session,request)){
+				log.log("被业务规则禁止访问："+handler.getClass().getCanonicalName(),Logger.LEVEL_ERROR);
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				return;
+			}
+			
 			boolean credible=credible(request);
 			if(!credible){
 				//被禁止的搜索引擎
@@ -768,13 +775,6 @@ public class Onlines implements Filter,Runnable{
 						handler.onManySessionsOnIp(ip);
 					}
 					log.log("ip "+ip+" 上共有  "+sessionsOfIp+" 个会话，超出限制 "+maxSessionsPerIp,Logger.LEVEL_ERROR);
-					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-					return;
-				}
-				
-				//是否允许通过
-				if(handler!=null&&!handler.canPass(session,request)){
-					log.log("被业务规则禁止访问："+handler.getClass().getCanonicalName(),Logger.LEVEL_ERROR);
 					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 					return;
 				}

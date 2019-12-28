@@ -155,8 +155,12 @@ public class SSOConfig implements Runnable{
 	public static String getAbsoluteUrl(Client client,String clientUrlPrefix,String url){
 		waitWhileLoading();
 		if(url.startsWith("http")) return url;
-		else if(url.startsWith("/")) return client.getUrlPrefix(clientUrlPrefix)+url.substring(1);
-		else return client.getUrlPrefix(clientUrlPrefix)+url; 
+		
+		String urlPrefix=client.getUrlPrefix(clientUrlPrefix);
+		if(urlPrefix==null) return url;
+		
+		if(url.startsWith("/")) return urlPrefix+url.substring(1);
+		else return urlPrefix+url; 
 	}
 	
 	public static String getAbsoluteUrlSameDomainOfFromUrl(String fromUrl,String url){

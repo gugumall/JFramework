@@ -22,6 +22,12 @@
 
 <property name="auId" type="java.lang.String" column="A_U_ID" not-null="false" gzip="false" length="128"/>
 
+<property name="staffId" type="java.lang.String" column="STAFF_ID" not-null="false" gzip="false" length="128"/>
+
+<property name="sellerId" type="java.lang.String" column="SELLER_ID" not-null="false" gzip="false" length="128"/>
+
+<property name="staffIdOfShop" type="java.lang.String" column="STAFF_ID_OF_SHOP" not-null="false" gzip="false" length="128"/>
+
 <property name="bizCode" type="java.lang.String" column="BIZ_CODE" not-null="false" gzip="false" length="32"/>
 
 <property name="bizId" type="java.lang.String" column="BIZ_ID" not-null="false" gzip="false" length="64"/>
@@ -32,17 +38,41 @@
 
 <property name="bizIcon" type="java.lang.String" column="BIZ_ICON" not-null="false" gzip="false" length="128"/>
 
-<property name="bizData" type="java.lang.String" column="BIZ_DATA" not-null="false" gzip="false" length="21845"/>
+<property name="bizData" type="java.lang.String" column="BIZ_DATA" not-null="false" gzip="false" length="16383"/>
 
 <property name="eventTime" type="java.sql.Timestamp" column="EVENT_TIME" not-null="false" gzip="false" length="19"/>
 
 <property name="eventCode" type="java.lang.String" column="EVENT_CODE" not-null="false" gzip="false" length="32"/>
 
-<property name="eventData" type="java.lang.String" column="EVENT_DATA" not-null="false" gzip="false" length="21845"/>
+<property name="eventData" type="java.lang.String" column="EVENT_DATA" not-null="false" gzip="false" length="16383"/>
+
+<property name="eventInfluence" type="java.lang.String" column="EVENT_INFLUENCE" not-null="false" gzip="false" length="16383"/>
 
 <property name="eventStat" type="java.lang.String" column="EVENT_STAT" not-null="false" gzip="false" length="8"/>
 
 <property name="delBySys" type="java.lang.String" column="DEL_BY_SYS" not-null="false" gzip="false" length="1"/>
+
+<property name="eXTRA0" type="java.lang.String" column="EXTRA0" not-null="false" gzip="false" length="128"/>
+
+<property name="eXTRA1" type="java.lang.String" column="EXTRA1" not-null="false" gzip="false" length="128"/>
+
+<property name="eXTRA2" type="java.lang.String" column="EXTRA2" not-null="false" gzip="false" length="128"/>
+
+<property name="eXTRA3" type="java.lang.String" column="EXTRA3" not-null="false" gzip="false" length="128"/>
+
+<property name="eXTRA4" type="java.lang.String" column="EXTRA4" not-null="false" gzip="false" length="128"/>
+
+<property name="eXTRA5" type="java.lang.String" column="EXTRA5" not-null="false" gzip="false" length="128"/>
+
+<property name="eXTRA6" type="java.lang.String" column="EXTRA6" not-null="false" gzip="false" length="128"/>
+
+<property name="eXTRA7" type="java.lang.String" column="EXTRA7" not-null="false" gzip="false" length="128"/>
+
+<property name="eXTRA8" type="java.lang.String" column="EXTRA8" not-null="false" gzip="false" length="128"/>
+
+<property name="eXTRA9" type="java.lang.String" column="EXTRA9" not-null="false" gzip="false" length="128"/>
+
+<property name="eXTRA10" type="java.lang.String" column="EXTRA10" not-null="false" gzip="false" length="128"/>
 
 </class>
 </hibernate-mapping>

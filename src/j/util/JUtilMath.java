@@ -133,6 +133,19 @@ public class JUtilMath extends JUtilSorter {
 	 * @param v2
 	 * @return
 	 */
+	public static boolean equals(Short v1,Short v2){
+		if(v1==null&&v2!=null) return false;
+		if(v1!=null&&v2==null) return false;
+		if(v1==null&&v2==null) return true;
+		return v1.equals(v2);
+	}
+	
+	/**
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
 	public static boolean equals(Long v1,Long v2){
 		if(v1==null&&v2!=null) return false;
 		if(v1!=null&&v2==null) return false;

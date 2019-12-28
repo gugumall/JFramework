@@ -38,6 +38,7 @@ import com.gif4j.GifImage;
 import com.gif4j.GifTransformer;
 
 import j.fs.JDFSFile;
+import j.image.PaintItem;
 
 /**
  * 
@@ -241,6 +242,36 @@ public final class JUtilImage implements ImageObserver {
 		ios.flush();
 		ios.close();
 		os.close();
+	}
+	
+	/**
+	 * 
+	 * @param original
+	 * @param newWidth
+	 * @param newHeight
+	 * @param imageFormat
+	 * @return
+	 * @throws Exception
+	 */
+	public BufferedImage zoom(Image original, int newWidth, int newHeight, String imageFormat) throws Exception {
+		if (!chkImageFormat(imageFormat)) {
+			throw new Exception("图片类型不合法");
+		}
+
+		BufferedImage resizedImage=new BufferedImage(newWidth, newHeight,BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2d = resizedImage.createGraphics(); 
+		
+		//设置透明
+		if(imageFormat.equals(JUtilImage.FORMAT_PNG)){
+			resizedImage = g2d.getDeviceConfiguration().createCompatibleImage(newWidth, newHeight, Transparency.TRANSLUCENT); 
+		}
+		g2d.dispose(); 
+		g2d = resizedImage.createGraphics(); 
+		//设置透明 end
+		
+		g2d.drawImage(original, 0, 0, newWidth, newHeight, this);// 绘制缩小后的图
+
+		return resizedImage;
 	}
 
 	/**
@@ -529,7 +560,7 @@ public final class JUtilImage implements ImageObserver {
 					}
 				}
 			}
-			printTitleLines.add(title);
+			if(title.length()>0) printTitleLines.add(title);
 			//换行 end
 			
 			if(titlePos.equals(JUtilImage.POS_CE)){
@@ -665,7 +696,7 @@ public final class JUtilImage implements ImageObserver {
 					}
 				}
 			}
-			printTitleLines.add(title);
+			if(title.length()>0) printTitleLines.add(title);
 			//换行 end
 			
 			if(titlePos.equals(JUtilImage.POS_CE)){
@@ -815,7 +846,7 @@ public final class JUtilImage implements ImageObserver {
 					}
 				}
 			}
-			printTitleLines.add(title);
+			if(title.length()>0) printTitleLines.add(title);
 			//换行 end
 			
 			if(titlePos.equals(JUtilImage.POS_CE)){
@@ -930,7 +961,7 @@ public final class JUtilImage implements ImageObserver {
 					}
 				}
 			}
-			printTitleLines.add(title);
+			if(title.length()>0) printTitleLines.add(title);
 			//换行 end
 			
 			if(titlePos.equals(JUtilImage.POS_CE)){
@@ -1109,9 +1140,9 @@ public final class JUtilImage implements ImageObserver {
 		JUtilImage im = new JUtilImage();
 		im.setQuality(1f);
 		
-		int index=54;
+		int index=1;
 		
-		File dir = new File("F:\\images\\时光(重庆) III\\temp");
+		File dir = new File("F:\\images\\时光(足迹) IV\\temp");
 		File[] fs=dir.listFiles();
 		for(int i=0;i<fs.length;i++){
 			if(fs[i].getName().toLowerCase().endsWith(".jpg")
@@ -1121,7 +1152,7 @@ public final class JUtilImage implements ImageObserver {
 				String newName=index+"";
 				while(newName.length()<6) newName="0"+newName;
 				try {
-				im.zoomToSize(fs[i], new File("F:\\images\\时光(重庆) III\\"+newName+".jpg"), 1920, JUtilImage.FORMAT_JPEG);
+				im.zoomToSize(fs[i], new File("F:\\images\\时光(足迹) IV\\"+newName+".jpg"), 1920, JUtilImage.FORMAT_JPEG);
 				fs[i].delete();
 				}catch(Exception e) {
 					
@@ -1400,4 +1431,93 @@ public final class JUtilImage implements ImageObserver {
         int des_height = src.height + len_dalta_height * 2;
         return new Rectangle(new Dimension(des_width, des_height));
     }
+    
+    /**
+     * 
+     * @param width
+     * @param height
+     * @param items
+     * @param output
+     * @return
+     * @throws Exception
+     */
+    public BufferedImage paint(int width, int height, List<PaintItem> items, OutputStream output) throws Exception {
+		BufferedImage img=paint(width, height, items);
+		
+		ImageIO.write(img, FORMAT_JPEG, output);
+		
+		output.flush();
+		output.close();	
+		
+		return img;
+	}
+    
+    /**
+     * 
+     * @param width
+     * @param height
+     * @param items
+     * @return
+     * @throws Exception
+     */
+    public BufferedImage paint(int width, int height, List<PaintItem> items) throws Exception {
+		BufferedImage original = new BufferedImage(width, height,BufferedImage.TYPE_INT_RGB);
+		Graphics graphics=original.getGraphics();
+		
+		for(int it=0; items!=null && it<items.size(); it++) {
+			PaintItem item=items.get(it);
+			
+			if(item.object instanceof File) {
+				File file=(File)item.object;
+				if(!file.exists()) continue;
+				
+				Image img = Toolkit.getDefaultToolkit().getImage(file.getAbsolutePath());
+				img.flush();
+				img = new ImageIcon(img).getImage();
+				
+				item.object=img;
+			}
+			
+			if(item.object instanceof Image) {
+				Image img=(Image)item.object;
+				graphics.drawImage(img, item.x, item.y, item.width, item.height, this);//绘制图片
+			}else if(item.object instanceof String) {
+				String txt=(String)item.object;
+				
+				FontMetrics metrics = graphics.getFontMetrics(item.font);
+				int charHeight = metrics.getHeight();
+				int txtWidth=metrics.charsWidth(txt.toCharArray(),0,txt.length());
+				
+				//换行
+				int maxTxtWidth=item.width;
+				List txtLines=new ArrayList();
+				if(txtWidth>maxTxtWidth){
+					for(int j=1;j<=txt.length();j++){
+						int temp=metrics.charsWidth(txt.toCharArray(),0,j);
+						if(temp>maxTxtWidth){
+							txtLines.add(txt.substring(0,j));
+							txt=txt.substring(j);
+							j=1;
+							
+							if(charHeight*txtLines.size()>=item.height) {
+								break;
+							}
+						}
+					}
+				}
+				if(charHeight*txtLines.size()<item.height) {
+					if(txt.length()>0) txtLines.add(txt);
+				}
+				//换行 end
+				
+				graphics.setFont(item.font);
+				graphics.setColor(item.color);
+				for(int j=0;j<txtLines.size();j++){
+					graphics.drawString((String)txtLines.get(j),item.x,item.y+(j*charHeight));
+				}
+			}
+		}
+		
+		return original;
+	}
 }

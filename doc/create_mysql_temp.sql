@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2019-03-14 17:05:56                          */
+/* Created on:     2019-12-09 10:26:32                          */
 /*==============================================================*/
 
 
@@ -82,12 +82,12 @@ create table j_action_log
             WARNING
             ERROR
             FATAL',
-   EVENT_TIME           datetime null,
+   EVENT_TIME           datetime,
    DEL_BY_SYS           char(1) comment 'N  正常/未删除
             R 回收站
             D 彻底删除',
    primary key (EVENT_ID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_app                                                 */
@@ -98,7 +98,7 @@ create table j_app
    APP_NAME             varchar(90),
    REMARKS              text,
    primary key (APP_CODE)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_app_mirror                                          */
@@ -118,7 +118,7 @@ create table j_app_mirror
             200 维护',
    REMARKS              text,
    primary key (APP_MIRROR_CODE)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_appserver                                           */
@@ -135,7 +135,7 @@ create table j_appserver
             200 维护',
    REMARKS              text,
    primary key (APPSERVER_CODE)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_blacklist                                           */
@@ -147,11 +147,11 @@ create table j_blacklist
    U_ADDR               varchar(300),
    BLACK_TYPE           char(2) comment '11，禁止使用（跳转到诸如 noservice.html）
             12，禁止访问（显示网页无法打开）',
-   START_TIME           datetime null,
-   END_TIME             datetime null,
+   START_TIME           datetime,
+   END_TIME             datetime,
    BLACK_REMARK         varchar(90),
    primary key (BLACK_ID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_city                                                */
@@ -170,7 +170,7 @@ create table j_city
    POSTAL_CODE          varchar(16),
    IS_AVAIL             char(1),
    primary key (CITY_ID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_continent                                           */
@@ -184,7 +184,7 @@ create table j_continent
    CONTINENT_NAME_EN    varchar(150),
    IS_AVAIL             char(1),
    primary key (CONTINENT_ID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_country                                             */
@@ -201,7 +201,7 @@ create table j_country
    TIME_ZONE            double(3,1),
    IS_AVAIL             char(1),
    primary key (COUNTRY_ID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_county                                              */
@@ -221,7 +221,7 @@ create table j_county
    POSTAL_CODE          varchar(16),
    IS_AVAIL             char(1),
    primary key (COUNTY_ID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_database                                            */
@@ -240,7 +240,7 @@ create table j_database
             200 维护',
    REMARKS              text,
    primary key (DBSYS_CODE)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_db                                                  */
@@ -251,7 +251,7 @@ create table j_db
    DB_NAME              varchar(90),
    REMARKS              text,
    primary key (DB_CODE)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_db_mirror                                           */
@@ -275,7 +275,7 @@ create table j_db_mirror
             200 维护',
    REMARKS              text,
    primary key (DB_MIRROR_CODE)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_db_syn_task                                         */
@@ -283,15 +283,15 @@ create table j_db_mirror
 create table j_db_syn_task
 (
    UUID                 varchar(64) not null,
-   TASK_TIME            datetime null,
+   TASK_TIME            datetime,
    FROM_UUID            varchar(64),
    TO_UUID              varchar(64),
    TASK_OPERATION       varchar(64),
    TASK_DATA            text,
    SYN_TIMES            int,
-   SYN_TIME             datetime null,
+   SYN_TIME             datetime,
    primary key (UUID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_fs_task                                             */
@@ -299,16 +299,16 @@ create table j_db_syn_task
 create table j_fs_task
 (
    UUID                 varchar(64) not null,
-   TASK_TIME            datetime null,
+   TASK_TIME            datetime,
    FROM_UUID            varchar(64),
    TO_UUID              varchar(64),
    FILE_PATH            varchar(256),
    TASK_OPERATION       varchar(64),
    TASK_DATA            text,
    SYN_TIMES            int,
-   SYN_TIME             datetime null,
+   SYN_TIME             datetime,
    primary key (UUID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_ip                                                  */
@@ -320,7 +320,7 @@ create table j_ip
    IP_END               bigint not null,
    IP_ADDR              varchar(300) not null,
    primary key (IP_ID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_log                                                 */
@@ -334,15 +334,19 @@ create table j_log
    A_URL                varchar(128),
    A_U_IP               varchar(128),
    A_U_ID               varchar(128),
+   STAFF_ID             varchar(128),
+   SELLER_ID            varchar(128),
+   STAFF_ID_OF_SHOP     varchar(128),
    BIZ_CODE             varchar(32),
    BIZ_ID               varchar(64),
    BIZ_NAME             varchar(150),
    BIZ_LINK             varchar(128),
    BIZ_ICON             varchar(128),
    BIZ_DATA             text comment '商户自己的业务数据，可以是任何格式，由商户应用决定',
-   EVENT_TIME           datetime null,
+   EVENT_TIME           datetime,
    EVENT_CODE           varchar(32),
    EVENT_DATA           text,
+   EVENT_INFLUENCE      text,
    EVENT_STAT           varchar(8) comment 'TRACE
             DEBUG
             INFO
@@ -352,8 +356,19 @@ create table j_log
    DEL_BY_SYS           char(1) comment 'N  正常/未删除
             R 回收站
             D 彻底删除',
+   EXTRA0               varchar(128),
+   EXTRA1               varchar(128),
+   EXTRA2               varchar(128),
+   EXTRA3               varchar(128),
+   EXTRA4               varchar(128),
+   EXTRA5               varchar(128),
+   EXTRA6               varchar(128),
+   EXTRA7               varchar(128),
+   EXTRA8               varchar(128),
+   EXTRA9               varchar(128),
+   EXTRA10              varchar(128),
    primary key (EVENT_ID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_province                                            */
@@ -372,7 +387,7 @@ create table j_province
    POSTAL_CODE          varchar(16),
    IS_AVAIL             char(1),
    primary key (PROVINCE_ID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_server                                              */
@@ -389,8 +404,8 @@ create table j_server
    COUNTRY_ID           varchar(16) comment '由字母、数字、下划线组成，不超过32位',
    CONTINENT_ID         varchar(16) not null comment '由字母、数字、下划线组成，不超过32位',
    ADDR                 varchar(150) not null comment '由字母、数字、下划线组成，不超过32位',
-   STARTUP_TIME         datetime null,
-   SHUTDOWN_TIME        datetime null,
+   STARTUP_TIME         datetime,
+   SHUTDOWN_TIME        datetime,
    WAN_IP               varchar(128),
    LAN_IP               varchar(128),
    CPU                  varchar(90),
@@ -403,7 +418,7 @@ create table j_server
             100 关机',
    REMARKS              text,
    primary key (SERVER_CODE)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_service                                             */
@@ -414,7 +429,7 @@ create table j_service
    SERVICE_NAME         varchar(90),
    REMARKS              text,
    primary key (SERVICE_CODE)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_service_mirror                                      */
@@ -434,7 +449,7 @@ create table j_service_mirror
             200 维护',
    REMARKS              text,
    primary key (SERVICE_MIRROR_CODE)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_service_router                                      */
@@ -453,7 +468,7 @@ create table j_service_router
             200 维护',
    REMARKS              text,
    primary key (ROUTER_CODE)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_test                                                */
@@ -481,7 +496,7 @@ create table j_test
    SS                   tinyint,
    TT                   varchar(32),
    primary key (AA)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_thirdparty_user                                     */
@@ -495,7 +510,7 @@ create table j_thirdparty_user
    THIRDPARTY_NICKNAME  varchar(128),
    THIRDPARTY_HEADER    varchar(256),
    primary key (UUID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_user_login                                          */
@@ -532,7 +547,7 @@ create table j_user_login
    SESSION_ID_LOGIN_FROM varchar(64) comment 'app登录时，指第一次通过http发起登录请求时产生的session_id',
    SESSION_ID_GLOBAL    varchar(64),
    primary key (UUID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_webserver                                           */
@@ -549,7 +564,7 @@ create table j_webserver
             200 维护',
    REMARKS              text,
    primary key (WEBSERVER_CODE)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_webserver_to_appserver                              */
@@ -561,7 +576,7 @@ create table j_webserver_to_appserver
    WEBSERVER_CODE       varchar(64),
    REMARKS              text,
    primary key (UUID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_workflow                                            */
@@ -588,7 +603,7 @@ create table j_workflow
    NODE_RESULT          varchar(16),
    NODE_DATA            text,
    primary key (WORKFLOW_ID)
-) engine = InnoDB;
+);
 
 /*==============================================================*/
 /* Table: j_zone                                                */
@@ -609,5 +624,5 @@ create table j_zone
    POSTAL_CODE          varchar(16),
    IS_AVAIL             char(1),
    primary key (ZONE_ID)
-) engine = InnoDB;
+);
 

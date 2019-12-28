@@ -439,9 +439,6 @@ public class JUtilMD5 {
 	 * @throws IOException
 	 */
 	public static void main(String args[]) throws Exception {
-		ConcurrentMap<String,String> list=new ConcurrentMap<String,String>();
-		list.put("aaa","xx");
-		String x=list.get("aaa");
-		System.out.println(x);
+		System.out.println(JUtilMD5.MD5EncodeToHex("As111111"));
 	}
 }

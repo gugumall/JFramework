@@ -1,5 +1,5 @@
 /*
- * Created on 2019-03-14
+ * Created on 2019-12-09
  *
  */
 package j.db;
@@ -21,6 +21,9 @@ public class Jlog implements Serializable{
 	private java.lang.String aurl;
 	private java.lang.String auIp;
 	private java.lang.String auId;
+	private java.lang.String staffId;
+	private java.lang.String sellerId;
+	private java.lang.String staffIdOfShop;
 	private java.lang.String bizCode;
 	private java.lang.String bizId;
 	private java.lang.String bizName;
@@ -30,8 +33,20 @@ public class Jlog implements Serializable{
 	private java.sql.Timestamp eventTime;
 	private java.lang.String eventCode;
 	private java.lang.String eventData;
+	private java.lang.String eventInfluence;
 	private java.lang.String eventStat;
 	private java.lang.String delBySys;
+	private java.lang.String eXTRA0;
+	private java.lang.String eXTRA1;
+	private java.lang.String eXTRA2;
+	private java.lang.String eXTRA3;
+	private java.lang.String eXTRA4;
+	private java.lang.String eXTRA5;
+	private java.lang.String eXTRA6;
+	private java.lang.String eXTRA7;
+	private java.lang.String eXTRA8;
+	private java.lang.String eXTRA9;
+	private java.lang.String eXTRA10;
 
 	public java.lang.String getEventId(){
 		return this.eventId;
@@ -80,6 +95,27 @@ public class Jlog implements Serializable{
 	}
 	public void setAuId(java.lang.String auId){
 		this.auId=auId;
+	}
+
+	public java.lang.String getStaffId(){
+		return this.staffId;
+	}
+	public void setStaffId(java.lang.String staffId){
+		this.staffId=staffId;
+	}
+
+	public java.lang.String getSellerId(){
+		return this.sellerId;
+	}
+	public void setSellerId(java.lang.String sellerId){
+		this.sellerId=sellerId;
+	}
+
+	public java.lang.String getStaffIdOfShop(){
+		return this.staffIdOfShop;
+	}
+	public void setStaffIdOfShop(java.lang.String staffIdOfShop){
+		this.staffIdOfShop=staffIdOfShop;
 	}
 
 	public java.lang.String getBizCode(){
@@ -145,6 +181,13 @@ public class Jlog implements Serializable{
 		this.eventData=eventData;
 	}
 
+	public java.lang.String getEventInfluence(){
+		return this.eventInfluence;
+	}
+	public void setEventInfluence(java.lang.String eventInfluence){
+		this.eventInfluence=eventInfluence;
+	}
+
 	public java.lang.String getEventStat(){
 		return this.eventStat;
 	}
@@ -157,6 +200,83 @@ public class Jlog implements Serializable{
 	}
 	public void setDelBySys(java.lang.String delBySys){
 		this.delBySys=delBySys;
+	}
+
+	public java.lang.String getEXTRA0(){
+		return this.eXTRA0;
+	}
+	public void setEXTRA0(java.lang.String eXTRA0){
+		this.eXTRA0=eXTRA0;
+	}
+
+	public java.lang.String getEXTRA1(){
+		return this.eXTRA1;
+	}
+	public void setEXTRA1(java.lang.String eXTRA1){
+		this.eXTRA1=eXTRA1;
+	}
+
+	public java.lang.String getEXTRA2(){
+		return this.eXTRA2;
+	}
+	public void setEXTRA2(java.lang.String eXTRA2){
+		this.eXTRA2=eXTRA2;
+	}
+
+	public java.lang.String getEXTRA3(){
+		return this.eXTRA3;
+	}
+	public void setEXTRA3(java.lang.String eXTRA3){
+		this.eXTRA3=eXTRA3;
+	}
+
+	public java.lang.String getEXTRA4(){
+		return this.eXTRA4;
+	}
+	public void setEXTRA4(java.lang.String eXTRA4){
+		this.eXTRA4=eXTRA4;
+	}
+
+	public java.lang.String getEXTRA5(){
+		return this.eXTRA5;
+	}
+	public void setEXTRA5(java.lang.String eXTRA5){
+		this.eXTRA5=eXTRA5;
+	}
+
+	public java.lang.String getEXTRA6(){
+		return this.eXTRA6;
+	}
+	public void setEXTRA6(java.lang.String eXTRA6){
+		this.eXTRA6=eXTRA6;
+	}
+
+	public java.lang.String getEXTRA7(){
+		return this.eXTRA7;
+	}
+	public void setEXTRA7(java.lang.String eXTRA7){
+		this.eXTRA7=eXTRA7;
+	}
+
+	public java.lang.String getEXTRA8(){
+		return this.eXTRA8;
+	}
+	public void setEXTRA8(java.lang.String eXTRA8){
+		this.eXTRA8=eXTRA8;
+	}
+
+	public java.lang.String getEXTRA9(){
+		return this.eXTRA9;
+	}
+	public void setEXTRA9(java.lang.String eXTRA9){
+		this.eXTRA9=eXTRA9;
+	}
+
+	public java.lang.String getEXTRA10(){
+		return this.eXTRA10;
+	}
+	public void setEXTRA10(java.lang.String eXTRA10){
+		this.eXTRA10=eXTRA10;
 	}
 
 	public boolean equals(Object obj){

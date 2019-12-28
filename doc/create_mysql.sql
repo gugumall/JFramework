@@ -334,15 +334,19 @@ create table j_log
    A_URL                varchar(128),
    A_U_IP               varchar(128),
    A_U_ID               varchar(128),
+   STAFF_ID             varchar(128),
+   SELLER_ID            varchar(128),
+   STAFF_ID_OF_SHOP     varchar(128),
    BIZ_CODE             varchar(32),
    BIZ_ID               varchar(64),
    BIZ_NAME             varchar(150),
    BIZ_LINK             varchar(128),
    BIZ_ICON             varchar(128),
    BIZ_DATA             text comment '商户自己的业务数据，可以是任何格式，由商户应用决定',
-   EVENT_TIME           datetime null,
+   EVENT_TIME           datetime,
    EVENT_CODE           varchar(32),
    EVENT_DATA           text,
+   EVENT_INFLUENCE      text,
    EVENT_STAT           varchar(8) comment 'TRACE
             DEBUG
             INFO
@@ -352,6 +356,17 @@ create table j_log
    DEL_BY_SYS           char(1) comment 'N  正常/未删除
             R 回收站
             D 彻底删除',
+   EXTRA0               varchar(128),
+   EXTRA1               varchar(128),
+   EXTRA2               varchar(128),
+   EXTRA3               varchar(128),
+   EXTRA4               varchar(128),
+   EXTRA5               varchar(128),
+   EXTRA6               varchar(128),
+   EXTRA7               varchar(128),
+   EXTRA8               varchar(128),
+   EXTRA9               varchar(128),
+   EXTRA10              varchar(128),
    primary key (EVENT_ID)
 ) engine = InnoDB;
 

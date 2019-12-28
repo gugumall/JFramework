@@ -1,16 +1,23 @@
 package j.util;
 
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.sql.Timestamp;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dom4j.Document;
@@ -18,9 +25,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.json.JSONObject;
 
-import j.common.JProperties;
 import j.dao.DAOFactory;
-import j.db.JactionLog;
 import j.log.Logger;
 import j.sys.SysUtil;
 
@@ -573,6 +578,29 @@ public class JUtilBean {
 	 * @return
 	 */
 	public static String bean2Json(Object bean, boolean encode){
+		return bean2Json(bean, encode, null);
+	}
+	
+	/**
+	 * 
+	 * @param bean
+	 * @param encode
+	 * @param extraKeyValues
+	 * @return
+	 */
+	public static String bean2Json(Object bean, boolean encode, Map extraKeyValues){
+		return bean2Json(bean, encode, null, null);
+	}
+	
+	/**
+	 * 
+	 * @param bean
+	 * @param encode
+	 * @param extraKeyValues
+	 * @param excludes
+	 * @return
+	 */
+	public static String bean2Json(Object bean, boolean encode, Map extraKeyValues, List<String> excludes){
 		if(bean==null) return "{}";
 		
 		StringBuffer jsonString=new StringBuffer();
@@ -580,26 +608,51 @@ public class JUtilBean {
 		
 		Class beanClass = bean.getClass();
 		Field[] fields=beanClass.getDeclaredFields();
+		
+		int index=0;
 		for(int i=0;i<fields.length;i++){
 			try{
 				String name=fields[i].getName();
+				if(excludes!=null && excludes.contains(name)) continue;
+
+				if(index>0) jsonString.append(",");
 				Object o=JUtilBean.getPropertyValue(bean,name);
 				if(o==null){
-					jsonString.append("\""+name+"\":null,");
+					jsonString.append("\""+name+"\":null");
 				}else if(encode){
-					jsonString.append("\""+name+"\":\""+JUtilJSON.format(o.toString())+"\",");
+					jsonString.append("\""+name+"\":\""+JUtilJSON.convert(o.toString())+"\"");
 				}else {
-					jsonString.append("\""+name+"\":\""+o.toString()+"\",");
+					jsonString.append("\""+name+"\":\""+o.toString()+"\"");
 				}
+				index++;
 			} catch (Exception e){
-				log.log(e, Logger.LEVEL_ERROR);
+				//log.log(e, Logger.LEVEL_ERROR);
 				return null;
 			}
 		}
 		
-		if(jsonString.length()>1){
-			jsonString.deleteCharAt(jsonString.length()-1);
+		if(extraKeyValues!=null && !extraKeyValues.isEmpty()) {
+			for(Iterator it=extraKeyValues.keySet().iterator(); it.hasNext();) {
+				try {
+					if(index>0) jsonString.append(",");
+					Object key=it.next();
+					String name=key.toString();
+					Object o=extraKeyValues.get(key);
+					if(o==null){
+						jsonString.append("\""+name+"\":null");
+					}else if(encode){
+						jsonString.append("\""+name+"\":\""+JUtilJSON.convert(o.toString())+"\"");
+					}else {
+						jsonString.append("\""+name+"\":\""+o.toString()+"\"");
+					}
+					index++;
+				} catch (Exception e){
+					//log.log(e, Logger.LEVEL_ERROR);
+					return null;
+				}
+			}
 		}
+		
 		jsonString.append("}");
 		
 		return jsonString.toString();
@@ -1193,53 +1246,22 @@ public class JUtilBean {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		JactionLog log1=new JactionLog();
-		log1.setActionHandler("1\"11");
-		log1.setEventTime(new Timestamp(SysUtil.getNow()));
-		
-		JactionLog log2=new JactionLog();
-		log2.setActionHandler("3\"22[]1");
-		log2.setEventTime(new Timestamp(SysUtil.getNow()));
-		
-		List temp=new LinkedList();
-		temp.add(log1);
-		temp.add(log2);
-		System.out.println(JUtilBean.beans2Json(temp));
-		
-		Map datas=new HashMap();
-		datas.put("total",100);
-		datas.put("list",temp);
-		
-		String s=map2Json(datas);
-		JSONObject js=new JSONObject(s);
-
-		System.out.println(JUtilString.encodeURI("aa[]<>ddd	ccc\nxxx","UTF-8"));
-		System.out.println(js.getJSONArray("list").length());
-		//System.out.println(js.get("asvrId"));
-		
-//		JactionLog log2=new JactionLog();
-//		log2.setActionHandler("222");
-//		log2.setEventTime(new Timestamp(SysUtil.getNow()));
-//		
-//		List beans=new LinkedList();
-//		beans.add(log1);
-//		beans.add(log2);
-//		
-//		String xml=JUtilBean.beans2Xml(beans,null);
-//		
-//		System.out.println(xml);
-//		
-//		List beans2=JUtilBean.xml2Beans(xml,null);
-//		for(int i=0;i<beans2.size();i++){
-//			JactionLog o=(JactionLog)beans2.get(i);
-//
-//			System.out.println(o.getActionHandler());
-//			System.out.println(o.getEventTime());
-//		}
-		
-		JUtilKeyValue[] kvs=JProperties.getPropertiesAsArray("event_status");
-		for(int i=0;i<kvs.length;i++){
-			System.out.println(kvs[i].getKey()+","+kvs[i].getValue());
+		System.out.println("start");
+		try {
+			JUtilImage ui=new JUtilImage();
+			
+			InputStream is = new URL("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3058363057,1892331773&fm=15&gp=0.jpg").openStream();
+            BufferedImage sourceImg = ImageIO.read(is);
+			
+			
+			BufferedImage original = new BufferedImage(1000, 1000,BufferedImage.TYPE_INT_RGB);
+			Graphics graphics=original.getGraphics();
+			graphics.drawImage(sourceImg, 0, 0, 1000, 1000, ui);//绘制图片
+			
+			// 生成二维码QRCode图片
+			ImageIO.write(original, JUtilImage.FORMAT_JPEG, new File("f:/temp/xxx.jpg"));
+		} catch (Exception e) {
+			log.log(e,Logger.LEVEL_ERROR);
 		}
 		
 		System.exit(0);

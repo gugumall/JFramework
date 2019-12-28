@@ -1,17 +1,9 @@
 package j.util;
 
-import j.common.JObject;
-import j.http.JHttp;
-import j.http.JHttpContext;
-import j.log.Logger;
-import j.sys.AppConfig;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.http.client.HttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import j.common.JObject;
 
 /**
  * 
@@ -111,10 +103,10 @@ public class JUtilJSON{
 	public static String convert(String s){
 		if(s==null||"".equals(s)) return s;
 		s=JUtilString.replaceAll(s,"\"","\\\"");
-		s=JUtilString.replaceAll(s,"[","\\[");
-		s=JUtilString.replaceAll(s,"]","\\]");
-		s=JUtilString.replaceAll(s,"{","\\{");
-		s=JUtilString.replaceAll(s,"}","\\}");
+		//s=JUtilString.replaceAll(s,"[","\\[");
+		//s=JUtilString.replaceAll(s,"]","\\]");
+		//s=JUtilString.replaceAll(s,"{","\\{");
+		//s=JUtilString.replaceAll(s,"}","\\}");
 		return s;
 	}
 	
