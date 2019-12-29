@@ -1,5 +1,7 @@
 package j.comm.websocket;
 
+import java.net.URI;
+
 /**
  * 
  * @author 肖炯
@@ -11,7 +13,7 @@ package j.comm.websocket;
 public class ClientContainer implements Runnable{
 	private Client client=null;
 	private String clientClass=null;
-	private String serverUri=null;
+	private URI serverUri=null;
 	private boolean reconnect=false;
 	
 	/**
@@ -20,8 +22,8 @@ public class ClientContainer implements Runnable{
 	 * @param serverUri
 	 * @param reconnect 是否自动重连
 	 */
-	public ClientContainer(String clientClass, String serverUri, boolean reconnect) throws Exception{
-		this.client=(Client)Class.forName(clientClass).getConstructor(new Class[] {String.class}).newInstance(new Object[] {serverUri});
+	public ClientContainer(String clientClass, URI serverUri, boolean reconnect) throws Exception{
+		this.client=(Client)Class.forName(clientClass).getConstructor(new Class[] {URI.class}).newInstance(new Object[] {serverUri});
 		
 		this.clientClass=clientClass;
 		this.serverUri=serverUri;
@@ -43,7 +45,7 @@ public class ClientContainer implements Runnable{
 	 * 
 	 * @return
 	 */
-	public String getServerUri() {
+	public URI getServerUri() {
 		return this.serverUri;
 	}
 	
@@ -60,7 +62,7 @@ public class ClientContainer implements Runnable{
 	 * @throws Exception
 	 */
 	synchronized public void reconnect() throws Exception{
-		this.client=(Client)Class.forName(clientClass).getConstructor(new Class[] {String.class}).newInstance(new Object[] {serverUri});
+		this.client=(Client)Class.forName(clientClass).getConstructor(new Class[] {URI.class}).newInstance(new Object[] {serverUri});
 	}
 
 	@Override

@@ -23,19 +23,16 @@ public class Client extends WebSocketClient{
 	
 	public Client(URI serverUri) {
 		super(serverUri);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void onOpen(ServerHandshake handshakedata) {
 		connected=true;
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onMessage(String message) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -75,7 +72,6 @@ public class Client extends WebSocketClient{
 
 	@Override
 	public void onError(Exception ex) {
-		// TODO Auto-generated method stub
 		
 	}
 }
