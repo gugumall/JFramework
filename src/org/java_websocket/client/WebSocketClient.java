@@ -300,7 +300,7 @@ public abstract class WebSocketClient extends AbstractWebSocket implements Runna
 	 * Reinitiates the websocket connection. This method does not block.
 	 * @since 1.3.8
 	 */
-	public void reconnect() {
+	public void reconnect() throws Exception{
 		reset();
 		connect();
 	}
@@ -311,7 +311,7 @@ public abstract class WebSocketClient extends AbstractWebSocket implements Runna
 	 * @throws InterruptedException Thrown when the threads get interrupted
 	 * @since 1.3.8
 	 */
-	public boolean reconnectBlocking() throws InterruptedException {
+	public boolean reconnectBlocking() throws Exception {
 		reset();
 		return connectBlocking();
 	}
@@ -353,12 +353,12 @@ public abstract class WebSocketClient extends AbstractWebSocket implements Runna
 	/**
 	 * Initiates the websocket connection. This method does not block.
 	 */
-	public void connect() {
-		if( connectReadThread != null )
+	public void connect() throws Exception{
+		if( connectReadThread != null ) {
 			throw new IllegalStateException( "WebSocketClient objects are not reuseable" );
-		connectReadThread = new Thread( this );
-		connectReadThread.setName( "WebSocketConnectReadThread-" + connectReadThread.getId() );
-		connectReadThread.start();
+		}
+		
+		doConnect();
 	}
 
 	/**
@@ -366,7 +366,7 @@ public abstract class WebSocketClient extends AbstractWebSocket implements Runna
 	 * @return Returns whether it succeeded or not.
 	 * @throws InterruptedException Thrown when the threads get interrupted
 	 */
-	public boolean connectBlocking() throws InterruptedException {
+	public boolean connectBlocking() throws Exception {
 		connect();
 		connectLatch.await();
 		return engine.isOpen();
@@ -381,7 +381,7 @@ public abstract class WebSocketClient extends AbstractWebSocket implements Runna
 	 * @return Returns whether it succeeded or not.
 	 * @throws InterruptedException Thrown when the threads get interrupted
 	 */
-	public boolean connectBlocking(long timeout, TimeUnit timeUnit) throws InterruptedException {
+	public boolean connectBlocking(long timeout, TimeUnit timeUnit) throws Exception {
 		connect();
 		return connectLatch.await(timeout, timeUnit) && engine.isOpen();
 	}
@@ -443,8 +443,12 @@ public abstract class WebSocketClient extends AbstractWebSocket implements Runna
 	public void sendPing() {
 		engine.sendPing( );
 	}
-
+	
 	public void run() {
+		
+	}
+
+	public void doConnect() {
 		InputStream istream;
 		try {
 			boolean isNewSocket = false;
@@ -453,7 +457,6 @@ public abstract class WebSocketClient extends AbstractWebSocket implements Runna
 			} else if( socket == null ) {
 				socket = new Socket( proxy );
 				isNewSocket = true;
-
 			} else if( socket.isClosed() ) {
 				throw new IOException();
 			}
@@ -480,10 +483,12 @@ public abstract class WebSocketClient extends AbstractWebSocket implements Runna
 
 			sendHandshake();
 		} catch ( /*IOException | SecurityException | UnresolvedAddressException | InvalidHandshakeException | ClosedByInterruptException | SocketTimeoutException */Exception e ) {
+			e.printStackTrace();
 			onWebsocketError( engine, e );
 			engine.closeConnection( CloseFrame.NEVER_CONNECTED, e.getMessage() );
 			return;
 		} catch (InternalError e) {
+			e.printStackTrace();
 			// https://bugs.openjdk.java.net/browse/JDK-8173620
 			if (e.getCause() instanceof InvocationTargetException && e.getCause().getCause() instanceof IOException) {
 				IOException cause = (IOException) e.getCause().getCause();
@@ -506,8 +511,10 @@ public abstract class WebSocketClient extends AbstractWebSocket implements Runna
 			}
 			engine.eot();
 		} catch ( IOException e ) {
+			e.printStackTrace();
 			handleIOException(e);
 		} catch ( RuntimeException e ) {
+			e.printStackTrace();
 			// this catch case covers internal errors only and indicates a bug in this websocket implementation
 			onError( e );
 			engine.closeConnection( CloseFrame.ABNORMAL_CLOSE, e.getMessage() );

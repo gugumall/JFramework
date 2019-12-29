@@ -24,6 +24,7 @@ public class ClientContainer implements Runnable{
 	 */
 	public ClientContainer(String clientClass, URI serverUri, boolean reconnect) throws Exception{
 		this.client=(Client)Class.forName(clientClass).getConstructor(new Class[] {URI.class}).newInstance(new Object[] {serverUri});
+		this.connect();
 		
 		this.clientClass=clientClass;
 		this.serverUri=serverUri;
@@ -63,6 +64,14 @@ public class ClientContainer implements Runnable{
 	 */
 	synchronized public void reconnect() throws Exception{
 		this.client=(Client)Class.forName(clientClass).getConstructor(new Class[] {URI.class}).newInstance(new Object[] {serverUri});
+		this.connect();
+	}
+	
+	/**
+	 * 
+	 */
+	public void connect() {
+		new Thread(new ServerConnect(this)).start();
 	}
 
 	@Override
@@ -84,6 +93,28 @@ public class ClientContainer implements Runnable{
 			}catch(Exception e) {
 				e.printStackTrace();
 			}
+		}
+	}
+}
+
+class ServerConnect implements Runnable{
+	ClientContainer container=null;
+	
+	/**
+	 * 
+	 * @param container
+	 */
+	ServerConnect(ClientContainer container){
+		this.container=container;
+	}
+	
+	@Override
+	public void run() {
+		try {
+			Thread.sleep(500);
+			container.getClient().connect();
+		}catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 }
