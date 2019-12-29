@@ -139,6 +139,10 @@ public abstract class WebSocketClient extends AbstractWebSocket implements Runna
 	 * @since 1.4.1
 	 */
 	private DnsResolver dnsResolver = null;
+	
+	public WebSocketClient() {
+		
+	}
 
 	/**
 	 * Constructs a WebSocketClient instance and sets it to the connect to the

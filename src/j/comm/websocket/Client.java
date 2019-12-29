@@ -17,6 +17,10 @@ public class Client extends WebSocketClient{
 	protected boolean connected=false;
 	protected boolean disconnected=false;
 	
+	public Client() {
+		super();
+	}
+	
 	public Client(URI serverUri) {
 		super(serverUri);
 		// TODO Auto-generated constructor stub
