@@ -76,7 +76,7 @@ public class ClientContainer implements Runnable{
 				if(client==null) break;
 				
 				//如果已经断开连接且设置为自动重连
-				if(client.disconnected() && this.getReconnect()) {
+				if(client.getDisconnected() && this.getReconnect()) {
 					this.reconnect();
 				}
 				

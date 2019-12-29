@@ -45,7 +45,7 @@ public class Client extends WebSocketClient{
 	 * 
 	 * @return
 	 */
-	public boolean connected() {
+	public boolean getConnected() {
 		return this.connected;
 	}
 	
@@ -53,7 +53,7 @@ public class Client extends WebSocketClient{
 	 * 
 	 * @return
 	 */
-	public boolean disconnected() {
+	public boolean getDisconnected() {
 		return this.disconnected;
 	}
 	
@@ -62,7 +62,7 @@ public class Client extends WebSocketClient{
 	 * @return
 	 */
 	synchronized public boolean heartbeat() {
-		if(this.connected && this.disconnected) {
+		if(this.getConnected() && !this.getDisconnected()) {
 			this.send("{\"heartbeat\":\""+System.currentTimeMillis()+"\"}");
 			return true;
 		}else {
