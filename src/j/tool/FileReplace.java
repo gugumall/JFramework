@@ -93,10 +93,10 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("F:\\work\\AS\\app.mym");
+		File dir=new File("F:\\work\\JGame");
 		replace(dir,
-				"古古商贸",
-				"搜索助手",
+				"肖炯",
+				"恭喜发财",
 				".java");
 		
 //		rotate(new File("D:\\176\\10.4 桃江一中 活动\\形象照\\temp"),180,".jpg");

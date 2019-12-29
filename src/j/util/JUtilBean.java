@@ -797,7 +797,7 @@ public class JUtilBean {
 			if(val instanceof List){
 				s.append(JUtilBean.beans2Json((List)val));
 			}else if(val instanceof String){
-				s.append("\""+JUtilJSON.format(val.toString())+"\"");
+				s.append("\""+JUtilJSON.convert(val.toString())+"\"");
 			}else if(val instanceof Integer){
 				s.append("\""+val.toString()+"\"");
 			}else if(val instanceof Long){

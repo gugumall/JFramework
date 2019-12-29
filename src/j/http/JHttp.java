@@ -11,7 +11,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -60,16 +59,13 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 
-import it.sauronsoftware.base64.Base64;
 import j.Properties;
 import j.common.Global;
 import j.sys.AppConfig;
 import j.sys.SysUtil;
-import j.tool.javascript.JavaScriptBridge;
 import j.util.ConcurrentMap;
 import j.util.JUtilCompressor;
 import j.util.JUtilInputStream;
-import j.util.JUtilMD5;
 import j.util.JUtilMath;
 import j.util.JUtilRandom;
 import j.util.JUtilString;
@@ -114,6 +110,44 @@ public class JHttp{
 			if(jhttp==null){
 				try{
 					jhttp = createSelfSigned(Properties.getConfigPath()+"/server.jks","20081016",new String[] {"SSLv3","TLSv1","TLSv1.1","TLSv1.2"});
+					
+					instances[random]=jhttp;
+				}catch(Exception e){
+					e.printStackTrace();
+					try{
+						jhttp.destroy();
+					}catch(Exception ex){}
+					return null;
+				}
+			}
+			
+
+			for(int i=0;i<jhttp.clients.length;i++){
+				jhttp.clients[i]=jhttp.createClient();
+			}
+			
+			return jhttp;
+		}
+	}
+
+	/**
+	 * 
+	 * @param certFilePath
+	 * @param certFilePassword
+	 * @return
+	 */
+	public static JHttp getInstance(String certFilePath, String certFilePassword){
+		synchronized(default_user_agent){
+			CookieStore cookieStore = new BasicCookieStore();
+			
+			HttpClientContext context = HttpClientContext.create();
+			context.setCookieStore(cookieStore);
+			
+			int random=instances.length==1?0:JUtilRandom.nextInt(instances.length);
+			JHttp jhttp =instances[random];
+			if(jhttp==null){
+				try{
+					jhttp = createSelfSigned(certFilePath,certFilePassword,new String[] {"SSLv3","TLSv1","TLSv1.1","TLSv1.2"});
 					
 					instances[random]=jhttp;
 				}catch(Exception e){
@@ -293,12 +327,23 @@ public class JHttp{
 	 * @return
 	 */
 	public HttpClient createClient(int timeout) {		
-		CloseableHttpClient client = HttpClients.custom().setConnectionManager(poolingmgr).build();
-
 		int retries=default_retries;
 		if(JUtilMath.isInt(AppConfig.getPara("HTTP","retries"))){
 			retries=Integer.parseInt(AppConfig.getPara("HTTP","retries"));
 		}
+		
+		return createClient(timeout, retries);
+	}
+
+	/**
+	 * 
+	 * @param timeout
+	 * @param retries
+	 * @return
+	 */
+	public HttpClient createClient(int timeout, int retries) {		
+		CloseableHttpClient client = HttpClients.custom().setConnectionManager(poolingmgr).build();
+
 		RequestConfig requestConfig = RequestConfig.custom().setMaxRedirects(retries).setSocketTimeout(timeout).setConnectTimeout(timeout).build();
 		configOfClients.put(client.toString(), requestConfig);
 		
