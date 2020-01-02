@@ -82,12 +82,12 @@ public class ThreadPool{
 	 * @param task
 	 * @return
 	 */
-	private boolean exists(ThreadTask task){
+	private ThreadRunner exists(ThreadTask task){
 		for(int i=0;i<this.threads.size();i++){
 			ThreadRunner runner=(ThreadRunner)this.threads.get(i);
-			if(runner.exists(task)) return true;
+			if(runner.exists(task)) return runner;
 		}
-		return false;
+		return null;
 	}
 	
 	/**
@@ -95,14 +95,18 @@ public class ThreadPool{
 	 * @param task
 	 * @return
 	 */
-	synchronized public boolean addTask(ThreadTask task){
+	synchronized public ThreadRunner addTask(ThreadTask task){
 		this.latestUsed=SysUtil.getNow();
 		
-		if(exists(task)) return false;
+		ThreadRunner runner=exists(task);
+		
+		if(runner!=null) return runner;
 		
 		if(selector>=this.threads.size()) selector=0;
-		ThreadRunner runner=(ThreadRunner)this.threads.get(selector++);
-		return runner.addTask(task);
+		runner=(ThreadRunner)this.threads.get(selector++);
+		runner.addTask(task);
+		
+		return runner;
 	}
 	
 	/**

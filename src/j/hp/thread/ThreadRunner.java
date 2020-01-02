@@ -74,6 +74,30 @@ public class ThreadRunner implements Runnable{
 	
 	/**
 	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public ThreadTaskResult getResult(String uuid) {
+		if(uuid==null||"".equals(uuid)) return null;
+		
+		while(!results.containsKey(uuid)) {
+			try {
+				Thread.sleep(1);
+			}catch(Exception e) {}
+		}
+		ThreadTaskResult result=(ThreadTaskResult)results.remove(uuid);
+		if(result==null) return null;
+		
+		Object[] resultObjs=result.getResult();
+		if(resultObjs!=null && resultObjs.length>0 && "IS-NULL".equals(resultObjs[0])) {
+			return null;
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * 
 	 */
 	public void destroy(){
 		end=true;
@@ -106,6 +130,7 @@ public class ThreadRunner implements Runnable{
 					int retries=0;
 					while(retries<=task.getRetries()){
 						try{
+							System.out.println("execute ..."+task.getUuid());
 							Object[] result=task.execute();
 							if(task.getUuid()!=null
 									&&!"".equals(task.getUuid())
@@ -116,6 +141,13 @@ public class ThreadRunner implements Runnable{
 						}catch(Exception e){
 							retries++;
 							log.log(e,Logger.LEVEL_ERROR);
+						}
+						
+						//如果任务指定了ID，即使没有结果，也写入表示为null的固定字符串（以免调用上下文获取不到结果无限等待）
+						if(task.getUuid()!=null
+								&&!"".equals(task.getUuid())
+								&&!results.containsKey(task.getUuid())) {
+							results.put(task.getUuid(),new ThreadTaskResult(new Object[] {"IS-NULL",task.getResultTimeout()}));
 						}
 					}
 				}
