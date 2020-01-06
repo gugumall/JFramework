@@ -18,7 +18,7 @@ function _$(id){
 		if(!obj&&top.location.href!=location.href&&top.getElementById('loading')){
 			obj=top._$(id);
 		}
-	}catch(e){}
+	}catch(e){} 
 	
 	return obj;
 }
@@ -79,6 +79,20 @@ function _$cls(clsName,tagName){
 	}
 	return _nodes;
 }
+function _$clsContains(clsName,tagName){
+	var _nodes=new Array();
+	var _tagName='DIV';
+	if(tagName) _tagName=tagName;
+	var nodes=document.getElementsByTagName(_tagName);
+	var _nodes=new Array();
+	for(var i=0;i<nodes.length;i++){
+		if(nodes[i].className&&nodes[i].className){
+			var cells=nodes[i].className.split(' ');
+			if(Str.contains(cells,clsName)) _nodes.push(nodes[i]);
+		}
+	}
+	return _nodes;
+}
 
 //
 function _$n(name){
@@ -131,6 +145,13 @@ var Str={
 		var newstr=tokens.join('');
 		tokens=null;
 		return newstr;
+	},
+	
+	//替换尾部
+	replaceLast:function(str,original,alternative){
+		if(!str.endsWith(original)) return str;
+		str=str.substring(0,str.length-original.length);
+		return str+alternative;
 	},
 
 	//去掉首尾空格
@@ -318,6 +339,8 @@ var thisDomain=Str.getDomain(currentUrl);
 var mainDomain=thisDomain;
 var mainDomainCells=mainDomain.split('.');
 mainDomain=mainDomainCells[mainDomainCells.length-2]+'.'+mainDomainCells[mainDomainCells.length-1];
+
+var MERCHANT_NUM=null;
 
 //当前地址根
 var thisUrlBase=Str.getUrlBase(currentUrl);
@@ -622,6 +645,20 @@ var Copy={
 		this.clipboards[btnId]=clipboard;
 	}
 }
+function _showCopyDialog(_content){		
+	var htm='<div class="r alignC">';
+	htm+='	<div class="r marginT10 alignL" style="word-break:break-all;" id="the_copy_content_show">'+_content+'</div>';
+	htm+='	<div class="r marginT20">';
+	htm+='		<div class="fullWidthBtnGray displayBlock" style="width:90%;" id="the_copy_content" data-clipboard-action="copy" data-clipboard-target="#the_copy_content_show">I{点击复制}</div>';
+	htm+='	</div>';
+	htm+='</div>';
+
+	top.Loading.open(-1,-1,-1,-1,null,window,'dialog');
+	top.Loading.setTitle('I{.复制}');
+	top.Loading.setMsg(htm);
+	
+	top.Copy.init('the_copy_content');
+}
 
 //模仿android的Toast提示条
 var Toast={
@@ -629,18 +666,21 @@ var Toast={
 	LONG:4000,
 	timer:null,
 	topMin:20,
+	_top:0,
 	
-	show:function(txt,showTime){
+	show:function(txt,showTime,bg,color,_top){
 		if(this.timer) clearTimeout(this.timer);
+		if(_top) this._top=_top;
+		else this._top=0;
 		
 		if(_$('TOAST_GLOBAL')) this.hide();
 		
-		var str='<div id="TOAST_GLOBAL" style="visibility:hidden;">'+txt+'</div>';
+		var str='<div id="TOAST_GLOBAL" style="z-index:'+(W.maxZindex()+1)+' !important; '+(bg?('background-color:'+bg+'!important;'):'')+(color?('color:'+color+'!important;'):'')+'visibility:hidden;">'+txt+'</div>';
 		document.body.insertAdjacentHTML('afterBegin', str);
 		_$('TOAST_GLOBAL').style.visibility='visible';
-
+	
 		_$('TOAST_GLOBAL').style.top=this.getTop()+'px';
-		_$('TOAST_GLOBAL').style.left=Math.ceil((W.vw()-W.elementWidth(_$('TOAST_GLOBAL')))/2)+'px';	
+		_$('TOAST_GLOBAL').style.left=this.getLeft()+'px';	
 		
 		this.timer=setTimeout(Toast.hide,showTime?showTime:this.LONG);
 	},
@@ -655,29 +695,40 @@ var Toast={
 	},
 	
 	getTop:function(offset){
+		if(this._top>0) return this._top;
+		
 		var theTop=0;
-		if(location.href==top.location.href){
-			theTop=W.tTotal()+Math.round((top.W.vh()-W.elementHeight(_$('TOAST_GLOBAL')))/2);
+		
+		var focusInInput=false;
+		if(document.activeElement){
+			var tagName=document.activeElement.tagName.toUpperCase();
+			if(tagName=='INPUT'||tagName=='TEXTAREA'||tagName=='SELECT') focusInInput=true;
+		}
+		if(focusInInput){
+			theTop=W.elementTop(document.activeElement)+W.elementHeight(document.activeElement)+5;
 		}else{
-			if(!offset||offset==0){
-				if(top._$('header')) offset=top.W.elementHeight(top._$('header'));
-				else offset=0;
-			}
-			
-			if(top._$('loadingFullPage')){
-				theTop=top.LoadingFullPage.scrollTop();
-			}else if(top._$('loadingGoodsPage')){
-				theTop=top.LoadingGoodsPage.scrollTop();
-			}else{
-				theTop=top.W.t()-offset;
-			}
-			
-			if(theTop<=0) theTop=0;
-			theTop+=50;
+			theTop=W.tTotal()+Math.floor((top.W.vh()-W.elementHeight(_$('TOAST_GLOBAL')))/2);
 		}
 		
 		if(theTop<this.topMin) theTop=this.topMin;
 		return theTop;
+	},
+	
+	getLeft:function(offset){
+		var theLeft=0;
+		
+		var focusInInput=false;
+		if(document.activeElement){
+			var tagName=document.activeElement.tagName.toUpperCase();
+			if(tagName=='INPUT'||tagName=='TEXTAREA'||tagName=='SELECT') focusInInput=true;
+		}
+		if(focusInInput){
+			theLeft=W.elementLeft(document.activeElement);
+		}else{
+			theLeft=Math.ceil((W.vw()-W.elementWidth(_$('TOAST_GLOBAL')))/2);	
+		}
+		
+		return theLeft;
 	}
 }
 
@@ -963,6 +1014,10 @@ var MediaManager={
 		_$('mediaManagerBg').style.left='0px';
 		_$('mediaManager').style.left='0px';
 		_$('mediaManagerCloseBox').left='0px';
+		
+		_$('mediaManagerBg').style.zIndex=(W.maxZindex()+1);
+		_$('mediaManager').style.zIndex=(W.maxZindexLastTime()+2);
+		_$('mediaManagerCloseBox').style.zIndex=(W.maxZindexLastTime()+3);
 
 		_$('mediaManagerBg').style.visibility='visible';
 		_$('mediaManager').style.visibility='visible';
@@ -1055,11 +1110,11 @@ var MediaManager={
 			return;
 		}	
 		
-		var str='<div id="mediaManagerBg" style="'+(this.zIndex?('z-index:'+this.zIndex):'')+'"><iframe src="/white.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		var str='<div id="mediaManagerBg" style="z-index:'+(W.maxZindex()+1)+' !important;"><iframe src="/white.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>';
 		
-		str+='<div id="mediaManagerLoading" style="'+(this.zIndex?('z-index:'+(this.zIndex+2)):'')+'"><img src="/img/loading/Loading6.gif"/></div>';
+		str+='<div id="mediaManagerLoading" style="z-index:'+(W.maxZindex()+4)+' !important;"><img src="/img/loading/Loading6.gif"/></div>';
 		
-		str+='<div id="mediaManagerCloseBox" style="'+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'">';
+		str+='<div id="mediaManagerCloseBox" style="z-index:'+(W.maxZindexLastTime()+3)+' !important;">';
 		str+='	<div id="mediaManagerClose" onclick="MediaManager.close(\'true\');">';
 		str+='		<div id="mediaManagerCloseText" class="iconfont icon-back_light"></div>';
 		str+='	</div>';
@@ -1070,9 +1125,9 @@ var MediaManager={
 		str+='</div>';
 		
 		if(Utils.isMobile()){
-			str+='<div id="mediaManager" class="mediaManager" style="height:'+(W.vh()-41)+'px; '+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'"></div>';
+			str+='<div id="mediaManager" class="mediaManager" style="height:'+(W.vh()-41)+'px; z-index:'+(W.maxZindexLastTime()+2)+' !important;"></div>';
 		}else{
-			str+='<div id="mediaManager" class="mediaManagerNoScrolling" style="'+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'"></div>';
+			str+='<div id="mediaManager" class="mediaManagerNoScrolling" style="display:inline-table; z-index:'+(W.maxZindexLastTime()+2)+' !important;"></div>';
 		}
 		document.body.insertAdjacentHTML('afterBegin', str);
 	}
@@ -1090,6 +1145,7 @@ var JEditor={
 	textContentStyle:'',
 	pickColorFor:'',//Bg,Color
 	stylePicker:new Array(),
+	currentTextContent:'',
 	
 	init:function(_container,operator){
 		if(_$('JEditorPanel')) return;
@@ -1101,7 +1157,7 @@ var JEditor={
 		}	
 		this.container.onmouseover=function(){
 			if(_$('JEditorPanel').style.visibility=='hidden'){
-				this.over();
+				JEditor.over();
 			}
 		};
 		this.operator=operator;
@@ -1216,6 +1272,7 @@ var JEditor={
 		_$('JEditorText').style.top=this.dialogTop(_$('JEditorText'))+'px';
 		_$('JEditorText').style.left=Math.floor((W.vw()-W.elementWidth(_$('JEditorText')))/2)+'px';
 		_$('JEditorText').style.visibility='visible';
+		_$('JEditorTextContent').value=this.currentTextContent;
 	},
 	dialogTop:function(dialog,offset){
 		var theTop=0;
@@ -1326,6 +1383,15 @@ var JEditor={
 		_$('JEditorPanel').style.top=(W.elementTop(relative)+Math.floor(W.elementHeight(relative)/2)-20)+'px';
 		_$('JEditorPanel').style.left=(W.elementLeft(relative)+Math.floor((W.elementWidth(relative)-W.elementWidth(_$('JEditorPanel')))/2))+'px';
 		_$('JEditorPanel').style.visibility='visible';
+		
+		if(relative){
+			var currrentElementHtml=relative.innerHTML;
+			if(currrentElementHtml.indexOf('<div class="theText">')>-1){
+				var s=currrentElementHtml.indexOf('<div class="theText">')+'<div class="theText">'.length;
+				var e=currrentElementHtml.lastIndexOf('</div></div></div>');
+				this.currentTextContent=currrentElementHtml.substring(s,e);
+			}			
+		}
 	},
 	out:function(){
 		if(!_$('JEditorPanel')) return;//尚未初始化
@@ -1834,29 +1900,61 @@ function Picker(id,input,values,names,initValue,height,editable,callback){
 
 	Pickers.instances[id]=this;
 }
+function PickerNew(container,id,input,values,names,colors,initValue,height,editable,callback){
+	this.id=id;
+	this.input=input;
+	this.values=values;
+	this.colors=colors;
+	this.names=names;
+	this.initValue=initValue;
+	this.editable=editable;
+	this.callback=callback;
+	
+	var htm=new Array();
+	htm.push('<div id="'+id+'" class="Picker" style="height:'+height+'px;">');
+	for(var i=0;i<values.length;i++){
+		htm.push('<div id="'+id+'_'+i+'" style="height:'+height+'px; line-height:'+height+'px;" class="PickerValue'+(initValue==values[i]?'Picked':'')+(i==0?'Left':'')+'" onclick="Pickers.pick(\''+id+'\','+i+');">'+this.names[i]+'</div>');
+	}
+	htm.push('</div>');
+	
+	container.innerHTML=htm.join('');
+
+	Pickers.instances[id]=this;
+	
+	for(var i=0;i<values.length;i++){
+		if(initValue==values[i]){
+			Pickers.pick(id,i,true,true);
+			break;
+		}
+	}
+}
 var Pickers={
 	instances:new Array(),
 	
-	pick:function(id,picked){
+	pick:function(id,picked,force,ignoreCallback){
 		var picker=this.instances[id];
 		if(!picker) return;
 		
-		if(!picker.editable){
-			top.Alert.show('I{js,不可修改}');
+		if(!picker.editable&&!force){
+			//top.Alert.show('I{js,不可修改}');
 			return;
 		}
 		
 		for(var i=0;i<picker.values.length;i++){
 			var v=_$(id+'_'+i);
 			v.className='PickerValue'+(i==0?'Left':'');
+			v.style.backgroundColor='';
 		}
 		
 		var v=_$(id+'_'+picked);
 		v.className='PickerValuePicked'+(picked==0?'Left':'');
+		if(picker.colors){
+			v.style.backgroundColor=picker.colors[picked];
+		}
 		
 		if(_$(picker.input)) _$(picker.input).value=picker.values[picked];
 		
-		if(picker.callback) picker.callback(picked,picker.values[picked],picker.names[picked],picker.id,picker.input);
+		if(picker.callback&&!ignoreCallback) picker.callback(picked,picker.values[picked],picker.names[picked],picker.id,picker.input);
 	}
 }
 
@@ -1864,6 +1962,14 @@ var Pickers={
 var Utils={ 
 	SORT_DESC:'DESC',
 	SORT_ASC:'ASC',
+	
+	arrayCopy:function(arr, exclude){
+		var c=new Array();
+		for(var i=0; i<arr.length; i++){
+			if(!exclude || exclude!=arr[i]) c.push(arr[i]);
+		}
+		return c;
+	},
 		
 	bubble:function(original,sortType){//冒泡排序
 		var cnt = original.length;
@@ -2067,6 +2173,13 @@ var Utils={
 	},
 	
 	isMobile:function(){
+		if(thisDomain.startsWith('m.')
+				||thisDomain.startsWith('w.')
+				||thisDomain.startsWith('app.')
+				||thisDomain.startsWith('ios.')){
+			return true;
+		}
+				
 		var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
 		var browser = navigator.userAgent.toLowerCase(); 
 		for (var i=0; i<mobileAgent.length; i++){ 
@@ -2284,19 +2397,25 @@ var Utils={
 		if(_$('searcherShowOrHide').className.indexOf('icon-moreunfold')>-1){
 			var searcher=_$cls('searcher');
 			if(searcher&&searcher.length>0) searcher[0].style.display='';
-			_$('searcherShowOrHide').className='fr marginR10 iconfont icon-less';
+			
+			if(_$('searcherShowOrHide').className.indexOf('fl ')>-1){
+				_$('searcherShowOrHide').className='fl marginL5 iconfont icon-less';
+			}else{
+				_$('searcherShowOrHide').className='fr marginR10 iconfont icon-less';
+			}
 		}else{
 			var searcher=_$cls('searcher');
 			if(searcher&&searcher.length>0) searcher[0].style.display='none';
-			_$('searcherShowOrHide').className='fr marginR10 iconfont icon-moreunfold';
+			
+
+			if(_$('searcherShowOrHide').className.indexOf('fl ')>-1){
+				_$('searcherShowOrHide').className='fl marginL5 iconfont icon-moreunfold';
+			}else{
+				_$('searcherShowOrHide').className='fr marginR10 iconfont icon-moreunfold';
+			}
 		}
 	}
 }
-
-//手机锁定
-try{
-	if(Utils.isMobile()) screen.orientation.lock('natural');
-}catch(e){}
 
 var MathUtil={
 	p:function(scope, selected){//排列
@@ -2305,12 +2424,83 @@ var MathUtil={
 		for(var i=scope-selected+1;i<=scope;i++) p*=i;
 		return p;
 	},
+
+	/**
+	 * 打印出所有排列：从先选择1个元素，再从生下元素中选择selected-1个元素......以此递归
+	 * @param objects 对象列表
+	 * @param selected 排列元素数
+	 * @param subSelected 从对象列表中选择多少个
+	 * @param assembled 已经选出的排列
+	 * @param assembling 正在组装的排列
+	 * @return
+	 */
+	pPrint:function(objects, selected, assembled, assembling){
+		for(var j=0; j<objects.length; j++) {
+			var assemblingCopy=Utils.arrayCopy(assembling);
+			assemblingCopy.push(objects[j]);
+			
+			if(assemblingCopy.length==selected) {
+				assembled.push(assemblingCopy);
+			}else {
+				var objectsCopy=Utils.arrayCopy(objects, objects[j]);
+				
+				this.pPrint(objectsCopy, selected, assembled, assemblingCopy);
+			}
+		}
+	},
 	
 	c:function(scope, selected){//组合
 		if(scope<1||selected<1||selected>scope) return 1;
 		var p=1;
 		for(var i=1;i<=selected;i++) p*=i;
 		return this.p(scope,selected)/p;
+	},
+	
+	/**
+	 * 打印出所有组合：从先选择1个元素，再从生下元素中选择selected-1个元素......以此递归，并去掉重复组合
+	 * @param objects 对象列表
+	 * @param selected 组合元素数
+	 * @param assembled 已经选出的组合
+	 * @param assembling 正在组装的组合
+	 * @return
+	 */
+	cPrint:function(objects, selected, assembled, assembling){
+		for(var j=0; j<objects.length; j++) {
+			var assemblingCopy=Utils.arrayCopy(assembling);
+			assemblingCopy.push(objects[j]);
+			
+			if(assemblingCopy.length==selected) {
+				if(!this.cPermutationExists(assembled, assemblingCopy)) assembled.push(assemblingCopy);
+			}else {
+				var objectsCopy=Utils.arrayCopy(objects, objects[j]);
+				
+				this.cPrint(objectsCopy, selected, assembled, assemblingCopy);
+			}
+		}
+	},
+	
+	/**
+	 * 对组合内元素进行排序，然后拼串（为去掉重复组合）
+	 * @param array
+	 * @return
+	 */
+	cPermutationFeature:function(array) {
+		array=Utils.bubble(array, Utils.SORT_ASC);
+		return array.join('');
+	},
+	
+	/**
+	 * 组合（assembling）是否已经存在列表中（assembled）
+	 * @param assembled
+	 * @param assembling
+	 * @return
+	 */
+	cPermutationExists:function(assembled, assembling) {
+		var assemblingFeature=this.cPermutationFeature(assembling);
+		for(var i=0; i<assembled.length; i++) {
+			if(assemblingFeature == this.cPermutationFeature(assembled[i])) return true;
+		}
+		return false;
 	},
 	
 	xround:function(x, num){
@@ -2323,6 +2513,7 @@ var MathUtil={
 	},
 	
 	_toFixedTrim:function(num,precision){
+		if(precision==0) return MathUtil._toFixed(num,precision);
 		num=Str.replaceAll(num+'',',','')*1;
 		num=num.toFixed(precision)+'';
 		var dot=num.indexOf('.');
@@ -2387,20 +2578,25 @@ function PasswordViewer(id,pwd){
 	
 	this.show=document.createElement('input');
 	this.show.id=this.id+'_show';
-	this.show.className='PasswordViewer';
 	Utils.setAtt(this.show,'type','text');
-	this.show.style.width=(W.elementWidth(this.pwd)-2)+'px';
-	this.show.style.height=(W.elementHeight(this.pwd)-2)+'px';
-	//this.show.style.borderStyle=this.pwd.style.borderStyle;
-	//this.show.style.borderWidth=this.pwd.style.borderWidth;
-	//this.show.style.borderColor=this.pwd.style.borderColor;
-	this.show.style.backgroundColor=this.pwd.style.backgroundColor;
-	this.show.style.lineHeight=this.pwd.style.lineHeight;
-	this.show.style.color=this.pwd.style.color;
-	this.show.style.fontSize=this.pwd.style.fontSize;
-	this.show.style.fontWeight=this.pwd.style.fontWeight;
-	this.show.style.textAlign=this.pwd.style.textAlign;
-	this.show.style.padding=this.pwd.style.padding;
+	if(this.pwd.className&&this.pwd.className!='') this.show.className=this.pwd.className;
+	else{
+		this.show.className='PasswordViewer';
+		this.show.style.width=(W.elementWidth(this.pwd)-0)+'px';
+		this.show.style.height=(W.elementHeight(this.pwd)-0)+'px';
+		this.show.style.borderStyle=this.pwd.style.borderStyle;
+		this.show.style.borderWidth=this.pwd.style.borderWidth;
+		this.show.style.borderColor=this.pwd.style.borderColor;
+		this.show.style.border=this.pwd.style.border;
+		this.show.style.backgroundColor=this.pwd.style.backgroundColor;
+		this.show.style.lineHeight=this.pwd.style.lineHeight;
+		this.show.style.color=this.pwd.style.color;
+		this.show.style.fontSize=this.pwd.style.fontSize;
+		this.show.style.fontWeight=this.pwd.style.fontWeight;
+		this.show.style.textAlign=this.pwd.style.textAlign;
+		this.show.style.padding=this.pwd.style.padding;
+	}
+	
 	this.show.onkeyup=function(){
 		var _id=this.id.substring(0,this.id.length-5);
 		var val=PasswordViewers[_id].show.value;
@@ -2421,15 +2617,15 @@ function PasswordViewer(id,pwd){
 	this.eye.className='PasswordViewerEye color999';
 	this.eye.innerHTML='<div class="iconfont icon-attention_light" onclick="PasswordViewers[\''+this.id+'\'].view();"></div>';
 
-	this.pwd.parentNode.insertBefore(this.eye,this.pwd);
+	document.body.appendChild(this.eye);
 	
 	//var eyeObj=_$(this.id+'_eye');
 	//eyeObj.style.left=(W.elementWidth(this.pwd)-W.elementWidth(eyeObj)-3)+'px';
 	//eyeObj.style.top=(Math.floor((W.elementHeight(this.pwd)+W.elementHeight(eyeObj))/2))+'px';
 	
 	var eyeObj=_$(this.id+'_eye');
-	eyeObj.style.left=(W.elementLeft(this.pwd)+W.elementWidth(this.pwd)-W.elementWidth(eyeObj)-5)+'px';
-	eyeObj.style.top=(W.elementTop(this.pwd)+Math.floor((W.elementHeight(this.pwd)-W.elementHeight(eyeObj))/2)+(Utils.isMobile()?0:2))+'px';
+	eyeObj.style.left=(W.elementLeft(this.pwd)+W.elementWidth(this.pwd)-W.elementWidth(eyeObj)-6)+'px';
+	eyeObj.style.top=(W.elementTop(this.pwd)+Math.floor((W.elementHeight(this.pwd)-W.elementHeight(eyeObj))/2)+(Utils.isMobile()?0:1))+'px';
 	
 	PasswordViewers[this.id]=this;
 }
@@ -2462,6 +2658,9 @@ PasswordViewer.prototype.move=function(relative){
 	//eyeObj.style.left=(W.elementLeft(relative)+W.elementWidth(relative)-W.elementWidth(eyeObj)-3)+'px';
 	//eyeObj.style.top=(W.elementTop(relative)+Math.floor((W.elementHeight(relative)-W.elementHeight(eyeObj))/2))+'px';
 }
+function PasswordEyeRemove(id){
+	if(_$(id+'_eye')) _$(id+'_eye').parentNode.removeChild(_$(id+'_eye'));	
+}
 
 //图片压缩处理与上传
 function JFileManager(){
@@ -2471,7 +2670,7 @@ function JFileManager(){
 
 //扫码处理
 var ScannerUploader=new Array();
-ScannerUploader.push('<div class="r alignC">I{.不在APP内无法直接扫码，请拍照或上传图片。}</div>');
+ScannerUploader.push('<div class="r alignC">I{.当前环境不支持扫码，请拍照或上传图片}</div>');
 ScannerUploader.push('<div class="r alignC marginT10">');
 ScannerUploader.push('<div style="width:96%; display:inline-table; margin-left:auto; margin-right:auto;">');
 ScannerUploader.push('    <div class="fullWidthBtnYellow displayBlock fl" style="width:44%;"'+(thisDomain.startsWith('app.')?' onclick="Scanner.uploadCancel();";':'')+'>');
@@ -2504,7 +2703,28 @@ var Scanner={
 		if(_callback) this._callback=_callback;
 		else this._callback=null;
 		try{
-			if(thisDomain.startsWith("app.")){
+			if(thisDomain.startsWith("w.")){
+				wx.scanQRCode({   
+			        needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+			        scanType: ["qrCode","barCode"], // 可以指定扫二维码还是一维码，默认二者都有
+			        success: function (res) {
+			            //console.log(res);
+			            //alert(res);
+			            
+			        	var wxScanResult = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+			       
+			        	if(wxScanResult.startsWith('CODE_128,')
+			        			||wxScanResult.startsWith('UPC_E,')){
+			        		wxScanResult=wxScanResult.substring(wxScanResult.indexOf(',')+1);
+			        	}
+			            Scanner.callback(null,wxScanResult);
+			            
+			            //其它网页调用二维码扫描结果： 
+			            //sessionStorage.setItem('wx_scan_result',wxScanResult);
+			            //var result=sessionStorage.getItem('wx_scan_result');
+			        }
+			    });
+			}else if(thisDomain.startsWith("app.")){
 				HTMLInterface.scan('Scanner.callback');
 			}else if(thisDomain.startsWith("ios.")){
 				if(_$('footerMenus')) _$('footerMenus').style.display='none';
@@ -2516,7 +2736,7 @@ var Scanner={
 			}else{
 				HTMLInterface.scan('Scanner.callback');
 			}
-		}catch(e){
+		}catch(e){ 
 			if(Utils.isWeiXin()){
 				Toast.show('I{.请使用微信扫一扫}',1000)
 			}else{
@@ -2639,10 +2859,23 @@ var Scanner={
 		}
 		
 		Scanner.qrcodeTextCurrent=message;
-		
 		if(message.indexOf('http')==0){
-			if(Str.getDomain(message).endsWith(mainDomain)) location.href=(message);
-			else{
+			if(message.indexOf('to_mini_program/')>-1) message=message.substring(message.indexOf('to_mini_program/')+16);
+			if(Str.getDomain(message).endsWith(mainDomain)){
+				if(Utils.isMobile()&&message.indexOf('/goods/item.jhtml')>-1){
+					var goodsUrl='/goods/item.jhtml'+message.substring(message.indexOf('?'))+'&auto=true';
+					top.LoadingGoodsPage.open(null,window,goodsUrl,'I{shopping,商品详情}','',null,null);
+				}else if(Utils.isMobile()&&message.indexOf('thing.jhtml')>-1){
+					if(_referer==''){
+						showNotLoginMessage();
+					}else{
+						var thingUrl=message;
+						top.LoadingGoodsPage.open(null,window,thingUrl,'I{shopping,充电桩}','',null,null);
+					}
+				}else{
+					location.href=(message);
+				}
+			}else{
 				top.Loading.setTitle('I{js,扫码结果}');
 				top.Loading.showDialog(-1,-1,-1,-1,
 						'<div id="scanner_result_show">'+message+'</div>',
@@ -2673,14 +2906,26 @@ var Scanner={
 							top.Loading.win.ScannerCallback(message);
 						}
 					}catch(e2){
-						top.Loading.setTitle('I{js,扫码结果}');
-						top.Loading.showDialog(-1,-1,-1,-1,
-								'<div id="scanner_result_show">'+message+'</div>',
-								'center',
-								['<div class="fullWidthBtnGray displayBlock" style="width:45%;" onclick="top.Loading.close();">I{js,返回}</div>',
-								 '<div class="fullWidthBtnYellow displayBlock marginL5" style="width:45%;" id="scanner_result_copy" data-clipboard-action="copy" data-clipboard-target="#scanner_result_show">I{js,复制}</div>']);
-						top.Copy.init('scanner_result_copy');
+						if(message.match(/^\d{14}$/)&&message.startsWith('99')){//溯源条码
+							var scanBarcodeGoodsVersion=message.substring(2,6)*1;
+							var scanBarcodeGoodsId=message.substring(6)*1;
+							top.LoadingGoodsPage.open(null,window,'/goods/item.jhtml?id='+scanBarcodeGoodsId+'&v='+scanBarcodeGoodsVersion,'I{shopping,商品详情}','',null,null);
+						}else{
+							top.Loading.setTitle('I{js,扫码结果}');
+							top.Loading.showDialog(-1,-1,-1,-1,
+									'<div id="scanner_result_show">'+message+'</div>',
+									'center',
+									['<div class="fullWidthBtnGray displayBlock" style="width:45%;" onclick="top.Loading.close();">I{js,返回}</div>',
+									 '<div class="fullWidthBtnYellow displayBlock marginL5" style="width:45%;" id="scanner_result_copy" data-clipboard-action="copy" data-clipboard-target="#scanner_result_show">I{js,复制}</div>']);
+							top.Copy.init('scanner_result_copy');
+						}
 					}
+				}
+			}else if(qrcode.processor=='SHOW_GOODS'){
+				if(UserType=='Seller'||UserType=='Admin'){
+					top.LoadingFullPage.open(null,window,'/'+UserType+'Goods.handler?request=show&goods_id='+Scanner.qrcodeCurrent.goods_id,'I{shopping,商品详情}','',null,null);
+				}else{
+					top.LoadingGoodsPage.open(null,window,'/goods/item.jhtml?id='+Scanner.qrcodeCurrent.goods_id,'I{shopping,商品详情}','',null,null);
 				}
 			}else{
 				top.Loading.setMsg('<img src="/img/loadingGreen.gif"/>');
@@ -2702,7 +2947,7 @@ var Scanner={
 					if(Scanner.qrcodeCurrent&&Scanner.qrcodeCurrent.processor=='O2O'&&resp.code=='1'){
 						top.Loading.close();
 						if(Scanner.qrcodeCurrent.grabbing_sn&&Scanner.qrcodeCurrent.grabbing_sn*1>0){
-							top.LoadingFullPage.open(null,window,'/'+UserType+'Order.handler?request=orders&noheader=true&grabbing_sn='+Scanner.qrcodeCurrent.grabbing_sn,'I{shopping,订单明细}','',null,Scanner.sellerConfirmOrder);
+							top.LoadingFullPage.open(null,window,'/'+UserType+'Order.handler?request=orders&noheader=true&grabbing_sn='+Scanner.qrcodeCurrent.grabbing_sn+'&buyer_uid='+Scanner.qrcodeCurrent.buyer_uid,'I{shopping,订单明细}','',null,Scanner.sellerConfirmOrder);
 						}else{
 							top.LoadingFullPage.open(null,window,'/'+UserType+'Order.handler?request=show&noheader=true&order_id='+Scanner.qrcodeCurrent.order_id,'I{shopping,订单详情}','',null,Scanner.sellerConfirmOrder);
 						}
@@ -3245,12 +3490,19 @@ CurrencyTransfer.prototype._showCurrencyTransfer=function(){
 		clearTimeout(this.hideCurrencyTransferTimer);
 		this.hideCurrencyTransferTimer=null;
 	}
-	var t=W.elementTop(_$('currencyTransfer'+this.index));
-	var l=W.elementLeft(_$('currencyTransfer'+this.index));
+	var t=W.elementTop(this.container);
+	var l=W.elementLeft(this.container);
 	
-	_$('currencyTransferList'+this.index).style.left=(l+5)+'px';
-	_$('currencyTransferList'+this.index).style.top=(t+23)+'px';
+	_$('currencyTransferList'+this.index).style.minWidth=(W.elementWidth(this.container)-2)+'px';
+	_$('currencyTransferList'+this.index).style.left=(l+0)+'px';
+	_$('currencyTransferList'+this.index).style.top=(t+W.elementHeight(this.container)-10)+'px';
 	_$('currencyTransferList'+this.index).style.visibility='visible';
+	
+	if(this.hideCurrencyTransferTimer){
+		clearTimeout(this.hideCurrencyTransferTimer);
+		this.hideCurrencyTransferTimer=null;
+	}
+	this.hideCurrencyTransferTimer=setTimeout(CurrencyTransfers[this.index]._hideCurrencyTransfer,3000);
 }
 
 CurrencyTransfer.prototype._over=function(obj){
@@ -3440,6 +3692,9 @@ if(langPara) Lang.s(langPara);
 
 //日期处理
 var D={
+	inputHoursDef:'00',
+	inputMinutesDef:'00',
+	inputSecendsDef:'00',
 	days:new Array('I{js,sun}','I{js,mon}','I{js,tue}','I{js,wed}','I{js,thu}','I{js,fri}','I{js,sat}'),
 	daysFullName:new Array('I{js,sunday}','I{js,monday}','I{js,tuesday}','I{js,wednesday}','I{js,thursday}','I{js,friday}','I{js,saturday}'),
 	dayNameToday:function(){
@@ -3459,6 +3714,13 @@ var D={
 	
 	dayName:function(dayNo){
 		return this.days[dayNo];
+	},
+	
+	ymd:function(t){
+		var d=null;
+		if(!t) d=new Date();
+		else d=new Date(t);
+		return [d.getFullYear(), d.getMonth()+1, d.getDate()];
 	},
 	
 	isLeapYear:function(year){
@@ -3513,9 +3775,9 @@ var D={
 		if(!lang) lang=Lang.l();
 		var html=new Array();
 		var inputDate=_$(input).value;
-		var inputHours='00';
-		var inputMinutes='00';
-		var inputSecends='00';
+		var inputHours=this.inputHoursDef;
+		var inputMinutes=this.inputMinutesDef;
+		var inputSecends=this.inputSecendsDef;
 		var setTime=false;
 		if(inputDate.indexOf(' ')>0){
 			setTime=true;
@@ -3553,8 +3815,8 @@ var D={
 		start=date.getDay()+1;
 		end=start+this.getDaysOfMonth(y,m)-1;
 
-		html.push('<div style="position:absolute; z-index:101; filter:alpha(opacity=50); -moz-opacity:.5; opacity:.5; overflow:hidden; visibility:hidden;" id="CalendarBg" align="center"><iframe id="CalendarFrame" name="CalendarFrame" src="/blank.htm" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>');
-		html.push('<div id="Calendar"><table width="100%" cellpadding="2" cellspacing="1" bgcolor="#cccccc" style="font-size:12px;">');
+		html.push('<div style="position:absolute; z-index:'+(W.maxZindex()+1)+' !important; filter:alpha(opacity=50); -moz-opacity:.5; opacity:.5; overflow:hidden; visibility:hidden;" id="CalendarBg" align="center"><iframe id="CalendarFrame" name="CalendarFrame" src="/blank.htm" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>');
+		html.push('<div id="Calendar" style="z-index:'+(W.maxZindexLastTime()+2)+' !important;"><table width="100%" cellpadding="2" cellspacing="1" bgcolor="#cccccc" style="font-size:12px;">');
 		html.push('<tr bgcolor="#FFFFFF">');
 		html.push('<td colspan="7" align="left">');
 		html.push('<div style="margin-left:0px; float:left;"><select id="year" onchange="D.onCalendarChange(_$(\'year\').value*1,_$(\'month\').value*1,'+d+');">');
@@ -3840,6 +4102,113 @@ var D={
 
 //窗口操作
 var W={
+	//form状态历史栈，用于无刷新操作，或页面切换返回后的页面状态恢复
+	formInit:function(_form,_formChangeCallback){
+		this.form=_form;
+		this.formChangeCallback=_formChangeCallback;
+		this.formRestore(Paras.getPara('back_form_history'));
+	},
+	
+	form:null,
+	
+	formChangeCallback:null,
+	
+	formHistory:new Array(),
+	
+	formChange:function(){
+		var es=this.form.elements;
+		
+		var vals=new Array();
+		for(var i=0;i<es.length;i++){
+			if(!es[i].name||es[i].name=='') continue;
+			
+			vals.push([es[i].name,es[i].value]);
+		}
+		
+		this.formHistory.push(vals);
+	
+		if(_$('form_back')) _$('form_back').style.display='';
+		if(_$('form_back_icon')) _$('form_back_icon').style.display='';
+	},
+	
+	formElement:function(name){
+		var es=this.form.elements;
+		for(var i=0;i<es.length;i++){
+			if(!es[i].name||es[i].name=='') continue;
+			
+			if(name==es[i].name) return es[i];
+		}
+		return null;
+	},
+	
+	formBack:function(){
+		//如果无历史记录
+		if(this.formHistory.length==0){
+			if(_$('form_back')) _$('form_back').style.display='none';
+			if(_$('form_back_icon')) _$('form_back_icon').style.display='none';
+			return;
+		}
+		
+		//最近一次历史记录
+		var latestFormHistory=this.formHistory[this.formHistory.length-1];
+		
+		//删除最近一次历史记录
+		var _formHistory=this.formHistory;
+		this.formHistory=new Array();
+		for(var i=0;i<_formHistory.length-1;i++) this.formHistory.push(_formHistory[i]);
+		if(this.formHistory.length==0){
+			if(_$('form_back')) _$('form_back').style.display='none';
+			if(_$('form_back_icon')) _$('form_back_icon').style.display='none';
+		}else{
+			if(_$('form_back')) _$('form_back').style.display='';
+			if(_$('form_back_icon')) _$('form_back_icon').style.display='';
+		}
+		
+		//恢复最近一次历史表单状态
+		for(var i=0;i<latestFormHistory.length;i++){
+			var n=latestFormHistory[i][0];
+			var v=latestFormHistory[i][1];
+			var e=this.formElement(n);
+			if(e) e.value=v;
+		}
+		
+		//回调
+		if(this.formChangeCallback) this.formChangeCallback();
+	},
+	
+	formHistory2String:function(){
+		this.formChange();
+		
+		var _formHistory=new Array();
+		
+		for(var i=0;i<this.formHistory.length;i++){
+			if(i>0) _formHistory.push(';');
+			for(var j=0;j<this.formHistory[i].length;j++){
+				if(j>0) _formHistory.push('^');
+				_formHistory.push(this.formHistory[i][j][0]+'='+this.formHistory[i][j][1]);
+			}
+		}
+		return _formHistory.join('');
+	},
+	
+	formRestore:function(_formHistory){
+		if(!_formHistory||_formHistory=='') return;
+		
+		//rpp=50^pn=1^p_type=^p_id=s11^u_type=001^u_id=^u_stat=;
+		//rpp=50^pn=1^p_type=^p_id=s11^u_type=001^u_id=^u_stat=
+		
+		_formHistory=_formHistory.split(';');
+		for(var i=0;i<_formHistory.length;i++){
+			var _elements=_formHistory[i].split('^');
+			for(var j=0;j<_elements.length;j++){
+				_elements[j]=_elements[j].split('=');
+			}
+			_formHistory[i]=_elements;
+		}
+		this.formHistory=_formHistory;
+	},
+	//form状态历史栈，用于无刷新操作，或页面切换返回后的页面状态恢复 end
+
 	t:function(){
 		return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
 	},
@@ -3863,7 +4232,21 @@ var W={
 		return window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft;
 	},
 	
+	vwNoMoreThan:function(max){
+		var w=this.vw();
+		if(max && max<w) return max;
+		return w;
+	},
+	
 	vw:function(){
+		if(Utils.isMobile()){
+			if(location.href!=top.location.href){
+				if(top._$('iframe')) return top.W.elementWidth(top._$('iframe'));
+				else if(top._$('container')) return top.W.elementWidth(top._$('container'));
+			}else if(_$('container')){
+				return W.elementWidth(_$('container'));
+			}
+		}
 		renewScreenSize();
 		if(Utils.isMobile()){
 			var r1=document.getElementsByTagName("body")[0].scrollWidth;
@@ -3997,6 +4380,187 @@ var W={
 	elementScrollWidth:function(obj){		
 		if(obj.scrollWidth) return obj.scrollWidth;
 		else if(obj.offsetWidth) return obj.offsetWidth;
+	},
+	
+	getStyle:function(obj,styleName){
+		if(obj.currentStyle){
+			return obj.currentStyle[styleName]; //IE下获取非行间样式
+		}else{
+			return getComputedStyle(obj, false)[styleName]; //FF、Chorme下获取非行间样式
+		}
+	},
+	
+	_maxZindex:99999,
+	maxZindex:function(){	
+		var newLayer=this._maxZindex;
+		
+		this._maxZindex=this._maxZindex+3;
+		
+		return newLayer;
+	},
+	
+	maxZindexLastTime:function(){
+		return this._maxZindex-3;
+	},
+	
+	isZoom : function(){
+		var ratio = 0;
+		var screen = window.screen;
+		var ua = navigator.userAgent.toLowerCase();
+	 
+	    if(ua.indexOf('firefox')>-1){
+	        if(window.devicePixelRatio !== undefined ){
+	            ratio = window.devicePixelRatio;
+	        }
+	    }else if(ua.indexOf('msie')>-1){   
+	        if(screen.deviceXDPI && screen.logicalXDPI){
+	            ratio = screen.deviceXDPI / screen.logicalXDPI;
+	        }
+	    } else if( window.outerWidth !== undefined && window.innerWidth !== undefined ){
+	        ratio = window.outerWidth / window.innerWidth;
+	    }
+	     
+	    if(ratio){
+	        ratio = Math.round(ratio*100);
+	    }
+	     
+	    // 360安全浏览器下浏览器最大化时诡异的outerWidth和innerWidth不相等
+	    if(ratio === 99 || ratio === 101){
+	        ratio = 100;
+	    }
+	     
+	    return ratio;
+	},
+	
+	isZoomMonitor:function(){
+		var isException=(window.outerWidth!==undefined&&window.outerWidth<200)
+		if((W.isZoom()>105||W.isZoom()<95)&&!isException){
+			if(!_$('isZoomTips')){			
+				var htm='<div id="isZoomTips" style="z-index:'+(W.maxZindex()+1)+' !important;">您浏览器当前的缩放比率为'+W.isZoom()+'%，为不影响页面布局，请同时按<font>Ctrl+0</font>恢复原始大小。</div>';
+				document.body.insertAdjacentHTML('afterBegin', htm);
+			}else{
+				_$('isZoomTips').innerHTML='您浏览器当前的缩放比率为'+W.isZoom()+'%，为不影响页面布局，请同时按<font>Ctrl+0</font>恢复原始大小。';
+			}
+			
+			//_$('isZoomTips').style.height=W.h()+'px';
+			//_$('isZoomTips').style.width='100%';
+			//_$('isZoomTips').style.top='0px';
+			//_$('isZoomTips').style.left='0px';
+		}else{
+			if(!_$('isZoomTips')) return;
+			_$('isZoomTips').parentNode.removeChild(_$('isZoomTips'));
+			//location.reload();
+		}
+	},
+	
+	_confrimCallback:null,
+	_confrimCallbackParams:null,
+	_confirm:function(msg,_confrimCallback,_confrimCallbackParams){
+		this._confrimCallback=_confrimCallback;
+		this._confrimCallbackParams=_confrimCallbackParams;
+		
+		var str='<div id="confirmDialogBg" style="z-index:'+(W.maxZindex()+1)+' !important;" align="center"><iframe id="confirmDialogFrame" name="confirmDialogFrame" src="/confirmDialogBg.htm" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		str+='<div id="confirmDialog" style="z-index:'+(W.maxZindexLastTime()+2)+' !important;">';
+		str+='	<div id="confirmDialogTitle" class="noselect" onmousedown="startDrag(event);" onmouseup="endDrag(event)" onmouseout="endDrag(event)" onmousemove="moving(event);"><div id="confirmDialogTitleText" class="confirmDialogTitleText">I{js,请确认}</div><div onclick="W._confirmCancel();" id="confirmDialogCloseIcon" class="iconfont"></div></div>';
+		str+='	<div id="confirmDialogContent">';
+		str+='		<div id="confirmDialogMsg">'+msg+'</div>';
+		str+='		<div id="confirmDialogBtns">';
+		str+='			<div class="btnLong"><input type="button" value="I{js,确定}" onclick="W._confirmOk();" /></div>';
+		str+='			<div class="btnLongLight marginL10"><input type="button" value="I{js,取消}" onclick="W._confirmCancel();" /></div>';
+		str+='		</div>';
+		str+='	</div>';
+		str+='</div>';
+		document.body.insertAdjacentHTML('afterBegin', str);
+		
+		_$('confirmDialogBg').style.height=W.h()+'px';
+		_$('confirmDialogBg').style.width='100%';
+		_$('confirmDialogBg').style.top='0px';
+		_$('confirmDialogBg').style.left='0px';
+		
+		_$('confirmDialog').style.left=Math.floor((W.vw()-W.elementWidth(_$('confirmDialog')))/2)+'px';
+		
+		var theTop=W.tTotal()+Math.round((W.vh()-W.elementHeight(_$('confirmDialog')))/2);
+		_$('confirmDialog').style.top=theTop+'px';
+		
+		_$('confirmDialog').style.visibility='visible';
+		_$('confirmDialogBg').style.visibility='visible';
+	},
+	_confirmOk:function(){
+		_$('confirmDialogBg').parentNode.removeChild(_$('confirmDialogBg'));
+		_$('confirmDialog').parentNode.removeChild(_$('confirmDialog'));
+		if(this._confrimCallbackParams){
+			if(this._confrimCallbackParams.length==0) this._confrimCallback();
+			else if(this._confrimCallbackParams.length==1){
+				this._confrimCallback(this._confrimCallbackParams[0]);
+			}else if(this._confrimCallbackParams.length==2){
+				this._confrimCallback(this._confrimCallbackParams[0],
+						this._confrimCallbackParams[1]);
+			}else if(this._confrimCallbackParams.length==3){
+				this._confrimCallback(this._confrimCallbackParams[0],
+						this._confrimCallbackParams[1],
+						this._confrimCallbackParams[2]);
+			}else if(this._confrimCallbackParams.length==4){
+				this._confrimCallback(this._confrimCallbackParams[0],
+						this._confrimCallbackParams[1],
+						this._confrimCallbackParams[2],
+						this._confrimCallbackParams[3]);
+			}else if(this._confrimCallbackParams.length==5){
+				this._confrimCallback(this._confrimCallbackParams[0],
+						this._confrimCallbackParams[1],
+						this._confrimCallbackParams[2],
+						this._confrimCallbackParams[3],
+						this._confrimCallbackParams[4]);
+			}else if(this._confrimCallbackParams.length==6){
+				this._confrimCallback(this._confrimCallbackParams[0],
+						this._confrimCallbackParams[1],
+						this._confrimCallbackParams[2],
+						this._confrimCallbackParams[3],
+						this._confrimCallbackParams[4],
+						this._confrimCallbackParams[5]);
+			}else if(this._confrimCallbackParams.length==7){
+				this._confrimCallback(this._confrimCallbackParams[0],
+						this._confrimCallbackParams[1],
+						this._confrimCallbackParams[2],
+						this._confrimCallbackParams[3],
+						this._confrimCallbackParams[4],
+						this._confrimCallbackParams[5],
+						this._confrimCallbackParams[6]);
+			}else if(this._confrimCallbackParams.length==8){
+				this._confrimCallback(this._confrimCallbackParams[0],
+						this._confrimCallbackParams[1],
+						this._confrimCallbackParams[2],
+						this._confrimCallbackParams[3],
+						this._confrimCallbackParams[4],
+						this._confrimCallbackParams[5],
+						this._confrimCallbackParams[6],
+						this._confrimCallbackParams[7]);
+			}else if(this._confrimCallbackParams.length==9){
+				this._confrimCallback(this._confrimCallbackParams[0],
+						this._confrimCallbackParams[1],
+						this._confrimCallbackParams[2],
+						this._confrimCallbackParams[3],
+						this._confrimCallbackParams[4],
+						this._confrimCallbackParams[5],
+						this._confrimCallbackParams[6],
+						this._confrimCallbackParams[7],
+						this._confrimCallbackParams[8]);
+			}else if(this._confrimCallbackParams.length==10){
+				this._confrimCallback(this._confrimCallbackParams[0],
+						this._confrimCallbackParams[1],
+						this._confrimCallbackParams[2],
+						this._confrimCallbackParams[3],
+						this._confrimCallbackParams[4],
+						this._confrimCallbackParams[5],
+						this._confrimCallbackParams[6],
+						this._confrimCallbackParams[7],
+						this._confrimCallbackParams[8],
+						this._confrimCallbackParams[9]);
+			}
+		}
+	},
+	_confirmCancel:function(){
+		_$('confirmDialogBg').parentNode.removeChild(_$('confirmDialogBg'));
+		_$('confirmDialog').parentNode.removeChild(_$('confirmDialog'));
 	}
 }
 
@@ -4335,7 +4899,7 @@ var IMG={
 			
 			this.images[id]=null;
 		}else{//等待加载完毕
-			this.adjustPhotoTimeouts[id]=setTimeout("IMG.adjust('"+id+"','"+idLoading+"',"+zoomType+","+imgMaxWidth+","+imgMaxHeight+","+imgMaxLength+","+middle+","+center+",null,"+this.images[id].fullScreen+","+this.images[id].parentSizeFixed+")",500);
+			this.adjustPhotoTimeouts[id]=setTimeout("IMG.adjust('"+id+"','"+idLoading+"',"+zoomType+","+imgMaxWidth+","+imgMaxHeight+","+imgMaxLength+","+middle+","+center+",null,"+this.images[id].fullScreen+","+this.images[id].parentSizeFixed+")",50);
 		}
 	},
 	
@@ -4652,14 +5216,18 @@ var XML={
 
 var JSONUtil={
 	parse:function(s){
-		var resp=JSON.parse(s);
 		try{
-			if(resp.code) resp.code=Str.intSequence2String(resp.code);
-		}catch(e){} 
-		try{
-			if(resp.message) resp.message=Str.intSequence2String(resp.message);
-		}catch(e){} 
-		return resp;
+			var resp=JSON.parse(s);
+			try{
+				if(resp.code) resp.code=Str.intSequence2String(resp.code);
+			}catch(e){} 
+			try{
+				if(resp.message) resp.message=Str.intSequence2String(resp.message);
+			}catch(e){} 
+			return resp;
+		}catch(e){
+			return JSON.parse('{}');
+		}
 	},
 	
 	de:function(v){
@@ -4731,7 +5299,8 @@ JWebSocket.prototype.destroy=function(){
 	if(this.websocket) this.websocket.close();
 }
 JWebSocket.prototype.send=function(data){
-    var s='{"session_id":"'+session_id+'","data":"'+Str.string2IntSequence(data)+'"}';
+	//data必须是包含于{}或[]中的符合json格式字符串
+    var s='{"session_id":"'+session_id+'","field":"'+Fields.current+'","data":'+data+'}';
     this.websocket.send(s);
 }
 //============================
@@ -5513,6 +6082,8 @@ var LoadingFullPage={
 	setHeightInterval:null,
 	padding:0,
 	initScrollTop:0,
+	okBtnName:'I{确定}',
+	cancelBtnName:'I{取消}',
 	
 	isOpen:function(){
 		return _$('loadingFullPage')?true:false;
@@ -5614,6 +6185,9 @@ var LoadingFullPage={
 			return;
 		}
 		
+		this.okBtnName='I{确定}';
+		this.cancelBtnName='I{取消}';
+		
 		if(noForce&&noForce=='true'){
 			try{
 				while(this.urlLoadedIndex>0){
@@ -5623,10 +6197,14 @@ var LoadingFullPage={
 					if(_urlLoaded[0].indexOf('/deposit/')>-1){
 						continue;
 					}
-					 
+
 					this.setTitle(_urlLoaded[1]);
-					loadingFullPageFrame.location.href=_urlLoaded[0];
-					//history.back(-1);
+					if(_urlLoaded[0].indexOf('text:')==0){
+						this.setContent(_urlLoaded[0].substring(5));
+					}else{
+						loadingFullPageFrame.location.href=_urlLoaded[0];
+					}
+					 
 					return;
 				}
 			}catch(e){}
@@ -5681,9 +6259,10 @@ var LoadingFullPage={
 	
 	setTitle:function(tit){
 		_$('loadingFullPageTitle').innerHTML=tit; 
+		this.pageName=tit;
 	},
 	
-	load:function(url,_content){ //恢复手机版搜索提示词和提交目标
+	load:function(url,_content,_title){ //恢复手机版搜索提示词和提交目标
 		try{
 			_searcherConfigInHeader(null,null);
 		}catch(e){}
@@ -5691,18 +6270,21 @@ var LoadingFullPage={
 		if(!_$('loadingFullPage')) return;
 		
 		if(_content){
-			_$('loadingFullPage').className='loadingFullPage';
-			this.setContent(_content);
+			_$('loadingFullPage').className=Utils.isMobile()?'loadingFullPage':'loadingFullPageNoScrolling';
+			this.setContent(_content,_title);
 		}else{			
-			_$('loadingFullPageLoading').style.top=Math.ceil(W.vh()/2)+'px';
-			_$('loadingFullPageLoading').style.left='0px';	
-			_$('loadingFullPageLoading').style.visibility='visible';
+			if(url.indexOf('/')==0||url.indexOf(thisDomain)>0){
+				_$('loadingFullPageLoading').style.top=Math.ceil(W.vh()/2)+'px';
+				_$('loadingFullPageLoading').style.left='0px';	
+				_$('loadingFullPageLoading').style.visibility='visible';
+			}
 			
 			this.url=url;	
 			if(url.indexOf('/goods/item.jhtml')>-1
 					||url.indexOf('/goods/snapshot.jhtml')>-1
 					||url.indexOf('/shopping/cart.jhtml')>-1
-					||url.indexOf('/usr/message.jhtml')>-1){
+					||url.indexOf('/usr/message.jhtml')>-1
+					||!Utils.isMobile()){
 				_$('loadingFullPage').className='loadingFullPageNoScrolling';
 			}else{
 				_$('loadingFullPage').className='loadingFullPage';
@@ -5714,10 +6296,27 @@ var LoadingFullPage={
 					&&Str.getDomain(url)!=thisDomain){
 				setTimeout(top.LoadingFullPage.loaded,2000);
 			}
+			
+			if(_title) this.setTitle(_title);
 		}			
 	},
 	
-	loaded:function(){
+	setContent:function(_content,_title){ 
+		if(!_$('loadingFullPage')) return;
+		
+		_$('loadingFullPage').className=Utils.isMobile()?'loadingFullPage':'loadingFullPageNoScrolling';
+		if(this.padding>0){
+			_$('loadingFullPage').innerHTML='<div style="padding:'+this.padding+'px;">'+_content+'</div>';			
+		}else{
+			_$('loadingFullPage').innerHTML=_content;	
+		}
+		
+		if(_title) this.setTitle(_title);
+		
+		this.loaded(_content);
+	},
+	
+	loaded:function(_content){
 		if(!_$('loadingFullPageLoading')) return;
 		
 		_$('loadingFullPageLoading').style.visibility='hidden';
@@ -5740,20 +6339,20 @@ var LoadingFullPage={
 				this.urlLoaded.push([loadingFullPageFrame.location.href,_$('loadingFullPageTitle').innerHTML]);
 				this.urlLoadedIndex++;
 			}
-		}
-	},
-	
-	setContent:function(_content){ 
-		if(!_$('loadingFullPage')) return;
-		
-		_$('loadingFullPage').className='loadingFullPage';
-		if(this.padding>0){
-			_$('loadingFullPage').innerHTML='<div style="padding:'+this.padding+'px;">'+_content+'</div>';			
 		}else{
-			_$('loadingFullPage').innerHTML=_content;	
+			var urlInHistory=false;
+			for(var i=0;i<this.urlLoaded.length;i++){
+				if(this.urlLoaded[i][0].substring(5)==_content){
+					urlInHistory=true;
+					break;
+				}
+			}
+			
+			if(!urlInHistory){
+				this.urlLoaded.push(['text:'+_content,_$('loadingFullPageTitle').innerHTML]);
+				this.urlLoadedIndex++;
+			}
 		}
-		
-		this.loaded();
 	},
 	
 	init:function(){
@@ -5762,11 +6361,11 @@ var LoadingFullPage={
 			return;
 		}	
 		
-		var str='<div id="loadingFullPageBg" style="'+(this.zIndex?('z-index:'+this.zIndex):'')+'"><iframe src="/white.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		var str='<div id="loadingFullPageBg" style="width:'+top.W.vw()+'px; z-index:'+(W.maxZindex()+1)+' !important;"><iframe src="/white.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>';
 		
-		str+='<div id="loadingFullPageLoading" style="'+(this.zIndex?('z-index:'+(this.zIndex+2)):'')+'"><img src="/img/loading/Loading6.gif"/></div>';
+		str+='<div id="loadingFullPageLoading" style="width:'+top.W.vw()+'px; z-index:'+(W.maxZindexLastTime()+3)+' !important;"><img src="/img/loading/Loading6.gif"/></div>';
 		
-		str+='<div id="loadingFullPageCloseBox" style="'+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'">';
+		str+='<div id="loadingFullPageCloseBox" style="width:'+top.W.vw()+'px; z-index:'+(W.maxZindexLastTime()+2)+' !important;">';
 		str+='	<div id="loadingFullPageClose" onclick="LoadingFullPage.close(\'true\');">';
 		str+='		<div id="loadingFullPageCloseText" class="iconfont icon-back_light"></div>';
 		str+='	</div>';
@@ -5776,11 +6375,11 @@ var LoadingFullPage={
 		str+='	<div id="loadingFullPageTitle" style="width:'+(W.vw()-100)+'px;">'+this.pageName+'</div>';
 		str+='</div>';
 		
-		str+='<div id="loadingFullPage" class="loadingFullPage" style="height:'+(W.vh()-41)+'px !important; '+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'"></div>';
+		str+='<div id="loadingFullPage" class="loadingFullPage" style="width:'+top.W.vw()+'px; '+(Utils.isMobile()?'':'display:inline-table; min-')+'height:'+(W.vh()-41)+'px !important; z-index:'+(W.maxZindexLastTime()+2)+' !important;"></div>';
 		
-		str+='<div id="loadingFullPageOkCancelBox" style="'+(this.zIndex?('z-index:'+(this.zIndex+1)):'')+'">';
-		str+='	<div class="fullWidthBtnYellow displayBlock" style="width:45%;" onclick="LoadingFullPage.ok();">I{确定}</div>';
-		str+='	<div class="fullWidthBtnGray displayBlock" style="width:45%;" onclick="LoadingFullPage.close(\'true\');">I{取消}</div>';
+		str+='<div id="loadingFullPageOkCancelBox" style="z-index:'+(W.maxZindexLastTime()+3)+' !important;">';
+		str+='	<div class="fullWidthBtnYellow displayBlock" style="width:45%;" onclick="LoadingFullPage.ok();">'+this.okBtnName+'</div>';
+		str+='	<div class="fullWidthBtnGray displayBlock" style="width:45%;" onclick="LoadingFullPage.close(\'true\');">'+this.cancelBtnName+'</div>';
 		str+='</div>';
 		
 		document.body.insertAdjacentHTML('afterBegin', str);
@@ -5798,6 +6397,7 @@ var LoadingGoodsPage={
 	pageName:'',
 	setHeightInterval:null,
 	initScrollTop:0,
+	padding:0,
 	
 	isOpen:function(){
 		return _$('loadingGoodsPage')?true:false;
@@ -5903,8 +6503,12 @@ var LoadingGoodsPage={
 					}
 					
 					this.setTitle(_urlLoaded[1]);
-					loadingGoodsPageFrame.location.href=_urlLoaded[0];
-					//history.back(-1);
+					if(_urlLoaded[0].indexOf('text:')==0){
+						this.setContent(_urlLoaded[0].substring(5));
+					}else{
+						loadingGoodsPageFrame.location.href=_urlLoaded[0];
+					}
+					
 					return;
 				}
 			}catch(e){}
@@ -5948,9 +6552,10 @@ var LoadingGoodsPage={
 	
 	setTitle:function(tit){
 		_$('loadingGoodsPageTitle').innerHTML=tit; 
+		this.pageName=tit;
 	},
 	
-	load:function(url,_content){ 
+	load:function(url,_content,_title){ 
 		//恢复手机版搜索提示词和提交目标
 		try{
 			_searcherConfigInHeader(null,null);
@@ -5959,19 +6564,22 @@ var LoadingGoodsPage={
 		if(!_$('loadingGoodsPage')) return;
 		
 		if(_content){
-			_$('loadingGoodsPage').className='loadingGoodsPage';
-			this.setContent(_content);
+			_$('loadingGoodsPage').className=Utils.isMobile()?'loadingGoodsPage':'loadingGoodsPageNoScrolling';
+			this.setContent(_content,_title);
 		}else{
-			_$('loadingGoodsPageLoading').style.top=Math.ceil(W.vh()/2)+'px';
-			_$('loadingGoodsPageLoading').style.left='0px';	
-			_$('loadingGoodsPageLoading').style.visibility='visible';
+			if(url.indexOf('/')==0||url.indexOf(thisDomain)>0){
+				_$('loadingGoodsPageLoading').style.top=Math.ceil(W.vh()/2)+'px';
+				_$('loadingGoodsPageLoading').style.left='0px';	
+				_$('loadingGoodsPageLoading').style.visibility='visible';
+			}
 			
 			this.url=url;
 			if(url.indexOf('/goods/item.jhtml')>-1
 					||url.indexOf('/goods/snapshot.jhtml')>-1
 					||url.indexOf('/shopping/cart.jhtml')>-1
 					||url.indexOf('/usr/message.jhtml')>-1
-					||url.indexOf('/lbs/show.jhtml')>-1){
+					||url.indexOf('/lbs/show.jhtml')>-1
+					||!Utils.isMobile()){
 				_$('loadingGoodsPage').className='loadingGoodsPageNoScrolling';
 			}else{
 				_$('loadingGoodsPage').className='loadingGoodsPage';
@@ -5983,18 +6591,27 @@ var LoadingGoodsPage={
 					&&Str.getDomain(url)!=thisDomain){
 				setTimeout(top.LoadingGoodsPage.loaded,2000);
 			}
+			
+			if(_title) this.setTitle(_title);
 		}			
 	},
 	
-	setContent:function(_content){ 
+	setContent:function(_content,_title){ 
 		if(!_$('loadingGoodsPage')) return;
 		
-		_$('loadingGoodsPage').className='loadingGoodsPage';
-		_$('loadingGoodsPage').innerHTML=_content;
-		this.loaded();
+		_$('loadingGoodsPage').className=Utils.isMobile()?'loadingGoodsPage':'loadingGoodsPageNoScrolling';
+		if(this.padding>0){
+			_$('loadingGoodsPage').innerHTML='<div style="padding:'+this.padding+'px;">'+_content+'</div>';			
+		}else{
+			_$('loadingGoodsPage').innerHTML=_content;	
+		}
+		
+		if(_title) this.setTitle(_title);
+		
+		this.loaded(_content);
 	},
 	
-	loaded:function(){
+	loaded:function(_content){
 		//top.Loading.close();
 		if(!_$('loadingGoodsPageLoading')) return;
 		
@@ -6007,7 +6624,7 @@ var LoadingGoodsPage={
 			
 			var urlInHistory=false;
 			for(var i=0;i<this.urlLoaded.length;i++){
-				if(this.urlLoaded[i]==loadingGoodsPageFrame.location.href){
+				if(this.urlLoaded[i][0]==loadingGoodsPageFrame.location.href){
 					urlInHistory=true;
 					break;
 				}
@@ -6015,6 +6632,19 @@ var LoadingGoodsPage={
 			
 			if(!urlInHistory){
 				this.urlLoaded.push([loadingGoodsPageFrame.location.href,_$('loadingGoodsPageTitle').innerHTML]);
+				this.urlLoadedIndex++;
+			}
+		}else{
+			var urlInHistory=false;
+			for(var i=0;i<this.urlLoaded.length;i++){
+				if(this.urlLoaded[i][0].substring(5)==_content){
+					urlInHistory=true;
+					break;
+				}
+			}
+			
+			if(!urlInHistory){
+				this.urlLoaded.push(['text:'+_content,_$('loadingGoodsPageTitle').innerHTML]);
 				this.urlLoadedIndex++;
 			}
 		}
@@ -6026,11 +6656,11 @@ var LoadingGoodsPage={
 			return;
 		}	
 		
-		var str='<div id="loadingGoodsPageBg" align="center"><iframe src="/white.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		var str='<div id="loadingGoodsPageBg" style="width:'+top.W.vw()+'px; z-index:'+(W.maxZindex()+1)+' !important;"><iframe src="/white.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>';
 
-		str+='<div id="loadingGoodsPageLoading"><img src="/img/loading/Loading6.gif"/></div>';
+		str+='<div id="loadingGoodsPageLoading" style="width:'+top.W.vw()+'px; z-index:'+(W.maxZindexLastTime()+3)+' !important;"><img src="/img/loading/Loading6.gif"/></div>';
 		
-		str+='<div id="loadingGoodsPageCloseBox">';
+		str+='<div id="loadingGoodsPageCloseBox" style="width:'+top.W.vw()+'px; z-index:'+(W.maxZindexLastTime()+2)+' !important;">';
 		str+='	<div id="loadingGoodsPageClose" onclick="LoadingGoodsPage.close(\'true\');">';
 		str+='		<div id="loadingGoodsPageCloseText" class="iconfont icon-back_light"></div>';
 		str+='	</div>';
@@ -6040,14 +6670,12 @@ var LoadingGoodsPage={
 		str+='	<div id="loadingGoodsPageTitle" style="width:'+(W.vw()-100)+'px;">'+this.pageName+'</div>';
 		str+='</div>';
 		
-		str+='<div id="loadingGoodsPage" class="loadingGoodsPage" style="height:'+(top.W.vh()-41)+'px;"></div>'; 
+		str+='<div id="loadingGoodsPage" class="loadingGoodsPage" style="width:'+top.W.vw()+'px; '+(Utils.isMobile()?'':'display:inline-table; min-')+'height:'+(top.W.vh()-41)+'px; z-index:'+(W.maxZindexLastTime()+2)+' !important;"></div>'; 
 		document.body.insertAdjacentHTML('afterBegin', str);
 	}
 }
 function showGoodsPage(url,name){
-	//location.href=url;
-	top.LoadingGoodsPage.open(null,top,url,decodeURIComponent(name));
-	top.LoadingGoodsPage.setTitle(decodeURIComponent(name));
+	top.LoadingGoodsPage.open(null,top,url,'');
 }
 function showGoodsPageIf(url,name){
 	if(url.indexOf('/goods/item.jhtml')>-1){
@@ -6124,7 +6752,17 @@ var LoadingAllImages={
 	        //	_pageTitle=_pageTitle.substring(0,_pageTitle.lastIndexOf(' - '));
 	        //}
 	        
-	        this.allImages.push(['/utils/qrcodex.jhtml?size=15&content='+encodeURIComponent(_pageUrl)+'&title='+encodeURIComponent(_pageTitle),'QRCODE','I{js,保存本图并分享到朋友圈让您的朋友可直接访问本页面}',_pageUrl]);
+	        //https://m.gugumall.cn/?open=/goods/item.jhtml?id=813&referer=445094505&referer=445094505
+	        var pageUrl=decodeURIComponent(_pageUrl);
+	        if(pageUrl.indexOf('/goods/item.jhtml?id=')>-1){
+	        	var goodsIdStart=pageUrl.indexOf('/goods/item.jhtml?id=')+'/goods/item.jhtml?id='.length;
+	        	var goodsIdEnd=pageUrl.indexOf('&', goodsIdStart);
+	        	var goodsId=pageUrl.substring(goodsIdStart, goodsIdEnd);
+	        	this.allImages.push(['/goods/share.jhtml?id='+goodsId+"&content="+encodeURIComponent(_pageUrl),'QRCODE','I{js,保存本图并分享到朋友圈让您的朋友可直接访问本页面}',_pageUrl]);
+	        }else{
+	        	this.allImages.push(['/utils/qrcodex.jhtml?size=15&content='+encodeURIComponent(_pageUrl)+'&title='+encodeURIComponent(_pageTitle),'QRCODE','I{js,保存本图并分享到朋友圈让您的朋友可直接访问本页面}',_pageUrl]);
+		    }
+	        
 	        //自动添加二维码 end
 		}
         
@@ -6147,7 +6785,7 @@ var LoadingAllImages={
         }else{
         	var _allImages=null;
         	if(_$('loadingFullPageFrame')){
-        		_allImages=IFrame._documemt(loadingFullPageFrame).getElementsByTagName('img')
+        		_allImages=IFrame._documemt(loadingFullPageFrame).getElementsByTagName('img');
             }else if(_$('loadingFullPage')){
             	var htm=_$('loadingFullPage').innerHTML.toLowerCase();
             	var start=htm.indexOf('<img');
@@ -6178,7 +6816,8 @@ var LoadingAllImages={
 		        	
 		        	var src=Utils.att(img,'_src');
 		        	if(!src) src=img.src;
-		        	if(!src||src.indexOf('/i/')<0) continue;
+		        	if(!src
+		        			||(src.indexOf('/i/')<0&&src.indexOf('/img/chargingpile/')<0)) continue;
 		        	src=Str.replaceAll(src,'_logo','');
 		        	src=Str.replaceAll(src,'_mini','');
 		        	
@@ -6907,7 +7546,7 @@ var LoadingAllImages={
 		}	
 		
 		var str='';
-		str+='<div id="loadingAllImagesCloseBox">';
+		str+='<div id="loadingAllImagesCloseBox" style="width:'+top.W.vw()+'px; z-index:'+(W.maxZindexLastTime()+2)+' !important;">';
 		if(Utils.isMobile()){
 			str+='	<div id="loadingAllImagesInfo" class="iconfont icon-pic"></div>';
 			str+='	<div id="loadingAllImagesTitle">I{js,双指缩放，双击还原，长按保存}</div>';
@@ -6922,15 +7561,15 @@ var LoadingAllImages={
 		str+='	</div>';
 		str+='</div>';
 		
-		str+='<div id="loadingAllImages" style="height:'+(top.W.h()-0)+'px;">';
-		str+='	<div id="loadingAllImagesContainer" style="height:'+(top.W.h()-0)+'px;"></div>';
+		str+='<div id="loadingAllImages" style="width:'+top.W.vw()+'px; height:'+(top.W.h()-40)+'px; z-index:'+(W.maxZindex()+1)+' !important;">';
+		str+='	<div id="loadingAllImagesContainer" style="height:'+(top.W.h()-40)+'px;"></div>';
 		str+='</div>';
-		str+='<div id="loadingAllImagesNumbers">';
+		str+='<div id="loadingAllImagesNumbers" style="z-index:'+(W.maxZindexLastTime()+2)+' !important;">';
 		str+='	<div id="loadingAllImagesBizLink"></div>';
 		str+='	<div id="loadingAllImagesNumbersCount"></div>';
 		str+='</div>';
 		
-		str+='<div id="loadingAllImagesTrimBox" class="loadingAllImagesTrimBox"></div>';
+		str+='<div id="loadingAllImagesTrimBox" class="loadingAllImagesTrimBox" style="z-index:'+(W.maxZindexLastTime()+3)+' !important;"></div>';
 		document.body.insertAdjacentHTML('afterBegin', str);
 	}
 }
@@ -7002,6 +7641,8 @@ var Loading={
 	bgColor:null,
 	padding:-1,
 	noTitle:false,
+	initMsg:null,
+	noFocus:false,
 	
 	setTitle:function(tit){
 		this.title=tit;
@@ -7009,7 +7650,7 @@ var Loading={
 		else if(_$('loadingTitle')) _$('loadingTitle').innerHTML=tit;
 	},
 
-	open:function(_l,_t,_w,_h,_onClose,_win,_type){ 
+	open:function(_l,_t,_w,_h,_onClose,_win,_type,_initMsg){ 
 		if(this.showTimeout){
 			clearTimeout(this.showTimeout);
 			this.showTimeout=null;
@@ -7033,6 +7674,9 @@ var Loading={
 		
 		if(!_type) _type='';
 		
+		if(_initMsg) this.initMsg=_initMsg;
+		else this.initMsg=null;
+		
 		//手机顶层页面统一使用dock形式
 		if(Utils.isMobile()&&location.href==top.location.href&&_type=='dialog'){
 			_type='dock';
@@ -7054,6 +7698,7 @@ var Loading={
 		else if(_type=='tip') this.initTip();
 		else if(_type=='dialog') this.initDialog();	
 		else if(_type=='dock') this.initDock();	
+		else if(_type=='waiting') this.initWaiting();	
 		
 		if(this.delay>0) this.showTimeout=setTimeout("Loading.show("+_l+","+_t+","+_w+","+_h+")",this.delay);
 		else this.showTimeout=setTimeout("Loading.show("+_l+","+_t+","+_w+","+_h+")",250);//this.show(_l,_t);
@@ -7125,6 +7770,9 @@ var Loading={
 	},
 	
 	close:function(closeBySysMechanism){//closeBySysMechanism表示是否框架机制关闭
+		if(closeBySysMechanism&&this.openType=='waiting'){
+			return;
+		}
 		LoadingUtilLastHeight=0;
 		
 		endDrag();
@@ -7143,6 +7791,7 @@ var Loading={
 		this.bgColor=null;
 		this.padding=-1;
 		this.noTitle=false;
+		this.noFocus=false;
 		
 		if(!_$('loadingBg')) return;
 		
@@ -7319,8 +7968,8 @@ var Loading={
 			return;
 		}	
 		
-		var str='<div style="position:absolute; z-index:101; filter:alpha(opacity=50); -moz-opacity:.5; opacity:.5; overflow:hidden; visibility:hidden;" id="loadingBg" align="center"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
-		str+='<div style="position:absolute; z-index:101; width:'+this.wMini+'; text-align:left; overflow:hidden; visibility:hidden; cursor:pointer;" id="loading">';
+		var str='<div style="position:absolute; z-index:'+(W.maxZindex()+1)+' !important; filter:alpha(opacity=50); -moz-opacity:.5; opacity:.5; overflow:hidden; visibility:hidden;" id="loadingBg" align="center"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		str+='<div style="position:absolute; z-index:'+(W.maxZindex()+1)+' !important; width:'+this.wMini+'; text-align:left; overflow:hidden; visibility:hidden; cursor:pointer;" id="loading">';
 		str+='	<div style="position:relative; top:1px; margin-left:6px; margin-right:6px; height:9px; background:url(/img/images.png) 0px -300px;"></div>';
 		str+='	<div style="border:#ccc 1px solid; background-color:#f4f5f6; -moz-border-radius:6px; border-radius:6px; -webkit-border-radius:6px; overflow:hidden;" id="loadingDecoration">';
 		str+='		<table width="100%" height="100%" cellpadding="3" cellspacing="0"><tr><td id="loadingMsg" valign="middle" style="color:#666; line-height:18px;"></td></tr></table>';
@@ -7346,9 +7995,9 @@ var Loading={
 	
 		var str='';
 		if(cover){
-			str='<div style="position:absolute; left:0px; top:0px; width:100%; height:100%; z-index:'+zindex+'; filter:alpha(opacity=50); -moz-opacity:.5; opacity:.5; overflow:hidden; visibility:hidden;" id="'+id+'Bg" align="center"><iframe src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
+			str='<div style="position:absolute; left:0px; top:0px; width:100%; height:100%; z-index:'+(W.maxZindex()+1)+' !important; filter:alpha(opacity=50); -moz-opacity:.5; opacity:.5; overflow:hidden; visibility:hidden;" id="'+id+'Bg" align="center"><iframe src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
 		}else{
-			str='<div style="position:absolute; left:'+l+'px; top:'+t+'px; width:'+w+'px; height:'+h+'px; z-index:'+zindex+'; overflow:hidden; visibility:hidden;" id="'+id+'Bg" align="center"><iframe src="'+(this.bg?this.bg:'/blank.htm')+'" width="'+w+'"  height="'+h+'" frameborder="0" scrolling="no"></iframe></div>';
+			str='<div style="position:absolute; left:'+l+'px; top:'+t+'px; width:'+w+'px; height:'+h+'px; z-index:'+(W.maxZindexLastTime()+2)+' !important; overflow:hidden; visibility:hidden;" id="'+id+'Bg" align="center"><iframe src="'+(this.bg?this.bg:'/blank.htm')+'" width="'+w+'"  height="'+h+'" frameborder="0" scrolling="no"></iframe></div>';
 		}
 		str+='<div style="position:absolute; z-index:'+zindex+'; left:'+l+'px; top:'+t+'px; width:'+w+'px; height:'+h+'px; text-align:'+align+'; overflow:hidden; visibility:hidden; cursor:pointer;" id="'+id+'">';
 		str+='	<div style="position:relative; top:1px; margin-left:6px; margin-right:6px; height:9px; background:url(/img/images.png) 0px -1190px;"></div>';
@@ -7370,18 +8019,27 @@ var Loading={
 		p.removeChild(_$(id+'Bg'));
 	},
 	
+	initWaiting:function(){
+		var str='<div id="loadingBg" style="z-index:'+(W.maxZindex()+1)+' !important;"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		str+='<div id="loading" class="waiting" style="z-index:'+(W.maxZindex()+1)+' !important;">';
+		if(this.initMsg) str+=this.initMsg;
+		else str+='	<div style="margin-top:50px; margin-left:auto; margin-right:auto;"><img src="/img/loading/Loading6.gif"/></div>';
+		str+='</div>';
+		document.body.insertAdjacentHTML('afterBegin', str);
+	},
+	
 	initDialog:function(){
 		if(_$('loadingBg')){
 			return;
 		}	
 		
-		var str='<div id="loadingBg" align="center"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
-		str+='<div id="loading" class="loading"'+(this.bgColor?(' style="background-color:'+this.bgColor+'"'):'')+' onkeydown="if(event.keyCode==13) Loading.close();">';
+		var str='<div id="loadingBg" style="z-index:'+(W.maxZindex()+1)+' !important;" align="center"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		str+='<div id="loading" class="loading" style="z-index:'+(W.maxZindexLastTime()+2)+' !important;" onkeydown="if(event.keyCode==13) Loading.close();">';
 		str+='	<div id="loadingTitle" class="noselect loadingTitle" onmousedown="startDrag(event);" onmouseup="endDrag(event)" onmouseout="endDrag(event)" onmousemove="moving(event);"><div id="loadingTitleText" class="loadingTitleText">'+this.title+'</div><div onclick="Loading.close(true);" id="loadingCloseIcon" class="loadingCloseIcon iconfont"></div></div>';
 		str+='	<div id="loadingContent" class="loadingContent">';
 		str+='		<table class="loadingTable"><tr><td align="center" valign="'+this.valign+'" id="loadingMsg" class="loadingMsg"'+(this.padding>-1?(' style="padding:'+this.padding+'px !important;"'):'')+'></td></tr></table>';
 		str+='	</div>';
-		str+='	<div><input type="text" id="loadingFocus" style="width:1px !important; height:1px !important; background:none; border:none;"/></div>';
+		if(this.cover&&!this.noFocus) str+='	<div><input type="text" id="loadingFocus" style="width:1px !important; height:1px !important; background:none; border:none;"/></div>';
 		str+='</div>';
 		//beforeBegin,beforeEnd,afterBegin,afterEnd
 		document.body.insertAdjacentHTML('afterBegin', str);
@@ -7392,8 +8050,8 @@ var Loading={
 			return;
 		}	
 		
-		var str='<div id="loadingBg"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
-		str+='<div id="loading" class="loading dock">';
+		var str='<div id="loadingBg" style="z-index:'+(W.maxZindex()+1)+' !important;"><iframe id="loadingFrame" name="loadingFrame" src="'+(this.bg?this.bg:'/blank.htm')+'" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>';
+		str+='<div id="loading" class="loading dock" style="z-index:'+(W.maxZindexLastTime()+2)+' !important;">';
 		str+='	<div id="loadingTitle" class="noselect loadingTitle'+(this.noTitle?' hidden':'')+'"><div id="loadingTitleText" class="loadingTitleText">'+this.title+'</div><div onclick="Loading.close(true);" id="loadingCloseIcon" class="loadingCloseIcon iconfont"></div></div>';
 		str+='	<div id="loadingContent" class="loadingContent">';
 		str+='		<table class="loadingTable"><tr><td align="center" valign="'+this.valign+'" id="loadingMsg" class="loadingMsg"'+(this.padding>-1?(' style="padding:'+this.padding+'px !important;"'):'')+'></td></tr></table>';
@@ -7404,11 +8062,11 @@ var Loading={
 	
 	showDialog:function(_l,_t,_w,_h,txt,txtAlign,btns){		
 		var htm=new Array();
-		htm.push('<div class="r marginT10 '+txtAlign+'">'+txt+'</div>');
-		if(btns.length>0) htm.push('<div class="r alignC marginT20">');
+		if(txt&&txt!='') htm.push('<div class="r marginT10 '+txtAlign+'">'+txt+'</div>');
+		if(btns.length>0) htm.push('<div class="r alignC'+(txt&&txt!=''?' marginT20':' marginT10')+'">');
 		for(var i=0;i<btns.length;i++) htm.push(btns[i]);
 		if(btns.length>0) htm.push('</div>');
-		htm.push('<div class="r">&nbsp;</div>');
+		htm.push('<div style="width:100%; height:10px; overflow:hidden;"></div>');
 		
 		this.open(_l, _t, _w, _h, null, window, 'dialog');
 		this.setMsg(htm.join(''));
@@ -7945,7 +8603,50 @@ var Sys={
 		//	document.body.insertAdjacentHTML('afterBegin', str);
 		//}	
 		//_$('flush').innerHTML='&nbsp;';
-	} 
+	} ,
+	
+	heartbeat:function(){
+		var ajax=new Ajax();
+		ajax.send('GET',Sys.doHeartbeat,'/blank.htm');
+	},
+	
+	doHeartbeat:function(ajax){
+		
+	},
+	
+	responsers:new Array(),
+	
+	currentResponser:'',
+	
+	changeResponser:function(id, win){
+		var loc=win?win.location.href:top.location.href;
+		if(Paras.getPara('j_responser_set')){
+			if(loc.indexOf('?')>0) loc=loc.substring(0,loc.indexOf('?'));
+			var ps=Paras.getParasEx('j_responser_set');
+			loc+=ps;
+			if(loc.indexOf('?')<0) loc+='?j_responser_set='+id;
+			else loc+='&j_responser_set='+id;
+		}else{
+			if(loc.indexOf('?')<0) loc+='?j_responser_set='+id;
+			else loc+='&j_responser_set='+id;
+		}
+		
+		if(win) win.location.href=loc;
+		else top.location.href=loc;
+	},
+	
+	initResponsers:function(selector){
+		var list=selector.options;
+		while(list&&list.length>1){
+			list.remove(list.length-1);
+		}
+
+	    for(var i=0; i<this.responsers.length; i++){
+	    	list.add(new Option(this.responsers[i][1],this.responsers[i][0]));
+		}
+	    
+	    selector.value=this.currentResponser;
+	}
 }
 
 var Countries={
@@ -8780,12 +9481,12 @@ var Countries={
 		showCountrySelector:function(id){
 			if(!_$('countrySelector')){
 				var htm=new Array();
-				htm.push('<div id="countrySelector">');
+				htm.push('<div id="countrySelector" style="z-index:'+(W.maxZindex()+1)+' !important;">');
 				htm.push('	<div id="countrySelectorTitle">');
 				htm.push('		<div class="fl marginL10">I{js,选择国家或地区}</div>');
 				htm.push('		<div class="fr marginR10 iconfont icon-close font20px" onclick="Countries.closeCountrySelector();"></div>');
 				htm.push('	</div>');
-				htm.push('	<div id="countrySelectorList">');
+				htm.push('	<div id="countrySelectorList" style="z-index:'+(W.maxZindexLastTime()+2)+' !important;">');
 				for(var i=0;i<this.exports.length;i++){
 					htm.push('		<div class="mobilePhoneCountry" onclick="Countries.setMobilePhoneCountry(\''+id+'\',\''+this.exports[i].value+'\',\''+this.exports[i].mobileCode+'\',\''+this.exports[i].cnName+'\');">+'+this.exports[i].mobileCode+'(+'+this.exports[i].cnName+')</div>');
 				}
@@ -8806,8 +9507,8 @@ var Countries={
 		
 		closeCountrySelector:function(){
 			if(!_$('countrySelector')) return;
-			_$('countrySelector').style.visibility='hidden';
-			_$('countrySelector').style.left='-10000px';
+			
+			_$('countrySelector').parentNode.removeChild(_$('countrySelector'));
 		},
 		
 		setMobilePhoneCountry:function(id,value,code,name){
@@ -8883,6 +9584,94 @@ var Countries={
 			}
 		}			
 }
+
+//地图相关
+var LBS={
+	lng1:'',
+	lat1:'',
+	name1:'',
+	lng2:'',
+	lat2:'',
+	name2:'',
+	
+	openMap:function(_lng1,_lat1,_name1,_lng2,_lat2,_name2){
+		if(!_lng1){//如果为指定位置，从默认输入框获取
+			if(_$('lng1')) this.lng1=_$('lng1').value;
+			if(_$('lat1')) this.lat1=_$('lat1').value;
+			if(_$('name1')) this.name1=_$('name1').value;
+			if(_$('lng2')) this.lng2=_$('lng2').value;
+			if(_$('lat2')) this.lat2=_$('lat2').value;
+			if(_$('name2')) this.name2=_$('name2').value;
+		}else{
+			this.lng1=_lng1;
+			this.lat1=_lat1;
+			this.name1=_name1;
+			this.lng2=_lng2;
+			this.lat2=_lat2;
+			this.name2=_name2;
+		}
+		
+		if(thisDomain.startsWith('w.')){
+			var addrCells=LBS.name2.split(' ');
+			if(addrCells.length==1) addrCells=LBS.name2.split(',');
+			if(addrCells.length==1) addrCells=LBS.name2.split('，');
+			
+			wx.openLocation({
+                latitude: LBS.lat2*1, // 纬度，浮点数，范围为90 ~ -90
+                longitude: LBS.lng2*1, // 经度，浮点数，范围为180 ~ -180。
+                name: addrCells[addrCells.length-1], // 位置名
+                address: addrCells[addrCells.length-1], // 地址详情说明
+                scale: 10, // 地图缩放级别,整形值,范围从1~28。默认为最大
+                infoUrl: top.location.href
+            });
+			return;
+		}
+		
+		var mapSelector=new Array();
+		mapSelector.push('<div id="LBS_MAP_SELECTOR">');
+		mapSelector.push('	<div class="LBS_SELECT_MAP marginT0" onclick="LBS.doOpenMap(\'AMAP\');">I{js,高德地图}</div>');
+		//mapSelector.push('	<div class="LBS_SELECT_MAP" onclick="LBS.doOpenMap(\'BAIDU\');">I{js,百度地图}</div>');
+		mapSelector.push('	<div class="LBS_SELECT_MAP_CANCEL" onclick="top.Loading.close();">I{js,取消}</div>');
+		mapSelector.push('</div>');
+		
+		if(Utils.isMobile()){
+			top.Loading.close();
+			top.Loading.cover=false;
+			top.Loading.noTitle=true;
+			top.Loading.open(-1,-1,-1,-1,null,window,'dock');
+		}else{
+			top.Loading.open(-1,-1,-1,-1,null,window,'dialog');
+			top.Loading.setTitle('I{js,选择地图}');
+		}
+		top.Loading.setMsg(mapSelector.join(''));
+		
+		mapSelector=null;
+	},
+	
+	doOpenMap:function(map){
+		top.Loading.close();
+		
+		if(!map||map=='AMAP'){//高德（默认）
+			var url='https://uri.amap.com/navigation?from='+this.lng1+','+this.lat1+','+encodeURIComponent(this.name1)+'&to='+this.lng2+','+this.lat2+','+encodeURIComponent(this.name2)+'&mode=car&policy=1&src=mypage&coordinate=gaode&callnative=0';
+			
+			var pcURL='https://www.amap.com/?r='+this.lng1+','+this.lat1+','+encodeURIComponent(this.name1)+','+this.lng2+','+this.lat2+','+encodeURIComponent(this.name2)+',0,0,,,,&callapp=0&sourceApplication=jsapi_r_0';
+			
+			if(!Utils.isMobile()){
+				window.open(pcURL);
+			}else{
+				top.LoadingFullPage.open(null,window,url,'I{.导航}','');
+			}
+		}else if(map=='BAIDU'){
+			var url='https://api.map.baidu.com/direction?origin=latlng:'+this.lat1+','+this.lng1+'|name:'+this.name1+'&destination='+this.name2+'&mode=driving&region='+this.name2+'&output=html&s=1';
+	
+			if(!Utils.isMobile()){
+				window.open(url);
+			}else{
+				top.location.href=url;
+			}
+		}
+	}
+}
  
 //平铺式选择
 var Region={
@@ -8904,6 +9693,8 @@ var Region={
 	initAddress:null,
 	
 	multi:false,
+	
+	callbackWhenToParent:false,//点“返回”时是否回调
 	
 	topMin:20,
 	
@@ -8935,7 +9726,8 @@ var Region={
 			initCityId,
 			initCountyId,
 			initZoneId,
-			initAddress){
+			initAddress,
+			_window){
 		this.paramsCalling=new Object();
 		if(_callback) this.paramsCalling._callback=_callback;
 		if(initProvinceId) this.paramsCalling.initProvinceId=initProvinceId;
@@ -8945,41 +9737,57 @@ var Region={
 		if(initAddress) this.paramsCalling.initAddress=initAddress;
 		this.paramsCalling.x=false;
 		
+		if(_window) currentWindow=_window;
+		else currentWindow=window;
+
+		if(_callback) this.callback=_callback;
+		else this.callback=null;
+		
+		if(location.href!=top.location.href){
+			top.Region.show(_callback,
+					initProvinceId,
+					initCityId,
+					initCountyId,
+					initZoneId,
+					initAddress,
+					currentWindow);
+			return;
+		}
+		
 		if((typeof top.regions)=='undefined'&&(typeof regions)=='undefined'){//未加载region.js
 			loadJS({src:'/js/region/region.js', charset:'utf-8', callback:Region.jsLoaded});
 			return;
 		}
 		
-		currentWindow=window;
-		if(_callback) this.callback=_callback;
-		else this.callback=null;
 		if(!_$('regionsSelector')){
 			var str=new Array();
-			str.push('<div style="position:absolute; z-index:101; filter:alpha(opacity=50); -moz-opacity:.5; opacity:.5; overflow:hidden; visibility:hidden;" id="regionsBg" align="center"><iframe id="regionsFrame" name="regionsFrame" src="/blank.htm" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>');
-			str.push('<div id="regionsSelector">');
+			str.push('<div style="position:absolute; z-index:'+(W.maxZindex()+1)+' !important; filter:alpha(opacity=50); -moz-opacity:.5; opacity:.5; overflow:hidden; visibility:hidden;" id="regionsBg" align="center"><iframe id="regionsFrame" name="regionsFrame" src="/blank.htm" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>');
+			str.push('<div id="regionsSelector" style="z-index:'+(W.maxZindexLastTime()+2)+' !important;">');
 			str.push('	<div id="regionsTitle" onmousedown="if(!Utils.isMobile()) startDrag(event,\'regionsSelector\');" onmouseup="if(!Utils.isMobile()) endDrag(event)" onmouseout="if(!Utils.isMobile()) endDrag(event)" onmousemove="if(!Utils.isMobile()) moving(event,\'regionsSelector\');">');
 			str.push('		<div id="regionsTitleText">I{选择地点}</div>');
-			str.push('		<div onclick="currentWindow.Region.close();" id="regionsCloseIcon" class="iconfont icon-close"></div>');
+			str.push('		<div onclick="Region.close();" id="regionsCloseIcon" class="iconfont icon-close"></div>');
 			str.push('	</div>');
 			str.push('	<div id="regionsContent">');
 			str.push('		<div id="regionsL1">');
 			var _regions=(typeof top.regions)!='undefined'?top.regions:regions;
 			for(var i=0;i<_regions.list.length;i++){
 				var province=_regions.list[i];
+				if(province[0]*1>=20000001&&province[0]*1<=20000006) continue;
+				
 				var n=province[1];
 				if(n.length>20) n=n.substring(0,17)+'...';
-				str.push('		<div id="regionsL1_'+province[0]+'" class="'+(province[0]*1>=20000001&&province[0]*1<=20000006?'regionsL1Red':'regionsL1')+'" onclick="currentWindow.Region.showChildren(\''+province[0]+'\'); currentWindow.Region.precallbackOnClick(this,\'L1\',\''+province[0]+'\',\''+province[1]+'\');" title="'+province[1]+'">'+n+'</div>');
+				str.push('		<div id="regionsL1_'+province[0]+'" class="'+(province[0]*1>=20000001&&province[0]*1<=20000006?'regionsL1':'regionsL1')+'" onclick="Region.showChildren(\''+province[0]+'\'); Region.precallbackOnClick(this,\'L1\',\''+province[0]+'\',\''+province[1]+'\');" title="'+province[1]+'">'+n+'</div>');
 			}
 			str.push('		</div>');
 			str.push('		<div id="regionsL2" style="display:none;"></div>');
 			str.push('		<div id="regionsL3" style="display:none;"></div>');
 			str.push('		<div id="regionsL4" style="display:none;"></div>');
 			str.push('	</div>');
-			str.push('	<div id="regionsSelected"><font class="errorColor">I{js,请点击地区名称进行选择}</font></div>');
-			str.push('	<div class="r alignC" style="margin-bottom:10px;">');
-			str.push('		<div class="btnLongLight marginT10"><input type="button" value="'+(this.multi?'I{添加}':'I{确定}')+'" onclick="currentWindow.Region.done();"/></div>');
-			str.push('		<div class="btnLongDisabled marginT10 marginL5" id="regionsToParent" style="display:none;"><input type="button" value="I{返回}" onclick="currentWindow.Region.toParent();"/></div>');
-			str.push('		<div class="btnLongDisabled marginT10 marginL5"><input type="button" value="I{关闭}" onclick="currentWindow.Region.close();"/></div>');
+			str.push('	<div id="regionsSelected" class="hidden"><font class="errorColor">I{js,请点击地区名称进行选择}</font></div>');
+			str.push('	<div class="r alignC marginT10 marginB10">');
+			str.push('		<div class="btnLongLight marginT10"><input type="button" value="'+(this.multi?'I{添加}':'I{确定}')+'" onclick="Region.done();"/></div>');
+			str.push('		<div class="btnLongDisabled marginT10 marginL10" id="regionsToParent" style="display:none;"><input type="button" value="I{返回}" onclick="Region.toParent();"/></div>');
+			str.push('		<div class="btnLongDisabled marginT10 marginL10"><input type="button" value="I{关闭}" onclick="Region.close();"/></div>');
 			str.push('	</div>');
 			str.push('</div>');
 			if(_$('regionContainer')){
@@ -9031,8 +9839,8 @@ var Region={
 			if(province&&province.length>0){
 				province=province[0];
 				
-				currentWindow.Region.showChildren(province[0]);
-				currentWindow.Region.precallback(currentWindow._$('regionsL1_'+province[0]),'L1',province[0],province[1]);
+				Region.showChildren(province[0]);
+				Region.precallback(_$('regionsL1_'+province[0]),'L1',province[0],province[1]);
 				
 				//初始化城市
 				if(initCityId&&initCityId!=''&&initCityId!='null'){
@@ -9041,19 +9849,19 @@ var Region={
 					if(city&&city.length>0){
 						city=city[0];
 						if(this.levels<3){
-							currentWindow.Region.precallback(currentWindow._$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
+							Region.precallback(_$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
 						}else{
 							var _regions=top.regions?top.regions:regions;
 							temp=_regions.cities[initProvinceId].counties[city[0]];
 							var counties=temp?temp.list:(new Array());
 							
 							if(counties.length==0){
-								currentWindow.Region.depth=2;
-								currentWindow.Region.precallback(currentWindow._$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
+								Region.depth=2;
+								Region.precallback(_$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
 							}else{
-								currentWindow.Region.depth=3;
-								currentWindow.Region.showChildrenLevel3(initProvinceId,initCityId); 
-								currentWindow.Region.precallback(currentWindow._$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
+								Region.depth=3;
+								Region.showChildrenLevel3(initProvinceId,initCityId); 
+								Region.precallback(_$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
 							}
 						}
 
@@ -9065,10 +9873,10 @@ var Region={
 								county=county[0];
 								
 								if(this.levels<4){
-									currentWindow.Region.precallback(currentWindow._$('regionsL3_'+county[0]),'L3',null,null,null,null,county[0],county[1]);
+									Region.precallback(_$('regionsL3_'+county[0]),'L3',null,null,null,null,county[0],county[1]);
 								}else{
-									currentWindow.Region.showChildrenLevel4(county[0]);
-									currentWindow.Region.precallback(currentWindow._$('regionsL3_'+county[0]),'L3',null,null,null,null,county[0],county[1]);
+									Region.showChildrenLevel4(county[0]);
+									Region.precallback(_$('regionsL3_'+county[0]),'L3',null,null,null,null,county[0],county[1]);
 								}
 							}
 						}
@@ -9077,10 +9885,17 @@ var Region={
 			}
 		}
 		
-
-		_$('regionsSelector').style.left=Math.floor((W.vw()-W.elementWidth(_$('regionsSelector')))/2)+'px';
-		_$('regionsSelector').style.top=this.getTop()+'px';
-
+		if(Utils.isMobile()){
+			_$('regionsSelector').style.height=W._vh()+'px';
+			_$('regionsContent').style.height=(W._vh()-100)+'px';
+			document.body.style.setProperty('--regionItemWidth',Math.floor((top.W.vw()-35)/2)+'px');			
+		}else{
+			document.body.style.setProperty('--regionItemWidth',Math.floor((600-55)/3)+'px');
+			
+			_$('regionsSelector').style.left=Math.floor((W.vw()-W.elementWidth(_$('regionsSelector')))/2)+'px';
+			_$('regionsSelector').style.top=this.getTop()+'px';
+		}
+		
 		_$('regionsBg').style.height=W.h()+'px';
 		_$('regionsBg').style.width='100%';
 		_$('regionsBg').style.top='0px';
@@ -9099,7 +9914,8 @@ var Region={
 			initCityId,
 			initCountyId,
 			initZoneId,
-			initAddress){
+			initAddress,
+			_window){
 		this.paramsCalling=new Object();
 		if(_container) this.paramsCalling._container=_container;
 		if(_callback) this.paramsCalling._callback=_callback;
@@ -9110,12 +9926,29 @@ var Region={
 		if(initAddress) this.paramsCalling.initAddress=initAddress;
 		this.paramsCalling.x=true;
 		
+		if(_window) currentWindow=_window;
+		else currentWindow=window;
+
+		if(_callback) this.callback=_callback;
+		else this.callback=null;
+		
+		if(location.href!=top.location.href){
+			top.Region.showx(_container,
+					_callback,
+					initProvinceId,
+					initCityId,
+					initCountyId,
+					initZoneId,
+					initAddress,
+					currentWindow);
+			return;
+		}
+		
 		if((typeof top.regions)=='undefined'&&(typeof regions)=='undefined'){//未加载region.js
 			loadJS({src:'/js/region/region.js', charset:'utf-8', callback:Region.jsLoaded});
 			return;
 		}
 		
-		currentWindow=window;
 		if(_callback) this.callback=_callback;
 		else this.callback=null;
 		if(!_$('regionsSelectorX')){
@@ -9123,20 +9956,22 @@ var Region={
 			str.push('<div id="regionsSelectorX">');
 			str.push('	<div id="regionsTitleX">');
 			str.push('		<div class="fl" id="regionsSelected"><div class="fl iconfont icon-location_light"></div><div class="fl marginL3">I{js,全部地区}</div></div>');
-			str.push('		<div class="fr hand" onclick="currentWindow.Region.reset();">I{js,取消地区选择}</div>');
-			str.push('		<div class="fr hand iconfont icon-close marginR2" onclick="currentWindow.Region.reset();"></div>');
+			str.push('		<div class="fr hand hidden" onclick="Region.reset();">I{js,取消地区选择}</div>');
+			str.push('		<div class="fr hand iconfont icon-close marginR2 hidden" onclick="Region.reset();"></div>');
 			
-			str.push('		<div class="fr hand marginR20" id="regionsToParentX" onclick="currentWindow.Region.toParent();" style="display:none;">I{js,返回}</div>');
-			str.push('		<div class="fr hand iconfont icon-back marginR2" id="regionsToParent" onclick="currentWindow.Region.toParent();" style="display:none;"></div>');
+			str.push('		<div class="fr hand marginR2" id="regionsToParentX" onclick="Region.toParent();" style="display:none;">I{js,返回}</div>');
+			str.push('		<div class="fr hand iconfont icon-back marginR2" id="regionsToParent" onclick="Region.toParent();" style="display:none;"></div>');
 			str.push('	</div>');
 			str.push('	<div id="regionsContentX">');
 			str.push('		<div id="regionsL1">');
 			var _regions=(typeof top.regions)!='undefined'?top.regions:regions;
 			for(var i=0;i<_regions.list.length;i++){
 				var province=_regions.list[i];
+				if(province[0]*1>=20000001&&province[0]*1<=20000006) continue;
+				
 				var n=province[1];
 				if(n.length>20) n=n.substring(0,17)+'...';
-				str.push('		<div id="regionsL1_'+province[0]+'" class="'+(province[0]*1>=20000001&&province[0]*1<=20000006?'regionsL1Red':'regionsL1')+'" onclick="currentWindow.Region.showChildren(\''+province[0]+'\'); currentWindow.Region.precallbackOnClick(this,\'L1\',\''+province[0]+'\',\''+province[1]+'\');" title="'+province[1]+'">'+n+'</div>');
+				str.push('		<div id="regionsL1_'+province[0]+'" class="'+(province[0]*1>=20000001&&province[0]*1<=20000006?'regionsL1':'regionsL1')+'" onclick="Region.showChildren(\''+province[0]+'\'); Region.precallbackOnClick(this,\'L1\',\''+province[0]+'\',\''+province[1]+'\');" title="'+province[1]+'">'+n+'</div>');
 			}
 			str.push('		</div>');
 			str.push('		<div id="regionsL2" style="display:none;"></div>');
@@ -9148,6 +9983,7 @@ var Region={
 		}
 		
 		if(initAddress&&initAddress!=''&&initAddress!='null'){
+			alert(initAddress);
 			initAddress=Str.replaceAll(initAddress,'  ',' ');
 			var initAddressCells=initAddress.split(' '); 
 			
@@ -9189,8 +10025,8 @@ var Region={
 			if(province&&province.length>0){
 				province=province[0];
 				
-				currentWindow.Region.showChildren(province[0]);
-				currentWindow.Region.precallback(currentWindow._$('regionsL1_'+province[0]),'L1',province[0],province[1]);
+				Region.showChildren(province[0]);
+				Region.precallback(_$('regionsL1_'+province[0]),'L1',province[0],province[1]);
 				
 				//初始化城市
 				if(initCityId&&initCityId!=''&&initCityId!='null'){
@@ -9199,19 +10035,19 @@ var Region={
 					if(city&&city.length>0){
 						city=city[0];
 						if(this.levels<3){
-							currentWindow.Region.precallback(currentWindow._$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
+							Region.precallback(_$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
 						}else{
 							var _regions=top.regions?top.regions:regions;
 							temp=_regions.cities[initProvinceId].counties[city[0]];
 							var counties=temp?temp.list:(new Array());
 							
 							if(counties.length==0){
-								currentWindow.Region.depth=2;
-								currentWindow.Region.precallback(currentWindow._$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
+								Region.depth=2;
+								Region.precallback(_$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
 							}else{
-								currentWindow.Region.depth=3;
-								currentWindow.Region.showChildrenLevel3(initProvinceId,initCityId); 
-								currentWindow.Region.precallback(currentWindow._$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
+								Region.depth=3;
+								Region.showChildrenLevel3(initProvinceId,initCityId); 
+								Region.precallback(_$('regionsL2_'+city[0]),'L2',null,null,city[0],city[1]);
 							}
 						}
 
@@ -9223,10 +10059,10 @@ var Region={
 								county=county[0];
 								
 								if(this.levels<4){
-									currentWindow.Region.precallback(currentWindow._$('regionsL3_'+county[0]),'L3',null,null,null,null,county[0],county[1]);
+									Region.precallback(_$('regionsL3_'+county[0]),'L3',null,null,null,null,county[0],county[1]);
 								}else{
-									currentWindow.Region.showChildrenLevel4(county[0]);
-									currentWindow.Region.precallback(currentWindow._$('regionsL3_'+county[0]),'L3',null,null,null,null,county[0],county[1]);
+									Region.showChildrenLevel4(county[0]);
+									Region.precallback(_$('regionsL3_'+county[0]),'L3',null,null,null,null,county[0],county[1]);
 								}
 							}
 						}
@@ -9270,15 +10106,15 @@ var Region={
 			var n=city[1];
 			if(n.length>20) n=n.substring(0,17)+'...';
 			if(this.levels<3){
-				str.push('		<div id="regionsL2_'+city[0]+'" class="regionsL2" onclick="currentWindow.Region.precallbackOnClick(this,\'L2\',null,null,\''+city[0]+'\',\''+city[1]+'\');" title="'+city[1]+'">'+n+'</div>');
+				str.push('		<div id="regionsL2_'+city[0]+'" class="regionsL2" onclick="Region.precallbackOnClick(this,\'L2\',null,null,\''+city[0]+'\',\''+city[1]+'\');" title="'+city[1]+'">'+n+'</div>');
 			}else{
 				var _regions=top.regions?top.regions:regions;
 				temp=_regions.cities[parentId].counties[city[0]];
 				var counties=temp?temp.list:(new Array());
 				if(counties.length==0){
-					str.push('		<div id="regionsL2_'+city[0]+'" class="regionsL2" onclick="currentWindow.Region.depth=2; currentWindow.Region.precallbackOnClick(this,\'L2\',null,null,\''+city[0]+'\',\''+city[1]+'\');" title="'+city[1]+'">'+n+'</div>');
+					str.push('		<div id="regionsL2_'+city[0]+'" class="regionsL2" onclick="Region.depth=2; Region.precallbackOnClick(this,\'L2\',null,null,\''+city[0]+'\',\''+city[1]+'\');" title="'+city[1]+'">'+n+'</div>');
 				}else{
-					str.push('		<div id="regionsL2_'+city[0]+'" class="regionsL2" onclick="currentWindow.Region.depth=3; currentWindow.Region.showChildrenLevel3(\''+parentId+'\',\''+city[0]+'\'); currentWindow.Region.precallbackOnClick(this,\'L2\',null,null,\''+city[0]+'\',\''+city[1]+'\');" title="'+city[1]+'">'+n+'</div>');
+					str.push('		<div id="regionsL2_'+city[0]+'" class="regionsL2" onclick="Region.depth=3; Region.showChildrenLevel3(\''+parentId+'\',\''+city[0]+'\'); Region.precallbackOnClick(this,\'L2\',null,null,\''+city[0]+'\',\''+city[1]+'\');" title="'+city[1]+'">'+n+'</div>');
 				}
 			}
 		}
@@ -9318,9 +10154,9 @@ var Region={
 			if(n.length>20) n=n.substring(0,17)+'...';
 			
 			if(this.levels<4){
-				str.push('		<div id="regionsL3_'+county[0]+'" class="regionsL3" onclick="currentWindow.Region.precallbackOnClick(this,\'L3\',null,null,null,null,\''+county[0]+'\',\''+county[1]+'\');" title="'+county[1]+'">'+n+'</div>');
+				str.push('		<div id="regionsL3_'+county[0]+'" class="regionsL3" onclick="Region.precallbackOnClick(this,\'L3\',null,null,null,null,\''+county[0]+'\',\''+county[1]+'\');" title="'+county[1]+'">'+n+'</div>');
 			}else{
-				str.push('		<div id="regionsL3_'+county[0]+'" class="regionsL3" onclick="currentWindow.Region.showChildrenLevel4(\''+county[0]+'\'); currentWindow.Region.precallbackOnClick(this,\'L3\',null,null,null,null,\''+county[0]+'\',\''+county[1]+'\');" title="'+county[1]+'">'+n+'</div>');
+				str.push('		<div id="regionsL3_'+county[0]+'" class="regionsL3" onclick="Region.showChildrenLevel4(\''+county[0]+'\'); Region.precallbackOnClick(this,\'L3\',null,null,null,null,\''+county[0]+'\',\''+county[1]+'\');" title="'+county[1]+'">'+n+'</div>');
 			}
 		}
 		
@@ -9346,16 +10182,26 @@ var Region={
 		_$('regionsToParent').style.display='';
 		if(_$('regionsToParentX')) _$('regionsToParentX').style.display='';
 		
-		top.getZones?top.getZones(parentId,currentWindow.Region.showZones):getZones(parentId,currentWindow.Region.showZones);
+		top.getZones?top.getZones(parentId,Region.showZones):getZones(parentId,Region.showZones);
 	},
 	showZones:function(){
 		var _zones=top.zones?top.zones:zones;
 		if(_zones.length==0){
-			currentWindow.Region.depth=3;
-			currentWindow.Region.toParent();
+			Region.depth=3;
+			
+			_$('regionsL4').style.display='none';	
+			_$('regionsL4').innerHTML='';
+			
+			_$('regionsL3').style.display='';
+			
+			if(this.selectedZoneId){
+				this.selectedZoneId=null;
+				this.selectedZoneName=null;
+			}
+			
 			return;
 		}else{
-			currentWindow.Region.depth=4;
+			Region.depth=4;
 		}
 		
 		var str=new Array();
@@ -9363,7 +10209,7 @@ var Region={
 			var n=_zones[i][1];
 			if(n.length>20) n=n.substring(0,17)+'...';
 			
-			str.push('		<div id="regionsL4_'+_zones[i][0]+'" class="regionsL4" onclick="currentWindow.Region.precallbackOnClick(this,\'L4\',null,null,null,null,null,null,\''+_zones[i][0]+'\',\''+_zones[i][1]+'\');" title="'+_zones[i][1]+'">'+n+'</div>');
+			str.push('		<div id="regionsL4_'+_zones[i][0]+'" class="regionsL4" onclick="Region.precallbackOnClick(this,\'L4\',null,null,null,null,null,null,\''+_zones[i][0]+'\',\''+_zones[i][1]+'\');" title="'+_zones[i][1]+'">'+n+'</div>');
 		}
 		_$('regionsL4').innerHTML=str.join('');
 		
@@ -9395,7 +10241,7 @@ var Region={
 			if(zone&&zone.length>0){	
 				zone=zone[0];
 				
-				currentWindow.Region.precallback(currentWindow._$('regionsL4_'+zone[0]),'L4',null,null,null,null,null,null,zone[0],zone[1]);
+				Region.precallback(_$('regionsL4_'+zone[0]),'L4',null,null,null,null,null,null,zone[0],zone[1]);
 			}
 			
 			if(top.zones) top.Region.initZoneId=null;
@@ -9409,70 +10255,73 @@ var Region={
 			
 			_$('regionsL3').style.display='';
 			
-			this.selectedZoneId=null;
-			this.selectedZoneName=null;
+			if(this.selectedZoneId){
+				this.selectedZoneId=null;
+				this.selectedZoneName=null;
+			}
 		}else if(_$('regionsL3').style.display==''){
 			_$('regionsL3').style.display='none';	
 			_$('regionsL3').innerHTML='';
 			
 			_$('regionsL2').style.display='';
 			
-			this.selectedCountyId=null;
-			this.selectedCountyName=null;
+			if(this.selectedCountyId){
+				this.selectedCountyId=null;
+				this.selectedCountyName=null;
+			}
 		}else if(_$('regionsL2').style.display==''){
 			_$('regionsL2').style.display='none';	
 			_$('regionsL2').innerHTML='';
 			
 			_$('regionsL1').style.display='';
 
-			this.selectedCityId=null;
-			this.selectedCityName=null;
+			if(this.selectedCityId){
+				this.selectedCityId=null;
+				this.selectedCityName=null;
+			}
 			
 			_$('regionsToParent').style.display='none';
 			if(_$('regionsToParentX')) _$('regionsToParentX').style.display='none';
 		}
 		
-		var temp='<div class="fl iconfont icon-location_light"></div><div class="fl marginL3">'+this.selectedProvinceName;
+		var temp='<div class="fl iconfont icon-location_light"></div><div class="fl marginL3">';
+		if(this.selectedProvinceName) temp+=this.selectedProvinceName;
 		if(this.selectedCityName) temp+='&nbsp;'+this.selectedCityName;
 		if(this.selectedCountyName) temp+='&nbsp;'+this.selectedCountyName;
 		temp+='</div>';
 		
-		_$('regionsSelected').innerHTML=temp;
+		if(_$('regionsSelected')) _$('regionsSelected').innerHTML=temp;
+		if(_$('regionsTitleText')) _$('regionsTitleText').innerHTML=temp;
+		
+		if(this.callbackWhenToParent&&currentWindow.Region.callback){
+			currentWindow.Region.callback(this.selectedProvinceId,
+					this.selectedProvinceName,
+					this.selectedCityId,
+					this.selectedCityName,
+					this.selectedCountyId,
+					this.selectedCountyName,
+					this.selectedZoneId,
+					this.selectedZoneName,
+					this.depth);
+		}
 	},
 	precallback:function(obj,level,proviceId,provinceName,cityId,cityName,countyId,countyName,zoneId,zoneName){
 		if(level=='L1'){
 			var parents=_$cls('regionsL1Red');
-			for(var i=0;i<parents.length;i++){
-				parents[i].style.backgroundColor='';
-			}
-
-			parents=_$cls('regionsL1');
-			for(var i=0;i<parents.length;i++){
-				parents[i].style.backgroundColor='';
-			}
-			
-			obj.style.backgroundColor='#FFFF66';
+			for(var i=0;i<parents.length;i++) parents[i].className='regionsL1';			
+			obj.className='regionsL1Red';
 		}else if(level=='L2'){
-			var parents=_$cls('regionsL2');
-			for(var i=0;i<parents.length;i++){
-				parents[i].style.backgroundColor='';
-			}
-			
-			obj.style.backgroundColor='#FFFF66';
+			var parents=_$cls('regionsL2Red');
+			for(var i=0;i<parents.length;i++) parents[i].className='regionsL2';
+			obj.className='regionsL2Red';
 		}else if(level=='L3'){
-			var parents=_$cls('regionsL3');
-			for(var i=0;i<parents.length;i++){
-				parents[i].style.backgroundColor='';
-			}
-			
-			obj.style.backgroundColor='#FFFF66';
+			var parents=_$cls('regionsL3Red');
+			for(var i=0;i<parents.length;i++) parents[i].className='regionsL3';
+			obj.className='regionsL3Red';
 		}else if(level=='L4'){
-			var parents=_$cls('regionsL4');
-			for(var i=0;i<parents.length;i++){
-				parents[i].style.backgroundColor='';
-			}
-			
-			obj.style.backgroundColor='#FFFF66';
+			var parents=_$cls('regionsL4Red');
+			for(var i=0;i<parents.length;i++) parents[i].className='regionsL4';
+			obj.className='regionsL4Red';
 		}
 		
 		if(zoneId){
@@ -9524,43 +10373,27 @@ var Region={
 		if(this.selectedCountyName) temp+='&nbsp;'+this.selectedCountyName;
 		if(this.selectedZoneName) temp+='&nbsp;'+this.selectedZoneName;
 		temp+='</div>';
-		
-		_$('regionsSelected').innerHTML=temp;
+
+		if(_$('regionsSelected')) _$('regionsSelected').innerHTML=temp;
+		if(_$('regionsTitleText')) _$('regionsTitleText').innerHTML=temp;
 	},
 	precallbackOnClick:function(obj,level,proviceId,provinceName,cityId,cityName,countyId,countyName,zoneId,zoneName){
 		if(level=='L1'){
 			var parents=_$cls('regionsL1Red');
-			for(var i=0;i<parents.length;i++){
-				parents[i].style.backgroundColor='';
-			}
-
-			parents=_$cls('regionsL1');
-			for(var i=0;i<parents.length;i++){
-				parents[i].style.backgroundColor='';
-			}
-			
-			obj.style.backgroundColor='#FFFF66';
+			for(var i=0;i<parents.length;i++) parents[i].className='regionsL1';			
+			obj.className='regionsL1Red';
 		}else if(level=='L2'){
-			var parents=_$cls('regionsL2');
-			for(var i=0;i<parents.length;i++){
-				parents[i].style.backgroundColor='';
-			}
-			
-			obj.style.backgroundColor='#FFFF66';
+			var parents=_$cls('regionsL2Red');
+			for(var i=0;i<parents.length;i++) parents[i].className='regionsL2';
+			obj.className='regionsL2Red';
 		}else if(level=='L3'){
-			var parents=_$cls('regionsL3');
-			for(var i=0;i<parents.length;i++){
-				parents[i].style.backgroundColor='';
-			}
-			
-			obj.style.backgroundColor='#FFFF66';
+			var parents=_$cls('regionsL3Red');
+			for(var i=0;i<parents.length;i++) parents[i].className='regionsL3';
+			obj.className='regionsL3Red';
 		}else if(level=='L4'){
-			var parents=_$cls('regionsL4');
-			for(var i=0;i<parents.length;i++){
-				parents[i].style.backgroundColor='';
-			}
-			
-			obj.style.backgroundColor='#FFFF66';
+			var parents=_$cls('regionsL4Red');
+			for(var i=0;i<parents.length;i++) parents[i].className='regionsL4';
+			obj.className='regionsL4Red';
 		}
 		
 		if(zoneId){
@@ -9612,8 +10445,9 @@ var Region={
 		if(this.selectedCountyName) temp+='&nbsp;'+this.selectedCountyName;
 		if(this.selectedZoneName) temp+='&nbsp;'+this.selectedZoneName;
 		temp+='</div>';
-		
-		_$('regionsSelected').innerHTML=temp;
+
+		if(_$('regionsSelected')) _$('regionsSelected').innerHTML=temp;
+		if(_$('regionsTitleText')) _$('regionsTitleText').innerHTML=temp;
 		
 		if(this.paramsCalling.x){
 			if(currentWindow.Region.callback){
@@ -9703,6 +10537,8 @@ var Region={
 
 //行业与业务角色类别选择
 var Fields={
+	current:'',
+	
 	fields:new Array(),
 	
 	addField:function(fieldId,fieldName){
@@ -9737,9 +10573,12 @@ var Fields={
 	},
 	
 	changeField:function(fieldId,selector,keepFirstItem,initValue){
+		if(!selector) return;
+		var list=selector.options;
+		if(!list) return;
+		
 		if((typeof keepFirstItem)=='undefined') keepFirstItem=1;
 		
-		var list=selector.options;
 		if(keepFirstItem==1&&list.length==0){
 	    	list.add(new Option('I{chain,请选择业务类别}',''));
 		}else{
@@ -9839,8 +10678,8 @@ var Catalogs={
 		
 		if(!_$('catalogsSelector')){
 			var str=new Array();
-			str.push('<div style="position:absolute; z-index:101; filter:alpha(opacity=50); -moz-opacity:.5; opacity:.5; overflow:hidden; visibility:hidden;" id="catalogsBg" align="center"><iframe id="catalogsFrame" name="catalogsFrame" src="/blank.htm" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>');
-			str.push('<div id="catalogsSelector">');
+			str.push('<div style="position:absolute; z-index:'+(W.maxZindex()+1)+' !important; filter:alpha(opacity=50); -moz-opacity:.5; opacity:.5; overflow:hidden; visibility:hidden;" id="catalogsBg" align="center"><iframe id="catalogsFrame" name="catalogsFrame" src="/blank.htm" width="100%"  height="100%" frameborder="0" scrolling="no"></iframe></div>');
+			str.push('<div id="catalogsSelector" style="z-index:'+(W.maxZindexLastTime()+2)+' !important;">');
 			str.push('	<div id="catalogsTitle" onmousedown="if(!Utils.isMobile()) startDrag(event,\'catalogsSelector\');" onmouseup="if(!Utils.isMobile()) endDrag(event)" onmouseout="if(!Utils.isMobile()) endDrag(event)" onmousemove="if(!Utils.isMobile()) moving(event,\'catalogsSelector\');">');
 			str.push('		<div id="catalogsTitleText">I{js,选择分类}</div>');
 			str.push('		<div onclick="Catalogs.close();" id="catalogsCloseIcon" class="iconfont icon-close"></div>');
@@ -10078,10 +10917,11 @@ var NotifyCatalogs={
 		if(checkEnabled){
 			htm.push('<div class="catalogSelectorItemCheck"><input name="catalogCheck" type="checkbox" class="checkbox" id="catalogSelectorItemCheck_'+info[0]+'"/></div>');
 		}
-		htm.push('<div class="catalogSelectorItemName">'+info[3]+'</div>');
+		if(checkEnabled) htm.push('<div class="catalogSelectorItemName">'+info[3]+'</div>');
+		else htm.push('<div class="catalogSelectorItemName" style="margin-left:'+(20*(level-1))+'px;">'+info[3]+'</div>');
 		htm.push('</div>');
 		
-		var children=this.ofParent(info[2],info[0]);
+		var children=this.ofParent(info[0]);
 		for(var i=0;i<children.length;i++){
 			htm.push(this.item(children[i],level+1,checkEnabled,levels));
 		}
@@ -10119,6 +10959,83 @@ var NotifyCatalogs={
 		}
 	}
 }
+
+//公告
+var Notifications={
+	interval:null,
+	
+	firstLoad:true,
+	
+	get:function(){
+		var ajax=new Ajax();
+		ajax.send('GET',Notifications.doGet,'/notify.handler?request=query');
+	},
+	
+	doGet:function(ajax){
+		if(ajax.getReadyState()==4&&ajax.getStatus()==200){
+			var txt=ajax.getResponseText();
+			
+			var ns=JSONUtil.parse(txt).ns;
+			if(Notifications.firstLoad){
+				Notifications.firstLoad=false;
+				
+				for(var i=0; i<ns.length; i++){
+					var _title=JSONUtil.de(ns[i].title);
+					var _link=JSONUtil.de(ns[i].link);
+					var _popup=ns[i].popup;
+					var _hot=ns[i].hot;
+					var _id=ns[i].id;
+					
+					if(_hot=='T'){
+						Notifications.show(_title, _link, _id);
+						return;
+					}
+				}
+			}
+			
+			for(var i=0; i<ns.length; i++){
+				var _title=JSONUtil.de(ns[i].title);
+				var _link=JSONUtil.de(ns[i].link);
+				var _popup=ns[i].popup;
+				var _hot=ns[i].hot;
+				var _id=ns[i].id;
+
+				if(_hot!='T'){
+					Notifications.show(_title, _link, _id);
+					break;
+				}
+			}
+		}
+	},
+	
+	show:function(_title, _link, _ids){
+		this.read(_ids);
+		
+		var ajax=new Ajax();
+		ajax._title=_title;
+		ajax.send('GET',Notifications.doShow,_link);
+	},
+	
+	doShow:function(ajax){
+		if(ajax.getReadyState()==4&&ajax.getStatus()==200){
+			try{				
+				var resp=ajax.getResponseText();
+				Loading.align='left';
+				Loading.open(-1,-1,300,-1,null,window,'dialog');
+				Loading.setTitle(ajax._title);
+				Loading.setMsg('<div style="width:100%; max-height:300px; overflow-y:auto;">'+resp+'</div>');
+			}catch(e){
+				//alert('I{.获取公告内容失败}');
+			}
+		}
+	},
+	
+	read:function(ids){
+		var ajax=new Ajax();
+		ajax.send('GET',_void,'/notify.handler?request=upd&action=read&ids='+ids);
+	}
+}
+
 
 //可滑动tab栏
 var SlidableTabsInstances=new Array();
@@ -10282,7 +11199,7 @@ function Animation(id,width,height,photos,mediaTypes,mediaSizes,medias,links,act
 	
 	this.playVideoInIframe=false;
 	
-	this.pause=false;
+	this.pause=true;
 	
 	this.inPlays=new Array();
 	
@@ -10290,7 +11207,46 @@ function Animation(id,width,height,photos,mediaTypes,mediaSizes,medias,links,act
 	
 	this.callback=null;
 	
+	this.currentMediaType=null;
+	
 	Animations.instances[id]=this;
+}
+Animation.prototype.mediaDisplaySize=function(i){
+	var w=0;
+	var h=0;
+	var ratio=animation.width/animation.height;
+	var ratioVideo=animation.mediaSizes[i][0]/animation.mediaSizes[i][1];
+	if(ratio>=ratioVideo){
+		h=animation.height;
+		w=Math.floor(h*ratioVideo);
+	}else{
+		w=animation.width;
+		h=Math.floor(w/ratioVideo);
+	}
+	
+	return [w,h];
+}
+
+Animation.prototype.countOfCurrentMediaType=function(){
+	if(this.currentMediaType==null) return animation.photos.length;
+	
+	var count=0;
+	for(var i=0;i<this.mediaTypes.length;i++){	
+		if(this.mediaTypes[i]==this.currentMediaType){
+			count++;
+		}
+	}
+	return count;
+}
+
+Animation.prototype.hasVideoAndPhoto=function(){
+	var hasVideo=false;
+	var hasPhoto=false;
+	for(var i=0; i<this.mediaTypes.length; i++){
+		if(this.mediaTypes[i]=='video') hasVideo=true;
+		if(this.mediaTypes[i]=='photo') hasPhoto=true;
+	}
+	return hasVideo && hasPhoto;
 }
 
 Animation.prototype.init=function(containerId){
@@ -10315,33 +11271,42 @@ Animation.prototype.init=function(containerId){
 		}else if(this.mediaTypes[i]=='video'){
 			if(this.players[i]&&this.players[i]!=''){
 				htm.push(this.players[i]);
-				this.inPlays[i]=true;
+				this.inPlays[i]=false;
 			}else{
 				htm.push('	<img id="'+this.id+'.img.'+i+'_animation" src="/img/coverLoading.gif" height="'+this.height+'"/>');
-				htm.push('	<img id="'+this.id+'.img.'+i+'" _src="'+this.photos[i]+'" style="display:none;" onclick="Animations.open(this,\''+this.id+'\','+i+');" id="'+this.id+'.'+i+'"/>');
+				htm.push('	<img id="'+this.id+'.img.'+i+'" _src="'+this.photos[i]+'" style="display:none;" onclick="event.cancelBubble=true; Animations.open(this,\''+this.id+'\','+i+');" id="'+this.id+'.'+i+'"/>');
+				htm.push('	<div id="'+this.id+'.playBtn.'+i+'" style="position:relative; top:-'+Math.floor(this.mediaDisplaySize(i)[1]/2+20)+'px;" onclick="event.cancelBubble=true; Animations.open(this,\''+this.id+'\','+i+');"><img src="/img/play.png"/></div>');
+				this.inPlays[i]=false;
 			}
-			this.inPlays[i]=true;
 		}else{
 			var hasLink=false;
 			if(this.links[i].indexOf('javascript')==0){
 				hasLink=true;
-				htm.push('<a href="javascript:_void();" onclick="'+this.links[i]+'">');
+				htm.push('<a href="javascript:_void();" onclick="event.cancelBubble=true; '+this.links[i]+'">');
 			}else if(this.links[i]!=''){
 				hasLink=true;
-				if(Utils.isMobile()) htm.push('<a href="javascript:_void();" onclick="Animations.openUrl(\''+this.links[i]+'\');">');
+				if(Utils.isMobile()) htm.push('<a href="javascript:_void();" onclick="event.cancelBubble=true; Animations.openUrl(\''+this.links[i]+'\');">');
 				else htm.push('<a href="'+this.links[i]+'" target="_blank">');
 			}
+			
+			if(hasLink){
+				htm.push('	<img id="'+this.id+'.img.'+i+'_animation" src="/img/coverLoading.gif" height="'+this.height+'"/>');
+				htm.push('	<img id="'+this.id+'.img.'+i+'" _src="'+this.photos[i]+'" style="display:none;"/>');
+			}else{
+				htm.push('	<img id="'+this.id+'.img.'+i+'_animation" src="/img/coverLoading.gif" height="'+this.height+'"/>');
+				htm.push('	<img id="'+this.id+'.img.'+i+'" _src="'+this.photos[i]+'" style="display:none;" onclick="event.cancelBubble=true; top.LoadingAllImages.open(null,window,null,true,null,Animations.instances[\''+this.id+'\'].photos[Animations.instances[\''+this.id+'\'].sliderIndex]);"/>');
+			}
 
-			htm.push('	<img id="'+this.id+'.img.'+i+'_animation" src="/img/coverLoading.gif" height="'+this.height+'"/>');
-			htm.push('	<img id="'+this.id+'.img.'+i+'" _src="'+this.photos[i]+'" style="display:none;"/>');
 			if(hasLink) htm.push('</a>');
 		}
 		
 		htm.push('</div>');
 	}
 	
-	for(var i=0;i<1&&i<this.photos.length;i++){	
-		htm.push('<div class="animationMedia" style="width:'+this.width+'px; height:'+this.height+'px; text-align:center; overflow:hidden !important; cursor:pointer;'+((this.action=='L'||this.action=='R')?' float:left;':'')+'">');
+	for(var i=0;i<this.photos.length;i++){	
+		if(this.mediaTypes[i]=='video') continue;
+		
+		htm.push('<div class="animationMedia" mediaType="'+this.mediaTypes[i]+'" id="'+this.id+'.box.'+this.photos.length+'" style="width:'+this.width+'px; height:'+this.height+'px; text-align:center; overflow:hidden !important; cursor:pointer;'+((this.action=='L'||this.action=='R')?' float:left;':'')+'">');
 		
 		if(this.mediaTypes[i]=='flash'){
 			htm.push('	<embed id="'+this.id+'.img.x" src="'+this.photos[i]+'" quality="high" width="'+this.width+'" height="'+this.height+'" align="middle" allowScriptAccess="always" allowFullScreen="true" mode="transparent" type="application/x-shockwave-flash"/>');
@@ -10351,9 +11316,9 @@ Animation.prototype.init=function(containerId){
 				this.inPlays[i]=true;
 			}else{
 				htm.push('	<img id="'+this.id+'.img.x_animation" src="/img/coverLoading.gif" height="'+this.height+'"/>');
-				htm.push('	<img id="'+this.id+'.img.x" _src="'+this.photos[i]+'" style="display:none;" onclick="Animations.open(this,\''+this.id+'\','+i+');" id="'+this.id+'.x"/>');
+				htm.push('	<img id="'+this.id+'.img.x" _src="'+this.photos[i]+'" style="display:none;" onclick="event.cancelBubble=true; Animations.open(this,\''+this.id+'\','+i+');" id="'+this.id+'.x"/>');
+				this.inPlays[i]=false;
 			}
-			this.inPlays[i]=true;
 		}else{
 			var hasLink=false;
 			if(this.links[i].indexOf('javascript')==0){
@@ -10361,16 +11326,24 @@ Animation.prototype.init=function(containerId){
 				htm.push('<a href="javascript:_void();" onclick="'+this.links[i]+'">');
 			}else if(this.links[i]!=''){
 				hasLink=true;
-				if(Utils.isMobile()) htm.push('<a href="javascript:_void();" onclick="Animations.openUrl(\''+this.links[i]+'\');">');
+				if(Utils.isMobile()) htm.push('<a href="javascript:_void();" onclick="event.cancelBubble=true; Animations.openUrl(\''+this.links[i]+'\');">');
 				else htm.push('<a href="'+this.links[i]+'" target="_blank">');
 			}
 
-			htm.push('	<img id="'+this.id+'.img.x_animation" src="/img/coverLoading.gif" height="'+this.height+'"/>');
-			htm.push('	<img id="'+this.id+'.img.x" _src="'+this.photos[i]+'" style="display:none;"/>');
+			if(hasLink){
+				htm.push('	<img id="'+this.id+'.img.'+i+'_animation" src="/img/coverLoading.gif" height="'+this.height+'"/>');
+				htm.push('	<img id="'+this.id+'.img.'+i+'" _src="'+this.photos[i]+'" style="display:none;"/>');
+			}else{
+				htm.push('	<img id="'+this.id+'.img.'+i+'_animation" src="/img/coverLoading.gif" height="'+this.height+'"/>');
+				htm.push('	<img id="'+this.id+'.img.'+i+'" _src="'+this.photos[i]+'" style="display:none;" onclick="event.cancelBubble=true; top.LoadingAllImages.open(null,window,null,true,null,Animations.instances[\''+this.id+'\'].photos[Animations.instances[\''+this.id+'\'].sliderIndex]);"/>');
+			}
+			
 			if(hasLink) htm.push('</a>');
 		}
 		
 		htm.push('</div>');
+		
+		break;
 	}
 	
 	htm.push('</div>');
@@ -10395,6 +11368,13 @@ Animation.prototype.init=function(containerId){
 		//htm.push('</div>');
 	}
 	
+	if(this.hasVideoAndPhoto()){
+		htm.push('<div class="animationSwitches" sytle="left:0px; top:0px;" id="'+this.id+'.animationSwitch">');
+		htm.push('	<div class="animationSwitch" style="border-left:none !important;" id="'+this.id+'.switch.video" onclick="event.cancelBubble=true; Animations._switch(\''+this.id+'\',\'video\');">I{js,视频}</div>');
+		htm.push('	<div class="animationSwitch" id="'+this.id+'.switch.photo" onclick="event.cancelBubble=true; Animations._switch(\''+this.id+'\',\'photo\');">I{js,图片}</div>');
+		htm.push('</div>');
+	}
+	
 	htm.push('</div>');
 	
 	_$(containerId).innerHTML=htm.join('');
@@ -10402,6 +11382,7 @@ Animation.prototype.init=function(containerId){
 	if(this.photos.length==0) return;
 	
 	for(var i=0;i<this.photos.length;i++){
+		try{
 		IMG.reset(this.id+'.img.'+i);
 		IMG.adjust(this.id+'.img.'+i,
 				this.id+'.img.'+i+'_animation',
@@ -10414,9 +11395,11 @@ Animation.prototype.init=function(containerId){
 				null,
 				true,
 				true);
+		}catch(e){}
 	}
 	
 	if(_$(this.id+'.img.x')){
+		try{
 		IMG.reset(this.id+'.img.x');
 		IMG.adjust(this.id+'.img.x',
 				this.id+'.img.x_animation',
@@ -10429,6 +11412,7 @@ Animation.prototype.init=function(containerId){
 				null,
 				true,
 				true);
+		}catch(e){}
 	}
 	
 	if(_$(this.id+'.animationNumbers')){
@@ -10436,7 +11420,15 @@ Animation.prototype.init=function(containerId){
 		_$(this.id+'.animationNumbers').style.visibility='visible';
 	}
 	
-	this.sliderTimeout=setTimeout("Animations.doSlider('"+this.id+"')",this.speed);
+	if(_$(this.id+'.animationSwitch')){
+		_$(this.id+'.animationSwitch').style.top=(this.height-30+this.numbersOffSet+5)+'px';
+		_$(this.id+'.animationSwitch').style.left=(this.width-130)+'px';
+		_$(this.id+'.animationSwitch').style.visibility='visible';
+	}
+	
+	if(this.photos.length>1){
+		this.sliderTimeout=setTimeout("Animations.doSlider('"+this.id+"')",this.speed);
+	}
 	
 	if(this.callback) this.callback(0);
 }
@@ -10451,17 +11443,55 @@ Animation.prototype.show=function(i){
 		_$(this.id+'.container').scrollLeft=(this.sliderIndex*this.width+this.sliderLength);
 		Utils.setAtt(_$(this.id+'.container'),'_scrollLeft',(this.sliderIndex*this.width+this.sliderLength));
 		if(_$(this.id+'.animationNumbers')) _$(this.id+'.animationNumbers').style.left=(this.sliderIndex*this.width+this.sliderLength)+'px';
+		if(_$(this.id+'.animationSwitch')) _$(this.id+'.animationSwitch').style.left=(this.sliderIndex*this.width+this.sliderLength+(this.width-130))+'px';
 	}else{
 		_$(this.id+'.container').scrollTop=(this.sliderIndex*this.height+this.sliderLength);
 		Utils.setAtt(_$(this.id+'.container'),'_scrollTop',(this.sliderIndex*this.height+this.sliderLength));
 		if(_$(this.id+'.animationNumbers')) _$(this.id+'.animationNumbers').style.top=(this.sliderIndex*this.height+this.sliderLength+this.height-30+this.numbersOffSet)+'px';
+		if(_$(this.id+'.animationSwitch')) _$(this.id+'.animationSwitch').style.top=(this.sliderIndex*this.height+this.sliderLength+this.height-30+this.numbersOffSet+5)+'px';
+	}
+	
+	for(var i=0;i<this.photos.length;i++){	
+		if(this.mediaTypes[i]=='video' && i!=this.sliderIndex){
+			if(this.mediaTypes[i]=='video' && this.players[i] && this.players[i]!=''){
+				_$(this.id+'.box.'+i).innerHTML=this.players[i];
+			}else{
+				_$(animation.id+'.box.'+i).style.paddingLeft='0px';
+				_$(animation.id+'.box.'+i).style.paddingTop='0px';
+				
+				var htm=new Array();
+				htm.push('	<img id="'+this.id+'.img.'+i+'_animation" src="/img/coverLoading.gif" height="'+this.height+'"/>');
+				htm.push('	<img id="'+this.id+'.img.'+i+'" _src="'+this.photos[i]+'" style="display:none;" onclick="event.cancelBubble=true; Animations.open(this,\''+this.id+'\','+i+');" id="'+this.id+'.'+i+'"/>');
+				htm.push('	<div id="'+this.id+'.playBtn.'+i+'" style="position:relative; top:-'+Math.floor(this.mediaDisplaySize(i)[1]/2+20)+'px;" onclick="event.cancelBubble=true; Animations.open(this,\''+this.id+'\','+i+');"><img src="/img/play.png"/></div>');
+				_$(this.id+'.box.'+i).innerHTML=htm.join('');
+				
+				try{
+					IMG.reset(this.id+'.img.'+i);
+					IMG.adjust(this.id+'.img.'+i,
+							this.id+'.img.'+i+'_animation',
+							this.layout,
+							this.width,
+							this.height,
+							this.width,
+							1,
+							0,
+							null,
+							true,
+							true);
+				}catch(e){}
+			}
+		}
+	}
+	
+	if(Animations.videoPlayers[this.id+'.'+this.sliderIndex]){
+		Animations.videoPlayers[this.id+'.'+this.sliderIndex].play(true);
 	}
 	
 	for(var n=0;n<this.photos.length;n++){
 		if(_$(this.id+'.num.'+n)) _$(this.id+'.num.'+n).className='animationNumber';
 	}
 	if(_$(this.id+'.num.'+i)) _$(this.id+'.num.'+i).className='animationNumberCurrent';
-	if(_$(this.id+'.animationNumbersCount')) _$(this.id+'.animationNumbersCount').innerHTML=(this.sliderIndex+1)+'/'+this.photos.length;
+	if(_$(this.id+'.animationNumbersCount')) _$(this.id+'.animationNumbersCount').innerHTML=(this.sliderIndex+1)+'/'+this.countOfCurrentMediaType();
 	
 	if(!this.pause){
 		this.sliderTimeout=setTimeout("Animations.doSlider('"+this.id+"')",this.speed);
@@ -10472,7 +11502,7 @@ Animation.prototype.show=function(i){
 
 Animation.prototype.showNext=function(){
 	var i=this.sliderIndex+1;
-	if(i==this.photos.length){//开始新的循环
+	if(i==this.countOfCurrentMediaType()){//开始新的循环
 		i=0;
 	}
 	this.show(i);
@@ -10481,9 +11511,66 @@ Animation.prototype.showNext=function(){
 Animation.prototype.showPrevious=function(){
 	var i=this.sliderIndex-1;
 	if(i<0){//开始新的循环
-		i=this.photos.length-1;
+		i=this.countOfCurrentMediaType()-1;
 	}
 	this.show(i);
+}
+
+Animation.prototype.reset=function(){
+	if(this.sliderInterval) clearInterval(this.sliderInterval);
+	if(this.sliderTimeout) clearTimeout(this.sliderTimeout);
+	this.sliderLength=0;
+	this.sliderIndex=0;
+	
+	_$(this.id+'.container').scrollLeft=0;
+	Utils.setAtt(_$(this.id+'.container'),'_scrollLeft',0);
+	
+	_$(this.id+'.container').scrollTop=0;
+	Utils.setAtt(_$(this.id+'.container'),'_scrollTop',0);
+	
+	if(this.action=='L'||this.action=='R'){
+		if(_$(this.id+'.animationNumbers')) _$(this.id+'.animationNumbers').style.left=(this.sliderIndex*this.width+this.sliderLength)+'px';
+		if(_$(this.id+'.animationSwitch')) _$(this.id+'.animationSwitch').style.left=(this.sliderIndex*this.width+this.sliderLength+(this.width-130))+'px';
+	}else{
+		if(_$(this.id+'.animationNumbers')) _$(this.id+'.animationNumbers').style.top=(this.sliderIndex*this.height+this.sliderLength+this.height-30+this.numbersOffSet)+'px';
+		if(_$(this.id+'.animationSwitch')) _$(this.id+'.animationSwitch').style.top=(this.sliderIndex*this.height+this.sliderLength+this.height-30+this.numbersOffSet+5)+'px';
+	}
+	
+	for(var i=0;i<this.photos.length;i++){	
+		if(this.mediaTypes[i]=='video'){
+			if(this.mediaTypes[i]=='video' && this.players[i] && this.players[i]!=''){
+				_$(this.id+'.box.'+i).innerHTML=this.players[i];
+			}else{
+				_$(animation.id+'.box.'+i).style.paddingLeft='0px';
+				_$(animation.id+'.box.'+i).style.paddingTop='0px';
+				
+				var htm=new Array();
+				htm.push('	<img id="'+this.id+'.img.'+i+'_animation" src="/img/coverLoading.gif" height="'+this.height+'"/>');
+				htm.push('	<img id="'+this.id+'.img.'+i+'" _src="'+this.photos[i]+'" style="display:none;" onclick="event.cancelBubble=true; Animations.open(this,\''+this.id+'\','+i+');" id="'+this.id+'.'+i+'"/>');
+				htm.push('	<div id="'+this.id+'.playBtn.'+i+'" style="position:relative; top:-'+Math.floor(this.mediaDisplaySize(i)[1]/2+20)+'px;" onclick="event.cancelBubble=true; Animations.open(this,\''+this.id+'\','+i+');"><img src="/img/play.png"/></div>');
+				_$(this.id+'.box.'+i).innerHTML=htm.join('');
+				
+				try{
+					IMG.reset(this.id+'.img.'+i);
+					IMG.adjust(this.id+'.img.'+i,
+							this.id+'.img.'+i+'_animation',
+							this.layout,
+							this.width,
+							this.height,
+							this.width,
+							1,
+							0,
+							null,
+							true,
+							true);
+				}catch(e){}
+			}
+		}
+	}
+
+	if(!this.pause){
+		this.sliderTimeout=setTimeout("Animations.doSlider('"+this.id+"')",this.speed);
+	}
 }
 
 Animation.prototype.slider=function(){
@@ -10494,9 +11581,8 @@ Animation.prototype.slider=function(){
 
 		_$(this.id+'.container').scrollLeft=(this.sliderIndex*this.width+this.sliderLength);
 		Utils.setAtt(_$(this.id+'.container'),'_scrollLeft',(this.sliderIndex*this.width+this.sliderLength));
-		if(_$(this.id+'.animationNumbers')){
-			_$(this.id+'.animationNumbers').style.left=(this.sliderIndex*this.width+this.sliderLength)+'px';
-		}
+		if(_$(this.id+'.animationNumbers')) _$(this.id+'.animationNumbers').style.left=(this.sliderIndex*this.width+this.sliderLength)+'px';
+		if(_$(this.id+'.animationSwitch')) _$(this.id+'.animationSwitch').style.left=(this.sliderIndex*this.width+this.sliderLength+(this.width-130))+'px';
 		
 		if(this.sliderLength>=this.width){
 			if(this.sliderInterval) clearInterval(this.sliderInterval);
@@ -10505,8 +11591,8 @@ Animation.prototype.slider=function(){
 			this.sliderLength=0;
 			this.sliderIndex++;
 			
-			if(this.sliderIndex==this.photos.length){//开始新的循环
-				this.show(0);
+			if(this.sliderIndex==this.countOfCurrentMediaType()){//开始新的循环
+				this.reset();
 				return;
 			}
 			if(this.callback) this.callback(this.sliderIndex);
@@ -10517,7 +11603,7 @@ Animation.prototype.slider=function(){
 			if(_$(this.id+'.num.'+this.sliderIndex)){
 				_$(this.id+'.num.'+this.sliderIndex).className='animationNumberCurrent';
 			}
-			if(_$(this.id+'.animationNumbersCount')) _$(this.id+'.animationNumbersCount').innerHTML=(this.sliderIndex+1)+'/'+this.photos.length;
+			if(_$(this.id+'.animationNumbersCount')) _$(this.id+'.animationNumbersCount').innerHTML=(this.sliderIndex+1)+'/'+this.countOfCurrentMediaType();
 			
 			this.sliderTimeout=setTimeout("Animations.doSlider('"+this.id+"')",this.speed);
 		}
@@ -10526,9 +11612,8 @@ Animation.prototype.slider=function(){
 
 		_$(this.id+'.container').scrollTop=(this.sliderIndex*this.height+this.sliderLength);
 		Utils.setAtt(_$(this.id+'.container'),'_scrollTop',(this.sliderIndex*this.height+this.sliderLength));
-		if(_$(this.id+'.animationNumbers')){
-			_$(this.id+'.animationNumbers').style.top=(this.sliderIndex*this.height+this.sliderLength+this.height-30+this.numbersOffSet)+'px';
-		}
+		if(_$(this.id+'.animationNumbers')) _$(this.id+'.animationNumbers').style.top=(this.sliderIndex*this.height+this.sliderLength+this.height-30+this.numbersOffSet)+'px';
+		if(_$(this.id+'.animationSwitch')) _$(this.id+'.animationSwitch').style.top=(this.sliderIndex*this.height+this.sliderLength+this.height-30+this.numbersOffSet+5)+'px';
 		
 		if(this.sliderLength>=this.height){
 			if(this.sliderInterval) clearInterval(this.sliderInterval);
@@ -10537,8 +11622,8 @@ Animation.prototype.slider=function(){
 			this.sliderLength=0;
 			this.sliderIndex++;
 			
-			if(this.sliderIndex==this.photos.length){//开始新的循环
-				this.show(0);
+			if(this.sliderIndex==this.countOfCurrentMediaType()){//开始新的循环
+				this.reset();
 				return;
 			}
 			if(this.callback) this.callback(this.sliderIndex);
@@ -10549,7 +11634,7 @@ Animation.prototype.slider=function(){
 			if(_$(this.id+'.num.'+this.sliderIndex)){
 				_$(this.id+'.num.'+this.sliderIndex).className='animationNumberCurrent';
 			}
-			if(_$(this.id+'.animationNumbersCount')) _$(this.id+'.animationNumbersCount').innerHTML=(this.sliderIndex+1)+'/'+this.photos.length;
+			if(_$(this.id+'.animationNumbersCount')) _$(this.id+'.animationNumbersCount').innerHTML=(this.sliderIndex+1)+'/'+this.countOfCurrentMediaType();
 			
 			this.sliderTimeout=setTimeout("Animations.doSlider('"+this.id+"')",this.speed);
 		}
@@ -10564,6 +11649,20 @@ Animation.prototype.doSlider=function(){
 var Animations={
 	instances:new Array(),
 	
+	//当前正在操作的实例
+	current:null,
+	currentIndex:0,
+	
+	//播放器
+	videoPlayers:new Array(),
+	
+	resetAll:function(){
+		for(var id in this.instances){
+			
+		}
+		this.instances[id].reset();
+	},
+	
 	openUrl:function(url,title){
 		if(Utils.isMobile()){
 			if(url.indexOf('/goods/item.jhtml')>-1){
@@ -10576,22 +11675,74 @@ var Animations={
 		}
 	},
 	
+	doOpenVideo:function(){
+		var animation=Animations.current;
+		var i=Animations.currentIndex;
+		
+		var w=0;
+		var h=0;
+		var ratio=animation.width/animation.height;
+		var ratioVideo=animation.mediaSizes[i][0]/animation.mediaSizes[i][1];
+		if(ratio>=ratioVideo){
+			h=animation.height;
+			w=Math.floor(h*ratioVideo);
+		}else{
+			w=animation.width;
+			h=Math.floor(w/ratioVideo);
+		}
+		
+		if(w<animation.width) _$(animation.id+'.box.'+i).style.paddingLeft=Math.floor((animation.width-w)/2)+'px';
+		else _$(animation.id+'.box.'+i).style.paddingLeft='0px';
+		
+		if(h<animation.height) _$(animation.id+'.box.'+i).style.paddingTop=Math.floor((animation.height-h)/2)+'px';
+		else _$(animation.id+'.box.'+i).style.paddingTop='0px';
+		
+		var div=_$(animation.id+'.box.'+i+'.player');
+		if(!div){
+			_$(animation.id+'.box.'+i).innerHTML='';
+			div=document.createElement('div');
+			div.id=animation.id+'.box.'+i+'.player';
+			
+			_$(animation.id+'.box.'+i).appendChild(div);
+		}
+		
+		jwplayer.key="1sMBCTVyeHx37EVi3Crk4RvFVa0RhsNFaalcG8tPGps=";
+		var player=jwplayer(animation.id+'.box.'+i+'.player');
+		player.setup({
+				file: animation.medias[i],
+			    image: animation.photos[i],
+			    width: w,
+			    height: h,
+			    mute: 'false',
+			    repeat: 'false',
+			    autostart: 'true',
+			    preload: 'auto',
+			    flashplayer: "/player/v8.0.5/jwplayer.flash.swf?session_id="+session_id,
+			    primary: 'html5',
+			    logo: {
+			    	hide: 'true',
+			    	file: '/img/nothing.png',
+			    	link: 'http://'+thisDomain,
+			    },
+			    skin: {
+					name: 'stormtrooper'
+				},
+				controls:'true'
+		});
+		
+		Animations.videoPlayers[animation.id+'.'+i]=player;
+	},
+	
 	open:function(obj,id,i){
 		var animation=this.instances[id];
-		if(animation.mediaTypes[i]=='video'){				
+		if(animation.mediaTypes[i]=='video'){	
 			if(animation.playVideoInIframe){
-				animation.pause=true;
-				animation.inPlays[i]=true;
-				animation.show(i);
-				
-				if(animation.players[i]&&animation.players[i]!=''){
-					//obj.parentNode.innerHTML=animation.players[i];
+				this.current=animation;
+				this.currentIndex=i;
+				if((typeof jwplayer) == 'undefined'){
+					loadJS({src:'/player/v8.0.5/jwplayer.js', charset:'utf-8', callback:Animations.doOpenVideo});
 				}else{
-					var player='/player/index.jhtml?source='+encodeURIComponent(animation.medias[i]);
-					player+='&poster='+encodeURIComponent(animation.photos[i]);
-					player+='&auto=true';
-					player+='&player=jaris&width='+animation.width+'&height='+animation.height+'&type=video';
-					obj.parentNode.innerHTML='<iframe width="'+animation.width+'" height="'+animation.height+'" src="'+player+'" scrolling="no" frameborder="0" marginheight="0" marginwidth="0"></iframe>';
+					Animations.doOpenVideo();
 				}
 			}else{
 				var player='/player/index.jhtml?source='+encodeURIComponent(animation.medias[i]);
@@ -10617,6 +11768,41 @@ var Animations={
 	doSlider:function(id){
 		var animation=this.instances[id];
 		animation.doSlider();
+	},
+	
+	_switch:function(id, type){
+		var animation=this.instances[id];
+		for(var i=0;i<animation.photos.length;i++){	
+			if(animation.mediaTypes[i]!=type){
+				_$(id+'.box.'+i).style.display='none';
+				if(animation.mediaTypes[i]=='video' && animation.players[i] && animation.players[i]!=''){
+					_$(id+'.box.'+i).innerHTML=animation.players[i];
+				}
+			}else{
+				_$(id+'.box.'+i).style.display='';
+			}
+		}
+		
+		if(_$(id+'.box.'+animation.photos.length)){
+			var t=Utils.att(_$(id+'.box.'+animation.photos.length),'mediaType');
+			_$(id+'.box.'+animation.photos.length).style.display=(t==type?'':'none');
+		}
+		
+		if(animation.action=='L'||animation.action=='R'){
+			_$(animation.id).style.width=animation.width*(animation.photos.length+1)+'px';
+		}else{
+			_$(animation.id).style.height=animation.height*(animation.photos.length+1)+'px';
+		}
+		
+		var temp=_$cls('animationSwitchCurrent');
+		for(var i=0; temp && i<temp.length; i++) temp[i].className='animationSwitch';
+		_$(animation.id+'.switch.'+type).className='animationSwitchCurrent';
+				
+		animation.currentMediaType=type;
+		
+		if(_$(id+'.animationNumbersCount')) _$(id+'.animationNumbersCount').innerHTML='1/'+animation.countOfCurrentMediaType();
+		
+		animation.reset();
 	}
 }
 //图片轮播 end
@@ -10628,6 +11814,10 @@ var result='';
 function _done(){
 	//default...
 }
+
+//仅用做兼容的一些默认方法或空方法
+function _searcherConfigInHeader(){}
+function gotoPage(pn){Pages.gotoPage(pn);}
 
 //退出系统Form
 function logoutForm(roarssoback){	
@@ -10735,10 +11925,10 @@ function _login(event,isClick){
 function showNotLoginMessage(){
 	top.Loading.close();
 	top.Loading.showDialog(-1,-1,-1,-1,
-			'<font class="font16px errorColor">I{.请登录系统}</font>',
+			'',
 			'center',
-			['<div class="fullWidthBtnGray displayBlock" style="width:45%;" onclick="top.Loading.close();">I{js,知道了}</div>',
-			 '<div class="fullWidthBtnYellow displayBlock marginL5" style="width:45%;" onclick="top.location.href=\'/sso/login.jhtml?sso_back_url='+encodeURIComponent(location.href)+'\';">I{js,立即登录}</div>']);
+			['<div class="fullWidthBtnYellow displayBlock" style="width:45%;" onclick="top.location.href=\'/sso/login.jhtml?sso_back_url='+encodeURIComponent(location.href)+'\';">I{js,立即登录}</div>',
+			 '<div class="fullWidthBtnGray displayBlock marginL5" style="width:45%;" onclick="top.location.href=\'/usr/reg.jhtml?sso_back_url='+encodeURIComponent(location.href)+'\';">I{js,免费注册}</div>']);
 }
 
 //提示不是商户
@@ -10849,7 +12039,7 @@ var Message={
 	
 	init:function(_silent,_url,_title){
 		if(!_$('chatting')){
-			var str='<div id="chatting" class="chatting">';
+			var str='<div id="chatting" class="chatting" style="z-index:'+(W.maxZindex()+1)+' !important;">';
 			str+='	<div id="chattingTitle" class="chattingTitle" onmousedown="startDrag(event,\'chatting\');" onmouseup="endDrag(event)" onmouseout="endDrag(event)" onmousemove="moving(event,\'chatting\');">';
 			str+='		<div id="chattingTitleText" class="chattingTitleText">'+_title+'</div>';
 			str+='		<div onclick="Message.close();" id="chattingCloseIcon" class="chattingCloseIcon  iconfont icon-close"></div>';
@@ -11230,9 +12420,11 @@ function toTop(toUrl){
 function toParent(){
 	if(Utils.isMobile()
 			&&top.location.href==location.href
-			&&(_uri=='/goods/item.jhtml'||_uri=='/shopping/cart.jhtml')){
+			&&(_uri=='/goods/item.jhtml'
+				||_uri=='/shopping/cart.jhtml'
+				||_uri.indexOf('/thing.jhtml')>-1)){
 		location.href='/?open='+encodeURIComponent(location.href);
-	}
+	} 
 }
 
 var _referer='';
@@ -11253,6 +12445,9 @@ var Share={
 	sharedDesc:'',
 	sharedLink:'',
 	sharedLinkForWeixin:'',
+	isWeixinMiniProgram:false,
+	weixinInit:false,
+	
 	formatLink:function(link){
 		var paras=Str.parseUrl(link);
 		if(link.indexOf('?')>0) link=link.substring(0,link.indexOf('?'));
@@ -11272,10 +12467,18 @@ var Share={
 		if(link.indexOf('?')>0) link+='&referer='+getReferer();
 		else link+='?referer='+getReferer();
 		
+		if(MERCHANT_NUM && MERCHANT_NUM!='' && link.indexOf('MERCHANT_NUM')<0){
+			link+='&MERCHANT_NUM='+MERCHANT_NUM;
+		}
+		
 		return link;
 	},
 	
 	init:function(_sharedImages,_sharedImage,_sharedTitle,_sharedDesc,_sharedLink,_sharedLinkForWeixin){
+		if(_sharedLink&&_sharedLink!='') _sharedLink=this.formatLink(_sharedLink);
+		if(_sharedLinkForWeixin&&_sharedLinkForWeixin!='') _sharedLinkForWeixin=this.formatLink(_sharedLinkForWeixin);
+		
+		
 		if(Utils.isMobile()
 				&&_uri=='/goods/item.jhtml'){
 			_sharedLink=httpScheme+'://'+thisDomain+'/?open='+encodeURIComponent(Utils.getRequestUrl(_sharedLink));
@@ -11294,15 +12497,29 @@ var Share={
 		this.sharedImages=_sharedImages;
 		this.sharedImage=_sharedImage;
 		this.sharedTitle=_sharedTitle;
-		this.sharedDesc=_sharedDesc;
+		this.sharedDesc=_sharedDesc; 
 		this.sharedLink=_sharedLink;
 		this.sharedLinkForWeixin=_sharedLinkForWeixin;
-		
+
 		if(Str.startsWith(thisDomain,'w.')){
 			loadJS({src:confForWeixinJSSDK.jssdk, charset:'utf-8', callback:Share._initWeixinShare});
 		}
 	},
 	_initWeixinShare:function(){
+		wx.miniProgram.getEnv(function(res) {
+			Share.weixinInit=true;
+		    if(res.miniprogram) {
+		    	Share.isWeixinMiniProgram=true;
+		        // 小程序环境下逻辑 
+		    	wx.miniProgram.postMessage({ data:
+		    		{title: Share.sharedTitle, 
+		    		path:Share.sharedLinkForWeixin, 
+		    		imageUrl:decodeURIComponent(Share.sharedImage)}
+		    	})
+		        return;
+		    }
+		}); 
+		
 		wx.config({
 		    debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
 		    appId: confForWeixinJSSDK.appId, // 必填，公众号的唯一标识
@@ -11314,7 +12531,10 @@ var Share={
 		                'onMenuShareAppMessage',
 		                'onMenuShareQQ',
 		                'onMenuShareWeibo',
-		                'onMenuShareQZone'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+		                'onMenuShareQZone',
+		                'scanQRCode',
+		                'getBrandWCPayRequest',
+		                'openLocation'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
 		});
 		
 		wx.ready(function(){
@@ -11325,7 +12545,10 @@ var Share={
 			                'onMenuShareAppMessage',
 			                'onMenuShareQQ',
 			                'onMenuShareWeibo',
-			                'onMenuShareQZone'],
+			                'onMenuShareQZone',
+			                'scanQRCode',
+			                'getBrandWCPayRequest',
+			                'openLocation'],
 			                
 				success:function(res){}
 			});
@@ -11790,7 +13013,7 @@ var Pages={
 		if(this.gotoPageDefined){
 			this.gotoPageDefined(i);
 		}else{
-			_$('pn').value=i;
+			if(frm.pn) frm.pn.value=i;
 			frm.submit();
 		}
 	}
@@ -12536,10 +13759,132 @@ if (typeof JSON !== "object") {
 !function(t){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=t();else if("function"==typeof define&&define.amd)define([],t);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.Clipboard=t()}}(function(){var t,e,n;return function t(e,n,o){function i(a,c){if(!n[a]){if(!e[a]){var l="function"==typeof require&&require;if(!c&&l)return l(a,!0);if(r)return r(a,!0);var s=new Error("Cannot find module '"+a+"'");throw s.code="MODULE_NOT_FOUND",s}var u=n[a]={exports:{}};e[a][0].call(u.exports,function(t){var n=e[a][1][t];return i(n||t)},u,u.exports,t,e,n,o)}return n[a].exports}for(var r="function"==typeof require&&require,a=0;a<o.length;a++)i(o[a]);return i}({1:[function(t,e,n){function o(t,e){for(;t&&t.nodeType!==i;){if("function"==typeof t.matches&&t.matches(e))return t;t=t.parentNode}}var i=9;if("undefined"!=typeof Element&&!Element.prototype.matches){var r=Element.prototype;r.matches=r.matchesSelector||r.mozMatchesSelector||r.msMatchesSelector||r.oMatchesSelector||r.webkitMatchesSelector}e.exports=o},{}],2:[function(t,e,n){function o(t,e,n,o,r){var a=i.apply(this,arguments);return t.addEventListener(n,a,r),{destroy:function(){t.removeEventListener(n,a,r)}}}function i(t,e,n,o){return function(n){n.delegateTarget=r(n.target,e),n.delegateTarget&&o.call(t,n)}}var r=t("./closest");e.exports=o},{"./closest":1}],3:[function(t,e,n){n.node=function(t){return void 0!==t&&t instanceof HTMLElement&&1===t.nodeType},n.nodeList=function(t){var e=Object.prototype.toString.call(t);return void 0!==t&&("[object NodeList]"===e||"[object HTMLCollection]"===e)&&"length"in t&&(0===t.length||n.node(t[0]))},n.string=function(t){return"string"==typeof t||t instanceof String},n.fn=function(t){return"[object Function]"===Object.prototype.toString.call(t)}},{}],4:[function(t,e,n){function o(t,e,n){if(!t&&!e&&!n)throw new Error("Missing required arguments");if(!c.string(e))throw new TypeError("Second argument must be a String");if(!c.fn(n))throw new TypeError("Third argument must be a Function");if(c.node(t))return i(t,e,n);if(c.nodeList(t))return r(t,e,n);if(c.string(t))return a(t,e,n);throw new TypeError("First argument must be a String, HTMLElement, HTMLCollection, or NodeList")}function i(t,e,n){return t.addEventListener(e,n),{destroy:function(){t.removeEventListener(e,n)}}}function r(t,e,n){return Array.prototype.forEach.call(t,function(t){t.addEventListener(e,n)}),{destroy:function(){Array.prototype.forEach.call(t,function(t){t.removeEventListener(e,n)})}}}function a(t,e,n){return l(document.body,t,e,n)}var c=t("./is"),l=t("delegate");e.exports=o},{"./is":3,delegate:2}],5:[function(t,e,n){function o(t){var e;if("SELECT"===t.nodeName)t.focus(),e=t.value;else if("INPUT"===t.nodeName||"TEXTAREA"===t.nodeName){var n=t.hasAttribute("readonly");n||t.setAttribute("readonly",""),t.select(),t.setSelectionRange(0,t.value.length),n||t.removeAttribute("readonly"),e=t.value}else{t.hasAttribute("contenteditable")&&t.focus();var o=window.getSelection(),i=document.createRange();i.selectNodeContents(t),o.removeAllRanges(),o.addRange(i),e=o.toString()}return e}e.exports=o},{}],6:[function(t,e,n){function o(){}o.prototype={on:function(t,e,n){var o=this.e||(this.e={});return(o[t]||(o[t]=[])).push({fn:e,ctx:n}),this},once:function(t,e,n){function o(){i.off(t,o),e.apply(n,arguments)}var i=this;return o._=e,this.on(t,o,n)},emit:function(t){var e=[].slice.call(arguments,1),n=((this.e||(this.e={}))[t]||[]).slice(),o=0,i=n.length;for(o;o<i;o++)n[o].fn.apply(n[o].ctx,e);return this},off:function(t,e){var n=this.e||(this.e={}),o=n[t],i=[];if(o&&e)for(var r=0,a=o.length;r<a;r++)o[r].fn!==e&&o[r].fn._!==e&&i.push(o[r]);return i.length?n[t]=i:delete n[t],this}},e.exports=o},{}],7:[function(e,n,o){!function(i,r){if("function"==typeof t&&t.amd)t(["module","select"],r);else if(void 0!==o)r(n,e("select"));else{var a={exports:{}};r(a,i.select),i.clipboardAction=a.exports}}(this,function(t,e){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}function o(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}var i=n(e),r="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t},a=function(){function t(t,e){for(var n=0;n<e.length;n++){var o=e[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(t,o.key,o)}}return function(e,n,o){return n&&t(e.prototype,n),o&&t(e,o),e}}(),c=function(){function t(e){o(this,t),this.resolveOptions(e),this.initSelection()}return a(t,[{key:"resolveOptions",value:function t(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{};this.action=e.action,this.container=e.container,this.emitter=e.emitter,this.target=e.target,this.text=e.text,this.trigger=e.trigger,this.selectedText=""}},{key:"initSelection",value:function t(){this.text?this.selectFake():this.target&&this.selectTarget()}},{key:"selectFake",value:function t(){var e=this,n="rtl"==document.documentElement.getAttribute("dir");this.removeFake(),this.fakeHandlerCallback=function(){return e.removeFake()},this.fakeHandler=this.container.addEventListener("click",this.fakeHandlerCallback)||!0,this.fakeElem=document.createElement("textarea"),this.fakeElem.style.fontSize="12pt",this.fakeElem.style.border="0",this.fakeElem.style.padding="0",this.fakeElem.style.margin="0",this.fakeElem.style.position="absolute",this.fakeElem.style[n?"right":"left"]="-9999px";var o=window.pageYOffset||document.documentElement.scrollTop;this.fakeElem.style.top=o+"px",this.fakeElem.setAttribute("readonly",""),this.fakeElem.value=this.text,this.container.appendChild(this.fakeElem),this.selectedText=(0,i.default)(this.fakeElem),this.copyText()}},{key:"removeFake",value:function t(){this.fakeHandler&&(this.container.removeEventListener("click",this.fakeHandlerCallback),this.fakeHandler=null,this.fakeHandlerCallback=null),this.fakeElem&&(this.container.removeChild(this.fakeElem),this.fakeElem=null)}},{key:"selectTarget",value:function t(){this.selectedText=(0,i.default)(this.target),this.copyText()}},{key:"copyText",value:function t(){var e=void 0;try{e=document.execCommand(this.action)}catch(t){e=!1}this.handleResult(e)}},{key:"handleResult",value:function t(e){this.emitter.emit(e?"success":"error",{action:this.action,text:this.selectedText,trigger:this.trigger,clearSelection:this.clearSelection.bind(this)})}},{key:"clearSelection",value:function t(){this.trigger&&this.trigger.focus(),window.getSelection().removeAllRanges()}},{key:"destroy",value:function t(){this.removeFake()}},{key:"action",set:function t(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"copy";if(this._action=e,"copy"!==this._action&&"cut"!==this._action)throw new Error('Invalid "action" value, use either "copy" or "cut"')},get:function t(){return this._action}},{key:"target",set:function t(e){if(void 0!==e){if(!e||"object"!==(void 0===e?"undefined":r(e))||1!==e.nodeType)throw new Error('Invalid "target" value, use a valid Element');if("copy"===this.action&&e.hasAttribute("disabled"))throw new Error('Invalid "target" attribute. Please use "readonly" instead of "disabled" attribute');if("cut"===this.action&&(e.hasAttribute("readonly")||e.hasAttribute("disabled")))throw new Error('Invalid "target" attribute. You can\'t cut text from elements with "readonly" or "disabled" attributes');this._target=e}},get:function t(){return this._target}}]),t}();t.exports=c})},{select:5}],8:[function(e,n,o){!function(i,r){if("function"==typeof t&&t.amd)t(["module","./clipboard-action","tiny-emitter","good-listener"],r);else if(void 0!==o)r(n,e("./clipboard-action"),e("tiny-emitter"),e("good-listener"));else{var a={exports:{}};r(a,i.clipboardAction,i.tinyEmitter,i.goodListener),i.clipboard=a.exports}}(this,function(t,e,n,o){"use strict";function i(t){return t&&t.__esModule?t:{default:t}}function r(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function a(t,e){if(!t)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!e||"object"!=typeof e&&"function"!=typeof e?t:e}function c(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function, not "+typeof e);t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,enumerable:!1,writable:!0,configurable:!0}}),e&&(Object.setPrototypeOf?Object.setPrototypeOf(t,e):t.__proto__=e)}function l(t,e){var n="data-clipboard-"+t;if(e.hasAttribute(n))return e.getAttribute(n)}var s=i(e),u=i(n),f=i(o),d="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t},h=function(){function t(t,e){for(var n=0;n<e.length;n++){var o=e[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(t,o.key,o)}}return function(e,n,o){return n&&t(e.prototype,n),o&&t(e,o),e}}(),p=function(t){function e(t,n){r(this,e);var o=a(this,(e.__proto__||Object.getPrototypeOf(e)).call(this));return o.resolveOptions(n),o.listenClick(t),o}return c(e,t),h(e,[{key:"resolveOptions",value:function t(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{};this.action="function"==typeof e.action?e.action:this.defaultAction,this.target="function"==typeof e.target?e.target:this.defaultTarget,this.text="function"==typeof e.text?e.text:this.defaultText,this.container="object"===d(e.container)?e.container:document.body}},{key:"listenClick",value:function t(e){var n=this;this.listener=(0,f.default)(e,"click",function(t){return n.onClick(t)})}},{key:"onClick",value:function t(e){var n=e.delegateTarget||e.currentTarget;this.clipboardAction&&(this.clipboardAction=null),this.clipboardAction=new s.default({action:this.action(n),target:this.target(n),text:this.text(n),container:this.container,trigger:n,emitter:this})}},{key:"defaultAction",value:function t(e){return l("action",e)}},{key:"defaultTarget",value:function t(e){var n=l("target",e);if(n)return document.querySelector(n)}},{key:"defaultText",value:function t(e){return l("text",e)}},{key:"destroy",value:function t(){this.listener.destroy(),this.clipboardAction&&(this.clipboardAction.destroy(),this.clipboardAction=null)}}],[{key:"isSupported",value:function t(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:["copy","cut"],n="string"==typeof e?[e]:e,o=!!document.queryCommandSupported;return n.forEach(function(t){o=o&&!!document.queryCommandSupported(t)}),o}}]),e}(u.default);t.exports=p})},{"./clipboard-action":7,"good-listener":4,"tiny-emitter":6}]},{},[8])(8)});
 ///////////////////////////////clipboard end/////////////////////////////////
 
+///////////////////////////////物联网///////////////////
+var IOT={
+	businesses:new Array(),
+	thingTypes:new Array(),
+	eventTypes:new Array(),
+	
+	a:function(businessCode,businessName,privacy){
+		this.businesses.push([businessCode,businessName,privacy]);
+	},
+	
+	b:function(businessCode,typeSn,typeName,isOpen){
+		this.thingTypes.push([businessCode,typeSn,typeName,isOpen]);
+	},
+	
+	c:function(eventCode,eventName,isCritical,tobeSaved){
+		this.eventTypes.push([eventCode,eventName,isCritical,tobeSaved]);
+	},
+	
+	getBusiness:function(businessCode){
+		if(businessCode){
+			for(var i=0;i<this.businesses.length;i++){
+				if(this.businesses[i][0]==businessCode) return this.businesses[i];
+			}
+		} 
+		//if(this.businesses.length>0) return this.businesses[0]; 
+		//else return null;
+		return null;
+	},
+	
+	getThingTypes:function(businessCode){
+		var business=this.getBusiness(businessCode);
+		if(!business) return null;
+		
+		var types=new Array();
+		for(var i=0;i<this.thingTypes.length;i++){
+			if(this.thingTypes[i][0]==business[0]) types.push(this.thingTypes[i]);
+		}
+		
+		return types;
+	},
+	
+	getThingType:function(typeSn){
+		for(var i=0;i<this.thingTypes.length;i++){
+			if(this.thingTypes[i][1]==typeSn) return this.thingTypes[i];
+		}
+		
+		return null;
+	},
+	
+	getThingEventTypes:function(){
+		return this.eventTypes;
+	},
+	
+	getThingEventType:function(eventCode){
+		for(var i=0;i<this.eventTypes.length;i++){
+			if(this.eventTypes[i][0]==eventCode) return this.eventTypes[i];
+		}
+		
+		return null;
+	}
+}
+///////////////////////////////物联网 END///////////////////
+//一些全局的通用操作
+var adjustOnInputBlurTimer=null;
+var focusInInputLastTime=false;//上次检查时输入焦点是否在input(input、textarea、select)内
+function adjustOnInputBlur(){
+	try{
+		if(!Utils.isMobile()) return;//不是手机，不用调整
+		
+		if(adjustOnInputBlurTimer){
+			clearTimeout(adjustOnInputBlurTimer);
+			adjustOnInputBlurTimer=null;
+		}
+		
+		var focusInInput=false;
+		if(document.activeElement){
+			var tagName=document.activeElement.tagName.toUpperCase();
+			if(tagName=='INPUT'||tagName=='TEXTAREA'||tagName=='SELECT') focusInInput=true;
+		}
+		
+		if(focusInInput){//如果当前输入焦点在input、textarea、select中，不调整窗口
+			focusInInputLastTime=true;
+			adjustOnInputBlurTimer=setTimeout(adjustOnInputBlur,200);
+			return;
+		}else if(focusInInputLastTime){//上次在input内，现在不在了，需要调整窗口
+			focusInInputLastTime=false;
+			document.activeElement.scrollIntoViewIfNeeded(true);
+			
+			adjustOnInputBlurTimer=setTimeout(adjustOnInputBlur,1000);
+		}
+	}catch(e){
+		adjustOnInputBlurTimer=setTimeout(adjustOnInputBlur,1000);
+	}
+}
+adjustOnInputBlurTimer=setTimeout(adjustOnInputBlur,1000);
+
+//提示关注公众号
+var thirdparty_subscribe='0';
+var wx_mp_uid='********';
+var wx_to_mini_program_auto='false';
+function toWechatMP(){
+	try{
+		if(thisDomain.startsWith('w.')&&thirdparty_subscribe=='0'){
+			alert('I{js,为更好地为您提供服务，请关注我们的公众号（长按二维码）}');
+			top.LoadingAllImages.open(null,window,['/img/weixin.jpg'],false,null);
+		}else if(thisDomain.startsWith('w.')
+				&&thirdparty_subscribe=='1'
+				&&wx_to_mini_program_auto=='true'){//已经关注，自动跳转到小程序
+			wx.miniProgram.getEnv(function(res) {
+				if(res.miniprogram) {//小程序环境
+			    }else{//公众号环境
+			        wx.miniProgram.navigateTo({url: '/pages/index/index'});
+			    }
+			});
+		}
+	}catch(e){
+		setTimeout(toWechatMP,1000);
+	}
+}
+//if(top.location.href==location.href) setTimeout(toWechatMP,1000);
+
 //初始化
 var _onbeforeunload=null;
 window.onbeforeunload = function() {
     //清理需要清理的东西
+	if(top.Loading.openType=='dock') top.Loading.close();
 	
 	//关闭所有websocket
 	try{
@@ -12565,4 +13910,44 @@ try{
 		parent.LoadingGoodsPage.loaded();
 	}	
 }catch(e){}
+
+function setVariables(){
+	try{
+		if(location.href!=parent.location.href){
+			document.body.style.setProperty('--iframeWidth','100%');
+		}else{
+			document.body.style.setProperty('--iframeWidth','100%');
+			if(!thisDomain.startsWith('m.')
+					&&!thisDomain.startsWith('w.')
+					&&!thisDomain.startsWith('app.')
+					&&!thisDomain.startsWith('ios.')
+					&& _$('container')) _$('container').style.minWidth='1366px';
+		}
+	}catch(e){
+		setTimeout(setVariables,100);
+	}
+}
+setTimeout(setVariables,100);
+
+function videoLoaded(){
+	var videos=document.getElementsByTagName('video');
+	if(videos.length==0){
+		return;
+	}
+
+	for(var i=0;i<videos.length;i++){
+		Utils.setAtt(videos[i],'x5-video-player-type','h5-page');
+		Utils.delAtt(videos[i],'x5-video-player-fullscreen');
+
+		Utils.setAtt(videos[i],'webkit-playsinline','true');
+		Utils.setAtt(videos[i],'playsinline','true');
+		Utils.setAtt(videos[i],'x5-playsinline','true');
+		Utils.setAtt(videos[i],'x-webkit-airplay','true');
+	}
+} 
+if(Utils.isMobile()) setInterval(videoLoaded,10);
+
+if(!Utils.isMobile()&&location.href==top.location.href){
+	setInterval(W.isZoomMonitor,200);
+}
 //初始化 end
