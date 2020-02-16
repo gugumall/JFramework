@@ -1,5 +1,6 @@
 package j.dao;
 
+import java.util.List;
 
 /**
  * 
@@ -10,6 +11,7 @@ public class Query {
 	public static final int TYPE_SQL_NO_RESULT=0;
 	public static final int TYPE_SQL=1;
 	public static final int TYPE_TABLE_AND_CONDITION=2;
+	public static final int TYPE_TABLE_AND_CONDITION_EXCLUDE_COLS=22;
 	public static final int TYPE_COUNT=3;
 	public static final int TYPE_INSERT=4;
 	public static final int TYPE_INSERT_IF_NOT_EXISTS=5;
@@ -33,6 +35,7 @@ public class Query {
 	int type;
 	String[] tableNames;
 	String condition;
+	List<String> excludedColumns;
 	String[] keys=null;
 	int rpp=0;
 	int pn=0;

@@ -1,7 +1,11 @@
 package j.hp.thread;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import j.sys.SysUtil;
 import j.util.ConcurrentList;
+import j.util.JUtilSorter;
 
 /**
  * 
@@ -16,6 +20,32 @@ public class ThreadPool{
 	private long latestUsed=0;
 	private ConcurrentList threads=new ConcurrentList();
 	private int selector=0;
+	
+	/**
+	 * 
+	 * @param tasks
+	 * @return
+	 */
+	public List<ThreadTaskResult> execute(List<ThreadTask> tasks){
+		List<ThreadTaskResult> results=new ArrayList();
+		List<ThreadRunner> runners=new ArrayList();
+		for(int i=0; i<tasks.size(); i++) {
+			runners.add(this.addTask(tasks.get(i)));
+		}
+		
+		while(results.size()<runners.size()) {
+			for(int i=0; i<runners.size(); i++) {
+				String uuid=tasks.get(i).getUuid();
+				ThreadTaskResult result=runners.get(i).getResult(uuid);
+				if(result!=null) results.add(result);
+			}
+			try {
+				Thread.sleep(10);
+			}catch(Exception e) {}
+		}
+		
+		return results;
+	}
 	
 	/**
 	 * 
@@ -102,8 +132,11 @@ public class ThreadPool{
 		
 		if(runner!=null) return runner;
 		
-		if(selector>=this.threads.size()) selector=0;
-		runner=(ThreadRunner)this.threads.get(selector++);
+		//根据执行线程任务队列长度排序，队列最小的（最空闲的）排最前
+		this.threads=(ConcurrentList)ThreadRunnerSorter.instance().bubble(this.threads, JUtilSorter.ASC);
+		
+		//将新任务添加到最空闲的线程
+		runner=(ThreadRunner)this.threads.get(0);
 		runner.addTask(task);
 		
 		return runner;

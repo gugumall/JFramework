@@ -189,49 +189,95 @@ public interface DAO{
 	//////////////////////////////////////////////////////////////////////////////
 		
 	/**
-	 * 
+	 * @deprecated
 	 * @param sql
 	 * @param cls
-	 * @param except 某些不读取的列，格式：{列名1}{列名2}
+	 * @param excludedColumns 某些不读取的列，格式：{列名/字段名1}{列名/字段名2}
 	 * @return
 	 * @throws Exception
 	 */
-	public List find(String sql,Class cls,String except)throws Exception;
+	public List find(String sql,Class cls,String excludedColumns)throws Exception;
+	
 	
 	/**
 	 * 
 	 * @param sql
 	 * @param cls
-	 * @param except 某些不读取的列，格式：{列名1}{列名2}
+	 * @param excludedColumns 某些不读取的列名/字段名
+	 * @return
+	 * @throws Exception
+	 */
+	public List find(String sql,Class cls,List<String> excludedColumns)throws Exception;
+	
+	/**
+	 * @deprecated
+	 * @param sql
+	 * @param cls
+	 * @param excludedColumns 某些不读取的列，格式：{列名/字段名1}{列名/字段名2}
 	 * @param RPP
 	 * @param PN
 	 * @return
 	 * @throws Exception
 	 */
-	public List find(String sql,Class cls,String except,int RPP,int PN)throws Exception;
+	public List find(String sql,Class cls,String excludedColumns,int RPP,int PN)throws Exception;
 	
 	/**
+	 * 
+	 * @param sql
+	 * @param cls
+	 * @param excludedColumns 某些不读取的列名/字段名
+	 * @param RPP
+	 * @param PN
+	 * @return
+	 * @throws Exception
+	 */
+	public List find(String sql,Class cls,List<String> excludedColumns,int RPP,int PN)throws Exception;
+	
+	/**
+	 * @deprecated
 	 * get the start(inclusive) to end(exclusive)
 	 * @param sql
 	 * @param cls
-	 * @param except 某些不读取的列，格式：{列名1}{列名2}
+	 * @param excludedColumns 某些不读取的列，格式：{列名/字段名1}{列名/字段名2}
 	 * @param start
 	 * @param end
 	 * @return
 	 * @throws Exception
 	 */
-	public List findScale(String sql,Class cls,String except,int start,int end)throws Exception;
+	public List findScale(String sql,Class cls,String excludedColumns,int start,int end)throws Exception;
 	
+	/**
+	 * get the start(inclusive) to end(exclusive)
+	 * @param sql
+	 * @param cls
+	 * @param excludedColumns 某些不读取的列名/字段名
+	 * @param start
+	 * @param end
+	 * @return
+	 * @throws Exception
+	 */
+	public List findScale(String sql,Class cls,List<String> excludedColumns,int start,int end)throws Exception;
+	
+
+	/**
+	 * @deprecated
+	 * @param sql
+	 * @param cls
+	 * @param excludedColumns 某些不读取的列，格式：{列名/字段名1}{列名/字段名2}
+	 * @return
+	 * @throws Exception
+	 */
+	public Object findSingle(String sql,Class cls,String excludedColumns)throws Exception;
 
 	/**
 	 * 
 	 * @param sql
 	 * @param cls
-	 * @param except
+	 * @param excludedColumns 某些不读取的列名/字段名
 	 * @return
 	 * @throws Exception
 	 */
-	public Object findSingle(String sql,Class cls,String except)throws Exception;
+	public Object findSingle(String sql,Class cls,List<String> excludedColumns)throws Exception;
 	
 	
 	//////////////////////////////////////////////////////////////////////////////
@@ -247,6 +293,16 @@ public interface DAO{
 	 */
 	public List find(String tableName,String condition) throws Exception;
 	
+	/**
+	 * 根据表名和查询条件进行单表查询
+	 * @param tableName 表名，不区分大小写
+	 * @param condition 标准sql的查询条件，不包含"where"，即where后的部分
+	 * @param excludedColumns 不读取的列名/字段名
+	 * @return List 与表对应的Bean的列表
+	 * @throws Exception
+	 */
+	public List find(String tableName,String condition,List<String> excludedColumns) throws Exception;
+	
 
 	/**
 	 * 根据表名和查询条件进行单表查询
@@ -261,6 +317,20 @@ public interface DAO{
 	public List find(String tableName,String condition,int RPP,int PN) throws Exception;
 	
 
+
+	/**
+	 * 根据表名和查询条件进行单表查询
+	 * @param tableName 表名，不区分大小写
+	 * @param condition 标准sql的查询条件，不包含"where"，即where后的部分
+	 * @param excludedColumns 不读取的列名/字段名
+	 * @param RPP 每页多少条，大于0的整数
+	 * @param PN 第几页，大于0的整数
+	 * 
+	 * @return List 与表对应的Bean的列表
+	 * @throws Exception
+	 */
+	public List find(String tableName,String condition,List<String> excludedColumns,int RPP,int PN) throws Exception;
+	
 	/**
 	 * get the start(inclusive) to end(exclusive)
 	 * @param tableName
@@ -271,7 +341,19 @@ public interface DAO{
 	 * @throws Exception
 	 */
 	public List findScale(String tableName,String condition,int start,int end) throws Exception;
-	
+
+	/**
+	 * get the start(inclusive) to end(exclusive)
+	 * @param tableName
+	 * @param condition
+	 * @param excludedColumns 不读取的列名/字段名
+	 * @param start
+	 * @param end
+	 * @return
+	 * @throws Exception
+	 */
+	public List findScale(String tableName,String condition,List<String> excludedColumns,int start,int end) throws Exception;
+
 
 	/**
 	 * 返回符合条件的第一条记录(if exists)
@@ -282,6 +364,19 @@ public interface DAO{
 	 * @throws Exception
 	 */
 	public Object findSingle(String tableName,String condition)throws Exception;
+	
+
+
+	/**
+	 * 返回符合条件的第一条记录(if exists)
+	 * @param tableName 表名，不区分大小写
+	 * @param condition 标准sql的查询条件，不包含"where"，即where后的部分
+	 * @param excludedColumns 不读取的列名/字段名
+	 * 
+	 * @return 与表对应的Bean
+	 * @throws Exception
+	 */
+	public Object findSingle(String tableName,String condition,List<String> excludedColumns)throws Exception;
 	
 	
 	//////////////////////////////////////////////////////////////////////////////
@@ -298,6 +393,18 @@ public interface DAO{
 	 */
 	public List find(String tableName,String condition,Class cls)throws Exception;
 	
+
+	/**
+	 * 
+	 * @param tableName
+	 * @param condition
+	 * @param cls
+	 * @param excludedColumns 不读取的列名/字段名
+	 * @return
+	 * @throws Exception
+	 */
+	public List find(String tableName,String condition,Class cls,List<String> excludedColumns)throws Exception;
+	
 	
 	/**
 	 * 
@@ -311,8 +418,21 @@ public interface DAO{
 	 */
 	public List find(String tableName,String condition,Class cls,int RPP,int PN)throws Exception;
 	
-
 	
+	/**
+	 * 
+	 * @param tableName
+	 * @param condition
+	 * @param cls
+	 * @param excludedColumns 不读取的列名/字段名
+	 * @param RPP
+	 * @param PN
+	 * @return
+	 * @throws Exception
+	 */
+	public List find(String tableName,String condition,Class cls,List<String> excludedColumns,int RPP,int PN)throws Exception;
+	
+
 	/**
 	 * 
 	 * @param tableName
@@ -326,6 +446,20 @@ public interface DAO{
 	public List findScale(String tableName,String condition,Class cls,int start,int end)throws Exception;
 	
 
+	/**
+	 * 
+	 * @param tableName
+	 * @param condition
+	 * @param cls
+	 * @param excludedColumns 不读取的列名/字段名
+	 * @param start
+	 * @param end
+	 * @return
+	 * @throws Exception
+	 */
+	public List findScale(String tableName,String condition,Class cls,List<String> excludedColumns,int start,int end)throws Exception;
+	
+
 	
 	/**
 	 * 
@@ -336,6 +470,18 @@ public interface DAO{
 	 * @throws Exception
 	 */
 	public Object findSingle(String tableName,String condition,Class cls)throws Exception;
+
+	
+	/**
+	 * 
+	 * @param tableName
+	 * @param condition
+	 * @param cls
+	 * @param excludedColumns 不读取的列名/字段名
+	 * @return
+	 * @throws Exception
+	 */
+	public Object findSingle(String tableName,String condition,Class cls,List<String> excludedColumns)throws Exception;
 	
 	
 	//////////////////////////////////////////////////////////////////////////////
@@ -348,7 +494,7 @@ public interface DAO{
 	 * @param condition 标准sql的查询条件，不包含"where"，即where后的部分
 	 * 
 	 * @return List 对象数组（Object[]）的列表，对象数组中的对象是与表对应的对象，
-	 * 其顺序与tblNames中指定的表名顺序一致。例如：
+	 * 其顺序与tableNames中指定的表名顺序一致。例如：
 	 * List lst=find(new String[]{"TBL_A","TBL_B"},"TBL_A.ID=TBL_B.ID");
 	 * for(int i=0;i<lst.size();i++){
 	 * 	Object[] objs=(Object[])lst.get(i);
@@ -357,7 +503,7 @@ public interface DAO{
 	 * }
 	 * @throws Exception
 	 */
-	public List find(String[] tblNames,String condition) throws Exception;
+	public List find(String[] tableNames,String condition) throws Exception;
 	
 	
 	/**
@@ -368,7 +514,7 @@ public interface DAO{
 	 * @param PN 第几页，大于0的整数
 	 * 
 	 * @return List 对象数组（Object[]）的列表，对象数组中的对象是与表对应的对象，
-	 * 其顺序与tblNames中指定的表名顺序一致。例如：
+	 * 其顺序与tableNames中指定的表名顺序一致。例如：
 	 * List lst=find(new String[]{"TBL_A","TBL_B"},"TBL_A.ID=TBL_B.ID");
 	 * for(int i=0;i<lst.size();i++){
 	 * 	Object[] objs=(Object[])lst.get(i);
@@ -377,7 +523,7 @@ public interface DAO{
 	 * }
 	 * @throws Exception
 	 */
-	public List find(String[] tblNames,String condition,int RPP,int PN) throws Exception;
+	public List find(String[] tableNames,String condition,int RPP,int PN) throws Exception;
 	
 	
 	/**
@@ -389,7 +535,7 @@ public interface DAO{
 	 * @return
 	 * @throws Exception
 	 */
-	public List findScale(String[] tblNames,String condition,int start,int end) throws Exception;
+	public List findScale(String[] tableNames,String condition,int start,int end) throws Exception;
 
 	
 	/**
@@ -414,7 +560,7 @@ public interface DAO{
 	 * @return
 	 * @throws Exception
 	 */
-	public List find(String[] tblNames,Class[] CLSs,String condition) throws Exception;
+	public List find(String[] tableNames,Class[] CLSs,String condition) throws Exception;
 	
 	/**
 	 * 
@@ -426,7 +572,7 @@ public interface DAO{
 	 * @return
 	 * @throws Exception
 	 */
-	public List find(String[] tblNames,Class[] CLSs,String condition,int RPP,int PN) throws Exception;
+	public List find(String[] tableNames,Class[] CLSs,String condition,int RPP,int PN) throws Exception;
 
 
 	/**
@@ -439,7 +585,7 @@ public interface DAO{
 	 * @return
 	 * @throws Exception
 	 */
-	public List findScale(String[] tblNames,Class[] CLSs,String condition,int start,int end) throws Exception;
+	public List findScale(String[] tableNames,Class[] CLSs,String condition,int start,int end) throws Exception;
 
 
 
@@ -451,7 +597,7 @@ public interface DAO{
 	 * @return
 	 * @throws Exception
 	 */
-	public Object findSingle(String[] tblNames,Class[] CLSs,String condition) throws Exception;
+	public Object findSingle(String[] tableNames,Class[] CLSs,String condition) throws Exception;
 	
 	
 	//////////////////////////////////////////////////////////////////////////////
@@ -479,9 +625,9 @@ public interface DAO{
 	 * @param vo 与数据表记录对应的value object
 	 * @throws Exception
 	 */
-	public void insert(String tblName,Object vo)throws Exception;
-	public void insertIfNotExists(String tblName,Object vo)throws Exception;
-	public void insertIfNotExists(String tblName,Object vo,String[] conditionKeys)throws Exception;
+	public void insert(String tableName,Object vo)throws Exception;
+	public void insertIfNotExists(String tableName,Object vo)throws Exception;
+	public void insertIfNotExists(String tableName,Object vo,String[] conditionKeys)throws Exception;
 	
 	
 	//////////////////////////////////////////////////////////////////////////////
@@ -505,8 +651,8 @@ public interface DAO{
 	public void updateByKeys(Object vo,String[] conditionKeys)throws Exception;
 	public void updateByKeys(Object vo)throws Exception;
 
-	public void updateByKeys(String tblName,Object vo,String[] conditionKeys)throws Exception;
-	public void updateByKeys(String tblName,Object vo)throws Exception;
+	public void updateByKeys(String tableName,Object vo,String[] conditionKeys)throws Exception;
+	public void updateByKeys(String tableName,Object vo)throws Exception;
 	
 	/**
 	 * 根据vo中指定字段（0个或多个）所组成的条件，将符合条件的记录更新成vo所表示的状态（不包括作为条件的自段和为null的字段）
@@ -517,15 +663,15 @@ public interface DAO{
 	public void updateByKeysIgnoreNulls(Object vo,String[] conditionKeys)throws Exception;
 	public void updateByKeysIgnoreNulls(Object vo)throws Exception;
 	
-	public void updateByKeysIgnoreNulls(String tblName,Object vo,String[] conditionKeys)throws Exception;
-	public void updateByKeysIgnoreNulls(String tblName,Object vo)throws Exception;
+	public void updateByKeysIgnoreNulls(String tableName,Object vo,String[] conditionKeys)throws Exception;
+	public void updateByKeysIgnoreNulls(String tableName,Object vo)throws Exception;
 	
 	//updateNullCols指定的列即时为null也更新
 	public void updateByKeysIgnoreNulls(Object vo,String[] conditionKeys,List<String> updateNullCols)throws Exception;
 	public void updateByKeysIgnoreNulls(Object vo,List<String> updateNullCols)throws Exception;
 	
-	public void updateByKeysIgnoreNulls(String tblName,Object vo,String[] conditionKeys,List<String> updateNullCols)throws Exception;
-	public void updateByKeysIgnoreNulls(String tblName,Object vo,List<String> updateNullCols)throws Exception;
+	public void updateByKeysIgnoreNulls(String tableName,Object vo,String[] conditionKeys,List<String> updateNullCols)throws Exception;
+	public void updateByKeysIgnoreNulls(String tableName,Object vo,List<String> updateNullCols)throws Exception;
 	
 	
 	//////////////////////////////////////////////////////////////////////////////
@@ -578,7 +724,7 @@ public interface DAO{
 	 * @return 
 	 * @throws Exception
 	 */
-	public int getRecordCnt(String[] tblNames,String condition) throws Exception;
+	public int getRecordCnt(String[] tableNames,String condition) throws Exception;
 	
 	
 	//////////////////////////////////////////////////////////////////////////////
@@ -701,7 +847,7 @@ public interface DAO{
 	 * @return Column对象的列表
 	 * @throws Exception
 	 */
-	public List getColumns(String tblName)throws Exception;
+	public List getColumns(String tableName)throws Exception;
 	
 	/**
 	 * 得到指定表的主键列
@@ -710,7 +856,7 @@ public interface DAO{
 	 * @return Column对象的数组
 	 * @throws Exception
 	 */
-	public Column[] getPrimaryKeyColumns(String tblName)throws Exception;
+	public Column[] getPrimaryKeyColumns(String tableName)throws Exception;
 	
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////

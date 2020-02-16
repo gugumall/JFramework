@@ -314,6 +314,20 @@ public class QueryPool implements Runnable{
 		return selectExecutor().query(uuid!=null?uuid:JUtilUUID.genUUID(),table,condition,true);
 	}
 	
+
+	/**
+	 * 
+	 * @param uuid
+	 * @param table
+	 * @param condition
+	 * @param excludedColumns
+	 * @return
+	 */
+	public List query(String uuid,String table,String condition,List<String> excludedColumns){
+		commands++;
+		return selectExecutor().query(uuid!=null?uuid:JUtilUUID.genUUID(),table,condition,excludedColumns,true);
+	}
+	
 	/**
 	 * 
 	 * @param uuid
@@ -326,6 +340,21 @@ public class QueryPool implements Runnable{
 	public List query(String uuid,String table,String condition,int rpp,int pn){
 		commands++;
 		return selectExecutor().query(uuid!=null?uuid:JUtilUUID.genUUID(),table,condition,rpp,pn,true);
+	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @param table
+	 * @param condition
+	 * @param excludedColumns
+	 * @param rpp
+	 * @param pn
+	 * @return
+	 */
+	public List query(String uuid,String table,String condition,List<String> excludedColumns,int rpp,int pn){
+		commands++;
+		return selectExecutor().query(uuid!=null?uuid:JUtilUUID.genUUID(),table,condition,excludedColumns,rpp,pn,true);
 	}
 	
 	/**

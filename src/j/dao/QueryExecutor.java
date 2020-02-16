@@ -408,6 +408,64 @@ public class QueryExecutor implements Runnable{
 	 * @param syn
 	 * @return
 	 */
+	protected List query(String uuid,String table,String condition,List<String> excludedColumns,boolean syn){
+		if(tasks.containsKey(uuid)) return null;
+		
+		Query query=new Query(uuid,Query.TYPE_TABLE_AND_CONDITION_EXCLUDE_COLS);
+		query.tableNames=new String[]{table};
+		query.condition=condition;
+		query.excludedColumns=excludedColumns;
+		tasks.put(uuid,query);
+		
+		if(!syn) return null;
+		
+		while(tasks.containsKey(uuid)){
+			//try{
+			//	Thread.sleep(100);
+			//}catch(Exception e){}
+		}
+		return (List)results.remove(uuid);
+	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @param table
+	 * @param condition
+	 * @param rpp
+	 * @param pn
+	 * @param syn
+	 * @return
+	 */
+	protected List query(String uuid,String table,String condition,List<String> excludedColumns,int rpp,int pn,boolean syn){
+		if(tasks.containsKey(uuid)) return null;
+		
+		Query query=new Query(uuid,Query.TYPE_TABLE_AND_CONDITION_EXCLUDE_COLS);
+		query.tableNames=new String[]{table};
+		query.condition=condition;
+		query.excludedColumns=excludedColumns;
+		query.rpp=rpp;
+		query.pn=pn;
+		tasks.put(uuid,query);
+		
+		if(!syn) return null;
+		
+		while(tasks.containsKey(uuid)){
+			//try{
+			//	Thread.sleep(100);
+			//}catch(Exception e){}
+		}
+		return (List)results.remove(uuid);
+	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @param table
+	 * @param condition
+	 * @param syn
+	 * @return
+	 */
 	protected List querySingle(String uuid,String table,String condition,boolean syn){
 		if(tasks.containsKey(uuid)) return null;
 		
@@ -686,6 +744,24 @@ public class QueryExecutor implements Runnable{
 								results.put(query.uuid, result);
 							}else{
 								List result=dao.find(query.tableNames[0],query.condition);
+								results.put(query.uuid, result);
+							}
+						}else{
+							if(query.rpp>0&&query.pn>0){
+								List result=dao.find(query.tableNames,query.condition,query.rpp,query.pn);
+								results.put(query.uuid, result);
+							}else{
+								List result=dao.find(query.tableNames,query.condition);
+								results.put(query.uuid, result);
+							}
+						}
+					}else if(query.type==Query.TYPE_TABLE_AND_CONDITION_EXCLUDE_COLS){
+						if(query.tableNames.length==1){
+							if(query.rpp>0&&query.pn>0){
+								List result=dao.find(query.tableNames[0],query.condition,query.excludedColumns,query.rpp,query.pn);
+								results.put(query.uuid, result);
+							}else{
+								List result=dao.find(query.tableNames[0],query.condition,query.excludedColumns);
 								results.put(query.uuid, result);
 							}
 						}else{

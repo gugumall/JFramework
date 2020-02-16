@@ -115,7 +115,7 @@ public class ThreadRunner implements Runnable{
 				for(int i=0;i<keys.size();i++){
 					String key=(String)keys.get(i);
 					ThreadTaskResult result=(ThreadTaskResult)results.get(i);
-					if(result.isTimeout()){
+					if(result!=null && result.isTimeout()){
 						results.remove(key);
 						result=null;
 					}
@@ -135,7 +135,7 @@ public class ThreadRunner implements Runnable{
 							if(task.getUuid()!=null
 									&&!"".equals(task.getUuid())
 									&&result!=null){
-								results.put(task.getUuid(),new ThreadTaskResult(task.getUuid(), result,task.getResultTimeout()));
+								results.put(task.getUuid(),new ThreadTaskResult(task.getUuid(), result, task.getResultTimeout()));
 							}
 							break;
 						}catch(Exception e){

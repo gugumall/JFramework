@@ -366,25 +366,59 @@ public class RdbmsDao implements DAO {
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#find(java.lang.String, java.lang.Class, java.lang.String)
 	 */
-	public List find(String sql,Class cls,String except)throws Exception{
-		return find(sql,cls,except,0,0);
+	public List find(String sql,Class cls,String excludedColumns)throws Exception{
+		return find(sql,cls,excludedColumns,0,0);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#find(java.lang.String, java.lang.Class, java.util.List)
+	 */
+	public List find(String sql,Class cls,List<String> excludedColumns)throws Exception{
+		return find(sql,cls,excludedColumns,0,0);
 	}
 	
 	/*
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#find(java.lang.String, java.lang.Class, java.lang.String, int, int)
 	 */
-	public List find(String sql,Class cls,String except,int RPP,int PN)throws Exception{
-		return findScale(sql,cls,except,RPP*(PN-1),RPP*PN);
+	public List find(String sql,Class cls,String excludedColumns,int RPP,int PN)throws Exception{
+		return findScale(sql,cls,excludedColumns,RPP*(PN-1),RPP*PN);
 	}
 	
-	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#find(java.lang.String, java.lang.Class, java.util.List, int, int)
+	 */
+	public List find(String sql,Class cls,List<String> excludedColumns,int RPP,int PN)throws Exception{
+		return findScale(sql,cls,excludedColumns,RPP*(PN-1),RPP*PN);
+	}
 	
 	/*
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#findScale(java.lang.String, java.lang.Class, java.lang.String, int, int)
 	 */
-	public List findScale(String sql,Class cls,String except,int start,int end)throws Exception{
+	public List findScale(String sql,Class cls,String excludedColumns,int start,int end)throws Exception{
+		if(excludedColumns==null || "".equals(excludedColumns)) {
+			return findScale(sql,cls,(List)null,start,end);
+		}else {
+			//excludedColumns 某些不读取的列，格式：{列名1}{列名2}
+			List<String> _excludedColumns=new ArrayList();
+			String[] temp=JUtilString.getTokens(excludedColumns, "}{");
+			for(int i=0; i<temp.length; i++) {
+				if(temp[i].startsWith("{")) temp[i]=temp[i].substring(1);
+				if(temp[i].endsWith("}")) temp[i]=temp[i].substring(temp[i].length()-1);
+				_excludedColumns.add(temp[i]);
+			}
+			return findScale(sql,cls,_excludedColumns,start,end);
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#findScale(java.lang.String, java.lang.Class, java.util.List, int, int)
+	 */
+	public List findScale(String sql,Class cls,List<String> excludedColumns,int start,int end)throws Exception{
 		if(SQLUtil.sqlInjection(sql)!=null) return null;
 		
 		StmtAndRs sr=null;
@@ -395,7 +429,7 @@ public class RdbmsDao implements DAO {
 			ResultSet rs = sr.resultSet();
 			List results=new ArrayList();
 			Field[] fields=cls.getDeclaredFields();
-			String tblName=SQLUtil.retrieveTableNameFromSQL(sql);
+			String tableName=SQLUtil.retrieveTableNameFromSQL(sql);
 			
 			Map<String, Method> setterCache=new HashMap();
 			Map<String, String> setterNameCache=new HashMap();
@@ -404,7 +438,9 @@ public class RdbmsDao implements DAO {
 	        Map<String, Boolean> isGzipCache=new HashMap();
 	        for(int i=0;i<fields.length;i++){
 				String fieldName=fields[i].getName();
-				if(except!=null&&except.indexOf("{"+fieldName+"}")>-1){
+				String colName=factory.getColName(tableName,fieldName);
+				if(excludedColumns!=null 
+						&& (excludedColumns.contains(fieldName) || excludedColumns.contains(colName))){
 					continue;
 				}
 				
@@ -413,9 +449,9 @@ public class RdbmsDao implements DAO {
 				setter.setAccessible(true);
 				setterCache.put(fieldName, setter);
 				setterNameCache.put(fieldName, factory.getUnregisterSetterName(fieldName));
-				colTypeCache.put(fieldName, factory.getColType(tblName, fieldName));
-				colNameCache.put(fieldName, factory.getColName(tblName,fieldName));
-				isGzipCache.put(fieldName, factory.getColIsGzip(tblName,fieldName));
+				colTypeCache.put(fieldName, factory.getColType(tableName, fieldName));
+				colNameCache.put(fieldName, colName);
+				isGzipCache.put(fieldName, factory.getColIsGzip(tableName,fieldName));
 	        }
 			
 			//MethodAccess access = factory.getMethodAccessOfClass(cls);
@@ -457,8 +493,17 @@ public class RdbmsDao implements DAO {
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#findSingle(java.lang.String, java.lang.Class, java.lang.String)
 	 */
-	public Object findSingle(String sql,Class cls,String except)throws Exception{
-		List lst=findScale(sql,cls,except,0,1);
+	public Object findSingle(String sql,Class cls,String excludedColumns)throws Exception{
+		List lst=findScale(sql,cls,excludedColumns,0,1);
+		return lst==null||lst.isEmpty()?null:lst.get(0);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#findSingle(java.lang.String, java.lang.Class, java.util.List)
+	 */
+	public Object findSingle(String sql,Class cls,List<String> excludedColumns)throws Exception{
+		List lst=findScale(sql,cls,excludedColumns,0,1);
 		return lst==null||lst.isEmpty()?null:lst.get(0);
 	}
 
@@ -470,6 +515,14 @@ public class RdbmsDao implements DAO {
 	public List find(String tableName, String condition) throws Exception {		
 		return find(tableName,condition,0,0);
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#find(java.lang.String, java.lang.String, java.util.List)
+	 */
+	public List find(String tableName, String condition,List<String> excludedColumns) throws Exception {		
+		return find(tableName,condition,excludedColumns,0,0);
+	}
 
 	/* (non-Javadoc)
 	 * @see j.sdk.dao.DAO#find(java.lang.String, java.lang.String, int, int)
@@ -477,13 +530,28 @@ public class RdbmsDao implements DAO {
 	public List find(String tableName, String condition, int RPP, int PN) throws Exception {
 		return findScale(tableName,condition,RPP*(PN-1),RPP*PN);
 	}
-
 	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#find(java.lang.String, java.lang.String, java.util.List, int, int)
+	 */
+	public List find(String tableName, String condition,List<String> excludedColumns, int RPP, int PN) throws Exception {
+		return findScale(tableName,condition,excludedColumns,RPP*(PN-1),RPP*PN);
+	}
+
 	/*
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#findScale(java.lang.String, java.lang.String, int, int)
 	 */
 	public List findScale(String tableName, String condition, int start, int end) throws Exception {
+		return findScale(tableName,condition,(List)null,start,end);
+	}	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#findScale(java.lang.String, java.lang.String, java.util.List, int, int)
+	 */
+	public List findScale(String tableName, String condition,List<String> excludedColumns, int start, int end) throws Exception {
 		List results=new ArrayList();
 		StmtAndRs sr=null;
 		try{
@@ -530,6 +598,9 @@ public class RdbmsDao implements DAO {
 	        Map<String, Boolean> isGzipCache=new HashMap();
 			for(int i=0;i<cols.size();i++){
 				colName=((Column)cols.get(i)).colName;
+				
+				if(excludedColumns!=null 
+						&&(excludedColumns.contains(colName) || excludedColumns.contains(JUtilBean.colNameToVariableName(colName)))) continue;
 				
 				Method setter=factory.getSetter(tableName,colName);
 				if(setter==null) continue;
@@ -585,11 +656,28 @@ public class RdbmsDao implements DAO {
 	
 	/*
 	 * (non-Javadoc)
+	 * @see j.dao.DAO#findSingle(java.lang.String, java.lang.String, java.util.List)
+	 */
+	public Object findSingle(String tableName, String condition,List<String> excludedColumns) throws Exception {
+		List lst=findScale(tableName,condition,excludedColumns,0,1);
+		return lst==null||lst.isEmpty()?null:lst.get(0);
+	}
+	
+	/*
+	 * (non-Javadoc)
 	 * 
 	 * @see j.sdk.dao.DAO#find(java.lang.String, java.lang.String)
 	 */
 	public List find(String tableName, String condition,Class cls) throws Exception {		
 		return find(tableName,condition,cls,0,0);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#find(java.lang.String, java.lang.String, java.lang.Class, java.util.List)
+	 */
+	public List find(String tableName, String condition,Class cls,List<String> excludedColumns) throws Exception {		
+		return find(tableName,condition,cls,excludedColumns,0,0);
 	}
 
 	/* (non-Javadoc)
@@ -599,12 +687,27 @@ public class RdbmsDao implements DAO {
 		return findScale(tableName,condition,cls,RPP*(PN-1),RPP*PN);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#find(java.lang.String, java.lang.String, java.lang.Class, java.util.List, int, int)
+	 */
+	public List find(String tableName, String condition,Class cls,List<String> excludedColumns, int RPP, int PN) throws Exception {
+		return findScale(tableName,condition,cls,excludedColumns,RPP*(PN-1),RPP*PN);
+	}
 
 	/*
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#findScale(java.lang.String, java.lang.String, java.lang.Class, int, int)
 	 */
 	public List findScale(String tableName, String condition, Class cls, int start, int end) throws Exception {
+		return findScale(tableName, condition, cls,(List)null, start, end);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see j.dao.DAO#findScale(java.lang.String, java.lang.String, java.lang.Class, java.util.List, int, int)
+	 */
+	public List findScale(String tableName, String condition, Class cls,List<String> excludedColumns, int start, int end) throws Exception {
 		List results=new ArrayList();
 		StmtAndRs sr=null;
 		try{
@@ -645,6 +748,11 @@ public class RdbmsDao implements DAO {
 	        Map<String, Boolean> isGzipCache=new HashMap();
 	        for(int i=0;i<fields.length;i++){
 				String fieldName=fields[i].getName();
+				String colName=factory.getColName(tableName,fieldName);
+				if(excludedColumns!=null 
+						&& (excludedColumns.contains(fieldName) || excludedColumns.contains(colName))){
+					continue;
+				}
 				
 				Method setter=factory.getUnregisterSetter(cls, fieldName, new Class[]{fields[i].getType()});
 				if(setter==null) continue;
@@ -652,7 +760,7 @@ public class RdbmsDao implements DAO {
 				setterCache.put(fieldName, setter);
 				setterNameCache.put(fieldName, factory.getUnregisterSetterName(fieldName));
 				colTypeCache.put(fieldName, factory.getColType(tableName, fieldName));
-				colNameCache.put(fieldName, factory.getColName(tableName,fieldName));
+				colNameCache.put(fieldName, colName);
 				isGzipCache.put(fieldName, factory.getColIsGzip(tableName,fieldName));
 	        }
 			
@@ -701,19 +809,28 @@ public class RdbmsDao implements DAO {
 	
 	/*
 	 * (non-Javadoc)
+	 * @see j.dao.DAO#findSingle(java.lang.String, java.lang.String, java.lang.Class, java.util.List)
+	 */
+	public Object findSingle(String tableName, String condition, Class cls,List<String> excludedColumns) throws Exception {
+		List lst=findScale(tableName,condition,cls,excludedColumns,0,1);
+		return lst==null||lst.isEmpty()?null:lst.get(0);
+	}
+	
+	/*
+	 * (non-Javadoc)
 	 * 
 	 * @see j.sdk.dao.DAO#find(java.lang.String[], java.lang.String)
 	 */
-	public List find(String[] tblNames, String condition)throws Exception{		
-		return find(tblNames,condition,0,0);
+	public List find(String[] tableNames, String condition)throws Exception{		
+		return find(tableNames,condition,0,0);
 	}
 	
 
 	/* (non-Javadoc)
 	 * @see j.sdk.dao.DAO#find(java.lang.String[], java.lang.String, int, int)
 	 */
-	public List find(String[] tblNames, String condition, int RPP, int PN) throws Exception {
-		return findScale(tblNames,condition,RPP*(PN-1),RPP*PN);
+	public List find(String[] tableNames, String condition, int RPP, int PN) throws Exception {
+		return findScale(tableNames,condition,RPP*(PN-1),RPP*PN);
 	}
 	
 
@@ -721,33 +838,33 @@ public class RdbmsDao implements DAO {
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#findScale(java.lang.String[], java.lang.String, int, int)
 	 */
-	public List findScale(String[] tblNames, String condition, int start, int end) throws Exception {
+	public List findScale(String[] tableNames, String condition, int start, int end) throws Exception {
 		List results=new ArrayList();
 		StmtAndRs sr=null;
 		try{
-			if (tblNames == null || tblNames.length==0) {
+			if (tableNames == null || tableNames.length==0) {
 				throw new Exception("多表查询，没有指定操作的表");
 			}
 			
-			if(tblNames.length==1){
-				return findScale(tblNames[0],condition,start,end);
+			if(tableNames.length==1){
+				return findScale(tableNames[0],condition,start,end);
 			}
 			
 			if(condition==null||condition.trim().equals("")){
 				throw new Exception("多表查询必须指定查询条件");
 			}
 			
-			for(int i=0;i<tblNames.length;i++){
-				if(tblNames[i]==null||tblNames[i].trim().equals("")){
+			for(int i=0;i<tableNames.length;i++){
+				if(tableNames[i]==null||tableNames[i].trim().equals("")){
 					throw new Exception("指定了一个或多个为空的表名");
 				}
 			}
 			
 			//处理表名
-			for(int i=0;i<tblNames.length;i++){
-				String trueTblName=factory.getTrueTblName(tblNames[i]);
-				condition=JUtilString.replaceAll(condition,tblNames[i]+".",trueTblName+".");
-				tblNames[i]=trueTblName;
+			for(int i=0;i<tableNames.length;i++){
+				String trueTblName=factory.getTrueTblName(tableNames[i]);
+				condition=JUtilString.replaceAll(condition,tableNames[i]+".",trueTblName+".");
+				tableNames[i]=trueTblName;
 			}
 							
 			Map<String, Integer> allColsIndex=new HashMap();
@@ -758,15 +875,15 @@ public class RdbmsDao implements DAO {
 			int index=1;
 			String sql="select ";
 			String sql1=" from ";
-			for(int i=0;i<tblNames.length;i++){
-				sql1+=tblNames[i]+",";
-				List cols=factory.getColumns(tblNames[i]);
+			for(int i=0;i<tableNames.length;i++){
+				sql1+=tableNames[i]+",";
+				List cols=factory.getColumns(tableNames[i]);
 				for(int j=0;j<cols.size();j++){
 					Column col=(Column)cols.get(j);
-					sql+=tblNames[i]+"."+col.colName+" AS C"+index+",";
-					allColsIndex.put(tblNames[i]+"."+col.colName,new Integer(index));
-					allColsType.put(tblNames[i]+"."+col.colName,new Integer(col.colType));
-					allColsIsGzip.put(tblNames[i]+"."+col.colName,new Boolean(col.gzip));
+					sql+=tableNames[i]+"."+col.colName+" AS C"+index+",";
+					allColsIndex.put(tableNames[i]+"."+col.colName,new Integer(index));
+					allColsType.put(tableNames[i]+"."+col.colName,new Integer(col.colType));
+					allColsIsGzip.put(tableNames[i]+"."+col.colName,new Boolean(col.gzip));
 					index++;
 				}
 			}
@@ -812,9 +929,9 @@ public class RdbmsDao implements DAO {
 	        if(sr==null) throw new Exception("SQL Exception(Injection?) "+sql);
 	        
 			ResultSet rs=sr.resultSet();
-			Class[] classes=new Class[tblNames.length];
-			for(int i=0;i<tblNames.length;i++){
-				classes[i]=Class.forName(factory.getTblClass(tblNames[i]));
+			Class[] classes=new Class[tableNames.length];
+			for(int i=0;i<tableNames.length;i++){
+				classes[i]=Class.forName(factory.getTblClass(tableNames[i]));
 				if(classes[i]==null){
 					throw new Exception("class of table "+classes[i]+" not found");
 				}
@@ -831,11 +948,11 @@ public class RdbmsDao implements DAO {
 				for(int j=0;j<colsOfClasses[i].size();j++){
 					String colName=((Column)colsOfClasses[i].get(j)).colName;
 					
-					Method setter=factory.getSetter(tblNames[i],colName);
+					Method setter=factory.getSetter(tableNames[i],colName);
 					if(setter==null) continue;
 					setter.setAccessible(true);
-					setterCache.put(tblNames[i]+"."+colName, setter);
-					setterNameCache.put(tblNames[i]+"."+colName, factory.getSetterName(tblNames[i],colName));
+					setterCache.put(tableNames[i]+"."+colName, setter);
+					setterNameCache.put(tableNames[i]+"."+colName, factory.getSetterName(tableNames[i],colName));
 				}
 			}
 			
@@ -849,7 +966,7 @@ public class RdbmsDao implements DAO {
 					for(int j=0;j<colsOfClasses[i].size();j++){
 						String colName=((Column)colsOfClasses[i].get(j)).colName;
 						
-						String colNameOfTbl=tblNames[i]+"."+colName;
+						String colNameOfTbl=tableNames[i]+"."+colName;
 						
 						Method setter=setterCache.get(colNameOfTbl);
 						if(setter==null) continue;
@@ -879,8 +996,8 @@ public class RdbmsDao implements DAO {
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#findSingle(java.lang.String[], java.lang.String)
 	 */
-	public Object findSingle(String[] tblNames, String condition)throws Exception{
-		List lst=findScale(tblNames,condition,0,1);
+	public Object findSingle(String[] tableNames, String condition)throws Exception{
+		List lst=findScale(tableNames,condition,0,1);
 		return lst==null||lst.isEmpty()?null:lst.get(0);
 	}
 	
@@ -889,49 +1006,49 @@ public class RdbmsDao implements DAO {
 	 * 
 	 * @see j.sdk.dao.DAO#find(java.lang.String[], java.lang.String)
 	 */
-	public List find(String[] tblNames,Class[] CLSs, String condition)throws Exception{		
-		return find(tblNames,CLSs,condition,0,0);
+	public List find(String[] tableNames,Class[] CLSs, String condition)throws Exception{		
+		return find(tableNames,CLSs,condition,0,0);
 	}
 	
 
 	/* (non-Javadoc)
 	 * @see j.sdk.dao.DAO#find(java.lang.String[], java.lang.String, int, int)
 	 */
-	public List find(String[] tblNames,Class[] CLSs, String condition, int RPP, int PN) throws Exception {
-		return findScale(tblNames,CLSs,condition,RPP*(PN-1),RPP*PN);
+	public List find(String[] tableNames,Class[] CLSs, String condition, int RPP, int PN) throws Exception {
+		return findScale(tableNames,CLSs,condition,RPP*(PN-1),RPP*PN);
 	}	
 
 	/*
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#findScale(java.lang.String[], java.lang.Class[], java.lang.String, int, int)
 	 */
-	public List findScale(String[] tblNames, Class[] CLSs, String condition, int start, int end) throws Exception {
+	public List findScale(String[] tableNames, Class[] CLSs, String condition, int start, int end) throws Exception {
 		List results=new ArrayList();
 		StmtAndRs sr=null;
 		try{
-			if (tblNames == null || tblNames.length==0) {
+			if (tableNames == null || tableNames.length==0) {
 				throw new Exception("多表查询，没有指定操作的表");
 			}
 			
-			if(tblNames.length==1){
-				return findScale(tblNames[0],CLSs[0],condition,start,end);
+			if(tableNames.length==1){
+				return findScale(tableNames[0],CLSs[0],condition,start,end);
 			}
 			
 			if(condition==null||condition.trim().equals("")){
 				throw new Exception("多表查询必须指定查询条件");
 			}
 			
-			for(int i=0;i<tblNames.length;i++){
-				if(tblNames[i]==null||tblNames[i].trim().equals("")){
+			for(int i=0;i<tableNames.length;i++){
+				if(tableNames[i]==null||tableNames[i].trim().equals("")){
 					throw new Exception("指定了一个或多个为空的表名");
 				}
 			}
 			
 			//处理表名
-			for(int i=0;i<tblNames.length;i++){
-				String trueTblName=factory.getTrueTblName(tblNames[i]);
-				condition=JUtilString.replaceAll(condition,tblNames[i]+".",trueTblName+".");
-				tblNames[i]=trueTblName;
+			for(int i=0;i<tableNames.length;i++){
+				String trueTblName=factory.getTrueTblName(tableNames[i]);
+				condition=JUtilString.replaceAll(condition,tableNames[i]+".",trueTblName+".");
+				tableNames[i]=trueTblName;
 			}
 							
 			Map<String, Integer> allColsIndex=new HashMap();
@@ -942,15 +1059,15 @@ public class RdbmsDao implements DAO {
 			int index=1;
 			String sql="select ";
 			String sql1=" from ";
-			for(int i=0;i<tblNames.length;i++){
-				sql1+=tblNames[i]+",";
-				List cols=factory.getColumns(tblNames[i]);
+			for(int i=0;i<tableNames.length;i++){
+				sql1+=tableNames[i]+",";
+				List cols=factory.getColumns(tableNames[i]);
 				for(int j=0;j<cols.size();j++){
 					Column col=(Column)cols.get(j);
-					sql+=tblNames[i]+"."+col.colName+" AS C"+index+",";
-					allColsIndex.put(tblNames[i]+"."+col.colName,new Integer(index));
-					allColsType.put(tblNames[i]+"."+col.colName,new Integer(col.colType));
-					allColsIsGzip.put(tblNames[i]+"."+col.colName,new Boolean(col.gzip));
+					sql+=tableNames[i]+"."+col.colName+" AS C"+index+",";
+					allColsIndex.put(tableNames[i]+"."+col.colName,new Integer(index));
+					allColsType.put(tableNames[i]+"."+col.colName,new Integer(col.colType));
+					allColsIsGzip.put(tableNames[i]+"."+col.colName,new Boolean(col.gzip));
 					index++;
 				}
 			}
@@ -1002,7 +1119,7 @@ public class RdbmsDao implements DAO {
 			Map[] colsOfClasses=new HashMap[classes.length];
 			for(int i=0;i<classes.length;i++){
 				colsOfClasses[i]=new HashMap();
-				List cols=factory.getColumns(factory.getTrueTblName(tblNames[i]));
+				List cols=factory.getColumns(factory.getTrueTblName(tableNames[i]));
 				for(int j=0;j<cols.size();j++){
 					Column c=(Column)cols.get(j);
 					colsOfClasses[i].put(JUtilBean.colNameToVariableName(c.colName),c.colName);
@@ -1026,8 +1143,8 @@ public class RdbmsDao implements DAO {
 					Method setter=factory.getUnregisterSetter(classes[i], fieldName, new Class[]{fields[j].getType()});
 					if(setter==null) continue;
 					setter.setAccessible(true);
-					setterCache.put(tblNames[i]+"."+colName, setter);
-					setterNameCache.put(tblNames[i]+"."+colName, factory.getSetterName(tblNames[i],colName));
+					setterCache.put(tableNames[i]+"."+colName, setter);
+					setterNameCache.put(tableNames[i]+"."+colName, factory.getSetterName(tableNames[i],colName));
 				}
 			}
 	        
@@ -1044,7 +1161,7 @@ public class RdbmsDao implements DAO {
 						String colName=(String)colsOfClasses[i].get(fieldName);
 						if(colName==null) continue;
 						
-						String colNameOfTbl=tblNames[i]+"."+colName;
+						String colNameOfTbl=tableNames[i]+"."+colName;
 						
 						Method setter=setterCache.get(colNameOfTbl);
 						if(setter==null) continue;
@@ -1074,8 +1191,8 @@ public class RdbmsDao implements DAO {
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#findSingle(java.lang.String[], java.lang.Class[], java.lang.String)
 	 */
-	public Object findSingle(String[] tblNames, Class[] CLSs, String condition) throws Exception {
-		List lst=findScale(tblNames,CLSs,condition,0,1);
+	public Object findSingle(String[] tableNames, Class[] CLSs, String condition) throws Exception {
+		List lst=findScale(tableNames,CLSs,condition,0,1);
 		return lst==null||lst.isEmpty()?null:lst.get(0);
 	}	
 	
@@ -1085,8 +1202,8 @@ public class RdbmsDao implements DAO {
 	 * @see j.sdk.dao.DAO#insert(java.lang.Object)
 	 */
 	public void insert(Object vo) throws Exception{		
-		String tblName=factory.getTrueTblName(vo);
-		insert(tblName,vo);
+		String tableName=factory.getTrueTblName(vo);
+		insert(tableName,vo);
 	}
 	
 	/*
@@ -1102,15 +1219,15 @@ public class RdbmsDao implements DAO {
 	 * @see j.dao.DAO#insertIfNotExists(java.lang.Object, java.lang.String[])
 	 */
 	public void insertIfNotExists(Object vo,String[] conditionKeys) throws Exception{	
-		String tblName=factory.getTrueTblName(vo);
-		insertIfNotExists(tblName,vo,conditionKeys);
+		String tableName=factory.getTrueTblName(vo);
+		insertIfNotExists(tableName,vo,conditionKeys);
 	}
 	
 	/*
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#insert(java.lang.String, java.lang.Object)
 	 */
-	public void insert(String tblName,Object vo) throws Exception{		
+	public void insert(String tableName,Object vo) throws Exception{		
 		PreparedStatement pstmt=null;		
 		try{
 			if(factory.getPlugin()!=null&&pluginEnabled){
@@ -1120,10 +1237,10 @@ public class RdbmsDao implements DAO {
 				throw new Exception("待插入对象为空");
 			}
 			Class cls=vo.getClass();
-			tblName=factory.getTrueTblName(tblName);
-			List cols=factory.getColumns(tblName);	
+			tableName=factory.getTrueTblName(tableName);
+			List cols=factory.getColumns(tableName);	
 			
-			String sql="insert into "+tblName+"(";
+			String sql="insert into "+tableName+"(";
 			String sqlValues=")VALUES(";
 			List values=new ArrayList();
 			for(int i=0;i<cols.size();i++){
@@ -1208,7 +1325,7 @@ public class RdbmsDao implements DAO {
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#insertIfNotExists(java.lang.String, java.lang.Object, java.lang.String[])
 	 */
-	public void insertIfNotExists(String tblName,Object vo,String[] conditionKeys) throws Exception{		
+	public void insertIfNotExists(String tableName,Object vo,String[] conditionKeys) throws Exception{		
 		PreparedStatement pstmt=null;		
 		try{
 			if(factory.getPlugin()!=null&&pluginEnabled){
@@ -1222,11 +1339,11 @@ public class RdbmsDao implements DAO {
 			}
 			
 			Class cls=vo.getClass();
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 			
 			String condition="";
 			for(int i=0;i<conditionKeys.length;i++){
-				conditionKeys[i]=factory.getColName(tblName,conditionKeys[i]);
+				conditionKeys[i]=factory.getColName(tableName,conditionKeys[i]);
 				Method method=JUtilBean.getGetter(cls,JUtilBean.colNameToVariableName(conditionKeys[i]),null);
 				Object keyValue=method.invoke(vo,(Object[])null);
 				if(keyValue==null){
@@ -1240,12 +1357,12 @@ public class RdbmsDao implements DAO {
 				}
 			}
 			condition=condition.substring(0,condition.length()-5);
-			int exists=getRecordCnt(tblName,condition);
+			int exists=getRecordCnt(tableName,condition);
 			if(exists>0) return;
 			
-			List cols=factory.getColumns(tblName);	
+			List cols=factory.getColumns(tableName);	
 			
-			String sql="insert into "+tblName+"(";
+			String sql="insert into "+tableName+"(";
 			String sqlValues=")VALUES(";
 			List values=new ArrayList();
 			for(int i=0;i<cols.size();i++){
@@ -1322,29 +1439,29 @@ public class RdbmsDao implements DAO {
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#update(java.lang.String, java.util.Map, java.lang.String)
 	 */
-	public void update(String tblName,Map colsBeUpdated,String condition) throws Exception {
+	public void update(String tableName,Map colsBeUpdated,String condition) throws Exception {
 		PreparedStatement pstmt=null;
 		try{
 			if(factory.getPlugin()!=null&&pluginEnabled){
-				factory.getPlugin().beforeUpdate(tblName, colsBeUpdated, condition);
+				factory.getPlugin().beforeUpdate(tableName, colsBeUpdated, condition);
 			}
 			if(colsBeUpdated==null||colsBeUpdated.isEmpty()){
 				return;
 			}
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 			
 			//生成sql
-			String sql="update "+tblName+" set ";
+			String sql="update "+tableName+" set ";
 			List cols=JUtilMap.keys(colsBeUpdated);
 			for(int i=0;i<cols.size();i++){
 				String colName=(String)cols.get(i);
 				Object value=colsBeUpdated.get(colName);
 				if(value==null){
-					sql+=factory.getColName(tblName,colName)+"=null,";
+					sql+=factory.getColName(tableName,colName)+"=null,";
 					cols.remove(i);
 					i--;
 				}else{
-					sql+=factory.getColName(tblName,colName)+"=?,";
+					sql+=factory.getColName(tableName,colName)+"=?,";
 				}
 			}
 			sql=sql.substring(0,sql.length()-1);
@@ -1354,8 +1471,8 @@ public class RdbmsDao implements DAO {
 			//log.log("JDAO SQL: "+sql,Logger.LEVEL_DEBUG);
 			
 
-			if(factory.isSynchronized(tblName)){
-				Object lock=factory.getTableLock(tblName);
+			if(factory.isSynchronized(tableName)){
+				Object lock=factory.getTableLock(tableName);
 				synchronized(lock){			
 					pstmt=connection.prepareStatement(sql);
 					
@@ -1364,7 +1481,7 @@ public class RdbmsDao implements DAO {
 						String colName=(String)cols.get(i);
 						Object value=colsBeUpdated.get(colName);
 						
-						int colType=factory.getColType(tblName,colName);
+						int colType=factory.getColType(tableName,colName);
 						Object[] paras=null;				
 						
 						if(colType==Types.BINARY||colType==Types.LONGVARBINARY||colType==Types.VARBINARY){
@@ -1389,7 +1506,7 @@ public class RdbmsDao implements DAO {
 							paras[0]=new Integer(index);
 							paras[1]=value;
 						}
-						Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
+						Methods.set(colType,factory.getColIsGzip(tableName,colName),pstmt,paras);
 						index++;
 					}
 					
@@ -1404,7 +1521,7 @@ public class RdbmsDao implements DAO {
 					String colName=(String)cols.get(i);
 					Object value=colsBeUpdated.get(colName);
 					
-					int colType=factory.getColType(tblName,colName);
+					int colType=factory.getColType(tableName,colName);
 					Object[] paras=null;				
 					
 					if(colType==Types.BINARY||colType==Types.LONGVARBINARY||colType==Types.VARBINARY){
@@ -1429,7 +1546,7 @@ public class RdbmsDao implements DAO {
 						paras[0]=new Integer(index);
 						paras[1]=value;
 					}
-					Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
+					Methods.set(colType,factory.getColIsGzip(tableName,colName),pstmt,paras);
 					index++;
 				}
 				
@@ -1437,7 +1554,7 @@ public class RdbmsDao implements DAO {
 				pstmt.close();	
 			}
 			if(factory.getPlugin()!=null&&pluginEnabled){
-				factory.getPlugin().afterUpdate(tblName, colsBeUpdated, condition);
+				factory.getPlugin().afterUpdate(tableName, colsBeUpdated, condition);
 			}
 		}catch(Exception e){
 			try{
@@ -1461,23 +1578,23 @@ public class RdbmsDao implements DAO {
 	 * @see j.dao.DAO#updateByKeys(java.lang.Object, java.lang.String[])
 	 */
 	public void updateByKeys(Object vo,String[] conditionKeys)throws Exception{
-		String tblName=factory.getTrueTblName(vo);
-		updateByKeys(tblName,vo,conditionKeys);
+		String tableName=factory.getTrueTblName(vo);
+		updateByKeys(tableName,vo,conditionKeys);
 	}
 	
 	/*
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#updateByKeys(java.lang.String, java.lang.Object)
 	 */
-	public void updateByKeys(String tblName,Object vo) throws Exception{		
-		updateByKeys(tblName,vo,new String[]{factory.getPkColumnName(vo)});
+	public void updateByKeys(String tableName,Object vo) throws Exception{		
+		updateByKeys(tableName,vo,new String[]{factory.getPkColumnName(vo)});
 	}
 	
 	/*
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#updateByKeys(java.lang.String, java.lang.Object, java.lang.String[])
 	 */
-	public void updateByKeys(String tblName,Object vo,String[] conditionKeys)throws Exception{
+	public void updateByKeys(String tableName,Object vo,String[] conditionKeys)throws Exception{
 		PreparedStatement pstmt=null;
 		try{
 			if(factory.getPlugin()!=null&&pluginEnabled){
@@ -1490,16 +1607,16 @@ public class RdbmsDao implements DAO {
 				throw new Exception("没有指定主键");
 			}
 			
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 			Class cls=vo.getClass();
 			
 			//生成sql
-			String sql="update "+tblName+" set ";
+			String sql="update "+tableName+" set ";
 		
-			List cols=factory.getColumns(tblName);
+			List cols=factory.getColumns(tableName);
 			for(int i=0;i<cols.size();i++){
 				String colName=((Column)cols.get(i)).colName;
-				if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tblName, colName)){
+				if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tableName, colName)){
 					continue;
 				}
 				Method method=JUtilBean.getGetter(cls,JUtilBean.colNameToVariableName(colName),null);
@@ -1513,7 +1630,7 @@ public class RdbmsDao implements DAO {
 			sql=sql.substring(0,sql.length()-1);
 			String condition="";
 			for(int i=0;i<conditionKeys.length;i++){
-				conditionKeys[i]=factory.getColName(tblName,conditionKeys[i]);
+				conditionKeys[i]=factory.getColName(tableName,conditionKeys[i]);
 				Method method=JUtilBean.getGetter(cls,JUtilBean.colNameToVariableName(conditionKeys[i]),null);
 				Object keyValue=method.invoke(vo,(Object[])null);
 				if(keyValue==null){
@@ -1530,19 +1647,19 @@ public class RdbmsDao implements DAO {
 			sql+=" where "+condition;
 			//生成sql end	
 			//log.log("JDAO SQL: "+sql,Logger.LEVEL_DEBUG);
-			if(factory.isSynchronized(tblName)){
-				Object lock=factory.getTableLock(tblName);
+			if(factory.isSynchronized(tableName)){
+				Object lock=factory.getTableLock(tableName);
 				synchronized(lock){	
 					pstmt=connection.prepareStatement(sql);
 					
 					int index=1;
 					for(int i=0;i<cols.size();i++){
 						String colName=((Column)cols.get(i)).colName;
-						if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tblName, colName)){
+						if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tableName, colName)){
 							continue;
 						}
 						
-						int colType=factory.getColType(tblName,colName);
+						int colType=factory.getColType(tableName,colName);
 						Object[] paras=null;	
 						Method method=JUtilBean.getGetter(cls,JUtilBean.colNameToVariableName(colName),null);
 						Object value=method.invoke(vo,(Object[])null);
@@ -1572,7 +1689,7 @@ public class RdbmsDao implements DAO {
 							paras[0]=new Integer(index);
 							paras[1]=value;
 						}
-						Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
+						Methods.set(colType,factory.getColIsGzip(tableName,colName),pstmt,paras);
 						index++;
 					}
 					
@@ -1585,11 +1702,11 @@ public class RdbmsDao implements DAO {
 				int index=1;
 				for(int i=0;i<cols.size();i++){
 					String colName=((Column)cols.get(i)).colName;
-					if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tblName, colName)){
+					if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tableName, colName)){
 						continue;
 					}
 					
-					int colType=factory.getColType(tblName,colName);
+					int colType=factory.getColType(tableName,colName);
 					Object[] paras=null;	
 					Method method=JUtilBean.getGetter(cls,JUtilBean.colNameToVariableName(colName),null);
 					Object value=method.invoke(vo,(Object[])null);
@@ -1619,7 +1736,7 @@ public class RdbmsDao implements DAO {
 						paras[0]=new Integer(index);
 						paras[1]=value;
 					}
-					Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
+					Methods.set(colType,factory.getColIsGzip(tableName,colName),pstmt,paras);
 					index++;
 				}
 				
@@ -1651,24 +1768,24 @@ public class RdbmsDao implements DAO {
 	 * @see j.dao.DAO#updateByKeysIgnoreNulls(java.lang.Object, java.lang.String[])
 	 */
 	public void updateByKeysIgnoreNulls(Object vo,String[] conditionKeys)throws Exception{
-		String tblName=factory.getTrueTblName(vo);
-		updateByKeysIgnoreNulls(tblName,vo,conditionKeys);
+		String tableName=factory.getTrueTblName(vo);
+		updateByKeysIgnoreNulls(tableName,vo,conditionKeys);
 	}	
 	
 	/*
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#updateByKeysIgnoreNulls(java.lang.String, java.lang.Object)
 	 */
-	public void updateByKeysIgnoreNulls(String tblName,Object vo) throws Exception{	
-		updateByKeysIgnoreNulls(tblName,vo,new String[]{factory.getPkColumnName(vo)});
+	public void updateByKeysIgnoreNulls(String tableName,Object vo) throws Exception{	
+		updateByKeysIgnoreNulls(tableName,vo,new String[]{factory.getPkColumnName(vo)});
 	}
 	
 	/*
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#updateByKeysIgnoreNulls(java.lang.String, java.lang.Object, java.lang.String[])
 	 */
-	public void updateByKeysIgnoreNulls(String tblName,Object vo,String[] conditionKeys)throws Exception{
-		updateByKeysIgnoreNulls(tblName,vo,conditionKeys,null);
+	public void updateByKeysIgnoreNulls(String tableName,Object vo,String[] conditionKeys)throws Exception{
+		updateByKeysIgnoreNulls(tableName,vo,conditionKeys,null);
 	}
 	
 	/*
@@ -1684,23 +1801,23 @@ public class RdbmsDao implements DAO {
 	 * @see j.dao.DAO#updateByKeysIgnoreNulls(java.lang.Object, java.lang.String[], java.util.List)
 	 */
 	public void updateByKeysIgnoreNulls(Object vo,String[] conditionKeys,List<String> updateNullCols)throws Exception{
-		String tblName=factory.getTrueTblName(vo);
-		updateByKeysIgnoreNulls(tblName,vo,conditionKeys,updateNullCols);
+		String tableName=factory.getTrueTblName(vo);
+		updateByKeysIgnoreNulls(tableName,vo,conditionKeys,updateNullCols);
 	}	
 	
 	/*
 	 * (non-Javadoc)
 	 * @see j.dao.DAO#updateByKeysIgnoreNulls(java.lang.String, java.lang.Object, java.util.List)
 	 */
-	public void updateByKeysIgnoreNulls(String tblName,Object vo,List<String> updateNullCols) throws Exception{	
-		updateByKeysIgnoreNulls(tblName,vo,new String[]{factory.getPkColumnName(vo)},updateNullCols);
+	public void updateByKeysIgnoreNulls(String tableName,Object vo,List<String> updateNullCols) throws Exception{	
+		updateByKeysIgnoreNulls(tableName,vo,new String[]{factory.getPkColumnName(vo)},updateNullCols);
 	}
 	
 	/*
 	 * (non-Javadoc)
 	 * @see j.dao.DAO#updateByKeysIgnoreNulls(java.lang.String, java.lang.Object, java.lang.String[], java.util.List)
 	 */
-	public void updateByKeysIgnoreNulls(String tblName,Object vo,String[] conditionKeys,List<String> updateNullCols)throws Exception{
+	public void updateByKeysIgnoreNulls(String tableName,Object vo,String[] conditionKeys,List<String> updateNullCols)throws Exception{
 		PreparedStatement pstmt=null;
 		try{
 			if(factory.getPlugin()!=null&&pluginEnabled){
@@ -1713,18 +1830,18 @@ public class RdbmsDao implements DAO {
 				throw new Exception("没有指定主键");
 			}
 			
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 			Class cls=vo.getClass();
 			
 			//生成sql
-			String sql="update "+tblName+" set ";
-			List cols=factory.getColumns(tblName);
+			String sql="update "+tableName+" set ";
+			List cols=factory.getColumns(tableName);
 			for(int i=0;i<cols.size();i++){
 				String colName=((Column)cols.get(i)).colName;
 				String fieldName=JUtilBean.colNameToVariableName(colName);
 				
 				//作为条件的字段或JDAO.xml中配置的不可通过对象操作更新的字段
-				if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tblName, colName)){
+				if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tableName, colName)){
 					continue;
 				}
 				
@@ -1757,7 +1874,7 @@ public class RdbmsDao implements DAO {
 			sql=sql.substring(0,sql.length()-1);
 			String condition="";
 			for(int i=0;i<conditionKeys.length;i++){
-				conditionKeys[i]=factory.getColName(tblName,conditionKeys[i]);
+				conditionKeys[i]=factory.getColName(tableName,conditionKeys[i]);
 				Method method=JUtilBean.getGetter(cls,JUtilBean.colNameToVariableName(conditionKeys[i]),null);
 				Object keyValue=method.invoke(vo,(Object[])null);
 				if(keyValue==null){
@@ -1774,8 +1891,8 @@ public class RdbmsDao implements DAO {
 			sql+=" where "+condition;
 			//生成sql end	
 			//log.log("JDAO SQL: "+sql,-1);
-			if(factory.isSynchronized(tblName)){
-				Object lock=factory.getTableLock(tblName);
+			if(factory.isSynchronized(tableName)){
+				Object lock=factory.getTableLock(tableName);
 				synchronized(lock){	
 					pstmt=connection.prepareStatement(sql);
 					
@@ -1784,11 +1901,11 @@ public class RdbmsDao implements DAO {
 						String colName=((Column)cols.get(i)).colName;
 						
 						//作为条件的字段或JDAO.xml中配置的不可通过对象操作更新的字段
-						if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tblName, colName)){
+						if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tableName, colName)){
 							continue;
 						}
 						
-						int colType=factory.getColType(tblName,colName);
+						int colType=factory.getColType(tableName,colName);
 						Object[] paras=null;	
 						Method method=JUtilBean.getGetter(cls,JUtilBean.colNameToVariableName(colName),null);
 						Object value=method.invoke(vo,(Object[])null);
@@ -1818,7 +1935,7 @@ public class RdbmsDao implements DAO {
 							paras[0]=new Integer(index);
 							paras[1]=value;
 						}
-						Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
+						Methods.set(colType,factory.getColIsGzip(tableName,colName),pstmt,paras);
 						index++;
 					}
 					
@@ -1831,11 +1948,11 @@ public class RdbmsDao implements DAO {
 				int index=1;
 				for(int i=0;i<cols.size();i++){
 					String colName=((Column)cols.get(i)).colName;
-					if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tblName, colName)){
+					if(JUtilString.containIgnoreCase(conditionKeys,colName)||factory.isColIgnoredWhileUpdating(tableName, colName)){
 						continue;
 					}
 					
-					int colType=factory.getColType(tblName,colName);
+					int colType=factory.getColType(tableName,colName);
 					Object[] paras=null;	
 					Method method=JUtilBean.getGetter(cls,JUtilBean.colNameToVariableName(colName),null);
 					Object value=method.invoke(vo,(Object[])null);
@@ -1865,7 +1982,7 @@ public class RdbmsDao implements DAO {
 						paras[0]=new Integer(index);
 						paras[1]=value;
 					}
-					Methods.set(colType,factory.getColIsGzip(tblName,colName),pstmt,paras);
+					Methods.set(colType,factory.getColIsGzip(tableName,colName),pstmt,paras);
 					index++;
 				}
 				
@@ -1905,13 +2022,13 @@ public class RdbmsDao implements DAO {
 			if(factory.getPlugin()!=null&&pluginEnabled){
 				factory.getPlugin().beforeExecuteSQL(sql);
 			}
-			String tblName=SQLUtil.retrieveTableNameFromSQL(sql);
-			String trueTblName=factory.getTrueTblName(tblName);
-			sql=JUtilString.replaceAll(sql,tblName, trueTblName);
+			String tableName=SQLUtil.retrieveTableNameFromSQL(sql);
+			String trueTblName=factory.getTrueTblName(tableName);
+			sql=JUtilString.replaceAll(sql,tableName, trueTblName);
 			if(SQLUtil.sqlInjection(sql)!=null) return;
 			
-			if(factory.isSynchronized(tblName)){
-				Object lock=factory.getTableLock(tblName);
+			if(factory.isSynchronized(tableName)){
+				Object lock=factory.getTableLock(tableName);
 				synchronized(lock){
 					stmt = connection.createStatement();
 					stmt.execute(sql);
@@ -1952,9 +2069,9 @@ public class RdbmsDao implements DAO {
 			stmt = connection.createStatement();
 			for(int i=0;i<sqls.size();i++){
 				String sql=(String)sqls.get(i);
-				String tblName=SQLUtil.retrieveTableNameFromSQL(sql);
-				String trueTblName=factory.getTrueTblName(tblName);
-				sql=JUtilString.replaceAll(sql,tblName, trueTblName);
+				String tableName=SQLUtil.retrieveTableNameFromSQL(sql);
+				String trueTblName=factory.getTrueTblName(tableName);
+				sql=JUtilString.replaceAll(sql,tableName, trueTblName);
 				//log.log("sql:"+sql,Logger.LEVEL_DEBUG);
 				
 				if(SQLUtil.sqlInjection(sql)!=null) continue;
@@ -2066,16 +2183,16 @@ public class RdbmsDao implements DAO {
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#getColumns(java.lang.String)
 	 */
-	public List getColumns(String tblName) throws Exception {		
+	public List getColumns(String tableName) throws Exception {		
 		Statement stmt=null;
 		ResultSet rs=null;
 		try{
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 
 			List columns = new ArrayList();
 			stmt=connection.createStatement();
 			stmt.setMaxRows(1);
-			rs=stmt.executeQuery("select * from "+tblName);
+			rs=stmt.executeQuery("select * from "+tableName);
 			ResultSetMetaData rsmd=rs.getMetaData();
 			int colCount=rsmd.getColumnCount();
 			for(int i=1;i<=colCount;i++){
@@ -2110,15 +2227,15 @@ public class RdbmsDao implements DAO {
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#getPrimaryKeyColumns(java.lang.String)
 	 */
-	public Column[] getPrimaryKeyColumns(String tblName) throws Exception {		
+	public Column[] getPrimaryKeyColumns(String tableName) throws Exception {		
 		Statement stmt=null;
 		ResultSet rs=null;
 		ResultSet pkrs=null;		
 		try{
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 			stmt=connection.createStatement();
 			stmt.setMaxRows(1);
-			rs=stmt.executeQuery("select * from "+tblName);
+			rs=stmt.executeQuery("select * from "+tableName);
 			ResultSetMetaData rsmd=rs.getMetaData();
 			
 			Map typeOfColumnMap=new HashMap();
@@ -2141,7 +2258,7 @@ public class RdbmsDao implements DAO {
 				}
 			}
 			
-			pkrs=connection.getMetaData().getPrimaryKeys(null,null,tblName);
+			pkrs=connection.getMetaData().getPrimaryKeys(null,null,tableName);
 			
 			List pks=new ArrayList();
 			while(pkrs.next()){
@@ -2214,12 +2331,12 @@ public class RdbmsDao implements DAO {
 	 * @see j.sdk.dao.DAO#getRecordCnt(java.lang.String,
 	 *      java.lang.String)
 	 */
-	public int getRecordCnt(String tblName, String condition)throws Exception {		
+	public int getRecordCnt(String tableName, String condition)throws Exception {		
 		StmtAndRs sr=null;
 		try{
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 
-			String sql="select count(*) from "+tblName;
+			String sql="select count(*) from "+tableName;
 			if(condition!=null&&condition.length()>0){
 				String tmpcondition=condition.toLowerCase();
 				int orderByIndex=JUtilString.match(tmpcondition," order*by","*");
@@ -2257,25 +2374,25 @@ public class RdbmsDao implements DAO {
 	 * @see j.sdk.dao.DAO#getRecordCnt(java.lang.String[],
 	 *      java.lang.String)
 	 */
-	public int getRecordCnt(String[] tblNames, String condition)throws Exception {		
+	public int getRecordCnt(String[] tableNames, String condition)throws Exception {		
 		StmtAndRs sr=null;
 		try{
-			if(tblNames.length==1){
-				return getRecordCnt(tblNames[0],condition);
+			if(tableNames.length==1){
+				return getRecordCnt(tableNames[0],condition);
 			}
 			if(condition==null||condition.trim().equals("")){
 				throw new Exception("多表查询必须指定查询条件");
 			}
 			//处理表名
-			for(int i=0;i<tblNames.length;i++){
-				String trueTblName=factory.getTrueTblName(tblNames[i]);
-				condition=JUtilString.replaceAll(condition,tblNames[i]+".",trueTblName+".");
-				tblNames[i]=trueTblName;
+			for(int i=0;i<tableNames.length;i++){
+				String trueTblName=factory.getTrueTblName(tableNames[i]);
+				condition=JUtilString.replaceAll(condition,tableNames[i]+".",trueTblName+".");
+				tableNames[i]=trueTblName;
 			}
 			
 			String sql="select count(*) from ";
-			for(int i=0;i<tblNames.length;i++){
-				sql+=tblNames[i]+",";
+			for(int i=0;i<tableNames.length;i++){
+				sql+=tableNames[i]+",";
 			}
 			sql=sql.substring(0,sql.length()-1);
 			
@@ -2314,12 +2431,12 @@ public class RdbmsDao implements DAO {
 	/* (non-Javadoc)
 	 * @see j.sdk.dao.DAO#getMaxValue(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public String getMaxValue(String tblName, String colName, String condition) throws Exception {
+	public String getMaxValue(String tableName, String colName, String condition) throws Exception {
 		StmtAndRs sr=null;
 		try{
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 
-			String sql="select max("+colName+") from "+tblName;
+			String sql="select max("+colName+") from "+tableName;
 
 			if(condition!=null&&condition.trim().length()>0){
 				sql+=" where "+condition;	
@@ -2345,12 +2462,12 @@ public class RdbmsDao implements DAO {
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#getMaxNumber(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public String getMaxNumber(String tblName, String colName, String condition) throws Exception {
+	public String getMaxNumber(String tableName, String colName, String condition) throws Exception {
 		StmtAndRs sr=null;
 		try{
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 
-			String sql="select max("+colName+"*1) from "+tblName;
+			String sql="select max("+colName+"*1) from "+tableName;
 
 			if(condition!=null&&condition.trim().length()>0){
 				sql+=" where "+condition;	
@@ -2381,12 +2498,12 @@ public class RdbmsDao implements DAO {
 	/* (non-Javadoc)
 	 * @see j.sdk.dao.DAO#getMaxValue(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public String getMinValue(String tblName, String colName, String condition) throws Exception {
+	public String getMinValue(String tableName, String colName, String condition) throws Exception {
 		StmtAndRs sr=null;
 		try{
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 
-			String sql="select min("+colName+") from "+tblName;
+			String sql="select min("+colName+") from "+tableName;
 			if(condition!=null&&condition.trim().length()>0){
 				sql+=" where "+condition;			
 			}
@@ -2410,12 +2527,12 @@ public class RdbmsDao implements DAO {
 	 *  (non-Javadoc)
 	 * @see j.dao.DAO#getMinNumber(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public String getMinNumber(String tblName, String colName, String condition) throws Exception {
+	public String getMinNumber(String tableName, String colName, String condition) throws Exception {
 		StmtAndRs sr=null;
 		try{
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 
-			String sql="select min("+colName+"*1) from "+tblName;
+			String sql="select min("+colName+"*1) from "+tableName;
 			if(condition!=null&&condition.trim().length()>0){
 				sql+=" where "+condition;			
 			}
@@ -2446,12 +2563,12 @@ public class RdbmsDao implements DAO {
 	/* (non-Javadoc)
 	 * @see j.sdk.dao.DAO#getSum(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public String getSum(String tblName, String colName, String condition) throws Exception {
+	public String getSum(String tableName, String colName, String condition) throws Exception {
 		StmtAndRs sr=null;
 		try{
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 
-			String sql="select sum("+colName+") from "+tblName;
+			String sql="select sum("+colName+") from "+tableName;
 			if(condition!=null&&condition.trim().length()>0){
 				sql+=" where "+condition;		
 			}
@@ -2487,10 +2604,10 @@ public class RdbmsDao implements DAO {
 	 * (non-Javadoc)
 	 * @see j.dao.DAO#getSum(java.lang.String, java.lang.String[], java.lang.String)
 	 */
-	public String[] getSum(String tblName, String[] colNames, String condition) throws Exception {
+	public String[] getSum(String tableName, String[] colNames, String condition) throws Exception {
 		StmtAndRs sr=null;
 		try{
-			tblName=factory.getTrueTblName(tblName);
+			tableName=factory.getTrueTblName(tableName);
 
 			String sql="select";
 			for(int i=0;i<colNames.length;i++){
@@ -2499,7 +2616,7 @@ public class RdbmsDao implements DAO {
 			
 			sql=sql.substring(0,sql.length()-1);
 			
-			sql+=" from "+tblName;
+			sql+=" from "+tableName;
 			
 			if(condition!=null&&condition.trim().length()>0){
 				sql+=" where "+condition;		
