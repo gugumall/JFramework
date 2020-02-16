@@ -68,7 +68,7 @@ public class RouterAgent implements Runnable {
 		Thread thread=new Thread(this);
 		thread.start();
 		
-		log.log("monitor for service "+routerConfig.getUuid()+","+routerConfig.getName()+" started.",Logger.LEVEL_DEBUG);
+		log.log("monitor for service "+routerConfig.getUuid()+","+routerConfig.getName()+" started.", -1);
 	}
 	
 	/**
@@ -389,11 +389,7 @@ public class RouterAgent implements Runnable {
 	 */
 	public void run() {
 		int loop=0;
-		while(!this.shutdown){			
-			try{
-				Thread.sleep(5000);
-			}catch(Exception e){}
-			
+		while(!this.shutdown){		
 			try{
 				monitor();
 			}catch(Exception e){
@@ -401,14 +397,14 @@ public class RouterAgent implements Runnable {
 			}
 			
 			try{//每5分钟清除缓存
-				if(loop>60){
+				if(loop>300){
 					cache.clear();
 					loop=0;
 				}
 				loop++;
 			}catch(Exception e){}
 			
-			try{				
+			try{	
 				while(!tasks.isEmpty()){
 					if(!routerRmiAvailable&&!routerHttpAvailable){//rmi与http接口均不可用
 						break;
@@ -488,7 +484,7 @@ public class RouterAgent implements Runnable {
 			}
 			
 			try{
-				Thread.sleep(5000);
+				Thread.sleep(1000);
 			}catch(Exception e){}
 		}
 	}

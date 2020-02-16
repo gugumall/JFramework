@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2019-12-09 10:26:32                          */
+/* Created on:     2020-02-11 08:13:20                          */
 /*==============================================================*/
 
 
@@ -337,6 +337,9 @@ create table j_log
    STAFF_ID             varchar(128),
    SELLER_ID            varchar(128),
    STAFF_ID_OF_SHOP     varchar(128),
+   STAFF_ID2            varchar(128),
+   SELLER_ID2           varchar(128),
+   STAFF_ID_OF_SHOP2    varchar(128),
    BIZ_CODE             varchar(32),
    BIZ_ID               varchar(64),
    BIZ_NAME             varchar(150),

@@ -26,6 +26,7 @@ public class LoginStatus implements Serializable{
 	private volatile long    refreshTime;//最近更新缓存时间
 	private volatile long    updateTime;//最近访问系统的时间
 	private String           userId;//用户ID
+	private String           subUserId;//子账号ID
 	private String           userIp;//用户Host
 	private String           sysId;
 	private String           machineId;
@@ -92,6 +93,9 @@ public class LoginStatus implements Serializable{
 	public String getUserId(){
 		return this.userId;
 	}
+	public String getSubUserId(){
+		return this.subUserId;
+	}
 	public String getUserIp(){
 		return this.userIp;
 	}
@@ -133,6 +137,9 @@ public class LoginStatus implements Serializable{
 	}	
 	public void setUpdateTime(long _updateTime){
 		updateTime=_updateTime;
+	}
+	public void setSubUserId(String subUserId){
+		this.subUserId=subUserId;
 	}
 	public void setUserIp(String _userIp){
 		this.userIp=_userIp;

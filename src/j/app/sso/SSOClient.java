@@ -173,8 +173,8 @@ public class SSOClient extends JHandler implements Runnable{
 	}
 	
 	/**
-	 * 查找是否有给定参数所对应的登录信息
-	 * @param globalSessionIdOrUid
+	 * 
+	 * @param userId
 	 * @return
 	 */
 	public static LoginStatus[] findLoginStatusOfUserId(String userId){
@@ -185,6 +185,55 @@ public class SSOClient extends JHandler implements Runnable{
 		
 		try{
 			List temp=users.values(new JCacheParams(new LoginStatusFilter(userId)));
+			LoginStatus[] arr=new LoginStatus[temp.size()];
+			temp.toArray(arr);
+			
+			return arr;
+		}catch(Exception e){
+			log.log(e,Logger.LEVEL_ERROR);
+		}
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param userId
+	 * @param subUserId
+	 * @return
+	 */
+	public static LoginStatus[] findLoginStatusOfUserId(String userId, String subUserId){
+		_init();
+		
+		if(userId==null
+				||userId.equals("")) return null;
+		
+		try{
+			List temp=users.values(new JCacheParams(new LoginStatusFilter(userId, subUserId)));
+			LoginStatus[] arr=new LoginStatus[temp.size()];
+			temp.toArray(arr);
+			
+			return arr;
+		}catch(Exception e){
+			log.log(e,Logger.LEVEL_ERROR);
+		}
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param userId
+	 * @param subUserId
+	 * @param includeSubUsers
+	 * @return
+	 */
+	public static LoginStatus[] findLoginStatusOfUserId(String userId, String subUserId, boolean includeSubUsers){
+		_init();
+		
+		if(userId==null
+				||userId.equals("")) return null;
+		
+		try{
+			List temp=users.values(new JCacheParams(new LoginStatusFilter(userId, subUserId, includeSubUsers)));
 			LoginStatus[] arr=new LoginStatus[temp.size()];
 			temp.toArray(arr);
 			
@@ -310,7 +359,6 @@ public class SSOClient extends JHandler implements Runnable{
 		if(loginStatus!=null){
 			HttpSession session=SSOContext.getSession(loginStatus.getSessionId());
 			
-			users.remove(new JCacheParams(loginStatus.getUserId()));
 			users.remove(new JCacheParams(loginStatus.getGlobalSessionId()));
 			
 			if(session!=null){
@@ -377,7 +425,7 @@ public class SSOClient extends JHandler implements Runnable{
 	 * @param userId
 	 * @throws Exception
 	 */
-	public static void tellServerToLogoutUser(String globalSessionId,String userId)throws Exception{
+	public static void tellServerToLogoutUser(String globalSessionId,String userId,String subUserId)throws Exception{
 		if(globalSessionId==null&&userId==null) return;
 		
 		Client client=SSOConfig.getSsoClientByIdOrUrl(SysConfig.getSysId());
@@ -390,7 +438,8 @@ public class SSOClient extends JHandler implements Runnable{
 		logout+="&"+Constants.SSO_MD5_STRING+"="+md5Key;	
 		logout+="&"+Constants.SSO_TIME+"="+time;
 		logout+="&"+Constants.SSO_GLOBAL_SESSION_ID+"="+globalSessionId;
-		logout+="&"+Constants.SSO_USER_ID+"="+userId;
+		if(userId!=null) logout+="&"+Constants.SSO_USER_ID+"="+userId;
+		if(subUserId!=null) logout+="&"+Constants.SSO_SUB_USER_ID+"="+subUserId;
 		logout+="&"+Constants.SSO_PASSPORT+"="+Permission.getSSOPassport();
 		
 		JHttpContext context=http.get(null,hclient,logout);
@@ -407,18 +456,61 @@ public class SSOClient extends JHandler implements Runnable{
 	 */
 	public static void logoutUserId(String userId)throws Exception{
 		if(userId==null||"".equals(userId)) return;
-		
-		//log.log("logoutUserId:"+userId, -1);
+
+		log.log("logoutUserId userId:"+userId, -1);
 		
 		LoginStatus[] loginStatus=findLoginStatusOfUserId(userId);		
 		if(loginStatus==null){			
-			log.log("logoutUserId,loginStatus null:"+userId, -1);
 			return;
 		}
 		
 		for(int i=0;i<loginStatus.length;i++){
-			log.log("logoutUserId["+loginStatus.length+" sessions],"+userId, -1);
-			tellServerToLogoutUser(loginStatus[i].getGlobalSessionId(),loginStatus[i].getUserId());
+			tellServerToLogoutUser(loginStatus[i].getGlobalSessionId(),loginStatus[i].getUserId(),loginStatus[i].getSubUserId());
+		}
+	}
+	
+	/**
+	 * 
+	 * @param userId
+	 * @param subUserId
+	 * @throws Exception
+	 */
+	public static void logoutUserId(String userId, String subUserId)throws Exception{
+		if(userId==null||"".equals(userId)) return;
+		
+		log.log("logoutUserId userId:"+userId+", subUserId:"+subUserId, -1);
+		
+		LoginStatus[] loginStatus=findLoginStatusOfUserId(userId,subUserId);		
+		if(loginStatus==null){			
+			return;
+		}
+		
+		for(int i=0;i<loginStatus.length;i++){
+			//log.log("logoutUserId["+loginStatus.length+" sessions],"+userId, -1);
+			tellServerToLogoutUser(loginStatus[i].getGlobalSessionId(),loginStatus[i].getUserId(),loginStatus[i].getSubUserId());
+		}
+	}
+	
+	/**
+	 * 
+	 * @param userId
+	 * @param subUserId
+	 * @param includeSubUsers
+	 * @throws Exception
+	 */
+	public static void logoutUserId(String userId, String subUserId, boolean includeSubUsers)throws Exception{
+		if(userId==null||"".equals(userId)) return;
+
+		log.log("logoutUserId userId:"+userId+", subUserId:"+subUserId+", includeSubUsers:"+includeSubUsers, -1);
+		
+		LoginStatus[] loginStatus=findLoginStatusOfUserId(userId,subUserId,includeSubUsers);		
+		if(loginStatus==null){			
+			return;
+		}
+		
+		for(int i=0;i<loginStatus.length;i++){
+			//log.log("logoutUserId["+loginStatus.length+" sessions],"+userId, -1);
+			tellServerToLogoutUser(loginStatus[i].getGlobalSessionId(),loginStatus[i].getUserId(),loginStatus[i].getSubUserId());
 		}
 	}
 	
@@ -433,7 +525,7 @@ public class SSOClient extends JHandler implements Runnable{
 		LoginStatus loginStatus=findLoginStatusOfSessionId(globalSessionId);		
 		if(loginStatus==null) return;
 		
-		tellServerToLogoutUser(loginStatus.getGlobalSessionId(),loginStatus.getUserId());
+		tellServerToLogoutUser(loginStatus.getGlobalSessionId(),loginStatus.getUserId(),loginStatus.getSubUserId());
 	}
 	
 	/**
@@ -448,6 +540,7 @@ public class SSOClient extends JHandler implements Runnable{
 		_init();
 		String globalSessionId=SysUtil.getHttpParameter(request,Constants.SSO_GLOBAL_SESSION_ID);
 		String userId=SysUtil.getHttpParameter(request,Constants.SSO_USER_ID);
+		String subUserId=SysUtil.getHttpParameter(request,Constants.SSO_SUB_USER_ID);
 		String userIp=SysUtil.getHttpParameter(request,Constants.SSO_USER_IP);	
 		String loginFrom=SysUtil.getHttpParameter(request,Constants.SSO_LOGIN_FROM_SYS_ID);	
 		String key=SysUtil.getHttpParameter(request,Constants.SSO_MD5_STRING);		
@@ -471,6 +564,7 @@ public class SSOClient extends JHandler implements Runnable{
 							SysConfig.getMachineID(),
 							loginFrom,
 							"");
+					loginStatus.setSubUserId(subUserId);
 					refreshLoginStatus(loginStatus);
 					
 					jsession.resultString=Constants.RESPONSE_OK;//返回给server处理结果
@@ -503,7 +597,7 @@ public class SSOClient extends JHandler implements Runnable{
 				LoginStatus loginStatus=findLoginStatusOfSessionId(globalSessionId);
 				
 				if(loginStatus==null){//未登录，直接返回
-					log.log("Login Status is not found.", -1);
+					//log.log("Login Status is not found.", -1);
 					SysUtil.redirect(request,response,loginPage);
 				}else{//已经登录，加载用户信息
 					User user=User.loadUser(session,request,loginStatus.getUserId());//加载用户信息
@@ -566,7 +660,7 @@ public class SSOClient extends JHandler implements Runnable{
 				if(loginStatus!=null){
 					SSOClient.clearUserInformationInSession(session);
 					SSOClient.clearUserInformation(loginStatus);
-					tellServerToLogoutUser(loginStatus.getGlobalSessionId(),loginStatus.getUserId());
+					tellServerToLogoutUser(loginStatus.getGlobalSessionId(),loginStatus.getUserId(),loginStatus.getSubUserId());
 				}
 				SysUtil.redirect(request,response,back);
 			}else{//sso server端发送的指令
@@ -584,6 +678,7 @@ public class SSOClient extends JHandler implements Runnable{
 					}
 				}else{
 					String userId=SysUtil.getHttpParameter(request,Constants.SSO_USER_ID);
+					String subUserId=SysUtil.getHttpParameter(request,Constants.SSO_SUB_USER_ID);
 					String userIp=SysUtil.getHttpParameter(request,Constants.SSO_USER_IP);
 					
 					String md5=JUtilMD5.MD5EncodeToHex(client.getPassport()+time+globalSessionId+userId+userIp);
@@ -713,6 +808,11 @@ public class SSOClient extends JHandler implements Runnable{
 				
 				Element e3=root.addElement(Constants.SSO_USER_ID);
 				e3.setText(loginResult.getUserId());
+				
+				if(loginResult.getSubUserId()!=null) {
+					Element e3x=root.addElement(Constants.SSO_SUB_USER_ID);
+					e3x.setText(loginResult.getSubUserId());
+				}
 				
 				Element e4=root.addElement(Constants.SSO_LOGIN_RESULT_CODE);
 				e4.setText(loginResult.getResult()+"");

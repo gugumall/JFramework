@@ -20,17 +20,20 @@ public abstract class User implements Serializable{
 	private static final long serialVersionUID = 1L;
 	public ConcurrentList roles;// 用户角色列表
 	
-	//必须的用户基本信息 getters
 	public abstract String getUserId();	
 	
-	//必须的用户基本信息 setters
 	public abstract void setUserId(String userId);	
 	
-	//必须的用户基本信息 getters
 	public abstract String getUserName();	
 	
-	//必须的用户基本信息 setters
 	public abstract void setUserName(String userName);	
+	
+	public String getSubUserId(){
+		return null;
+	}
+	
+	public void setSubUserId(String subUserId) {		
+	}
 	
 	//加载用户信息
 	public abstract boolean load(HttpSession _session,HttpServletRequest _request) throws Exception;

@@ -1,20 +1,5 @@
 package j.dao;
 
-import j.cache.JCacheParams;
-import j.dao.type.Blob;
-import j.dao.type.Clob;
-import j.dao.util.Methods;
-import j.dao.util.SQLUtil;
-import j.log.Logger;
-import j.sys.SysUtil;
-import j.util.JUtilBean;
-import j.util.JUtilCompressor;
-import j.util.JUtilInputStream;
-import j.util.JUtilMap;
-import j.util.JUtilMath;
-import j.util.JUtilRandom;
-import j.util.JUtilString;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -31,6 +16,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import j.cache.JCacheParams;
+import j.dao.type.Blob;
+import j.dao.type.Clob;
+import j.dao.util.Methods;
+import j.dao.util.SQLUtil;
+import j.log.Logger;
+import j.sys.SysUtil;
+import j.util.JUtilBean;
+import j.util.JUtilCompressor;
+import j.util.JUtilInputStream;
+import j.util.JUtilMap;
+import j.util.JUtilMath;
+import j.util.JUtilString;
 
 /**
  * @author 肖炯
@@ -340,6 +339,7 @@ public class RdbmsDao implements DAO {
 			}else{
 				stmt.setMaxRows(end-start);
 				sql=getSQLWithRowSetLimit(sql,start,end);
+				
 				rs = stmt.executeQuery(sql);
 				if(!supportsLimitOffset()){//不支持分页
 					try{
@@ -375,7 +375,7 @@ public class RdbmsDao implements DAO {
 	 * @see j.dao.DAO#find(java.lang.String, java.lang.Class, java.lang.String, int, int)
 	 */
 	public List find(String sql,Class cls,String except,int RPP,int PN)throws Exception{
-		return findScale(sql,cls,except,RPP*(PN-1),PN);
+		return findScale(sql,cls,except,RPP*(PN-1),RPP*PN);
 	}
 	
 	
@@ -396,25 +396,50 @@ public class RdbmsDao implements DAO {
 			List results=new ArrayList();
 			Field[] fields=cls.getDeclaredFields();
 			String tblName=SQLUtil.retrieveTableNameFromSQL(sql);
+			
+			Map<String, Method> setterCache=new HashMap();
+			Map<String, String> setterNameCache=new HashMap();
+	        Map<String, Integer> colTypeCache=new HashMap();
+	        Map<String, String> colNameCache=new HashMap();
+	        Map<String, Boolean> isGzipCache=new HashMap();
+	        for(int i=0;i<fields.length;i++){
+				String fieldName=fields[i].getName();
+				if(except!=null&&except.indexOf("{"+fieldName+"}")>-1){
+					continue;
+				}
+				
+				Method setter=factory.getUnregisterSetter(cls, fieldName, new Class[]{fields[i].getType()});
+				if(setter==null) continue;
+				setter.setAccessible(true);
+				setterCache.put(fieldName, setter);
+				setterNameCache.put(fieldName, factory.getUnregisterSetterName(fieldName));
+				colTypeCache.put(fieldName, factory.getColType(tblName, fieldName));
+				colNameCache.put(fieldName, factory.getColName(tblName,fieldName));
+				isGzipCache.put(fieldName, factory.getColIsGzip(tblName,fieldName));
+	        }
+			
+			//MethodAccess access = factory.getMethodAccessOfClass(cls);
+			
 			while(rs!=null&&rs.next()){
 				Object object=cls.newInstance();
 				for(int i=0;i<fields.length;i++){
 					String fieldName=fields[i].getName();
-					if(except!=null&&except.indexOf("{"+fieldName+"}")>-1){
-						continue;
-					}
-					Method setter=factory.getUnregisterSetter(cls, fieldName, new Class[]{fields[i].getType()});
+										
+					Method setter=setterCache.get(fieldName);
+					if(setter==null) continue;
+					
 					Object obj=null;
 					try{
 						obj = getObject(rs, 
-								factory.getColType(tblName, fieldName), 
-								factory.getColName(tblName,fieldName), 
-								factory.getColIsGzip(tblName,fieldName));
+								colTypeCache.get(fieldName), 
+								colNameCache.get(fieldName), 
+								isGzipCache.get(fieldName));
 					}catch(Exception e){
 						//log.log("fieldName:"+fieldName,Logger.LEVEL_DEBUG);
 						//log.log(e,Logger.LEVEL_DEBUG);
 					}
-					if(setter!=null) setter.invoke(object,new Object[]{obj});
+					if(obj!=null) setter.invoke(object,new Object[]{obj});
+					//access.invoke(object, setterNameCache.get(fieldName), new Object[]{obj});
 				}
 				results.add(object);
 			}	
@@ -498,22 +523,45 @@ public class RdbmsDao implements DAO {
 	
 	        List cols=factory.getColumns(tableName);
 	        String colName=null;
+	        
+	        Map<String, Method> setterCache=new HashMap();
+	        Map<String, String> setterNameCache=new HashMap();
+	        Map<String, Integer> colTypeCache=new HashMap();
+	        Map<String, Boolean> isGzipCache=new HashMap();
+			for(int i=0;i<cols.size();i++){
+				colName=((Column)cols.get(i)).colName;
+				
+				Method setter=factory.getSetter(tableName,colName);
+				if(setter==null) continue;
+				setter.setAccessible(true);
+				setterCache.put(colName, setter);
+				setterNameCache.put(colName, factory.getSetterName(tableName, colName));
+				colTypeCache.put(colName, factory.getColType(tableName, colName));
+				isGzipCache.put(colName, factory.getColIsGzip(tableName,colName));
+	        }
+			
+			//MethodAccess access = factory.getMethodAccessOfClass(cls);
+	        
 			while(rs.next()){
 				Object object=cls.newInstance();
 				for(int i=0;i<cols.size();i++){
 					colName=((Column)cols.get(i)).colName;
-					Method setter=factory.getSetter(tableName,colName);
+				
+					Method setter=setterCache.get(colName);
+					if(setter==null) continue;
+					
 					Object obj=null;
 					try{
 						obj = getObject(rs, 
-								factory.getColType(tableName, colName), 
+								colTypeCache.get(colName), 
 								colName, 
-								factory.getColIsGzip(tableName,colName));
+								isGzipCache.get(colName));
 					}catch(Exception e){
 						//log.log("fieldName:"+fieldName,Logger.LEVEL_DEBUG);
 						//log.log(e,Logger.LEVEL_DEBUG);
 					}
-					if(setter!=null) setter.invoke(object,new Object[]{obj});
+					if(obj!=null) setter.invoke(object,new Object[]{obj});
+					//access.invoke(object, setterNameCache.get(colName), new Object[]{obj});
 				}
 				results.add(object);
 			}		
@@ -589,23 +637,48 @@ public class RdbmsDao implements DAO {
 	        ResultSet rs=sr.resultSet();
 	
 			Field[] fields=cls.getDeclaredFields();
+			
+			Map<String, Method> setterCache=new HashMap();
+			Map<String, String> setterNameCache=new HashMap();
+	        Map<String, Integer> colTypeCache=new HashMap();
+	        Map<String, String> colNameCache=new HashMap();
+	        Map<String, Boolean> isGzipCache=new HashMap();
+	        for(int i=0;i<fields.length;i++){
+				String fieldName=fields[i].getName();
+				
+				Method setter=factory.getUnregisterSetter(cls, fieldName, new Class[]{fields[i].getType()});
+				if(setter==null) continue;
+				setter.setAccessible(true);
+				setterCache.put(fieldName, setter);
+				setterNameCache.put(fieldName, factory.getUnregisterSetterName(fieldName));
+				colTypeCache.put(fieldName, factory.getColType(tableName, fieldName));
+				colNameCache.put(fieldName, factory.getColName(tableName,fieldName));
+				isGzipCache.put(fieldName, factory.getColIsGzip(tableName,fieldName));
+	        }
+			
+			//MethodAccess access = factory.getMethodAccessOfClass(cls);
+			
 			while(rs!=null&&rs.next()){
 				Object object=cls.newInstance();
 				for(int i=0;i<fields.length;i++){
 					String fieldName=fields[i].getName();
-					Method setter=factory.getUnregisterSetter(cls, fieldName, new Class[]{fields[i].getType()});
+					
+					Method setter=setterCache.get(fieldName);
+					if(setter==null) continue;
+					
 					Object obj=null;
 					try{
 						obj = getObject(rs, 
-								factory.getColType(tableName, fieldName), 
-								factory.getColName(tableName,fieldName), 
-								factory.getColIsGzip(tableName,fieldName));
+								colTypeCache.get(fieldName), 
+								colNameCache.get(fieldName), 
+								isGzipCache.get(fieldName));
 					}catch(Exception e){
 						//log.log("fieldName:"+fieldName,Logger.LEVEL_DEBUG);
 						//log.log(e,Logger.LEVEL_DEBUG);
 					}
 
-					if(setter!=null) setter.invoke(object,new Object[]{obj});
+					if(obj!=null) setter.invoke(object,new Object[]{obj});
+					//access.invoke(object, setterNameCache.get(fieldName), new Object[]{obj});
 				}
 				results.add(object);
 			}	
@@ -677,9 +750,9 @@ public class RdbmsDao implements DAO {
 				tblNames[i]=trueTblName;
 			}
 							
-			Map allColsIndex=new HashMap();
-			Map allColsType=new HashMap();
-			Map allColsIsGzip=new HashMap();
+			Map<String, Integer> allColsIndex=new HashMap();
+			Map<String, Integer> allColsType=new HashMap();
+			Map<String, Boolean> allColsIsGzip=new HashMap();
 			
 			//记住各表各列在结果集中的位置，同时生成sql		 
 			int index=1;
@@ -751,21 +824,45 @@ public class RdbmsDao implements DAO {
 			for(int i=0;i<classes.length;i++){
 				colsOfClasses[i]=factory.getColumns(factory.getTrueTblNameOfCls(classes[i]));
 			}
+
+			Map<String, Method> setterCache=new HashMap();
+			Map<String, String> setterNameCache=new HashMap();
+			for(int i=0;i<classes.length;i++){
+				for(int j=0;j<colsOfClasses[i].size();j++){
+					String colName=((Column)colsOfClasses[i].get(j)).colName;
+					
+					Method setter=factory.getSetter(tblNames[i],colName);
+					if(setter==null) continue;
+					setter.setAccessible(true);
+					setterCache.put(tblNames[i]+"."+colName, setter);
+					setterNameCache.put(tblNames[i]+"."+colName, factory.getSetterName(tblNames[i],colName));
+				}
+			}
+			
 			while(rs.next()){
 				Object[] objects=new Object[classes.length];
 				for(int i=0;i<classes.length;i++){
 					objects[i]=classes[i].newInstance();
+					
+					//MethodAccess access = factory.getMethodAccessOfClass(classes[i]);
+					
 					for(int j=0;j<colsOfClasses[i].size();j++){
 						String colName=((Column)colsOfClasses[i].get(j)).colName;
-						Method setter=factory.getSetter(tblNames[i],colName);
+						
+						String colNameOfTbl=tblNames[i]+"."+colName;
+						
+						Method setter=setterCache.get(colNameOfTbl);
+						if(setter==null) continue;
+						
 						Object obj=null;
 						try{
-							int thisIndex=((Integer)allColsIndex.get(tblNames[i]+"."+colName)).intValue();
-							int thisColType=((Integer)allColsType.get(tblNames[i]+"."+colName)).intValue();
-							Boolean thisIsGzip=((Boolean)allColsIsGzip.get(tblNames[i]+"."+colName));
-							obj=getObject(rs,thisColType,thisIndex,thisIsGzip);
+							obj=getObject(rs,
+									allColsType.get(colNameOfTbl),
+									allColsIndex.get(colNameOfTbl),
+									allColsIsGzip.get(colNameOfTbl));
 						}catch(Exception e){}
-						if(setter!=null) setter.invoke(objects[i],new Object[]{obj});						
+						if(obj!=null) setter.invoke(objects[i],new Object[]{obj});
+						//access.invoke(objects[i], setterNameCache.get(colNameOfTbl), new Object[]{obj});
 					}
 				}
 				results.add(objects);
@@ -837,9 +934,9 @@ public class RdbmsDao implements DAO {
 				tblNames[i]=trueTblName;
 			}
 							
-			Map allColsIndex=new HashMap();
-			Map allColsType=new HashMap();
-			Map allColsIsGzip=new HashMap();
+			Map<String, Integer> allColsIndex=new HashMap();
+			Map<String, Integer> allColsType=new HashMap();
+			Map<String, Boolean> allColsIsGzip=new HashMap();
 			
 			//记住各表各列在结果集中的位置，同时生成sql		 
 			int index=1;
@@ -916,25 +1013,51 @@ public class RdbmsDao implements DAO {
 			for(int i=0;i<classes.length;i++){
 				fieldsOfClasses.add(classes[i].getDeclaredFields());
 			}
+			
+			Map<String, Method> setterCache=new HashMap();
+			Map<String, String> setterNameCache=new HashMap();
+			for(int i=0;i<classes.length;i++){
+				Field[] fields=(Field[])fieldsOfClasses.get(i);
+				for(int j=0;j<fields.length;j++){
+					String fieldName=(fields[j]).getName();
+					String colName=(String)colsOfClasses[i].get(fieldName);
+					if(colName==null) continue;
+					
+					Method setter=factory.getUnregisterSetter(classes[i], fieldName, new Class[]{fields[j].getType()});
+					if(setter==null) continue;
+					setter.setAccessible(true);
+					setterCache.put(tblNames[i]+"."+colName, setter);
+					setterNameCache.put(tblNames[i]+"."+colName, factory.getSetterName(tblNames[i],colName));
+				}
+			}
+	        
 			while(rs.next()){
 				Object[] objects=new Object[classes.length];;
 				for(int i=0;i<classes.length;i++){
 					objects[i]=classes[i].newInstance();
+					
+					//MethodAccess access = factory.getMethodAccessOfClass(classes[i]);
+					
 					Field[] fields=(Field[])fieldsOfClasses.get(i);
 					for(int j=0;j<fields.length;j++){
 						String fieldName=(fields[j]).getName();
 						String colName=(String)colsOfClasses[i].get(fieldName);
 						if(colName==null) continue;
 						
-						Method setter=factory.getUnregisterSetter(classes[i], fieldName, new Class[]{fields[j].getType()});
+						String colNameOfTbl=tblNames[i]+"."+colName;
+						
+						Method setter=setterCache.get(colNameOfTbl);
+						if(setter==null) continue;
+						
 						Object obj=null;
 						try{
-							int thisIndex=((Integer)allColsIndex.get(tblNames[i]+"."+colName)).intValue();;
-							int thisColType=((Integer)allColsType.get(tblNames[i]+"."+colName)).intValue();
-							Boolean thisIsGzip=((Boolean)allColsIsGzip.get(tblNames[i]+"."+colName));
-							obj=getObject(rs,thisColType,thisIndex,thisIsGzip);
+							obj=getObject(rs,
+									allColsType.get(colNameOfTbl),
+									allColsIndex.get(colNameOfTbl),
+									allColsIsGzip.get(colNameOfTbl));
 						}catch(Exception e){}
-						if(setter!=null) setter.invoke(objects[i],new Object[]{obj});						
+						if(obj!=null) setter.invoke(objects[i],new Object[]{obj});		
+						//access.invoke(objects[i], setterNameCache.get(colNameOfTbl), new Object[]{obj});				
 					}
 				}
 				results.add(objects);
@@ -1622,7 +1745,7 @@ public class RdbmsDao implements DAO {
 					sql+=colName+"=?,";
 				}
 			}
-			if(sql.indexOf("?")==-1){
+			if(sql.indexOf("?")==-1 && sql.indexOf("=null,")<0){
 				//throw new Exception("没有值需要更新！");
 				if(factory.getPlugin()!=null&&pluginEnabled){
 					factory.getPlugin().afterUpdateByKeysIgnoreNulls(vo, conditionKeys);
@@ -2578,7 +2701,7 @@ public class RdbmsDao implements DAO {
 			return new ByteArrayInputStream(JUtilInputStream.bytes(in));
 		}else{
 			Object obj=Methods.get(colType,rs,colName);
-			if(obj!=null&&(obj instanceof String)&&isGzip){
+			if(isGzip&&obj!=null&&(obj instanceof String)){
 				try{
 					obj=JUtilCompressor.gunzipString((String)obj,"UTF-8");
 				}catch(Exception e){}
@@ -2618,7 +2741,7 @@ public class RdbmsDao implements DAO {
 			return new ByteArrayInputStream(JUtilInputStream.bytes(in));
 		}else{
 			Object obj=Methods.get(colType,rs,index);
-			if(obj!=null&&(obj instanceof String)&&isGzip){
+			if(isGzip&&obj!=null&&(obj instanceof String)){
 				try{
 					obj=JUtilCompressor.gunzipString((String)obj,"UTF-8");
 				}catch(Exception e){}

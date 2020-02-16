@@ -94,16 +94,16 @@ public class FileReplace {
 //		}
 		
 		File dir=new File("F:\\work\\JGame");
-		replace(dir,
-				"肖炯",
-				"恭喜发财",
-				".java");
+//		replace(dir,
+//				"肖炯",
+//				"恭喜发财",
+//				".java");
 		
 //		rotate(new File("D:\\176\\10.4 桃江一中 活动\\形象照\\temp"),180,".jpg");
 		
-//		count(dir,
-//		"半信用",
-//		".java");
+		count(dir,
+		"gugu",
+		".java");
 		
 //		File root=new File("F://tempx/");
 //		File[] children=(File[])root.listFiles();
@@ -245,13 +245,12 @@ public class FileReplace {
 			
 			
 			String s=JDFSFile.read(file, "UTF-8");
+			if(s==null) return;
 			
-			int index=s.indexOf(src);
-			while(index>-1){
-				System.out.println(file.getAbsolutePath()+","+count);
-				count++;
-				index=s.indexOf(src,index+src.length());
-			}
+			
+			
+			count+=(s.indexOf(src)>-1?1:0);
+			System.out.println(file.getAbsolutePath()+","+count);
 		}		
 	}
 }

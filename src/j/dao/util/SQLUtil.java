@@ -110,28 +110,28 @@ public final class SQLUtil {
 		
 		sql=sql.toUpperCase();
 		if(sql.indexOf("UPDATE")>-1){
-			sql=sql.substring(6);
+			sql=sql.substring(7);
 			sql=sql.trim();
 			
-			tmpSQL=tmpSQL.substring(6);
+			tmpSQL=tmpSQL.substring(7);
 			tmpSQL=tmpSQL.trim();
 			
 			tableName=tmpSQL.substring(0,sql.indexOf(" "));
 		}else if(sql.indexOf("INSERT")>-1){
-			int index=sql.indexOf("INTO");
-			sql=sql.substring(index+4);
+			int index=sql.indexOf("INTO ");
+			sql=sql.substring(index+5);
 			sql=sql.trim();
 			
-			tmpSQL=tmpSQL.substring(index+4);
+			tmpSQL=tmpSQL.substring(index+5);
 			tmpSQL=tmpSQL.trim();
 			
 			tableName=tmpSQL.substring(0,sql.indexOf(" "));
 		}else if(sql.indexOf("DELETE")>-1){
-			int index=sql.indexOf("FROM");
-			sql=sql.substring(index+4);
+			int index=sql.indexOf("FROM ");
+			sql=sql.substring(index+5);
 			sql=sql.trim();
 			
-			tmpSQL=tmpSQL.substring(index+4);
+			tmpSQL=tmpSQL.substring(index+5);
 			tmpSQL=tmpSQL.trim();
 			if(sql.indexOf(" ")==-1){
 				tableName=tmpSQL;
@@ -139,11 +139,11 @@ public final class SQLUtil {
 				tableName=tmpSQL.substring(0,sql.indexOf(" "));
 			}
 		}else if(sql.indexOf("SELECT")>-1){
-			int index=sql.indexOf("FROM");
-			sql=sql.substring(index+4);
+			int index=sql.indexOf("FROM ");
+			sql=sql.substring(index+5);
 			sql=sql.trim();
 			
-			tmpSQL=tmpSQL.substring(index+4);
+			tmpSQL=tmpSQL.substring(index+5);
 			tmpSQL=tmpSQL.trim();
 			if(sql.indexOf(" ")==-1){
 				tableName=tmpSQL;
@@ -516,10 +516,10 @@ public final class SQLUtil {
 	
 	public static void main(String[] args){
 		//String sql="select * from users where username='' or 1=1; --' and password=''";
-		String sql="update table * from ddd order by update_time";
-		System.out.println(sql);
+		String sql="DELETE from g_bet where ddd";
+		System.out.println(SQLUtil.retrieveTableNameFromSQL(sql));
 		
-		String SQLInjectionUtil=sqlInjection(sql);
-		System.out.println(SQLInjectionUtil);
+		//String SQLInjectionUtil=sqlInjection(sql);
+		//System.out.println(SQLInjectionUtil);
 	}
 }

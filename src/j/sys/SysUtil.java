@@ -57,7 +57,7 @@ public class SysUtil {
 	
 	
 	/**
-	 * 
+	 * @deprecated 请使用j.app.webserver.UserAgents中相关方法
 	 * @param request
 	 * @return
 	 */

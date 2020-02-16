@@ -263,7 +263,7 @@ public class ServiceContainer implements Runnable{
 			}
 			
 			try{
-				Thread.sleep(5000);
+				Thread.sleep(1000);
 			}catch(Exception e){}
 		}
 	}

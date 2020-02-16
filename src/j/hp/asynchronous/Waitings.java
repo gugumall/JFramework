@@ -12,13 +12,13 @@ import j.util.JUtilUUID;
  *
  * 2019年4月16日
  *
- * <b>功能描述</b> 当一个进程触发一个异步操作后，需要等待获得该异步操作的结果才能返回，该类通过分配一个UUID将当前进程与异步操作关联起来，异步操作向UUID设置操作结果，当前进程从UUID查询结果，并可设定等待超时时间。
+ * <b>功能描述</b> 当一个进程触发一个异步操作后，如果需要等待获得该异步操作的结果才能返回，该类通过分配一个UUID将当前进程与异步操作关联起来，异步操作向UUID设置操作结果，当前进程从UUID查询结果，并可设定等待超时时间。
  */
 public class Waitings implements Runnable{
 	private static Logger log=Logger.create(Waitings.class);
 	private static ConcurrentMap<String,Waiting> waitings=new ConcurrentMap<String,Waiting>();
 	
-	//启动监控线程清除已获取结果的等待
+	//启动监控线程，用于清除已获取结果的等待
 	static {
 		Waitings instance=new Waitings();
 		Thread thread=new Thread(instance);
@@ -33,10 +33,7 @@ public class Waitings implements Runnable{
 	 * @return 返回为任务分配的uuid
 	 */
 	public static String waiting(long timeout,Object defaultResultWhenTimeout) {
-		String UUID=JUtilUUID.genUUID();
-		Waiting waiting=new Waiting(UUID,timeout,defaultResultWhenTimeout);
-		waitings.put(UUID,waiting);
-		return UUID;
+		return waiting(JUtilUUID.genUUID(),timeout,defaultResultWhenTimeout);
 	}
 	
 	/**
@@ -64,7 +61,7 @@ public class Waitings implements Runnable{
 		Object result=waiting.getResult();
 		while(result==null&&!waiting.isTimeout()) {
 			try {
-				Thread.sleep(10);
+				Thread.sleep(1);
 			}catch(Exception e) {}
 			result=waiting.getResult();
 		}

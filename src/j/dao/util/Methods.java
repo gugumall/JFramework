@@ -18,9 +18,9 @@ import j.util.JUtilCompressor;
 public class Methods {
 	private static Logger log=Logger.create(Methods.class);
 	
-	public static final Map settersOfPreparedStatement=new HashMap();//java.sql.PreparedStatement 的setXXX(int index,Object value)方法
-	public static final Map gettersOfResultSetByIndex=new HashMap();//java.sql.ResultSet 的getXXX(int columnIndex)方法
-	public static final Map gettersOfResultSetByName=new HashMap();//java.sql.ResultSet 的getXXX(String columnName)方法
+	public static final Map<Integer, Method> settersOfPreparedStatement=new HashMap();//java.sql.PreparedStatement 的setXXX(int index,Object value)方法
+	public static final Map<Integer, Method> gettersOfResultSetByIndex=new HashMap();//java.sql.ResultSet 的getXXX(int columnIndex)方法
+	public static final Map<Integer, Method> gettersOfResultSetByName=new HashMap();//java.sql.ResultSet 的getXXX(String columnName)方法
 	
 	/**
 	 * 
@@ -161,7 +161,7 @@ public class Methods {
 			gettersOfResultSetByIndex.put(new Integer(Types.CHAR),rsCls.getMethod("getString",paras));
 			
 			//java.sql.Types.CLOB
-			gettersOfResultSetByName.put(new Integer(Types.CLOB),rsCls.getMethod("getClob",paras));
+			gettersOfResultSetByIndex.put(new Integer(Types.CLOB),rsCls.getMethod("getClob",paras));
 						
 			//java.sql.Types.DATE
 			gettersOfResultSetByIndex.put(new Integer(Types.DATE),rsCls.getMethod("getDate",paras));
@@ -363,7 +363,33 @@ public class Methods {
 	 * @throws Exception
 	 */
 	public static Object get(int colType,ResultSet obj,int index)throws Exception{
-		Method method=(Method)gettersOfResultSetByIndex.get(new Integer(colType));
+//		if(colType==Types.BOOLEAN) return obj.getBoolean(index);
+//		else if(colType==Types.BIT) return obj.getBoolean(index);
+//		else if(colType==Types.BLOB) return obj.getBlob(index);
+//		else if(colType==Types.CHAR) return obj.getString(index);
+//		else if(colType==Types.CLOB) return obj.getClob(index);
+//		else if(colType==Types.DATE) return obj.getDate(index);
+//		else if(colType==Types.DECIMAL) return obj.getBigDecimal(index);
+//		else if(colType==Types.DOUBLE) return obj.getDouble(index);
+//		else if(colType==Types.REAL) return obj.getDouble(index);
+//		else if(colType==Types.FLOAT) return obj.getFloat(index);
+//		else if(colType==Types.INTEGER) return obj.getInt(index);
+//		else if(colType==Types.TINYINT) return obj.getShort(index);
+//		else if(colType==Types.SMALLINT) return obj.getShort(index);
+//		else if(colType==Types.BIGINT) return obj.getLong(index);
+//		else if(colType==Types.JAVA_OBJECT) return obj.getObject(index);
+//		else if(colType==Types.LONGVARBINARY) return obj.getBinaryStream(index);
+//		else if(colType==Types.BINARY) return obj.getBinaryStream(index);
+//		else if(colType==Types.VARBINARY) return obj.getBinaryStream(index);
+//		else if(colType==Types.LONGVARCHAR) return obj.getString(index);
+//		else if(colType==Types.NUMERIC) return obj.getBigDecimal(index);
+//		else if(colType==Types.REF) return obj.getRef(index);
+//		else if(colType==Types.TIME) return obj.getTime(index);
+//		else if(colType==Types.TIMESTAMP) return obj.getTimestamp(index);
+//		else if(colType==Types.VARCHAR) return obj.getString(index);
+//		else return obj.getObject(index);
+		
+		Method method=gettersOfResultSetByIndex.get(new Integer(colType));
 		//log.log(method.toString(),Logger.LEVEL_DEBUG);
 		Object ret= method.invoke(obj,new Object[]{new Integer(index)});
 		//log.log("obj.wasNull()："+obj.wasNull()+","+ret,Logger.LEVEL_DEBUG);
@@ -383,7 +409,33 @@ public class Methods {
 	 * @throws Exception
 	 */
 	public static Object get(int colType,ResultSet obj,String colName)throws Exception{
-		Method method=(Method)gettersOfResultSetByName.get(new Integer(colType));
+//		if(colType==Types.BOOLEAN) return obj.getBoolean(colName);
+//		else if(colType==Types.BIT) return obj.getBoolean(colName);
+//		else if(colType==Types.BLOB) return obj.getBlob(colName);
+//		else if(colType==Types.CHAR) return obj.getString(colName);
+//		else if(colType==Types.CLOB) return obj.getClob(colName);
+//		else if(colType==Types.DATE) return obj.getDate(colName);
+//		else if(colType==Types.DECIMAL) return obj.getBigDecimal(colName);
+//		else if(colType==Types.DOUBLE) return obj.getDouble(colName);
+//		else if(colType==Types.REAL) return obj.getDouble(colName);
+//		else if(colType==Types.FLOAT) return obj.getFloat(colName);
+//		else if(colType==Types.INTEGER) return obj.getInt(colName);
+//		else if(colType==Types.TINYINT) return obj.getShort(colName);
+//		else if(colType==Types.SMALLINT) return obj.getShort(colName);
+//		else if(colType==Types.BIGINT) return obj.getLong(colName);
+//		else if(colType==Types.JAVA_OBJECT) return obj.getObject(colName);
+//		else if(colType==Types.LONGVARBINARY) return obj.getBinaryStream(colName);
+//		else if(colType==Types.BINARY) return obj.getBinaryStream(colName);
+//		else if(colType==Types.VARBINARY) return obj.getBinaryStream(colName);
+//		else if(colType==Types.LONGVARCHAR) return obj.getString(colName);
+//		else if(colType==Types.NUMERIC) return obj.getBigDecimal(colName);
+//		else if(colType==Types.REF) return obj.getRef(colName);
+//		else if(colType==Types.TIME) return obj.getTime(colName);
+//		else if(colType==Types.TIMESTAMP) return obj.getTimestamp(colName);
+//		else if(colType==Types.VARCHAR) return obj.getString(colName);
+//		else return obj.getObject(colName);
+		
+		Method method=gettersOfResultSetByName.get(new Integer(colType));
 		//log.log(method.toString(),Logger.LEVEL_DEBUG);
 		Object ret= method.invoke(obj,new Object[]{colName});
 		//log.log("obj.wasNull()："+obj.wasNull()+","+colName+","+ret,Logger.LEVEL_DEBUG);

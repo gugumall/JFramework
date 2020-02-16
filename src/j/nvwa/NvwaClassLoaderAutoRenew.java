@@ -2,6 +2,7 @@ package j.nvwa;
 
 import j.util.ConcurrentMap;
 import j.util.JUtilInputStream;
+import j.util.JUtilMath;
 import j.util.JUtilString;
 import j.util.JUtilTimestamp;
 
@@ -51,10 +52,16 @@ public class NvwaClassLoaderAutoRenew extends NvwaClassLoader {
 	public NvwaClassLoader getInstance(String path,String jarpath)throws Exception {
 		if (!instances.containsKey(path+jarpath)) {
 			NvwaClassLoaderAutoRenew loader = new NvwaClassLoaderAutoRenew();
-			Field field = ClassLoader.class.getDeclaredField("parent");  
-			field.setAccessible(true);  
-			field.set(loader,Nvwa.defaultClassLoader);  
-
+			
+			//jdk1.8及以下才能设置parent，否则保持
+			String javaVersion=System.getProperty("java.class.version");
+			if(JUtilMath.isNumber(javaVersion)
+					&&Double.parseDouble(javaVersion)<=52) {
+				Field field = ClassLoader.class.getDeclaredField("parent");  
+				field.setAccessible(true);  
+				field.set(loader,Nvwa.defaultClassLoader);  
+			}
+			//jdk1.8及以下才能设置parent，否则保持 end
 			
 			loader.setClasspath(path,jarpath);
 			instances.put(path+jarpath, loader);

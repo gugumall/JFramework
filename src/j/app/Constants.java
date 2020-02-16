@@ -12,6 +12,7 @@ public class Constants {
 	public static final String SSO_MACHINE_ID="sso_machine_id";	
 	public static final String SSO_LOGIN_FROM_SYS_ID="sso_login_from";	
 	public static final String SSO_USER_ID="sso_user_id";	
+	public static final String SSO_SUB_USER_ID="sso_sub_user_id";	
 	public static final String SSO_USER_NAME="sso_user_name";	
 	public static final String SSO_USER_ROLE="sso_user_role";	
 	public static final String SSO_WEBSITE="sso_website";	

@@ -1,11 +1,14 @@
 
 package j.util;
 
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+
+import j.db.Jlog;
 
 
 /**
@@ -218,9 +221,15 @@ public final class JUtilUUID {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		String s="aaa";
+		Properties ps=System.getProperties();
+
+		for(Iterator it=ps.keySet().iterator();it.hasNext();){
+			String key=(String)it.next();
+			String value=(String)ps.getProperty(key);
+			//System.out.println(key+" = "+value);
+		}
+		System.out.println(System.getProperty("java.class.version"));
 	
-		System.out.println(genUUID());
 
 		System.exit(0);
 	}

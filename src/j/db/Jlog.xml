@@ -28,6 +28,12 @@
 
 <property name="staffIdOfShop" type="java.lang.String" column="STAFF_ID_OF_SHOP" not-null="false" gzip="false" length="128"/>
 
+<property name="staffId2" type="java.lang.String" column="STAFF_ID2" not-null="false" gzip="false" length="128"/>
+
+<property name="sellerId2" type="java.lang.String" column="SELLER_ID2" not-null="false" gzip="false" length="128"/>
+
+<property name="staffIdOfShop2" type="java.lang.String" column="STAFF_ID_OF_SHOP2" not-null="false" gzip="false" length="128"/>
+
 <property name="bizCode" type="java.lang.String" column="BIZ_CODE" not-null="false" gzip="false" length="32"/>
 
 <property name="bizId" type="java.lang.String" column="BIZ_ID" not-null="false" gzip="false" length="64"/>

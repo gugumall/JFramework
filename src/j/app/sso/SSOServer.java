@@ -1,5 +1,13 @@
 package j.app.sso;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import j.app.Constants;
 import j.app.webserver.JHandler;
 import j.app.webserver.JSession;
@@ -17,14 +25,6 @@ import j.util.JUtilMD5;
 import j.util.JUtilMath;
 import j.util.JUtilString;
 import j.util.JUtilUUID;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  * @author 肖炯
@@ -143,6 +143,28 @@ public class SSOServer extends JHandler implements Runnable{
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @param userId
+	 * @param subUserId
+	 * @return
+	 */
+	public static LoginStatus[] findLoginStatusOfUserId(String userId, String subUserId){
+		if(userId==null
+				||userId.equals("")) return null;
+		
+		try{
+			List temp=users.values(new JCacheParams(new LoginStatusFilter(userId, subUserId)));
+			LoginStatus[] arr=new LoginStatus[temp.size()];
+			temp.toArray(arr);
+			
+			return arr;
+		}catch(Exception e){
+			log.log(e,Logger.LEVEL_ERROR);
+		}
+		return null;
+	}
+	
 	//LoginStatusFilter
 
 	/**
@@ -165,6 +187,7 @@ public class SSOServer extends JHandler implements Runnable{
 		SSONotifier.getNotifier(client).login(client,
 				loginStatus.getGlobalSessionId(),
 				loginStatus.getUserId(),
+				loginStatus.getSubUserId(),
 				loginStatus.getUserIp());
 		
 		//其它SSO Client通过通知线程发送登录信息
@@ -177,6 +200,7 @@ public class SSOServer extends JHandler implements Runnable{
 			SSONotifier.addTask(c,
 					loginStatus.getGlobalSessionId(),
 					loginStatus.getUserId(),
+					loginStatus.getSubUserId(),
 					loginStatus.getUserIp(),
 					SSONotifier.type_login);
 		}
@@ -200,7 +224,6 @@ public class SSOServer extends JHandler implements Runnable{
 		}
 		
 		//从缓存中清除
-		users.remove(new JCacheParams(loginStatus.getUserId()));
 		users.remove(new JCacheParams(loginStatus.getGlobalSessionId()));
 		
 		//当前操作的SSO Client直接发送注销命令
@@ -219,6 +242,7 @@ public class SSOServer extends JHandler implements Runnable{
 			SSONotifier.addTask(c,
 					loginStatus.getGlobalSessionId(),
 					loginStatus.getUserId(),
+					loginStatus.getSubUserId(),
 					loginStatus.getUserIp(),
 					SSONotifier.type_logout);
 		}
@@ -417,7 +441,8 @@ public class SSOServer extends JHandler implements Runnable{
 				
 				//该用户如在别处登录了，先注销
 				if(!"none".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())){
-					LoginStatus[] loginStatusOlds=SSOServer.findLoginStatusOfUserId(result.getUserId());
+					//log.log("try logout userId"+result.getUserId()+", subUserId:"+result.getSubUserId(), -1);
+					LoginStatus[] loginStatusOlds=SSOServer.findLoginStatusOfUserId(result.getUserId(), result.getSubUserId());
 					if(loginStatusOlds!=null){
 						for(int i=0;i<loginStatusOlds.length;i++){
 							if("all".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())
@@ -439,7 +464,9 @@ public class SSOServer extends JHandler implements Runnable{
 						SysConfig.getSysId(),
 						SysConfig.getMachineID(),
 						result.getSysId(),
-						loginFromDomain);	
+						loginFromDomain);
+				loginStatus.setSubUserId(result.getSubUserId());
+				
 				//自定义信息
 				Map messages=result.getMessages();
 				for(Iterator keys=messages.keySet().iterator();keys.hasNext();){
@@ -549,10 +576,11 @@ public class SSOServer extends JHandler implements Runnable{
 			
 		try{
 			String ssoUserId=SysUtil.getHttpParameter(request,Constants.SSO_USER_ID);
+			String ssoSubUserId=SysUtil.getHttpParameter(request,Constants.SSO_SUB_USER_ID);
 			
 			//该用户如在别处登录了，先注销
 			if(!"none".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())){
-				LoginStatus[] loginStatusOlds=SSOServer.findLoginStatusOfUserId(ssoUserId);
+				LoginStatus[] loginStatusOlds=SSOServer.findLoginStatusOfUserId(ssoUserId, ssoSubUserId);
 				if(loginStatusOlds!=null){
 					for(int i=0;i<loginStatusOlds.length;i++){
 						if("all".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())
@@ -573,6 +601,7 @@ public class SSOServer extends JHandler implements Runnable{
 					SysConfig.getMachineID(),
 					SysConfig.getSysId(),
 					loginFromDomain);		
+			loginStatus.setSubUserId(ssoSubUserId);
 			
 			String infos=SysUtil.getHttpParameter(request, Constants.SSO_LOGIN_INFO);
 			if(infos!=null){
@@ -665,6 +694,7 @@ public class SSOServer extends JHandler implements Runnable{
 			SSONotifier.getNotifier(client).login(client,
 					loginStatus.getGlobalSessionId(),
 					loginStatus.getUserId(),
+					loginStatus.getSubUserId(),
 					loginStatus.getUserIp());
 			
 			//返回client的登录接口
@@ -795,6 +825,7 @@ public class SSOServer extends JHandler implements Runnable{
 				SSONotifier.getNotifier(client).login(client,
 						loginStatus.getGlobalSessionId(),
 						loginStatus.getUserId(),
+						loginStatus.getSubUserId(),
 						loginStatus.getUserIp());
 				
 				//返回client的登录接口
@@ -806,6 +837,9 @@ public class SSOServer extends JHandler implements Runnable{
 				}
 				redirect+="&"+Constants.SSO_LOGIN_FROM_SYS_ID+"="+loginStatus.getLoginFrom();
 				redirect+="&"+Constants.SSO_USER_ID+"="+loginStatus.getUserId();
+				if(loginStatus.getSubUserId()!=null) {
+					redirect+="&"+Constants.SSO_SUB_USER_ID+"="+loginStatus.getSubUserId();
+				}
 				redirect+="&"+Constants.SSO_USER_IP+"="+loginStatus.getUserIp();
 				//redirect+="&"+Constants.SSO_BACK_URL+"="+JUtilString.encodeURI(back,SysConfig.sysEncoding);
 				if(loginPageDefined!=null){
@@ -940,6 +974,7 @@ public class SSOServer extends JHandler implements Runnable{
 		String time=SysUtil.getHttpParameter(request,Constants.SSO_TIME);
 		String globalSessionId=SysUtil.getHttpParameter(request,Constants.SSO_GLOBAL_SESSION_ID);
 		String userId=SysUtil.getHttpParameter(request,Constants.SSO_USER_ID);
+		String subUserId=SysUtil.getHttpParameter(request,Constants.SSO_SUB_USER_ID);
 		String key=SysUtil.getHttpParameter(request,Constants.SSO_MD5_STRING);
 
 		String md5=JUtilMD5.MD5EncodeToHex(client.getPassport()+time+globalSessionId+userId);
@@ -948,10 +983,10 @@ public class SSOServer extends JHandler implements Runnable{
 			return;
 		}
 		
-		LoginStatus loginStatus=SSOServer.findLoginStatusOfSessionId(userId);
-		if(loginStatus==null) loginStatus=SSOServer.findLoginStatusOfSessionId(globalSessionId);
+		LoginStatus[] loginStatus=SSOServer.findLoginStatusOfUserId(userId, subUserId);
+		if(loginStatus==null || loginStatus.length==0) loginStatus=new LoginStatus[] {SSOServer.findLoginStatusOfSessionId(globalSessionId)};
 		
-		if(loginStatus!=null) logout(client,loginStatus);
+		if(loginStatus!=null && loginStatus.length>0 && loginStatus[0]!=null) logout(client,loginStatus[0]);
 		
 		jsession.resultString=Constants.RESPONSE_OK;
 	}	

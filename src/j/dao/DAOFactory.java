@@ -1,18 +1,6 @@
 package j.dao;
 
 
-import j.cache.CachedMap;
-import j.dao.connection.ConnectionProvider;
-import j.dao.connection.ConnectionProviderFactory;
-import j.dao.connection.helper.ConfigHelper;
-import j.dao.util.SQLUtil;
-import j.log.Logger;
-import j.sys.SysUtil;
-import j.util.ConcurrentList;
-import j.util.ConcurrentMap;
-import j.util.JUtilBean;
-import j.util.JUtilString;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -27,6 +15,20 @@ import java.util.ResourceBundle;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+
+import com.esotericsoftware.reflectasm.MethodAccess;
+
+import j.cache.CachedMap;
+import j.dao.connection.ConnectionProvider;
+import j.dao.connection.ConnectionProviderFactory;
+import j.dao.connection.helper.ConfigHelper;
+import j.dao.util.SQLUtil;
+import j.log.Logger;
+import j.sys.SysUtil;
+import j.util.ConcurrentList;
+import j.util.ConcurrentMap;
+import j.util.JUtilBean;
+import j.util.JUtilString;
 
 /**
  * @author 肖炯
@@ -84,10 +86,16 @@ public class DAOFactory implements Runnable{
 	private Map colsIsGzip=new HashMap();
 	
 	/**
+	 * 第三方反射包ReflectASM提供的对象操作类
+	 */
+	private Map<String, MethodAccess> accessors=new HashMap();
+	
+	/**
 	 * key,小写表名.对应vo中的变量名   value,vo中对应的set方法
 	 * setters.put(tblNameLowerCase+"."+fieldName,setter);
 	 */
-	private Map setters=new HashMap();
+	private Map<String, Method> setters=new HashMap();
+	private Map<String, String> setterNames=new HashMap();
 	
 	/**
 	 * 调用DAO的几个返回List的find、findScale方法时，如果指定了vo类，
@@ -95,7 +103,7 @@ public class DAOFactory implements Runnable{
 	 * key，cls.getName()+"."+fieldName
 	 * value，set方法
 	 */
-	private Map unregisterSetters=new HashMap();
+	private Map<String, Method> unregisterSetters=new HashMap();
 	
 	/**
 	 * 使用哪个数据库操作实现类，大部分操作在RdbmsDao中有通用实现，
@@ -409,12 +417,16 @@ public class DAOFactory implements Runnable{
 			factory.colsOfTables.put(tblNameLowerCase,colsList);	
 			
 			Class clazz=Class.forName(clsName);
+			factory.accessors.put(tblNameLowerCase, MethodAccess.get(clazz));
+			factory.accessors.put(clsName, factory.accessors.get(tblNameLowerCase));
+			
 			Field[] fields=clazz.getDeclaredFields();
 			for(int k=0;k<fields.length;k++){
 				String fieldName=fields[k].getName();
 				try{
 					Method setter=JUtilBean.getSetter(clazz,fieldName,new Class[]{fields[k].getType()});
 					factory.setters.put(tblNameLowerCase+"."+fieldName,setter);
+					factory.setterNames.put(tblNameLowerCase+"."+fieldName,JUtilBean.getSetterName(fieldName));
 				}catch(Exception e){}
 			}
 		}			
@@ -509,12 +521,16 @@ public class DAOFactory implements Runnable{
 			factory.colsOfTables.put(tblNameLowerCase,colsList);	
 			
 			Class clazz=Class.forName(clsName);
+			factory.accessors.put(tblNameLowerCase, MethodAccess.get(clazz));
+			factory.accessors.put(clsName, factory.accessors.get(tblNameLowerCase));
+			
 			Field[] fields=clazz.getDeclaredFields();
 			for(int k=0;k<fields.length;k++){
 				String fieldName=fields[k].getName();
 				try{
 					Method setter=JUtilBean.getSetter(clazz,fieldName,new Class[]{fields[k].getType()});
 					factory.setters.put(tblNameLowerCase+"."+fieldName,setter);
+					factory.setterNames.put(tblNameLowerCase+"."+fieldName,JUtilBean.getSetterName(fieldName));
 				}catch(Exception e){}
 			}
 		}			
@@ -613,12 +629,16 @@ public class DAOFactory implements Runnable{
 			factory.colsOfTables.put(tblNameLowerCase,colsList);	
 			
 			Class clazz=Class.forName(clsName);
+			factory.accessors.put(tblNameLowerCase, MethodAccess.get(clazz));
+			factory.accessors.put(clsName, factory.accessors.get(tblNameLowerCase));
+			
 			Field[] fields=clazz.getDeclaredFields();
 			for(int k=0;k<fields.length;k++){
 				String fieldName=fields[k].getName();
 				try{
 					Method setter=JUtilBean.getSetter(clazz,fieldName,new Class[]{fields[k].getType()});
 					factory.setters.put(tblNameLowerCase+"."+fieldName,setter);
+					factory.setterNames.put(tblNameLowerCase+"."+fieldName,JUtilBean.getSetterName(fieldName));
 				}catch(Exception e){}
 			}
 		}			
@@ -968,6 +988,38 @@ public class DAOFactory implements Runnable{
 	}
 	
 	/**
+	 * 
+	 * @param tableName
+	 * @param colNameOrFieldName
+	 * @return
+	 */
+	public MethodAccess getMethodAccess(String tableName){		
+		Database db=DB.database(this.dbName);
+		tableName=db.getMetaTable(tableName);
+		
+		return this.accessors.get(tableName.toLowerCase());
+	}
+	
+	/**
+	 * 
+	 * @param clazz
+	 * @return
+	 */
+	public MethodAccess getMethodAccessOfClass(Class clazz){	
+		if(clazz==null) return null;
+		
+		String className=clazz.getName();
+		
+		MethodAccess access=this.accessors.get(className);
+		if(access==null) {
+			access=MethodAccess.get(clazz);
+			this.accessors.put(className, access);
+		}
+		
+		return access;
+	}
+	
+	/**
 	 * 给定表的列名或对应vo类的变量名，得到与表tableName对应的vo类的该字段的set方法
 	 * @param tableName
 	 * @param colNameOrFieldName
@@ -978,6 +1030,19 @@ public class DAOFactory implements Runnable{
 		tableName=db.getMetaTable(tableName);
 		
 		return (Method)this.setters.get(tableName.toLowerCase()+"."+JUtilBean.colNameToVariableName(colNameOrFieldName));
+	}
+	
+	/**
+	 * 
+	 * @param tableName
+	 * @param colNameOrFieldName
+	 * @return
+	 */
+	public String getSetterName(String tableName,String colNameOrFieldName){		
+		Database db=DB.database(this.dbName);
+		tableName=db.getMetaTable(tableName);
+		
+		return this.setterNames.get(tableName.toLowerCase()+"."+JUtilBean.colNameToVariableName(colNameOrFieldName));
 	}
 	
 	/**
@@ -1000,6 +1065,16 @@ public class DAOFactory implements Runnable{
 			}catch(Exception e){}
 			return setter;
 		}
+	}
+	
+	/**
+	 * 
+	 * @param fieldName
+	 * @return
+	 * @throws Exception
+	 */
+	public String getUnregisterSetterName(String fieldName)throws Exception{
+		return JUtilBean.getSetterName(fieldName);
 	}
 	
 	/**

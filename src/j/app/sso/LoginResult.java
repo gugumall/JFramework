@@ -35,6 +35,7 @@ public class LoginResult implements Serializable{
 	private String sysId=null;
 	private String machineId=null;
 	private String userId=null;//用户ID，登录成功时必须正确设置
+	private String subUserId=null;//子账号ID，登录成功时必须正确设置（如果是子账号）
 	private int    result=0;//登录结果
 	private String resultMsg="";//登录结果提示信息
 	private int    chances=-1;//登陆失败的情况下，还可尝试登陆次数
@@ -50,6 +51,9 @@ public class LoginResult implements Serializable{
 	}
 	public String getUserId(){
 		return this.userId;
+	}
+	public String getSubUserId(){
+		return this.subUserId;
 	}
 	public int getResult(){
 		return this.result;
@@ -76,6 +80,9 @@ public class LoginResult implements Serializable{
 	}
 	public void setUserId(String userId){
 		this.userId=userId;
+	}
+	public void setSubUserId(String subUserId){
+		this.subUserId=subUserId;
 	}
 	public void setResult(int result){
 		this.result=result;

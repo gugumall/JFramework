@@ -9,14 +9,38 @@ import j.cache.JCacheFilter;
  */
 public class LoginStatusFilter implements JCacheFilter{
 	private static final long serialVersionUID = 1L;
-	private String uid=null;
+	private String userId=null;
+	private String subUserId=null;
+	private boolean includeSubUsers=false;
 
 	/**
 	 * 
-	 *
+	 * @param userId
 	 */
-	public LoginStatusFilter(String uid) {
-		this.uid=uid;
+	public LoginStatusFilter(String userId) {
+		this.userId=userId;
+	}
+	
+	/**
+	 * 
+	 * @param userId
+	 * @param subUserId
+	 */
+	public LoginStatusFilter(String userId, String subUserId) {
+		this.userId=userId;
+		this.subUserId=subUserId;
+	}
+	
+	/**
+	 * 
+	 * @param userId
+	 * @param subUserId
+	 * @param includeSubUsers
+	 */
+	public LoginStatusFilter(String userId, String subUserId, boolean includeSubUsers) {
+		this.userId=userId;
+		this.subUserId=subUserId;
+		this.includeSubUsers=includeSubUsers;
 	}
 
 	/*
@@ -28,7 +52,13 @@ public class LoginStatusFilter implements JCacheFilter{
 		
 		LoginStatus obj=(LoginStatus)object;
 		
-		if(uid!=null&&!"".equals(uid)&&!uid.equals(obj.getUserId())) return false;
+		if(userId!=null&&!"".equals(userId)&&!userId.equals(obj.getUserId())) return false;
+		
+		if(subUserId!=null&&!"".equals(subUserId)) {
+			if(!subUserId.equals(obj.getSubUserId())) return false;
+		}else if(!includeSubUsers && obj.getSubUserId()!=null && !"".equals(obj.getSubUserId())) {
+			return false;
+		}
 		
 		return true;
 	}

@@ -1,5 +1,5 @@
 /*
- * Created on 2019-12-09
+ * Created on 2020-02-11
  *
  */
 package j.db;
@@ -24,6 +24,9 @@ public class Jlog implements Serializable{
 	private java.lang.String staffId;
 	private java.lang.String sellerId;
 	private java.lang.String staffIdOfShop;
+	private java.lang.String staffId2;
+	private java.lang.String sellerId2;
+	private java.lang.String staffIdOfShop2;
 	private java.lang.String bizCode;
 	private java.lang.String bizId;
 	private java.lang.String bizName;
@@ -116,6 +119,27 @@ public class Jlog implements Serializable{
 	}
 	public void setStaffIdOfShop(java.lang.String staffIdOfShop){
 		this.staffIdOfShop=staffIdOfShop;
+	}
+
+	public java.lang.String getStaffId2(){
+		return this.staffId2;
+	}
+	public void setStaffId2(java.lang.String staffId2){
+		this.staffId2=staffId2;
+	}
+
+	public java.lang.String getSellerId2(){
+		return this.sellerId2;
+	}
+	public void setSellerId2(java.lang.String sellerId2){
+		this.sellerId2=sellerId2;
+	}
+
+	public java.lang.String getStaffIdOfShop2(){
+		return this.staffIdOfShop2;
+	}
+	public void setStaffIdOfShop2(java.lang.String staffIdOfShop2){
+		this.staffIdOfShop2=staffIdOfShop2;
 	}
 
 	public java.lang.String getBizCode(){

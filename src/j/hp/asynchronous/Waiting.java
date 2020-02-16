@@ -13,7 +13,7 @@ import j.sys.SysUtil;
  */
 public class Waiting extends JObject{
 	private static final long serialVersionUID = 1L;
-	private long created=0;//等待创建时间
+	private long created=0;//创建时间
 	private String UUID;//uuid
 	private long timeout=30000;//等待超时时间
 	private Object defaultResultWhenTimeout=null;//当等待超时时设置的默认结果

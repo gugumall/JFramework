@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 public class UserImpl extends User{
 	private static final long serialVersionUID = 1L;
 	protected String userId;
+	protected String subUserId;
 	protected String userName;
 	
 	/**
@@ -37,6 +38,22 @@ public class UserImpl extends User{
 	 */
 	public void setUserId(String userId) {	
 		this.userId=userId;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see j.app.sso.User#getSubUserId()
+	 */
+	public String getSubUserId() {
+		return this.subUserId;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see j.app.sso.User#setSubUserId(java.lang.String)
+	 */
+	public void setSubUserId(String subUserId) {	
+		this.subUserId=subUserId;
 	}
 
 	/*

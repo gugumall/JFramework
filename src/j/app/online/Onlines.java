@@ -976,7 +976,7 @@ public class Onlines implements Filter,Runnable{
 					SysUtil.redirect(request,response,Constants.SSO_GET_LOGIN_STATUS_RESULT+"?ok=1");	
 					return;
 				}else{
-					String redirect=SSOConfig.getSsoServer()+"ssoserver"+Handlers.getActionPathPattern();
+					String redirect=SSOConfig.getSsoServer(j.app.sso.SSOConfig.getSsoClientById(j.sys.SysConfig.getSysId()),j.sys.SysUtil.getRequestURL(request))+"ssoserver"+Handlers.getActionPathPattern();
 					redirect+="?"+Handlers.getHandler("/ssoserver").getRequestBy()+"=ssoquery";	
 					redirect+="&"+Constants.SSO_CLIENT+"="+client.getUrlDefault();
 					
@@ -1001,7 +1001,7 @@ public class Onlines implements Filter,Runnable{
 				if(loginStatus==null
 						||loginStatus.getStat()==LoginStatus.STAT_CREATE
 						||user==null){//如果未登录
-					String redirect=SSOConfig.getSsoServer()+"ssoserver"+Handlers.getActionPathPattern();
+					String redirect=SSOConfig.getSsoServer(j.app.sso.SSOConfig.getSsoClientById(j.sys.SysConfig.getSysId()),j.sys.SysUtil.getRequestURL(request))+"ssoserver"+Handlers.getActionPathPattern();
 					redirect+="?"+Handlers.getHandler("/ssoserver").getRequestBy()+"=ssoquery";	
 					redirect+="&"+Constants.SSO_CLIENT+"="+client.getUrlDefault();
 					redirect+="&"+Constants.SSO_BACK_URL+"="+JUtilString.encodeURI(currentUrl,SysConfig.sysEncoding);

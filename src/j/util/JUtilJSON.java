@@ -111,12 +111,9 @@ public class JUtilJSON{
 	}
 	
 	public static void main(String[] args) throws Exception{
-		String a="a";
+		String a="{\"openedPeriodNumber\":20200208103,\"openedDate\":\"2020/2/8 14:39:00\",\"openingPeriodNumber\":104,\"openingDate\":\"2020/2/8 14:44:00\",\"totalSeconds\":214,\"jackpot\":1719332,\"numbersArray\":[\"7\",\"3\",\"9\",\"2\",\"4\",\"8\",\"6\",\"1\",\"10\",\"5\"],\"curDate\":\"2020/2/8 14:40:35\"}";
 		synchronized(a){
-			System.out.println("\\\"");
-			synchronized(a){
-				System.out.println("22222222");
-			}
+			System.out.println("22/2/2".split("/")[1]);
 		}
 	}
 }

@@ -333,6 +333,50 @@ public class JLogger extends JHandler implements Runnable{
 			String eventInfluence,
 			String eventStat,
 			List<String> extras){
+		return log(adomain,
+				aurl,
+				auIp,
+				auId,
+				staffId,
+				sellerId,
+				staffIdOfShop,
+				null,
+				null,
+				null,
+				bizCode,
+				bizId,
+				bizName,
+				bizLink,
+				bizIcon,
+				bizData,
+				eventCode,
+				eventData,
+				eventInfluence,
+				eventStat,
+				extras);
+	}
+	
+	public static Jlog log(String adomain,
+			String aurl,
+			String auIp,
+			String auId,
+			String staffId,
+			String sellerId,
+			String staffIdOfShop,
+			String staffId2,
+			String sellerId2,
+			String staffIdOfShop2,
+			String bizCode,
+			String bizId,
+			String bizName,
+			String bizLink,
+			String bizIcon,
+			String bizData,
+			String eventCode,
+			String eventData,
+			String eventInfluence,
+			String eventStat,
+			List<String> extras){
 		Jlog log=new Jlog();
 		log.setEventId(JUtilUUID.genUUID());
 		log.setAsvrId(SysConfig.getMachineID());
@@ -344,6 +388,9 @@ public class JLogger extends JHandler implements Runnable{
 		log.setStaffId(staffId);
 		log.setSellerId(sellerId);
 		log.setStaffIdOfShop(staffIdOfShop);
+		log.setStaffId2(staffId2);
+		log.setSellerId2(sellerId2);
+		log.setStaffIdOfShop2(staffIdOfShop2);
 		log.setBizCode(bizCode);
 		log.setBizId(bizId);
 		log.setBizName(bizName);
@@ -527,6 +574,79 @@ public class JLogger extends JHandler implements Runnable{
 			String eventInfluence,
 			String eventStat,
 			List<String> extras)throws Exception{
+		return logSyn(dao,
+				adomain,
+				aurl,
+				auIp,
+				auId,
+				staffId,
+				sellerId,
+				staffIdOfShop,
+				null,
+				null,
+				null,
+				bizCode,
+				bizId,
+				bizName,
+				bizLink,
+				bizIcon,
+				bizData,
+				eventCode,
+				eventData,
+				eventInfluence,
+				eventStat,
+				extras);
+	}
+	
+	/**
+	 * 
+	 * @param dao
+	 * @param adomain
+	 * @param aurl
+	 * @param auIp
+	 * @param auId
+	 * @param staffId
+	 * @param sellerId
+	 * @param staffIdOfShop
+	 * @param staffId2
+	 * @param sellerId2
+	 * @param staffIdOfShop2
+	 * @param bizCode
+	 * @param bizId
+	 * @param bizName
+	 * @param bizLink
+	 * @param bizIcon
+	 * @param bizData
+	 * @param eventCode
+	 * @param eventData
+	 * @param eventInfluence
+	 * @param eventStat
+	 * @param extras
+	 * @return
+	 * @throws Exception
+	 */
+	public static Jlog logSyn(DAO dao,
+			String adomain,
+			String aurl,
+			String auIp,
+			String auId,
+			String staffId,
+			String sellerId,
+			String staffIdOfShop,
+			String staffId2,
+			String sellerId2,
+			String staffIdOfShop2,
+			String bizCode,
+			String bizId,
+			String bizName,
+			String bizLink,
+			String bizIcon,
+			String bizData,
+			String eventCode,
+			String eventData,
+			String eventInfluence,
+			String eventStat,
+			List<String> extras)throws Exception{
 		Jlog log=new Jlog();
 		log.setEventId(JUtilUUID.genUUID());
 		log.setAsvrId(SysConfig.getMachineID());
@@ -538,6 +658,9 @@ public class JLogger extends JHandler implements Runnable{
 		log.setStaffId(staffId);
 		log.setSellerId(sellerId);
 		log.setStaffIdOfShop(staffIdOfShop);
+		log.setStaffId2(staffId2);
+		log.setSellerId2(sellerId2);
+		log.setStaffIdOfShop2(staffIdOfShop2);
 		log.setBizCode(bizCode);
 		log.setBizId(bizId);
 		log.setBizName(bizName);
@@ -606,6 +729,15 @@ public class JLogger extends JHandler implements Runnable{
 			
 			if(log.getStaffIdOfShop()==null) sqls.append(",null");//staffIdOfShop
 			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getStaffIdOfShop())+"'");
+			
+			if(log.getStaffId2()==null) sqls.append(",null");//staffId2
+			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getStaffId2())+"'");
+			
+			if(log.getSellerId2()==null) sqls.append(",null");//sellerId2
+			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getSellerId2())+"'");//sellerId2
+			
+			if(log.getStaffIdOfShop2()==null) sqls.append(",null");//staffIdOfShop2
+			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getStaffIdOfShop2())+"'");
 			
 			if(log.getBizCode()==null) sqls.append(",null");//bizCode
 			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getBizCode())+"'");

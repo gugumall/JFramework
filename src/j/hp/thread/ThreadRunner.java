@@ -50,7 +50,7 @@ public class ThreadRunner implements Runnable{
 	public boolean exists(ThreadTask task){
 		for(int i=0;i<tasks.size();i++){
 			ThreadTask t=(ThreadTask)tasks.get(i);
-			if(t==null) return false;
+			if(t==null) continue;
 			if(t.equalz(task)) return true;
 		}
 		return false;
@@ -130,12 +130,12 @@ public class ThreadRunner implements Runnable{
 					int retries=0;
 					while(retries<=task.getRetries()){
 						try{
-							System.out.println("execute ..."+task.getUuid());
+							//System.out.println("execute ..."+task.getUuid());
 							Object[] result=task.execute();
 							if(task.getUuid()!=null
 									&&!"".equals(task.getUuid())
 									&&result!=null){
-								results.put(task.getUuid(),new ThreadTaskResult(result,task.getResultTimeout()));
+								results.put(task.getUuid(),new ThreadTaskResult(task.getUuid(), result,task.getResultTimeout()));
 							}
 							break;
 						}catch(Exception e){
@@ -147,7 +147,7 @@ public class ThreadRunner implements Runnable{
 						if(task.getUuid()!=null
 								&&!"".equals(task.getUuid())
 								&&!results.containsKey(task.getUuid())) {
-							results.put(task.getUuid(),new ThreadTaskResult(new Object[] {"IS-NULL",task.getResultTimeout()}));
+							results.put(task.getUuid(),new ThreadTaskResult(task.getUuid(), new Object[] {"IS-NULL",task.getResultTimeout()}));
 						}
 					}
 				}

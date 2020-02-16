@@ -1,8 +1,6 @@
 package j.util;
 
 import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
@@ -11,6 +9,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -35,6 +34,40 @@ import j.sys.SysUtil;
  */
 public class JUtilBean {
 	private static Logger log = Logger.create(JUtilBean.class);
+	private static ConcurrentMap<String, Method> methodCache=new ConcurrentMap();
+	private static ConcurrentMap<String, Field> fieldCache=new ConcurrentMap();
+	
+	/**
+	 * 
+	 * @param cls
+	 * @param fieldName
+	 * @return
+	 * @throws Exception
+	 */
+	public static Field getField(Class cls, String fieldName)throws Exception {
+		if(cls==null) return null;
+		
+		String cacheKey=cls.getName()+"."+fieldName;
+		Field field = fieldCache.get(cacheKey);
+		if(field!=null) return field;
+		try{
+			field=cls.getDeclaredField(fieldName);
+		}catch (Exception e){
+			field=null;
+		}
+		if(field!=null) fieldCache.put(cacheKey, field);
+		
+		return field;
+	}
+	
+	/**
+	 * 
+	 * @param propertyName
+	 * @return
+	 */
+	public static String getSetterName(String propertyName) {
+		return "set" + upperFirstChar(propertyName);
+	}
 
 	/**
 	 * 根据字段名和参数，得到setter方法
@@ -46,12 +79,21 @@ public class JUtilBean {
 	 * @throws Exception
 	 */
 	public static Method getSetter(Class cls, String propertyName, Class[] paras)throws Exception {
-		Method method = null;
+		if(cls==null) return null;
+		
 		String methodName = "set" + upperFirstChar(propertyName);
+		String cacheKey=cls.getName()+"."+methodName;
+		Method method = methodCache.get(cacheKey);
+		if(method!=null) return method;
+		
 		try{
 			method = cls.getDeclaredMethod(methodName, paras);
 		}catch(Exception e){
 			method = cls.getMethod(methodName, paras);
+		}
+		if(method!=null) {
+			method.setAccessible(true);
+			methodCache.put(cacheKey, method);
 		}
 
 		return method;
@@ -66,14 +108,23 @@ public class JUtilBean {
 	 */
 	public static Method getSetterIgnoreException(Class cls, String propertyName, Class[] paras){
 		try {
-			Method method = null;
+			if(cls==null) return null;
+			
 			String methodName = "set" + upperFirstChar(propertyName);
+			String cacheKey=cls.getName()+"."+methodName;
+			Method method = methodCache.get(cacheKey);
+			if(method!=null) return method;
+			
 			try{
 				method = cls.getDeclaredMethod(methodName, paras);
 			}catch(Exception e){
 				method = cls.getMethod(methodName, paras);
 			}
-	
+			if(method!=null) {
+				method.setAccessible(true);
+				methodCache.put(cacheKey, method);
+			}
+
 			return method;
 		}catch(Exception e) {
 			return null;
@@ -91,12 +142,56 @@ public class JUtilBean {
 	 * @throws Exception
 	 */
 	public static Method getGetter(Class cls, String propertyName, Class[] paras)throws Exception {
-		Method method = null;
+		if(cls==null) return null;
+		
 		String methodName = "get" + upperFirstChar(propertyName);
+		String cacheKey=cls.getName()+"."+methodName;
+		Method method = methodCache.get(cacheKey);
+		if(method!=null) return method;
+		
 		try{
+			method = cls.getDeclaredMethod(methodName, paras);
+		}catch(Exception e){
 			method = cls.getMethod(methodName, paras);
-		}catch(Exception e){}
+		}
+		if(method!=null) {
+			method.setAccessible(true);
+			methodCache.put(cacheKey, method);
+		}
+
 		return method;
+	}
+	
+	/**
+	 * 
+	 * @param cls
+	 * @param propertyName
+	 * @param paras
+	 * @return
+	 */
+	public static Method getGetterIgnoreException(Class cls, String propertyName, Class[] paras){
+		try {
+			if(cls==null) return null;
+			
+			String methodName = "get" + upperFirstChar(propertyName);
+			String cacheKey=cls.getName()+"."+methodName;
+			Method method = methodCache.get(cacheKey);
+			if(method!=null) return method;
+			
+			try{
+				method = cls.getDeclaredMethod(methodName, paras);
+			}catch(Exception e){
+				method = cls.getMethod(methodName, paras);
+			}
+			if(method!=null) {
+				method.setAccessible(true);
+				methodCache.put(cacheKey, method);
+			}
+	
+			return method;
+		}catch(Exception e) {
+			return null;
+		}
 	}
 
 	/**
@@ -272,15 +367,10 @@ public class JUtilBean {
 			Enumeration paraNames = request.getParameterNames();
 			while (paraNames.hasMoreElements()){
 				String name =(String)paraNames.nextElement();
-				Field field=null;
-				try {
-					field = beanClass.getDeclaredField(JUtilBean.colNameToVariableName(name));
-				} catch (Exception e){
-					field = null;
-				}
-				if (field == null){
-					continue;
-				}
+				
+				Field field = JUtilBean.getField(beanClass, JUtilBean.colNameToVariableName(name));
+				if (field == null) continue;
+				
 				String value = SysUtil.getHttpParameter(request,name);
 
 				String type = field.getType().getName();
@@ -370,15 +460,9 @@ public class JUtilBean {
 			Enumeration paraNames = request.getParameterNames();
 			while (paraNames.hasMoreElements()){
 				String name = (String) paraNames.nextElement();
-				Field field = null;
-				try {
-					field = beanClass.getDeclaredField(JUtilBean.colNameToVariableName(name));
-				} catch (Exception e){
-					field = null;
-				}
-				if (field == null){
-					continue;
-				}
+				Field field = JUtilBean.getField(beanClass, JUtilBean.colNameToVariableName(name));
+				if (field == null) continue;
+			
 				
 				String value = SysUtil.getHttpParameter(request,name);
 				if(value!=null) value=value.trim();				
@@ -471,15 +555,9 @@ public class JUtilBean {
 		try {
 			for (Iterator it = m.keySet().iterator(); it.hasNext();){
 				String name = (String) it.next();
-				Field field = null;
-				try {
-					field = beanClass.getDeclaredField(JUtilBean.colNameToVariableName(name));
-				} catch (Exception e){
-					field = null;
-				}
-				if (field == null){
-					continue;
-				}
+				Field field = JUtilBean.getField(beanClass, JUtilBean.colNameToVariableName(name));
+				if (field == null) continue;
+			
 				String value = (String) m.get(name);
 
 				String type = field.getType().getName();
@@ -1017,10 +1095,28 @@ public class JUtilBean {
 			Document doc=JUtilDom4j.parseString(xml,encoding);
 			Element root=doc.getRootElement();
 			List bs=root.elements("bean");
+			
+			Map<String, Class> classCache=new HashMap();
+			for(int b=0;b<bs.size();b++){
+				Element be=(Element)bs.get(b);
+				String clz=be.attributeValue("clz");
+				if(clz!=null && !"".equals(clz)) {
+					Class _clz=classCache.get(clz);
+					if(_clz==null) {
+						try {
+							classCache.put(clz, Class.forName(clz));
+						}catch(Exception e) {
+							classCache.put(clz, Object.class);
+						}
+					}
+				}
+			}
+			
 			for(int b=0;b<bs.size();b++){
 				Element be=(Element)bs.get(b);
 				
-				Class _beanClass=beanClass==null?Class.forName(be.attributeValue("clz")):beanClass;
+				Class _beanClass=beanClass==null?classCache.get(be.attributeValue("clz")):beanClass;
+				if(_beanClass==null) continue;
 				
 				Object bean=_beanClass.newInstance();
 				
@@ -1040,12 +1136,7 @@ public class JUtilBean {
 					
 					String value=fe.getText();
 					
-					Field field=null;
-					try{
-						field=_beanClass.getDeclaredField(fieldName);
-					}catch (Exception e){
-						field=null;
-					}
+					Field field=JUtilBean.getField(_beanClass, fieldName);
 					if(field==null) continue;
 					
 					if(value==null

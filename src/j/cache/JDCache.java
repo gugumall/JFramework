@@ -365,7 +365,7 @@ public class JDCache extends JCache{
 		Servant info=findService(cacheId);
 		
 		if(info.service!=null){
-			info.service.update(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"updateCollection"),cacheId,jdcParams);
+			info.service.updateCollection(Manager.getClientNodeUuid(),Client.md54Service(info.serviceCode,"updateCollection"),cacheId,jdcParams);
 		}else{
 			Map params=new HashMap();
 			params.put("cacheId",cacheId);
