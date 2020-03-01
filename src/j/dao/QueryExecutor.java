@@ -1,11 +1,10 @@
 package j.dao;
 
+import java.util.List;
+
 import j.log.Logger;
 import j.sys.SysConfig;
 import j.util.ConcurrentMap;
-import j.util.JUtilMath;
-
-import java.util.List;
 
 /**
  * 
@@ -87,9 +86,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return;
 	}
@@ -110,9 +109,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return;
 	}
@@ -133,9 +132,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return;
 	}
@@ -156,9 +155,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return;
 	}
@@ -179,9 +178,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return;
 	}
@@ -204,9 +203,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return;
 	}
@@ -229,9 +228,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return;
 	}
@@ -253,9 +252,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (StmtAndRs)results.remove(uuid);
 	}
@@ -281,9 +280,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (StmtAndRs)results.remove(uuid);
 	}
@@ -307,9 +306,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (List)results.remove(uuid);
 	}
@@ -337,9 +336,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (List)results.remove(uuid);
 	}
@@ -363,9 +362,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (List)results.remove(uuid);
 	}
@@ -393,9 +392,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (List)results.remove(uuid);
 	}
@@ -420,9 +419,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (List)results.remove(uuid);
 	}
@@ -451,9 +450,76 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
+		}
+		return (List)results.remove(uuid);
+	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @param table
+	 * @param condition
+	 * @param _class
+	 * @param excludedColumns
+	 * @param rpp
+	 * @param pn
+	 * @param syn
+	 * @return
+	 */
+	protected List query(String uuid,String table,String condition,Class _class,List<String> excludedColumns,int rpp,int pn,boolean syn){
+		if(tasks.containsKey(uuid)) return null;
+		
+		Query query=new Query(uuid,Query.TYPE_TABLE_AND_CONDITION_CLS_EXCLUDE_COLS);
+		query.tableNames=new String[]{table};
+		query.condition=condition;
+		query._class=_class;
+		query.excludedColumns=excludedColumns;
+		query.rpp=rpp;
+		query.pn=pn;
+		tasks.put(uuid,query);
+		
+		if(!syn) return null;
+		
+		while(tasks.containsKey(uuid)){
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
+		}
+		return (List)results.remove(uuid);
+	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @param table
+	 * @param condition
+	 * @param _class
+	 * @param excludedColumns
+	 * @param start
+	 * @param end
+	 * @param syn
+	 * @return
+	 */
+	protected List queryScale(String uuid,String table,String condition,Class _class,List<String> excludedColumns,int start,int end,boolean syn){
+		if(tasks.containsKey(uuid)) return null;
+		
+		Query query=new Query(uuid,Query.TYPE_TABLE_AND_CONDITION_CLS_SCALE);
+		query.tableNames=new String[]{table};
+		query.condition=condition;
+		query._class=_class;
+		query.start=start;
+		query.end=end;
+		tasks.put(uuid,query);
+		
+		if(!syn) return null;
+		
+		while(tasks.containsKey(uuid)){
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (List)results.remove(uuid);
 	}
@@ -477,9 +543,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (List)results.remove(uuid);
 	}
@@ -505,9 +571,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (List)results.remove(uuid);
 	}
@@ -529,9 +595,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (Integer)results.remove(uuid);
 	}
@@ -555,9 +621,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (Integer)results.remove(uuid);
 	}
@@ -581,9 +647,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (Integer)results.remove(uuid);
 	}
@@ -609,9 +675,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (String)results.remove(uuid);
 	}
@@ -637,9 +703,9 @@ public class QueryExecutor implements Runnable{
 		if(!syn) return null;
 		
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return (String[])results.remove(uuid);
 	}
@@ -651,9 +717,9 @@ public class QueryExecutor implements Runnable{
 	 */
 	protected Object result(String uuid){
 		while(tasks.containsKey(uuid)){
-			//try{
-			//	Thread.sleep(100);
-			//}catch(Exception e){}
+			try{
+				Thread.sleep(10);
+			}catch(Exception e){}
 		}
 		return results.remove(uuid);
 	}
@@ -773,6 +839,12 @@ public class QueryExecutor implements Runnable{
 								results.put(query.uuid, result);
 							}
 						}
+					}else if(query.type==Query.TYPE_TABLE_AND_CONDITION_CLS_EXCLUDE_COLS) {
+						List result=dao.find(query.tableNames[0],query.condition,query._class,query.excludedColumns,query.rpp,query.pn);
+						results.put(query.uuid, result);
+					}else if(query.type==Query.TYPE_TABLE_AND_CONDITION_CLS_SCALE) {
+						List result=dao.findScale(query.tableNames[0],query.condition,query._class,query.excludedColumns,query.start,query.end);
+						results.put(query.uuid, result);
 					}else if(query.type==Query.TYPE_COUNT){
 						int count=0;
 						if(query.sql!=null){

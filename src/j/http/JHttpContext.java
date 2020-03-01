@@ -247,10 +247,19 @@ public class JHttpContext {
 	 * @return
 	 */
 	public String getSessionId() {
-		//Set-Cookie:JSESSIONID=780D255A35F4BB4E4AC3BA333307F27D; Path=/; Secure; HttpOnly
+		return getCookie("JSESSIONID");
+	}
+	
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public String getCookie(String name) {
+		//yunsuo_session_verify=aaf369ebff5ba91c054d900045e06cd7; expires=Sun, 01-Mar-20 19:09:56 GMT; path=/; HttpOnly
 		String setCookie=this.getResponseHeader("Set-Cookie");
-		if(setCookie.indexOf("JSESSIONID=")>-1) {
-			setCookie=setCookie.substring(11);
+		if(setCookie!=null&&setCookie.indexOf(name+"=")>-1) {
+			setCookie=setCookie.substring(name.length()+1);
 			if(setCookie.indexOf(";")>0) {
 				setCookie=setCookie.substring(0,setCookie.indexOf(";"));
 			}

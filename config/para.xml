@@ -8,7 +8,8 @@
   
   <group name="HTTP">
   	<para name="User-Agent">Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)</para>
-  	<para name="retries">2</para>
+  	<para name="retries">1</para>
+  	<para name="redirects">1</para>
   	<para name="retry-interval">3000</para>
   </group>
   

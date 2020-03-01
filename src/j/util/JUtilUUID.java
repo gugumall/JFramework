@@ -228,7 +228,7 @@ public final class JUtilUUID {
 			String value=(String)ps.getProperty(key);
 			//System.out.println(key+" = "+value);
 		}
-		System.out.println(System.getProperty("java.class.version"));
+		System.out.println(JUtilUUID.genUUID());
 	
 
 		System.exit(0);

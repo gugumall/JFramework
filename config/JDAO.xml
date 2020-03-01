@@ -9,6 +9,10 @@
 	<database id="jshop" name="jshop" desc="" TEST-SQL="select u_id from js_user where u_id is null">
 		<mirror uuid="jshop:1" config="config/datasource.jshop.xml" is-monitor="true" monitor="/DataSource.service" avail="true" read="true" insert="true" update="true" priority="1"></mirror>
 		<mirror uuid="jshop:2" config="config/datasource.jshop.xml" is-monitor="true" monitor="/DataSource.service" avail="true" read="true" insert="true" update="true" priority="1"></mirror>
+	  	<ignoreColWhileUpdateViaBean>table_name,column_name</ignoreColWhileUpdateViaBean>
+	  	<ignoreColWhileUpdateViaBean>table_name,column_name</ignoreColWhileUpdateViaBean>
+	  	
+	  	<meta selector="table_name">table_name</meta>
 		<syn>
 		    <node uuid="jshop:1" name="服务器A">
 		        <channel type="http" value="http://sa.xxx.com"/>

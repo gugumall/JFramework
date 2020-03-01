@@ -58,6 +58,16 @@ public class SSOServer extends JHandler implements Runnable{
 			_init();
 		}
 	}
+	
+	/**
+	 * 
+	 * @param globalSessionId
+	 * @param loginStatus
+	 * @throws Exception
+	 */
+	protected static void saveLoginStatus(String globalSessionId,LoginStatus loginStatus) throws Exception{
+		users.addOne(globalSessionId,loginStatus);
+	}
 
 	/**
 	 * 
@@ -213,7 +223,7 @@ public class SSOServer extends JHandler implements Runnable{
 	 * @param loginStatus
 	 * @throws Exception
 	 */
-	private static void logout(Client client,LoginStatus loginStatus) throws Exception{
+	protected static void logout(Client client,LoginStatus loginStatus) throws Exception{
 		HttpSession session=SSOContext.getSession(loginStatus.getSessionId());
 		if(session!=null){//移除session中保存的全局会话ID
 			try{
@@ -416,12 +426,14 @@ public class SSOServer extends JHandler implements Runnable{
 				result=new LoginResult();
 				result.setResult(LoginResult.RESULT_VERIFIER_CODE_INCORRECT);
 			}else{
-				if(agent!=null){//使用代理登录
-					result=agent.login(client.getId(),request);
-				}else{
+				if((SSOConfig.getSsoClients().size()==1
+						&&JUtilString.getHost(back).equalsIgnoreCase(SysUtil.getHttpDomain(request)))
+						||agent==null) {
 					String ip=JHttp.getRemoteIp(request);
 					result=SSOConfig.getAuthenticator().login(request,session,ip);	
-				}	
+				}else {
+					result=agent.login(client.getId(),request);
+				}
 			}
 			
 			if(result==null){//验证出现错误（无验证结果）
@@ -477,24 +489,50 @@ public class SSOServer extends JHandler implements Runnable{
 				
 				users.addOne(globalSessionId,loginStatus);
 				
-				login(client,loginStatus);//通知客户端
-				
 				//返回client的登录接口
-				String redirect=back;//clientUrlPrefix+client.getLoginInterface();
-				if(redirect.indexOf("?")>0){
-					redirect+="&"+Constants.SSO_GLOBAL_SESSION_ID+"="+loginStatus.getGlobalSessionId();
-				}else{
-					redirect+="?"+Constants.SSO_GLOBAL_SESSION_ID+"="+loginStatus.getGlobalSessionId();
-				}
-				redirect+="&"+Constants.SSO_LOGIN_FROM_SYS_ID+"="+loginStatus.getLoginFrom();
-				redirect+="&"+Constants.SSO_USER_ID+"="+loginStatus.getUserId();
-				redirect+="&"+Constants.SSO_USER_IP+"="+loginStatus.getUserIp();
-				//redirect+="&"+Constants.SSO_BACK_URL+"="+JUtilString.encodeURI(back,SysConfig.sysEncoding);		
-				if(loginPageDefined!=null){
-					redirect+="&"+Constants.SSO_LOGIN_PAGE+"="+JUtilString.encodeURI(loginPageDefined,SysConfig.sysEncoding);
-				}
+				String redirect=back;
+				
+				//如果只有一个客户端，且当前客户访问域名与sso server域名相同，不需要通知客户端，直接登录
+				if(SSOConfig.getSsoClients().size()==1
+						&&JUtilString.getHost(back).equalsIgnoreCase(SysUtil.getHttpDomain(request))) {
+					//本地登录
+					redirect=SSOClient.ssologin(session, 
+							request, 
+							back,
+							loginPage,
+							loginStatus);
 					
-				SysUtil.redirectByFormSubmit(client,request,response,redirect,messages);
+					if(redirect.equals(loginPage)
+							&&loginPageDefined!=null) {
+						if(redirect.indexOf("?")>0){
+							redirect+="&"+Constants.SSO_LOGIN_PAGE+"="+JUtilString.encodeURI(loginPageDefined,SysConfig.sysEncoding);
+						}else{
+							redirect+="?"+Constants.SSO_LOGIN_PAGE+"="+JUtilString.encodeURI(loginPageDefined,SysConfig.sysEncoding);
+						}
+					}
+					
+					SysUtil.redirectByFormSubmit(client,request,response,redirect,messages);
+				}else {
+					//通知客户端
+					login(client,loginStatus);
+					
+					if(redirect.indexOf("?")>0){
+						redirect+="&"+Constants.SSO_GLOBAL_SESSION_ID+"="+loginStatus.getGlobalSessionId();
+					}else{
+						redirect+="?"+Constants.SSO_GLOBAL_SESSION_ID+"="+loginStatus.getGlobalSessionId();
+					}
+					redirect+="&"+Constants.SSO_LOGIN_FROM_SYS_ID+"="+loginStatus.getLoginFrom();
+					redirect+="&"+Constants.SSO_USER_ID+"="+loginStatus.getUserId();
+					redirect+="&"+Constants.SSO_USER_IP+"="+loginStatus.getUserIp();
+					redirect+="&"+Constants.SSO_USER_ID+"="+loginStatus.getSubUserId();
+					
+					//redirect+="&"+Constants.SSO_BACK_URL+"="+JUtilString.encodeURI(back,SysConfig.sysEncoding);		
+					if(loginPageDefined!=null){
+						redirect+="&"+Constants.SSO_LOGIN_PAGE+"="+JUtilString.encodeURI(loginPageDefined,SysConfig.sysEncoding);
+					}
+					
+					SysUtil.redirectByFormSubmit(client,request,response,redirect,messages);
+				}
 			}else{//登录失败
 				if(loginPage.indexOf("?")>0){
 					loginPage+="&"+Constants.SSO_LOGIN_RESULT_CODE+"="+result.getResult();

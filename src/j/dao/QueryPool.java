@@ -360,6 +360,38 @@ public class QueryPool implements Runnable{
 	/**
 	 * 
 	 * @param uuid
+	 * @param table
+	 * @param condition
+	 * @param _class
+	 * @param excludedColumns
+	 * @param rpp
+	 * @param pn
+	 * @return
+	 */
+	public List query(String uuid,String table,String condition,Class _class,List<String> excludedColumns,int rpp,int pn){
+		commands++;
+		return selectExecutor().query(uuid!=null?uuid:JUtilUUID.genUUID(),table,condition,_class,excludedColumns,rpp,pn,true);
+	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @param table
+	 * @param condition
+	 * @param _class
+	 * @param excludedColumns
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public List queryScale(String uuid,String table,String condition,Class _class,List<String> excludedColumns,int start,int end){
+		commands++;
+		return selectExecutor().queryScale(uuid!=null?uuid:JUtilUUID.genUUID(),table,condition,_class,excludedColumns,start,end,true);
+	}
+	
+	/**
+	 * 
+	 * @param uuid
 	 * @param tables
 	 * @param condition
 	 * @return
@@ -725,6 +757,14 @@ public class QueryPool implements Runnable{
 			
 			threads.add(exe);
 		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public DAO dao(){
+		return selectExecutor().getDAO();
 	}
 
 	/*

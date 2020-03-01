@@ -1,5 +1,18 @@
 package j.app.sso;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.http.client.HttpClient;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+
 import j.app.Constants;
 import j.app.permission.Permission;
 import j.app.webserver.Handlers;
@@ -17,19 +30,6 @@ import j.util.JUtilBean;
 import j.util.JUtilDom4j;
 import j.util.JUtilMD5;
 import j.util.JUtilString;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import org.apache.http.client.HttpClient;
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 /**
  * 
@@ -527,6 +527,52 @@ public class SSOClient extends JHandler implements Runnable{
 		
 		tellServerToLogoutUser(loginStatus.getGlobalSessionId(),loginStatus.getUserId(),loginStatus.getSubUserId());
 	}
+	
+	/**
+	 * 
+	 * @param session
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	public static String ssologin(HttpSession session, 
+			HttpServletRequest request,
+			String back,
+			String loginPage,
+			LoginStatus serverLoginStatus)throws Exception{
+		_init();	
+		Client client=SSOConfig.getSsoClientByIdOrUrl(SysConfig.getSysId());
+		
+		//保存新的登录信息
+		LoginStatus loginStatus=new LoginStatus(client.getId(),
+				null,
+				serverLoginStatus.getGlobalSessionId(),
+				serverLoginStatus.getUserId(),
+				serverLoginStatus.getUserIp(),
+				SysConfig.getSysId(),
+				SysConfig.getMachineID(),
+				serverLoginStatus.getLoginFrom(),
+				"");
+		loginStatus.setSubUserId(serverLoginStatus.getSubUserId());
+		
+		User user=User.loadUser(session,request,loginStatus.getUserId());//加载用户信息
+		
+		if(user!=null){//加载用户信息成功	
+			loginStatus.setSession(session);
+			loginStatus.login();//确认登录
+			loginStatus.setUpdateTime(SysUtil.getNow());
+			loginStatus.setLoginFromDomain(SysUtil.getHttpDomain(request));
+			loginStatus.setUserAgent(request.getHeader("User-Agent"));
+			
+			refreshLoginStatus(loginStatus);
+				
+			SSOClient.saveUserInformation(session,loginStatus,user);
+			
+			return back;			
+		}else{
+			return loginPage;	
+		}
+	}	
 	
 	/**
 	 * 接收sso server端发出的某个会员登录的命令

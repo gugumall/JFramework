@@ -1,5 +1,18 @@
 package j.app.sso;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.http.client.HttpClient;
+import org.dom4j.Document;
+import org.dom4j.Element;
+
 import j.Properties;
 import j.app.Constants;
 import j.app.permission.Permission;
@@ -15,17 +28,7 @@ import j.util.ConcurrentMap;
 import j.util.JUtilDom4j;
 import j.util.JUtilMD5;
 import j.util.JUtilString;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.http.client.HttpClient;
-import org.dom4j.Document;
-import org.dom4j.Element;
+import j.util.JUtilUUID;
 
 /**
  * 
@@ -307,16 +310,81 @@ public class SSOConfig implements Runnable{
 	
 	/**
 	 * 
-	 * @param clientId
+	 * @param session
+	 * @param request
+	 * @param clientIdOrUrl
 	 * @param ssoUserId
+	 * @param ssoSubUserId
 	 * @param ssoBackUrl
 	 * @param ssoLoginPage
 	 * @param infos
 	 * @return
 	 * @throws Exception
 	 */
-	public static String tellServerToLogin(String clientIdOrUrl,String ssoUserId,String ssoBackUrl,String ssoLoginPage,ConcurrentMap infos)throws Exception{
+	public static String tellServerToLogin(HttpSession session, HttpServletRequest request, String clientIdOrUrl,String ssoUserId, String ssoSubUserId,String ssoBackUrl,String ssoLoginPage,ConcurrentMap infos)throws Exception{
 		try{
+			//是否SSO Client
+			String clientUrlPrefix=clientIdOrUrl;	
+			
+			String loginFromDomain=JUtilString.getHost(clientUrlPrefix);
+			
+			Client client=SSOConfig.getSsoClientByIdOrUrl(clientUrlPrefix);
+			if(client==null||!client.canLogin()){//不是sso client
+				return ssoBackUrl;
+			}
+			if(clientUrlPrefix.indexOf("http")<0) clientUrlPrefix=client.getUrlDefault();
+			
+			//如果客户端即sso server，直接登录
+			if(client.isSsoServer()) {
+				//sso server端处理
+				//该用户如在别处登录了，先注销
+				if(!"none".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())){
+					LoginStatus[] loginStatusOlds=SSOServer.findLoginStatusOfUserId(ssoUserId);
+					if(loginStatusOlds!=null){
+						for(int i=0;i<loginStatusOlds.length;i++){
+							if("all".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())
+									||loginFromDomain.equals(loginStatusOlds[i].getLoginFromDomain())){
+								SSOServer.logout(client,loginStatusOlds[i]);
+							}
+						}
+					}
+				}
+				
+				String globalSessionId=JUtilUUID.genUUID();				
+				LoginStatus loginStatus=new LoginStatus(client.getId(),
+						session,
+						globalSessionId,
+						ssoUserId,
+						JHttp.getRemoteIp(request),
+						SysConfig.getSysId(),
+						SysConfig.getMachineID(),
+						SysConfig.getSysId(),
+						loginFromDomain);		
+				loginStatus.setSubUserId(ssoSubUserId);
+				
+				if(infos!=null){
+					for(Iterator keys=infos.keySet().iterator();keys.hasNext();){
+						Object key=keys.next();
+						Object val=infos.get(key);
+						loginStatus.setMessage(key,val);
+					}
+				}
+				
+				SSOServer.saveLoginStatus(globalSessionId,loginStatus);
+				//sso server端处理 end
+
+				//sso client端处理
+				//本地登录
+				String redirect=SSOClient.ssologin(session, 
+						request, 
+						ssoBackUrl,
+						ssoLoginPage,
+						loginStatus);
+				//sso client端处理 end
+				
+				return redirect;
+			}
+			
 			String loginUrl=SSOConfig.getSsoServer()+"ssoserver"+Handlers.getActionPathPattern();
 			loginUrl+="?"+Handlers.getHandler("/ssoserver").getRequestBy()+"=ssologinauto";	
 			
@@ -347,7 +415,7 @@ public class SSOConfig implements Runnable{
 				}
 			}
 			if(_response==null||!_response.startsWith(Constants.RESPONSE_OK+":")){
-				return null;
+				return ssoBackUrl;
 			}else{
 				String globalSessionId=_response.substring(Constants.RESPONSE_OK.length()+1,_response.lastIndexOf(":"));
 				String token=_response.substring(_response.lastIndexOf(":")+1);
@@ -380,7 +448,7 @@ public class SSOConfig implements Runnable{
 	}
 	
 	/**
-	 * 
+	 * @deprecated
 	 * @param clientId
 	 * @param ssoUserId
 	 * @param ssoBackUrl
@@ -389,8 +457,87 @@ public class SSOConfig implements Runnable{
 	 * @return
 	 * @throws Exception
 	 */
-	public static String tellServerToLoginSameProtocalAsBackUrl(String clientIdOrUrl,String ssoUserId,String ssoBackUrl,String ssoLoginPage,ConcurrentMap infos)throws Exception{
+	public static String tellServerToLogin(String clientIdOrUrl,String ssoUserId,String ssoBackUrl,String ssoLoginPage,ConcurrentMap infos)throws Exception{
+		return tellServerToLogin(null, null, clientIdOrUrl,ssoUserId,null, ssoBackUrl,ssoLoginPage,infos);
+	}
+	
+	/**
+	 * 
+	 * @param session
+	 * @param request
+	 * @param clientIdOrUrl
+	 * @param ssoUserId
+	 * @param ssoSubUserId
+	 * @param ssoBackUrl
+	 * @param ssoLoginPage
+	 * @param infos
+	 * @return
+	 * @throws Exception
+	 */
+	public static String tellServerToLoginSameProtocalAsBackUrl(HttpSession session, HttpServletRequest request, String clientIdOrUrl,String ssoUserId,String ssoSubUserId, String ssoBackUrl,String ssoLoginPage,ConcurrentMap infos)throws Exception{
 		try{
+			//是否SSO Client
+			String clientUrlPrefix=clientIdOrUrl;	
+			
+			String loginFromDomain=JUtilString.getHost(clientUrlPrefix);
+			
+			Client client=SSOConfig.getSsoClientByIdOrUrl(clientUrlPrefix);
+			if(client==null||!client.canLogin()){//不是sso client
+				return ssoBackUrl;
+			}
+			if(clientUrlPrefix.indexOf("http")<0) clientUrlPrefix=client.getUrlDefault();
+			
+			//如果客户端即sso server，直接登录
+			if(client.isSsoServer()) {
+				//sso server端处理
+				//该用户如在别处登录了，先注销
+				if(!"none".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())){
+					LoginStatus[] loginStatusOlds=SSOServer.findLoginStatusOfUserId(ssoUserId);
+					if(loginStatusOlds!=null){
+						for(int i=0;i<loginStatusOlds.length;i++){
+							if("all".equalsIgnoreCase(SSOConfig.getLogoutOtherSessions())
+									||loginFromDomain.equals(loginStatusOlds[i].getLoginFromDomain())){
+								SSOServer.logout(client,loginStatusOlds[i]);
+							}
+						}
+					}
+				}
+				
+				String globalSessionId=JUtilUUID.genUUID();				
+				LoginStatus loginStatus=new LoginStatus(client.getId(),
+						session,
+						globalSessionId,
+						ssoUserId,
+						JHttp.getRemoteIp(request),
+						SysConfig.getSysId(),
+						SysConfig.getMachineID(),
+						SysConfig.getSysId(),
+						loginFromDomain);		
+				loginStatus.setSubUserId(ssoSubUserId);
+				
+				if(infos!=null){
+					for(Iterator keys=infos.keySet().iterator();keys.hasNext();){
+						Object key=keys.next();
+						Object val=infos.get(key);
+						loginStatus.setMessage(key,val);
+					}
+				}
+				
+				SSOServer.saveLoginStatus(globalSessionId,loginStatus);
+				//sso server端处理 end
+
+				//sso client端处理
+				//本地登录
+				String redirect=SSOClient.ssologin(session, 
+						request, 
+						ssoBackUrl,
+						ssoLoginPage,
+						loginStatus);
+				//sso client端处理 end
+				
+				return redirect;
+			}
+			
 			String loginUrl=SSOConfig.getSsoServer()+"ssoserver"+Handlers.getActionPathPattern();
 			loginUrl+="?"+Handlers.getHandler("/ssoserver").getRequestBy()+"=ssologinauto";	
 			
@@ -425,7 +572,7 @@ public class SSOConfig implements Runnable{
 			}
 			log.log("tellServerToLogin - "+_response,Logger.LEVEL_DEBUG);
 			if(_response==null||!_response.startsWith(Constants.RESPONSE_OK+":")){
-				return null;
+				return ssoBackUrl;
 			}else{
 				String globalSessionId=_response.substring(Constants.RESPONSE_OK.length()+1,_response.lastIndexOf(":"));
 				String token=_response.substring(_response.lastIndexOf(":")+1);
@@ -455,6 +602,20 @@ public class SSOConfig implements Runnable{
 			log.log(ex,Logger.LEVEL_ERROR);
 			return null;
 		}
+	}
+	
+	/**
+	 * @deprecated
+	 * @param clientIdOrUrl
+	 * @param ssoUserId
+	 * @param ssoBackUrl
+	 * @param ssoLoginPage
+	 * @param infos
+	 * @return
+	 * @throws Exception
+	 */
+	public static String tellServerToLoginSameProtocalAsBackUrl(String clientIdOrUrl,String ssoUserId,String ssoBackUrl,String ssoLoginPage,ConcurrentMap infos)throws Exception{
+		return tellServerToLoginSameProtocalAsBackUrl(null, null, clientIdOrUrl,ssoUserId,null, ssoBackUrl,ssoLoginPage,infos);
 	}
 
 

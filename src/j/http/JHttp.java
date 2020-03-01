@@ -76,6 +76,7 @@ import j.util.JUtilString;
  */
 public class JHttp{
 	public static final String default_user_agent="Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0)";
+	public static final int default_redirects=1;
 	public static final int default_retries=1;
 	public static final long default_retry_interval=3000;
 
@@ -327,24 +328,24 @@ public class JHttp{
 	 * @return
 	 */
 	public HttpClient createClient(int timeout) {		
-		int retries=default_retries;
-		if(JUtilMath.isInt(AppConfig.getPara("HTTP","retries"))){
-			retries=Integer.parseInt(AppConfig.getPara("HTTP","retries"));
+		int redirects=default_redirects;
+		if(JUtilMath.isInt(AppConfig.getPara("HTTP","redirects"))){
+			redirects=Integer.parseInt(AppConfig.getPara("HTTP","redirects"));
 		}
 		
-		return createClient(timeout, retries);
+		return createClient(timeout, redirects);
 	}
 
 	/**
 	 * 
 	 * @param timeout
-	 * @param retries
+	 * @param redirects
 	 * @return
 	 */
-	public HttpClient createClient(int timeout, int retries) {		
+	public HttpClient createClient(int timeout, int redirects) {		
 		CloseableHttpClient client = HttpClients.custom().setConnectionManager(poolingmgr).build();
 
-		RequestConfig requestConfig = RequestConfig.custom().setMaxRedirects(retries).setSocketTimeout(timeout).setConnectTimeout(timeout).build();
+		RequestConfig requestConfig = RequestConfig.custom().setMaxRedirects(redirects).setSocketTimeout(timeout).setConnectTimeout(timeout).build();
 		configOfClients.put(client.toString(), requestConfig);
 		
 		return client;
@@ -374,11 +375,11 @@ public class JHttp{
 				.setProxy(proxy)
 				.setDefaultCredentialsProvider(credsProvider).build();
 		
-		int retries=default_retries;
-		if(JUtilMath.isInt(AppConfig.getPara("HTTP","retries"))){
-			retries=Integer.parseInt(AppConfig.getPara("HTTP","retries"));
+		int redirects=default_redirects;
+		if(JUtilMath.isInt(AppConfig.getPara("HTTP","redirects"))){
+			redirects=Integer.parseInt(AppConfig.getPara("HTTP","redirects"));
 		}
-		RequestConfig requestConfig = RequestConfig.custom().setMaxRedirects(retries).setSocketTimeout(timeout).setConnectTimeout(timeout).build();
+		RequestConfig requestConfig = RequestConfig.custom().setMaxRedirects(redirects).setSocketTimeout(timeout).setConnectTimeout(timeout).build();
 		
 		configOfClients.put(client.toString(), requestConfig);
 
@@ -559,7 +560,7 @@ public class JHttp{
 	 * @throws Exception
 	 */
 	private static void execute(JHttpContext context,HttpClient client,HttpRequestBase request,String encoding,int responseType) throws Exception{
-		int retries=default_retries;
+		int retries=1;
 		if(context!=null&&context.getRetries()>0){
 			retries=context.getRetries();
 		}else if(JUtilMath.isInt(AppConfig.getPara("HTTP","retries"))){
