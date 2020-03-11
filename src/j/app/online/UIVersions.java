@@ -31,7 +31,9 @@ public class UIVersions extends JObject{
 	 * @param E
 	 */
 	public static void parse(Element E){
-		_UIVersions.clear();;
+		_UIVersions.clear();
+		
+		if(E==null) return;
 		
 		List<Element> versionsE=E.elements("UI-version");
 		for(int i=0; i<versionsE.size(); i++) {
