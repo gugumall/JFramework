@@ -1101,6 +1101,27 @@ public class Onlines implements Filter,Runnable{
 			}else if("".equals(_UIVersion)) {
 				session.removeAttribute(Constants.J_UI_VERSION);
 			}
+			
+
+			//跳转
+			//如果是action，跳转在j.app.webserver.Server中处理
+			if(Handlers.isActionPath(uri)==null){
+				String adjustUrl=uri;
+				UrlAndFetchType urlAdjust=handler==null?null:handler.adjustUrl(session, request, uri);
+				if(urlAdjust!=null) {
+					adjustUrl=UIVersions.convert(session, urlAdjust.getUrl());
+				}else {
+					adjustUrl=UIVersions.convert(session, uri);
+				}
+				
+				if(!adjustUrl.equals(uri)) {
+					if(urlAdjust.getFetchType()==UrlAndFetchType.TYPE_REDIRECT) {
+						SysUtil.redirect(request, response, adjustUrl);
+					}else {
+						SysUtil.forwardI18N(request, response, adjustUrl);
+					}
+				}
+			}
 			/////////////////////////////////////////UI 版本处理 end////////////////////////////////////
 
 			/////////////////////////////////////////在线用户处理////////////////////////////////////

@@ -1,10 +1,18 @@
 package j.app.webserver;
 
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import j.I18N.I18N;
 import j.app.Constants;
 import j.app.online.Onlines;
 import j.app.online.UIVersions;
+import j.app.online.UrlAndFetchType;
 import j.log.Logger;
 import j.nvwa.Nvwa;
 import j.sys.SysConfig;
@@ -12,13 +20,6 @@ import j.sys.SysUtil;
 import j.util.ConcurrentMap;
 import j.util.JUtilString;
 import j.util.JUtilUUID;
-
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  * @author 肖炯
@@ -243,7 +244,8 @@ public class Server{
 			}
 
 			if(Onlines.getHandler()!=null){
-				navigateUrl=Onlines.getHandler().adjustUrl(session,request,navigateUrl);
+				UrlAndFetchType urlAdjust=Onlines.getHandler().adjustUrl(session,request,navigateUrl);
+				if(urlAdjust!=null) navigateUrl=urlAdjust.getUrl();
 			}
 			String UIConvertUrl=UIVersions.convert(session, navigateUrl);
 			if(UIConvertUrl!=null) navigateUrl=UIConvertUrl;
@@ -267,7 +269,8 @@ public class Server{
 						navigateUrl=nav.getUrl();
 
 						if(Onlines.getHandler()!=null){
-							navigateUrl=Onlines.getHandler().adjustUrl(session,request,navigateUrl);
+							UrlAndFetchType urlAdjust=Onlines.getHandler().adjustUrl(session,request,navigateUrl);
+							if(urlAdjust!=null) navigateUrl=urlAdjust.getUrl();
 						}
 						String UIConvertUrl=UIVersions.convert(session, navigateUrl);
 						if(UIConvertUrl!=null) navigateUrl=UIConvertUrl;

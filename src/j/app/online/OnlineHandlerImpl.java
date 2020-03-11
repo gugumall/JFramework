@@ -21,8 +21,8 @@ public class OnlineHandlerImpl implements OnlineHandler{
 	 * (non-Javadoc)
 	 * @see j.app.online.OnlineHandler#adjustUrl(javax.servlet.http.HttpSession, javax.servlet.http.HttpServletRequest, java.lang.String)
 	 */
-	public String adjustUrl(HttpSession session,HttpServletRequest request,String url){
-		return url;
+	public UrlAndFetchType adjustUrl(HttpSession session,HttpServletRequest request,String uri){
+		return new UrlAndFetchType(uri, UrlAndFetchType.TYPE_FORWARD);
 	}
 	
 	/*

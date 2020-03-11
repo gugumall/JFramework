@@ -21,10 +21,10 @@ public interface OnlineHandler {
 	 * 
 	 * @param session
 	 * @param request
-	 * @param url
+	 * @param uri
 	 * @return
 	 */
-	public String adjustUrl(HttpSession session,HttpServletRequest request,String url);
+	public UrlAndFetchType adjustUrl(HttpSession session,HttpServletRequest request,String uri);
 	
 	/**
 	 * @deprecated
