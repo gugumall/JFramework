@@ -1169,7 +1169,6 @@ public class Onlines implements Filter,Runnable{
 			//业务自定义处理
 			if(handler!=null){
 				boolean doFilterAfter=handler.doFilterAfter(_request, _response, chain);
-				log.log(url+" - > doFilterAfter "+doFilterAfter, -1);
 				if(!doFilterAfter) {
 					return;
 				}
