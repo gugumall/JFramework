@@ -51,13 +51,13 @@ import j.util.JUtilString;
  *
  */
 public class Onlines implements Filter,Runnable{
+	private static Logger log=Logger.create(Onlines.class);
 	public static final int CHATTING_PENDING=0;//未发起聊天
 	public static final int CHATTING_WAITING=1;//已发起聊天，等待客服相应
 	public static final int CHATTING_INPROCESS=2;//正在聊天
 	public static final int CHATTING_ENDED=3;//聊天结束
 	public static final int CHATTING_REFUSED=-1;//被客服拒绝（1次）
 	public static final int CHATTING_REFUSED_SESSION=-2;//被客服拒绝（本次会话）
-	private static Logger log=Logger.create(Onlines.class);
 	
 	private static ConcurrentMap counts=new ConcurrentMap();
 	private static ConcurrentMap onlines=new ConcurrentMap();
@@ -80,8 +80,13 @@ public class Onlines implements Filter,Runnable{
 	private static String[] forbiddenSpiders;
 	private static OnlineHandler handler;
 	
+	private static ConcurrentMap cssCompatibles=new ConcurrentMap();//兼容性设置
+	
 	private static long configLastModified=0;//配置文件上次修改时间
 	private static boolean loading=false;
+	
+	
+	
 	static{
 		try{
 			load();
@@ -242,6 +247,29 @@ public class Onlines implements Filter,Runnable{
 				Element temp=(Element)spiders.get(i);
 				forbiddenSpiders[i]=temp.getTextTrim();
 			}
+	      	
+	      	//兼容性设置
+	      	Element compatiblesE=root.element("compatibles");
+	      	if(compatiblesE!=null){
+	      		List cssCompatibleEles=compatiblesE.elements("css");
+	      		for(int i=0;i<cssCompatibleEles.size();i++){
+	      			Element cssCompatibleE=(Element)cssCompatibleEles.get(i);
+	      			CssCompatible compatible=new CssCompatible(cssCompatibleE.attributeValue("src"));
+	      			
+	      			List compatibleSettings=cssCompatibleE.elements("UA");
+	      			for(int j=0;j<compatibleSettings.size();j++){
+	          			Element compatibleSettingE=(Element)compatibleSettings.get(j);
+	          			compatible.setCompatible(compatibleSettingE.attributeValue("type"), compatibleSettingE.attributeValue("src"));
+	      			}
+	      			
+	      			cssCompatibles.put(compatible.getUri(), compatible);
+	      			
+	      	      	log.log("css compatible:"+compatible,-1);
+	      		}
+	      	}
+			
+			//读取UI版本转换配置信息
+			UIVersions.parse(root.element("UI-versions"));
 			
 			domainLimits.clear();
 			List domainLimitElements=root.elements("domain-limit");
@@ -615,6 +643,24 @@ public class Onlines implements Filter,Runnable{
 		return verify.equalsIgnoreCase(JUtilMD5.MD5EncodeToHex(values));
 	}
 
+	
+	/**
+	 * 
+	 * @param uri
+	 * @param ua
+	 * @return
+	 */
+	public static String getCssCompatibleResource(String uri,String ua){
+		if(uri==null||"".equals(uri)) return null;
+		
+		List settings=cssCompatibles.listValues();
+		for(int i=0;i<settings.size();i++){
+			CssCompatible setting=(CssCompatible)settings.get(i);
+			if(setting.matches(uri)) return setting.getCompatible(ua);
+		}
+		
+		return null;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -657,7 +703,7 @@ public class Onlines implements Filter,Runnable{
 				}else {
 					session.removeAttribute(Constants.J_ACTION_RESPONSER);
 				}
-			}		
+			}
 
 			//处理来自远程节点的调用
 			String requestFrom=SysUtil.getHttpParameter(request, Constants.J_ACTION_RESPONSER_FROM);
@@ -1038,13 +1084,24 @@ public class Onlines implements Filter,Runnable{
 			
 			
 			/////////////////////////////////////////兼容性处理////////////////////////////////////
-			String compatibleResource=SysConfig.getCssCompatibleResource(uri,SysConfig.getUserAgentType(request));
+			//TODO 该配置
+			String compatibleResource=getCssCompatibleResource(uri,SysConfig.getUserAgentType(request));
 			if(compatibleResource!=null){
 				SysUtil.forwardI18N(request,response,compatibleResource);
 				return;
 			}
 			/////////////////////////////////////////兼容性处理 end////////////////////////////////////
 		
+
+			/////////////////////////////////////////UI 版本处理////////////////////////////////////
+			String UIVersionId=SysUtil.getHttpParameter(request, Constants.J_UI_VERSION);
+			UIVersion _UIVersion=UIVersions.getVersion(UIVersionId);
+			if(_UIVersion!=null) {
+				session.setAttribute(Constants.J_UI_VERSION, UIVersionId);
+			}else if("".equals(_UIVersion)) {
+				session.removeAttribute(Constants.J_UI_VERSION);
+			}
+			/////////////////////////////////////////UI 版本处理 end////////////////////////////////////
 
 			/////////////////////////////////////////在线用户处理////////////////////////////////////
 			if(!ignore){

@@ -4,6 +4,7 @@
   <group name="SYSTEM">
   	<para name="time-zone-diff" desc="时间调整(ms)">0</para>
   	<para name="http-get-parameter-encoding-convert" desc="HTTP参数是否转换编码">false</para>
+  	<para name="j_ui_version" desc="界面版本"></para>
   </group>  
   
   <group name="HTTP">

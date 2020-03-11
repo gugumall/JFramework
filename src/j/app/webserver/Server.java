@@ -4,6 +4,7 @@ package j.app.webserver;
 import j.I18N.I18N;
 import j.app.Constants;
 import j.app.online.Onlines;
+import j.app.online.UIVersions;
 import j.log.Logger;
 import j.nvwa.Nvwa;
 import j.sys.SysConfig;
@@ -244,6 +245,9 @@ public class Server{
 			if(Onlines.getHandler()!=null){
 				navigateUrl=Onlines.getHandler().adjustUrl(session,request,navigateUrl);
 			}
+			String UIConvertUrl=UIVersions.convert(session, navigateUrl);
+			if(UIConvertUrl!=null) navigateUrl=UIConvertUrl;
+			
 			if(navigateType.equalsIgnoreCase("forward")){//如果返回类型为forward		
 				SysUtil.forwardI18N(request,response,navigateUrl);
 			}else{//如果返回类型为sendRedirect
@@ -265,6 +269,9 @@ public class Server{
 						if(Onlines.getHandler()!=null){
 							navigateUrl=Onlines.getHandler().adjustUrl(session,request,navigateUrl);
 						}
+						String UIConvertUrl=UIVersions.convert(session, navigateUrl);
+						if(UIConvertUrl!=null) navigateUrl=UIConvertUrl;
+						
 						if(navigateType.equalsIgnoreCase("forward")){//如果返回类型为forward	
 							try{
 								SysUtil.forwardI18N(request,response,navigateUrl);
@@ -280,7 +287,11 @@ public class Server{
 				}
 				
 				try{
-					SysUtil.redirect(request,response,SysConfig.errorPage);
+					navigateUrl=SysConfig.errorPage;
+					String UIConvertUrl=UIVersions.convert(session, navigateUrl);
+					if(UIConvertUrl!=null) navigateUrl=UIConvertUrl;
+					
+					SysUtil.redirect(request,response,navigateUrl);
 				}catch(IOException ioEx){}
 			}
 		}finally{

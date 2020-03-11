@@ -415,8 +415,12 @@ public class JUtilMath extends JUtilSorter {
 			while(p2.length()<precision) p2+="0";
 		}
 		
-		if(p2==null||p2.equals("")) return p1;
-		else return p1+"."+p2;
+		String s="";
+		if(p2==null||p2.equals("")) s=p1;
+		else s=p1+"."+p2;
+		if("-0".endsWith(s)) s="0";
+		
+		return s;
 	}
 	
 	/**
@@ -853,26 +857,6 @@ public class JUtilMath extends JUtilSorter {
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
-		System.out.println("start");
-		
-		List objects=new ArrayList();
-		objects.add("a");
-		objects.add("b");
-		objects.add("c");
-		objects.add("d");
-		
-		List assembled=new ArrayList();
-		
-		cPrint(objects, 3, assembled, new ArrayList());
-		
-		for(int i=0;i<assembled.size();i++) {
-			List x=(List)assembled.get(i);
-			for(int j=0; j<x.size();j++) {
-				System.out.print(x.get(j)+",");
-			}
-			System.out.println("");
-		}
-		
-		System.out.println(assembled.size());
+		System.out.println(JUtilMath.formatPrintWithoutZero(-0.00001, 2));
 	}
 }

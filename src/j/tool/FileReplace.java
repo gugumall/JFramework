@@ -93,17 +93,17 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("F:\\work\\JGame");
-//		replace(dir,
-//				"肖炯",
-//				"恭喜发财",
-//				".java");
+		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
+		replace(dir,
+				"古古商贸",
+				"迅捷能源",
+				".jsp");
 		
 //		rotate(new File("D:\\176\\10.4 桃江一中 活动\\形象照\\temp"),180,".jpg");
 		
-		count(dir,
-		"gugu",
-		".java");
+//		count(dir,
+//		"gugu",
+//		".java");
 		
 //		File root=new File("F://tempx/");
 //		File[] children=(File[])root.listFiles();

@@ -53,7 +53,7 @@ public class NvwaClassLoaderAutoRenew extends NvwaClassLoader {
 		if (!instances.containsKey(path+jarpath)) {
 			NvwaClassLoaderAutoRenew loader = new NvwaClassLoaderAutoRenew();
 			
-			//jdk1.8及以下才能设置parent，否则保持
+			//jdk1.8及以下才能设置parent，否则报错
 			String javaVersion=System.getProperty("java.class.version");
 			if(JUtilMath.isNumber(javaVersion)
 					&&Double.parseDouble(javaVersion)<=52) {
@@ -61,7 +61,7 @@ public class NvwaClassLoaderAutoRenew extends NvwaClassLoader {
 				field.setAccessible(true);  
 				field.set(loader,Nvwa.defaultClassLoader);  
 			}
-			//jdk1.8及以下才能设置parent，否则保持 end
+			//jdk1.8及以下才能设置parent，否则报错 end
 			
 			loader.setClasspath(path,jarpath);
 			instances.put(path+jarpath, loader);

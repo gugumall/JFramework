@@ -776,29 +776,11 @@ var Utils={
 	},
 	
 	goBackInAPP:function(){
-		if(top._$('loading')){
-			top.Loading.canClose=true;
-			top.Loading.close();
-			return;
-		}else if(_$('loading')){
-			Loading.canClose=true;
-			Loading.close();
-			return;
+		if(Layers.isOpen()){
+			Layers.close();
+		}else{
+			this.goBack('/');
 		}
-		
-		if(top._$('loadingAllImages')){
-			top.LoadingAllImages.close();
-			return;
-		}else if(_$('loadingAllImages')){
-			LoadingAllImages.close();
-			return;
-		}
-		
-		if(Layers.close()){
-			return;
-		}
-		
-		this.goBack('/');
 	},
 	
 	payCallbackAPP:function(url){
@@ -2750,9 +2732,10 @@ function PasswordViewer(id,pwd){
 	this.eye=document.createElement('div');
 	this.eye.id=this.id+'_eye';
 	this.eye.className='PasswordViewerEye color999';
+	this.eye.style.zIndex=(W.maxZindex()+1);
 	this.eye.innerHTML='<div class="iconfont icon-attention_light" onclick="PasswordViewers[\''+this.id+'\'].view();"></div>';
 
-	document.body.appendChild(this.eye);
+	this.pwd.parentNode.appendChild(this.eye);
 	
 	//var eyeObj=_$(this.id+'_eye');
 	//eyeObj.style.left=(W.elementWidth(this.pwd)-W.elementWidth(eyeObj)-3)+'px';
@@ -6238,6 +6221,14 @@ var Layers={
 		}
 	},
 	
+	//是否有打开的实例
+	isOpen:function(){
+		for(var i=0; i<this.instances.length; i++){
+			if(this.instances[i]) return true;
+		}
+		return false;
+	},
+	
 	//关闭
 	close:function(){
 		for(var i=this.instances.length-1; i>=0; i--){
@@ -6248,7 +6239,7 @@ var Layers={
 					}
 					this.instances[i]=null;
 				}else if(this.instances[i].doClose){
-					this.instances[i].doClose(0);
+					this.instances[i].doClose();
 				}else{
 					this.instances[i].instance.close('true');
 				}
@@ -6277,7 +6268,6 @@ var Layer={
 	cover:true,
 	url:'',
 	urlLoaded:new Array(),
-	urlLoadedIndex:-1,
 	pageName:'',
 	setHeightInterval:null,
 	padding:0,
@@ -6309,11 +6299,9 @@ var Layer={
 	open:function(_onClose,_win,_url,_pageName,_content,_zIndex,_onOk){
 		if(!this.isOpen()){
 			this.urlLoaded=new Array();
-			this.urlLoadedIndex=-1;
 			this.uuid=(new Date()).getTime();
 			top.Layers.saveInstance(this.uuid, window, this);
 		}
-		top.history.pushState("","","#");
 		
 		if(parent && parent.location.href != location.href) parent.Layer.hideTitle();
 		
@@ -6394,21 +6382,21 @@ var Layer={
 		
 		if(noForce&&noForce=='true'){
 			try{
-				while(this.urlLoadedIndex>0){
-					var _urlLoaded=this.urlLoaded[this.urlLoadedIndex-1];
-					this.urlLoadedIndex--;
+				if(this.urlLoaded.length>1){
+					var _urlLoaded=this.urlLoaded[this.urlLoaded.length-2];
 					
-					
-					if(_urlLoaded[0].indexOf('/deposit/')>-1){
-						continue;
-					}
-
 					this.setTitle(_urlLoaded[1]);
 					if(_urlLoaded[0].indexOf('text:')==0){
 						this.setContent(_urlLoaded[0].substring(5));
 					}else{
 						layerFrame.location.href=_urlLoaded[0];
 					}
+					
+					var temp=new Array();
+					for(var i=0; i<this.urlLoaded.length-1; i++){
+						temp[i]=this.urlLoaded[i];
+					}
+					this.urlLoaded=temp;
 					 
 					return;
 				}
@@ -6553,41 +6541,22 @@ var Layer={
 	},
 	
 	loaded:function(_content){
-		if(!_$('layerLoading')) return;
-		
-		_$('layerLoading').style.visibility='hidden';
+		if(_$('layerLoading')) _$('layerLoading').style.visibility='hidden';
 		
 		if(_$('layerFrame')){
-			if(this.urlLoadedIndex>=0){
-				var _urlLoaded=this.urlLoaded[this.urlLoadedIndex]; 
-				if(_urlLoaded[0]==layerFrame.location.href) return;
-			}
-			
-			var urlInHistory=false;
-			for(var i=0;i<this.urlLoaded.length;i++){
-				if(this.urlLoaded[i]==layerFrame.location.href){
-					urlInHistory=true;
-					break;
+			if(this.urlLoaded.length>0){
+				var _urlLoaded=this.urlLoaded[this.urlLoaded.length-1]; 
+				if(_urlLoaded[0]!=layerFrame.location.href){
+					this.urlLoaded.push([layerFrame.location.href,_$('layerTitle').innerHTML]);
 				}
-			}
-			
-			if(!urlInHistory){
+			}else{
 				this.urlLoaded.push([layerFrame.location.href,_$('layerTitle').innerHTML]);
-				this.urlLoadedIndex++;
-			}
-		}else{
-			var urlInHistory=false;
-			for(var i=0;i<this.urlLoaded.length;i++){
-				if(this.urlLoaded[i][0].substring(5)==_content){
-					urlInHistory=true;
-					break;
-				}
 			}
 			
-			if(!urlInHistory){
-				this.urlLoaded.push(['text:'+_content,_$('layerTitle').innerHTML]);
-				this.urlLoadedIndex++;
-			}
+			top.history.pushState("","","#"); 
+		}else{
+			this.urlLoaded.push(['text:'+_content,_$('layerTitle').innerHTML]);
+			top.history.pushState("","","#");
 		}
 	},
 	
@@ -11259,7 +11228,7 @@ Animation.prototype.init=function(containerId){
 	}
 
 	for(var i=0;i<this.photos.length;i++){	
-		htm.push('<div class="animationMedia" id="'+this.id+'.box.'+i+'" style="width:'+this.width+'px; height:'+this.height+'px;'+((this.action=='L'||this.action=='R')?' float:left;':'')+'">');
+		htm.push('<div onclick="'+(this.mediaTypes[i]=='video'?'event.cancelBubble=true;':'')+'" class="animationMedia" id="'+this.id+'.box.'+i+'" style="width:'+this.width+'px; height:'+this.height+'px;'+((this.action=='L'||this.action=='R')?' float:left;':'')+'">');
 		
 		if(this.mediaTypes[i]=='flash'){
 			htm.push('	<embed id="'+this.id+'.img.'+i+'" src="'+this.photos[i]+'" quality="high" width="'+this.width+'" height="'+this.height+'" align="middle" allowScriptAccess="always" allowFullScreen="true" mode="transparent" type="application/x-shockwave-flash"/>');
@@ -13880,7 +13849,7 @@ function toWechatMP(){
 //退出页面时关闭socket连接
 var _onbeforeunload=null;
 window.onbeforeunload = function() {
-    //清理需要清理的东西
+	//清理需要清理的东西
 	if(top.Loading.openType=='dock') top.Loading.close();
 	
 	//关闭所有websocket
@@ -13898,7 +13867,7 @@ window.onbeforeunload = function() {
 
 //监听返回键
 window.addEventListener("popstate",function(e){
-    top.Layers.close();
+	top.Layers.close();
 });
 
 //设置窗口尺寸

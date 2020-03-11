@@ -80,6 +80,8 @@ public class Constants {
 	public static final String J_ACTION_RESPONSER_SESSION_PREFIX="j_session_object_";//远程session参数名前缀
 	public static final String J_ACTION_RESPONSER_KEY="j_responser_key";//远程响应交互密钥
 	
+	public static final String J_UI_VERSION="j_ui_version";//UI版本
+	
 	public static final String RESPONSE_FILE_NOT_LOGIN="/WEB-INF/pages/helper/NOT_LOGIN.jsp";
 	public static final String RESPONSE_FILE_MAX_UPLOAD_SIZE="/WEB-INF/pages/helper/MAX_UPLOAD_SIZE.jsp";
 	public static final String RESPONSE_FILE_MAX_POST_SIZE="/WEB-INF/pages/helper/MAX_POST_SIZE.jsp";

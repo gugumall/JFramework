@@ -1,11 +1,5 @@
 package j.sys;
 
-import j.app.webserver.Handler;
-import j.app.webserver.Handlers;
-import j.log.Logger;
-import j.util.ConcurrentMap;
-import j.util.JUtilString;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
@@ -15,6 +9,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+
+import j.app.online.CssCompatible;
+import j.app.webserver.Handler;
+import j.app.webserver.Handlers;
+import j.log.Logger;
+import j.util.ConcurrentMap;
+import j.util.JUtilString;
 
 
 /**
@@ -38,8 +39,6 @@ public class SysConfig{
 	public static long   minUuid;//自增uuid开始值
 	public static long   maxUuid;//自增uuid最大值
 	public static String   dbKeyPrefix="";
-	
-	private static ConcurrentMap cssCompatibles=new ConcurrentMap();//兼容性设置
 	
 	
 	static{
@@ -113,26 +112,6 @@ public class SysConfig{
         Element databaseE=root.element("database");
       	SysConfig.databaseName=databaseE.attributeValue("name");
       	log.log("SysConfig.databaseName:"+SysConfig.databaseName,-1);
-      	
-      	//兼容性设置
-      	Element compatiblesE=root.element("compatibles");
-      	if(compatiblesE!=null){
-      		List cssCompatibleEles=compatiblesE.elements("css");
-      		for(int i=0;i<cssCompatibleEles.size();i++){
-      			Element cssCompatibleE=(Element)cssCompatibleEles.get(i);
-      			CssCompatible compatible=new CssCompatible(cssCompatibleE.attributeValue("src"));
-      			
-      			List compatibleSettings=cssCompatibleE.elements("UA");
-      			for(int j=0;j<compatibleSettings.size();j++){
-          			Element compatibleSettingE=(Element)compatibleSettings.get(j);
-          			compatible.setCompatible(compatibleSettingE.attributeValue("type"), compatibleSettingE.attributeValue("src"));
-      			}
-      			
-      			cssCompatibles.put(compatible.getUri(), compatible);
-      			
-      	      	log.log("css compatible:"+compatible,-1);
-      		}
-      	}
 
       	SysConfig.minUuid=Long.parseLong(databaseE.attributeValue("min-uuid"));
       	log.log("SysConfig.minUuid:"+SysConfig.minUuid,-1);
@@ -207,23 +186,5 @@ public class SysConfig{
 			}else{
 				return "OTHER";	
 			}
-	}
-	
-	/**
-	 * 
-	 * @param uri
-	 * @param ua
-	 * @return
-	 */
-	public static String getCssCompatibleResource(String uri,String ua){
-		if(uri==null||"".equals(uri)) return null;
-		
-		List settings=cssCompatibles.listValues();
-		for(int i=0;i<settings.size();i++){
-			CssCompatible setting=(CssCompatible)settings.get(i);
-			if(setting.matches(uri)) return setting.getCompatible(ua);
-		}
-		
-		return null;
 	}
 } 

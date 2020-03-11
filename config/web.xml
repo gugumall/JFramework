@@ -114,6 +114,14 @@
 		<filter-name>ActionRouter</filter-name>
 		<url-pattern>*.jsp</url-pattern>
 	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ActionRouter</filter-name>
+		<url-pattern>*.css</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>ActionRouter</filter-name>
+		<url-pattern>*.js</url-pattern>
+	</filter-mapping>
 	
 	<filter-mapping>
 		<filter-name>I18NFilter</filter-name>

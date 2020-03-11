@@ -19,19 +19,6 @@
 	<!--数据库配置-->
 	<database name="jframework" min-uuid="0" max-uuid="10000000" db-key-prefix="10"/>
 	
-	<!--兼容性设置-->
-	<compatibles>
-	    <css src="/css/main.css">
-	        <UA type="IE" src="/css/main.ie.css"/>
-	        <UA type="IE6" src="/css/main.ie.css"/>
-	        <UA type="IE7" src="/css/main.ie.css"/>
-	        <UA type="IE8" src="/css/main.ie.css"/>
-	        <UA type="IE9" src="/css/main.ie.css"/>
-	        <UA type="IE10" src="/css/main.ie.css"/>
-	        <UA type="IE11" src="/css/main.ie.css"/>
-	    </css>
-	</compatibles>
-	
 	
 	<!--初始化系统-->
 	<Initializers>

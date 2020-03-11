@@ -284,6 +284,19 @@ public class SysUtil {
 	 * @param httpRequest
 	 * @param httpResponse
 	 * @param url
+	 * @throws Exception
+	 */
+	public static void redirectByFormSubmit(HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse,
+			String url) throws Exception {
+		redirectByFormSubmit(httpRequest,httpResponse,url,null);
+	}
+	
+	/**
+	 * 
+	 * @param httpRequest
+	 * @param httpResponse
+	 * @param url
 	 * @param parameters
 	 * @throws Exception
 	 */

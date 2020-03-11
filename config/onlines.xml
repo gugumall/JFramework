@@ -41,7 +41,7 @@
 	<ignored-url>/*.css</ignored-url>
 	<ignored-url>/*.service</ignored-url>
 	
-	<!-- 被禁止的蜘蛛 -->
+	<!-- 被禁止的蜘蛛 / 客户端 -->
 	<!-- EQUALS开头表示完全相同时禁止，否则包含指定字符即禁止 -->
 	<forbidden-spider>googlebot</forbidden-spider>
 	<forbidden-spider>baiduspider</forbidden-spider>
@@ -49,6 +49,26 @@
 	<forbidden-spider>bingbot</forbidden-spider>
 	<forbidden-spider>sogou</forbidden-spider>
 	<forbidden-spider>360</forbidden-spider>
+	
+	<!--兼容性设置-->
+	<compatibles>
+	    <css src="/css/main.css">
+	        <UA type="IE" src="/css/main.ie.css"/>
+	        <UA type="IE6" src="/css/main.ie.css"/>
+	        <UA type="IE7" src="/css/main.ie.css"/>
+	        <UA type="IE8" src="/css/main.ie.css"/>
+	        <UA type="IE9" src="/css/main.ie.css"/>
+	        <UA type="IE10" src="/css/main.ie.css"/>
+	        <UA type="IE11" src="/css/main.ie.css"/>
+	    </css>
+	</compatibles>
+	
+	<UI-versions>
+		<UI-version id="sample" name="测试版">
+			<path-convert original="/WEB-INF/pages/" to="/WEB-INF/pages-sample/"/>
+			<path-convert original="/css/" to="/css-sample/"/>
+		</UI-version>
+	</UI-versions>
 	
 	<!-- 域名限定，按配置文件中从上到下顺序优先匹配 -->
 	<!-- match的类型有startsWith,equals,contains,matches,如包含*号则匹配模式 -->
