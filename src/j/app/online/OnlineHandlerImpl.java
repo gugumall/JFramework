@@ -93,6 +93,16 @@ public class OnlineHandlerImpl implements OnlineHandler{
 	
 	/*
 	 * (non-Javadoc)
+	 * @see j.app.online.OnlineHandler#doFilterAfter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
+	 */
+	public boolean doFilterAfter(ServletRequest _request, 
+			ServletResponse _response,
+			FilterChain chain) throws IOException, ServletException {
+		return true;
+	}
+	
+	/*
+	 * (non-Javadoc)
 	 * @see j.app.online.OnlineHandler#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
 	public void doFilter(ServletRequest _request, 

@@ -1081,46 +1081,6 @@ public class Onlines implements Filter,Runnable{
 				}
 			}
 			/////////////////////////////////////////权限处理  end////////////////////////////////////
-		
-
-			/////////////////////////////////////////UI 版本处理////////////////////////////////////
-			String UIVersionId=SysUtil.getHttpParameter(request, Constants.J_UI_VERSION);
-			UIVersion _UIVersion=UIVersions.getVersion(UIVersionId);
-			if(_UIVersion!=null) {
-				session.setAttribute(Constants.J_UI_VERSION, UIVersionId);
-			}else if("".equals(_UIVersion)) {
-				session.removeAttribute(Constants.J_UI_VERSION);
-			}
-
-			//跳转
-			//如果是action，跳转在j.app.webserver.Server中处理
-			if(Handlers.isActionPath(uri)==null){
-				String fetchUrl=uri;
-				
-				UrlAndFetchType fetchUrlAndType=handler==null?null:handler.adjustUrl(session, request, uri);
-				if(fetchUrlAndType!=null) fetchUrl=fetchUrlAndType.getUrl();
-				
-				String adjustUrl=UIVersions.convert(session, fetchUrl);
-				if(adjustUrl!=null) fetchUrl=adjustUrl;
-
-				if(!fetchUrl.equals(uri)) {//处理后的url有变化
-					if(fetchUrlAndType!=null && fetchUrlAndType.getFetchType()==UrlAndFetchType.TYPE_REDIRECT) {
-						SysUtil.redirect(request, response, fetchUrl);
-					}else {
-						SysUtil.forwardI18N(request, response, fetchUrl);
-					}
-				}
-			}
-			/////////////////////////////////////////UI 版本处理 end////////////////////////////////////
-			
-			
-			/////////////////////////////////////////兼容性处理////////////////////////////////////
-			String compatibleResource=getCssCompatibleResource(uri,SysConfig.getUserAgentType(request));
-			if(compatibleResource!=null){
-				SysUtil.forwardI18N(request,response,compatibleResource);
-				return;
-			}
-			/////////////////////////////////////////兼容性处理 end////////////////////////////////////
 
 			/////////////////////////////////////////在线用户处理////////////////////////////////////
 			if(!ignore){
@@ -1199,20 +1159,59 @@ public class Onlines implements Filter,Runnable{
 				}
 				
 				sessions.put(online.getCurrentSessionId(), session);
-				
-				if(handler!=null){
-					handler.doFilter(_request, _response, chain);
-				}else{
-					chain.doFilter(_request,_response);
-				}
-			}else{
-				if(handler!=null){
-					handler.doFilter(_request, _response, chain);
-				}else{
-					chain.doFilter(_request,_response);
-				}
 			}
 			/////////////////////////////////////////在线用户处理 end////////////////////////////////////
+			
+
+			//业务自定义处理
+			if(handler!=null){
+				if(!handler.doFilterAfter(_request, _response, chain)) {
+					return;
+				}
+			}
+
+			/////////////////////////////////////////UI 版本处理////////////////////////////////////
+			String UIVersionId=SysUtil.getHttpParameter(request, Constants.J_UI_VERSION);
+			UIVersion _UIVersion=UIVersions.getVersion(UIVersionId);
+			if(_UIVersion!=null) {
+				session.setAttribute(Constants.J_UI_VERSION, UIVersionId);
+			}else if("".equals(UIVersionId)) {
+				session.removeAttribute(Constants.J_UI_VERSION);
+			}
+
+			//跳转
+			//如果是action，跳转在j.app.webserver.Server中处理
+			if(Handlers.isActionPath(uri)==null){
+				String fetchUrl=uri;
+				
+				UrlAndFetchType fetchUrlAndType=handler==null?null:handler.adjustUrl(session, request, uri);
+				if(fetchUrlAndType!=null) fetchUrl=fetchUrlAndType.getUrl();
+				
+				String adjustUrl=UIVersions.convert(session, fetchUrl);
+				if(adjustUrl!=null) fetchUrl=adjustUrl;
+
+				if(!fetchUrl.equals(uri)) {//处理后的url有变化
+					if(fetchUrlAndType!=null && fetchUrlAndType.getFetchType()==UrlAndFetchType.TYPE_REDIRECT) {
+						SysUtil.redirect(request, response, fetchUrl);
+						return;
+					}else {
+						SysUtil.forwardI18N(request, response, fetchUrl);
+						return;
+					}
+				}
+			}
+			/////////////////////////////////////////UI 版本处理 end////////////////////////////////////
+			
+			
+			/////////////////////////////////////////兼容性处理////////////////////////////////////
+			String compatibleResource=getCssCompatibleResource(uri,SysConfig.getUserAgentType(request));
+			if(compatibleResource!=null){
+				SysUtil.forwardI18N(request,response,compatibleResource);
+				return;
+			}
+			/////////////////////////////////////////兼容性处理 end////////////////////////////////////
+			
+			chain.doFilter(_request,_response);
 		}catch(Exception e){
 			log.log("errors on url \r\n"+requestURL+"\r\n"+currentUrl,Logger.LEVEL_ERROR);
 			log.log(e,Logger.LEVEL_ERROR);

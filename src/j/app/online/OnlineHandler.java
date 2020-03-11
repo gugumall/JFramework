@@ -84,6 +84,17 @@ public interface OnlineHandler {
 			ServletResponse _response,
 			FilterChain chain) throws IOException, ServletException;
 	
+
+	/**
+	 * 
+	 * @param _request
+	 * @param _response
+	 * @param chain
+	 */
+	public boolean doFilterAfter(ServletRequest _request, 
+			ServletResponse _response,
+			FilterChain chain) throws IOException, ServletException;
+	
 	/**
 	 * 
 	 * @param _request
