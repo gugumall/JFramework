@@ -751,6 +751,7 @@ public class Onlines implements Filter,Runnable{
 			String url=request.getRequestURL().toString();
 			String urlWithoutDomain=url.substring(url.indexOf("/",10));
 			String uri=request.getRequestURI();
+			
 			String domain=JUtilString.getHost(url);
 			
 			String userAgent=request.getHeader("User-Agent");
@@ -1082,12 +1083,14 @@ public class Onlines implements Filter,Runnable{
 			}
 			/////////////////////////////////////////权限处理  end////////////////////////////////////
 
+			
 			/////////////////////////////////////////在线用户处理////////////////////////////////////
 			if(!ignore){
+				String requestLine="";
 				if("POST".equalsIgnoreCase(method)){
-					uri=method+" "+contentType+" "+contentLength+" "+SysUtil.getRequestURL(request);
+					requestLine=method+" "+contentType+" "+contentLength+" "+SysUtil.getRequestURL(request);
 				}else{
-					uri=method+" "+contentType+" "+SysUtil.getRequestURL(request);
+					requestLine=method+" "+contentType+" "+SysUtil.getRequestURL(request);
 				}
 				
 				Online online=find(session);
@@ -1118,7 +1121,7 @@ public class Onlines implements Filter,Runnable{
 					online.setCurrentSysId(SysConfig.getSysId());
 					online.setCurrentMachineId(SysConfig.getMachineID());
 					online.setCurrentSessionId(session.getId());
-					online.setCurrentUrl(uri);
+					online.setCurrentUrl(requestLine);
 				
 					online.update();
 					
@@ -1153,7 +1156,7 @@ public class Onlines implements Filter,Runnable{
 					online.setCurrentSessionId(session.getId());
 					online.setCurrentReferer(referer);
 					online.setCurrentUserAgent(userAgent);
-					online.setCurrentUrl(uri);
+					online.setCurrentUrl(requestLine);
 					
 					update(online);
 				}
@@ -1165,7 +1168,9 @@ public class Onlines implements Filter,Runnable{
 
 			//业务自定义处理
 			if(handler!=null){
-				if(!handler.doFilterAfter(_request, _response, chain)) {
+				boolean doFilterAfter=handler.doFilterAfter(_request, _response, chain);
+				log.log(url+" - > doFilterAfter "+doFilterAfter, -1);
+				if(!doFilterAfter) {
 					return;
 				}
 			}
@@ -1186,10 +1191,10 @@ public class Onlines implements Filter,Runnable{
 				
 				UrlAndFetchType fetchUrlAndType=handler==null?null:handler.adjustUrl(session, request, uri);
 				if(fetchUrlAndType!=null) fetchUrl=fetchUrlAndType.getUrl();
-				
+			
 				String adjustUrl=UIVersions.convert(session, fetchUrl);
 				if(adjustUrl!=null) fetchUrl=adjustUrl;
-
+				
 				if(!fetchUrl.equals(uri)) {//处理后的url有变化
 					if(fetchUrlAndType!=null && fetchUrlAndType.getFetchType()==UrlAndFetchType.TYPE_REDIRECT) {
 						SysUtil.redirect(request, response, fetchUrl);
