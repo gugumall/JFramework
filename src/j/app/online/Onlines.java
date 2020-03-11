@@ -1081,16 +1081,6 @@ public class Onlines implements Filter,Runnable{
 				}
 			}
 			/////////////////////////////////////////权限处理  end////////////////////////////////////
-			
-			
-			/////////////////////////////////////////兼容性处理////////////////////////////////////
-			//TODO 该配置
-			String compatibleResource=getCssCompatibleResource(uri,SysConfig.getUserAgentType(request));
-			if(compatibleResource!=null){
-				SysUtil.forwardI18N(request,response,compatibleResource);
-				return;
-			}
-			/////////////////////////////////////////兼容性处理 end////////////////////////////////////
 		
 
 			/////////////////////////////////////////UI 版本处理////////////////////////////////////
@@ -1101,28 +1091,36 @@ public class Onlines implements Filter,Runnable{
 			}else if("".equals(_UIVersion)) {
 				session.removeAttribute(Constants.J_UI_VERSION);
 			}
-			
 
 			//跳转
 			//如果是action，跳转在j.app.webserver.Server中处理
 			if(Handlers.isActionPath(uri)==null){
-				String adjustUrl=uri;
-				UrlAndFetchType urlAdjust=handler==null?null:handler.adjustUrl(session, request, uri);
-				if(urlAdjust!=null) {
-					adjustUrl=UIVersions.convert(session, urlAdjust.getUrl());
-				}else {
-					adjustUrl=UIVersions.convert(session, uri);
-				}
+				String fetchUrl=uri;
 				
-				if(!adjustUrl.equals(uri)) {
-					if(urlAdjust.getFetchType()==UrlAndFetchType.TYPE_REDIRECT) {
-						SysUtil.redirect(request, response, adjustUrl);
+				UrlAndFetchType fetchUrlAndType=handler==null?null:handler.adjustUrl(session, request, uri);
+				if(fetchUrlAndType!=null) fetchUrl=fetchUrlAndType.getUrl();
+				
+				String adjustUrl=UIVersions.convert(session, fetchUrl);
+				if(adjustUrl!=null) fetchUrl=adjustUrl;
+
+				if(!fetchUrl.equals(uri)) {//处理后的url有变化
+					if(fetchUrlAndType!=null && fetchUrlAndType.getFetchType()==UrlAndFetchType.TYPE_REDIRECT) {
+						SysUtil.redirect(request, response, fetchUrl);
 					}else {
-						SysUtil.forwardI18N(request, response, adjustUrl);
+						SysUtil.forwardI18N(request, response, fetchUrl);
 					}
 				}
 			}
 			/////////////////////////////////////////UI 版本处理 end////////////////////////////////////
+			
+			
+			/////////////////////////////////////////兼容性处理////////////////////////////////////
+			String compatibleResource=getCssCompatibleResource(uri,SysConfig.getUserAgentType(request));
+			if(compatibleResource!=null){
+				SysUtil.forwardI18N(request,response,compatibleResource);
+				return;
+			}
+			/////////////////////////////////////////兼容性处理 end////////////////////////////////////
 
 			/////////////////////////////////////////在线用户处理////////////////////////////////////
 			if(!ignore){
