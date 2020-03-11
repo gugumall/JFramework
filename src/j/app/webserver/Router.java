@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import j.app.Constants;
+import j.app.online.UIVersions;
 import j.http.JHttpContext;
 import j.log.Logger;
 import j.sys.SysConfig;
@@ -127,10 +128,20 @@ public class Router implements Filter{
 		
 		
 		if(requestURI.endsWith(".jhtml")){
-			SysUtil.forwardI18N(httpRequest,httpResponse,"/WEB-INF/pages"+requestURI.replaceAll(".jhtml",".jsp"));
+			String forwardUrl="/WEB-INF/pages"+requestURI.replaceAll(".jhtml",".jsp");
+
+			String UIConvertUrl=UIVersions.convert(session, forwardUrl);
+			if(UIConvertUrl!=null) forwardUrl=UIConvertUrl;
+			
+			SysUtil.forwardI18N(httpRequest,httpResponse,forwardUrl);
 			return;
 		}else if(requestURI.endsWith(".jsp")){
-			SysUtil.forwardI18N(httpRequest,httpResponse,"/WEB-INF/pages"+requestURI);
+			String forwardUrl="/WEB-INF/pages"+requestURI;
+
+			String UIConvertUrl=UIVersions.convert(session, forwardUrl);
+			if(UIConvertUrl!=null) forwardUrl=UIConvertUrl;
+			
+			SysUtil.forwardI18N(httpRequest,httpResponse,forwardUrl);
 			return;
 		}
 		
