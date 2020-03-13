@@ -3111,11 +3111,16 @@ var Scanner={
 //扫码处理  end
 
 //媒体播放器
-function PlayerConfig(containerId,src,width,height,mute,auto,controls,poster,repeat,skin){
+function PlayerConfig(containerId,src,width,height,mute,auto,controls,poster,repeat,skin,adjustSide,provider){
 	this.containerId=containerId;
 	this.src=src;
 	this.width=width;
 	this.height=height;
+	this.maxWidth=width;
+	this.maxHeight=height;
+	this.minWidth=width;
+	this.minHeight=height;
+	this.adjustSide=adjustSide?adjustSide:'N';//哪一边长度保持不变 W：调整宽度，H：调整高度，其它值：不调整
 	this.mute=mute;
 	this.auto=auto;
 	this.controls=controls;
@@ -3123,14 +3128,27 @@ function PlayerConfig(containerId,src,width,height,mute,auto,controls,poster,rep
 	this.repeat=repeat;
 	this.skin=skin;
 	this.player=null;
+	this.isLive=false;
+	this.video=null;
+	this.videoWidth=width;
+	this.videoHeight=height;
+	this.provider=provider?provider:'jwplayer';
 }
 var Player={
-	jwPlayers:new Array(),
-	jwPlayersLoaded:new Array(),
-	jwPlayerInit:false,
-	addJwPlayer:function(containerId,src,width,height,mute,auto,controls,poster,repeat,skin){
+	playersCount:0,
+	players:new Array(),
+	playersLoaded:new Array(),
+	hasJwplayer:false,
+	jwPlayerJsLoaded:false,
+	hasTcPlayer:false,
+	TcPlayerJsLoaded:false,
+	attachedVideos:0,
+	attachTimer:null,
+	addPlayer:function(containerId,src,width,height,mute,auto,controls,poster,repeat,skin,adjustSide,provider){
 		this.reset(containerId);
 		
+		_$(containerId).innerHTML='';
+			
 		src=decodeURIComponent(src);
 		
 		if(!width||width=='') width=360;
@@ -3153,37 +3171,198 @@ var Player={
 		
 		if(!skin||skin=='') skin='stormtrooper';
 		
-		this.jwPlayers[containerId]=(new PlayerConfig(containerId,src,width,height,mute,auto,controls,poster,repeat,skin));
+		this.players[containerId]=(new PlayerConfig(containerId,src,width,height,mute,auto,controls,poster,repeat,skin,adjustSide,provider));
+		this.playersCount++;
+		
+		console.log('add video player, id -> '+containerId+', provider -> '+this.players[containerId].provider);
+		
+		if(this.players[containerId].provider=='jwplayer') this.hasJwplayer=true;
+		else if(this.players[containerId].provider=='TcPlayer') this.hasTcPlayer=true;
 	},
 	
-	resetJwPlayers:function(){
-		this.jwPlayers=new Array(),
-		this.jwPlayersLoaded=new Array(),
-		this.jwPlayerInit=false;
+	setMaxWidth:function(containerId, maxWidth){
+		var p=this.getPlayer(containerId);
+		if(p) p.maxWidth=maxWidth;
 	},
 	
-	initJwPlayers:function(){
-		if(this.jwPlayerInit){
-			this.startJwPlayers();
+	setMaxHeight:function(containerId, maxHeight){
+		var p=this.getPlayer(containerId);
+		if(p) p.maxHeight=maxHeight;
+	},
+	
+	setMinWidth:function(containerId, minWidth){
+		var p=this.getPlayer(containerId);
+		if(p) p.minWidth=minWidth;
+	},
+	
+	setMinHeight:function(containerId, minHeight){
+		var p=this.getPlayer(containerId);
+		if(p) p.minHeight=minHeight;
+	},
+	
+	
+	setIsLive:function(containerId, isLive){
+		var p=this.getPlayer(containerId);
+		if(p) p.isLive=isLive;
+	},
+	
+	attach:function(video){
+		var p=video.parentNode;
+		while(p){
+			if(p.id && this.players[p.id]){
+				if(!this.players[p.id].video){
+					this.players[p.id].video=video;
+					if(this.players[p.id].auto 
+							&& (this.players[p.id].auto=='true' || this.players[p.id].auto==true)){
+						Player.play(this.players[p.id]);
+					}else{
+						Player.stop(this.players[p.id]);
+					}
+					console.log('video attached to '+p.id);
+				}
+				
+				if(video.videoWidth>0 && video.videoHeight>0){
+					Player.attachedVideos++;
+					console.log('video info loaded, width -> '+video.videoWidth+", height -> "+video.videoHeight);
+					
+					if(this.players[p.id].adjustSide=='H'){//宽度不变，调整高度
+						var newWidth=this.players[p.id].width;
+						var newHeight=Math.ceil(this.players[p.id].width*(video.videoHeight/video.videoWidth));
+						
+						if(newHeight>this.players[p.id].maxHeight){//超出最大允许高度
+							newWidth=Math.floor(newWidth*(this.players[p.id].maxHeight/newHeight))//宽度按比例调整
+							newHeight=this.players[p.id].maxHeight;//高度设为最大允许高度
+						}
+						if(newHeight<this.players[p.id].minHeight){//小于最小允许高度
+							console.log('new video height is small than min -> '+newHeight+' -> '+this.players[p.id].minHeight);
+							newWidth=Math.floor(newWidth*(this.players[p.id].minHeight/newHeight))//宽度按比例调整
+							newHeight=this.players[p.id].minHeight;//高度设为最小允许高度
+						}
+						
+
+						var boxOfTcPlayer=_$cls('vcp-player');
+						if(newWidth!=this.players[p.id].width){
+							console.log('adjust video container width -> '+newWidth);
+							//_$(p.id).style.width=newWidth+'px';//主容器宽度固定不调整
+							video.style.width=newWidth+'px';
+							if(boxOfTcPlayer && boxOfTcPlayer.length==1) boxOfTcPlayer[0].style.width=newWidth+'px';
+						}
+						
+						if(newHeight!=this.players[p.id].height){
+							console.log('adjust video container hegiht -> '+newHeight);
+							_$(p.id).style.height=newHeight+'px';
+							video.style.height=newHeight+'px';
+							if(boxOfTcPlayer && boxOfTcPlayer.length==1) boxOfTcPlayer[0].style.height=newHeight+'px';
+						}
+					}else if(this.players[p.id].adjustSide=='W'){//高度不变，调整宽度
+						var newHeight=this.players[p.id].eight;
+						var newWidth=Math.ceil(this.players[p.id].height*(video.videoWidth/video.videoHeight));
+						if(newWidth>this.players[p.id].maxWidth){//超出最大允许宽度
+							newHeight=Math.floor(newHeight*(this.players[p.id].maxWidth/newWidth))//高度按比例缩小
+							newWidth=this.players[p.id].maxWidth;//宽度设为最大允许宽度
+						}
+						if(newWidth<this.players[p.id].minWidth){//小于最小允许宽度
+							newHeight=Math.floor(newHeight*(this.players[p.id].minWidth/newWidth))//高度按比例缩小
+							newWidth=this.players[p.id].minWidth;//宽度设为最小允许宽度
+						}
+
+						var boxOfTcPlayer=_$cls('vcp-player');
+						if(newHeight!=this.players[p.id].height){
+							console.log('adjust video container height -> '+newHeight);
+							//_$(p.id).style.height=newHeight+'px';//主容器高度固定不调整
+							video.style.height=newHeight+'px';
+							if(boxOfTcPlayer && boxOfTcPlayer.length==1) boxOfTcPlayer[0].style.height=newHeight+'px';
+						}
+						
+						if(newWidth!=this.players[p.id].width){
+							console.log('adjust video container width -> '+newWidth);
+							_$(p.id).style.width=newWidth+'px';
+							video.style.width=newWidth+'px';
+							if(boxOfTcPlayer && boxOfTcPlayer.length==1) boxOfTcPlayer[0].style.width=newWidth+'px';
+						}
+					}else{//不做调整
+					}
+					
+					if(this.players[p.id].auto 
+							&& (this.players[p.id].auto=='true' || this.players[p.id].auto==true)){
+						Player.play(this.players[p.id]);
+					}else{
+						Player.stop(this.players[p.id]);
+					}
+				}
+				
+				return p.id;
+			}
+			p=p.parentNode;
+		}
+		return null;
+	},
+	
+	attachAll:function(){
+		if(Player.attachTimer){
+			clearTimeout(Player.attachTimer);
+			Player.attachTimer=null;
+		}
+		var videos=document.getElementsByTagName('video');
+		for(var i=0; i<videos.length; i++){
+			Player.attach(videos[i]);
+		}
+		if(Player.attachedVideos<Player.playersCount){
+			Player.attachTimer=setTimeout(Player.attachAll,200);
+		}
+	},
+	
+	resetPlayers:function(){
+		this.players=new Array();
+		this.playersLoaded=new Array();
+	},
+	
+	initPlayers:function(){
+		if(((!this.hasJwplayer || this.hasJwplayer && this.jwPlayerJsLoaded))
+				&&(!this.hasTcPlayer || (this.hasTcPlayer && this.TcPlayerJsLoaded))){
 			return;
 		}
-		loadJS({src:'/player/jwplayer/jwplayer.js', charset:'utf-8', callback:Player.startJwPlayers});
+		
+		if(this.hasJwplayer && !this.jwPlayerJsLoaded) loadJS({src:'/player/jwplayer/jwplayer.js', charset:'utf-8', callback:Player.onJwplayerJsLoad});
+		if(this.hasTcPlayer && !this.TcPlayerJsLoaded) loadJS({src:'https://imgcache.qq.com/open/qcloud/video/vcplayer/TcPlayer-2.3.2.js', charset:'utf-8', callback:Player.onTycPlayerJsLoad});
 	},
 	
-	startJwPlayers:function(){
-		Player.jwPlayerInit=true;
+	onJwplayerJsLoad:function(){
+		console.log('jwplayer js loaded.');
+		Player.jwPlayerJsLoaded=true;
+		Player.startPlayers();
+	},
+	
+	onTycPlayerJsLoad:function(){
+		console.log('TcPlayer js loaded.');
+		Player.TcPlayerJsLoaded=true;
+		Player.startPlayers();
+	},
+
+	startPlayers:function(){
+		var canStart=false;
+		if(((!this.hasJwplayer || this.hasJwplayer && this.jwPlayerJsLoaded))
+				&&(!this.hasTcPlayer || (this.hasTcPlayer && this.TcPlayerJsLoaded))){
+			canStart=true;
+		}
+		if(!canStart){
+			setTimeout(Player.startPlayers, 100);
+			return;
+		}
 		
-		jwplayer.key="HGUtrweDyTX1hQNkYJCYcL+0KNUi7Aim7cbrAA==";
-		for(var i in Player.jwPlayers){
-			var p=Player.jwPlayers[i];
+		for(var i in Player.players){
+			var p=Player.players[i];
 			if(!p) continue;
+			if(Player.playersLoaded[p.containerId]) continue;
+
+			Player.playersLoaded[p.containerId]='loaded';
 			
-			if(Player.jwPlayersLoaded[p.containerId]) continue;
-			
-			Player.jwPlayersLoaded[p.containerId]='loaded';
-			
-			var player=jwplayer(p.containerId);
-			player.setup({
+			var player=null;
+			if(p.provider=='jwplayer'){
+				jwplayer.key="HGUtrweDyTX1hQNkYJCYcL+0KNUi7Aim7cbrAA==";
+
+				var player=jwplayer(p.containerId);
+				player.setup({
 					file: p.src,
 				    image: p.poster,
 				    width: p.width,
@@ -3203,60 +3382,86 @@ var Player={
 						name: p.skin
 					},
 					controls: p.controls
-			});
+				});
+			}else if(p.provider=='TcPlayer'){
+				player =  new TcPlayer(p.containerId, {
+					"m3u8": p.src,
+					"autoplay" : p.auto,
+					"poster" : p.poster,
+					"width" :  p.width,
+					"height" : p.height
+				});
+			}
+			
 			p.player=player;
+			
+			for(var i in player){
+				//console.log('jwplayer attribute or method '+i);
+			}
+			
 		}
+		Player.attachTimer=setTimeout(Player.attachAll,100);
 	},
 	
-	getJwPlayer:function(containerId){
-		for(var i in Player.jwPlayers){
-			var p=Player.jwPlayers[i];
-			if(!p) continue;
-			
-			if(p.containerId == containerId) return p;
-		}
-		return null;
+	getPlayer:function(containerId){
+		return Player.players[containerId];
 	},
 	
 	play:function(instance){
-		if(instance && instance.player) instance.player.play(true);
+		if((typeof instance)=='string'){
+			instance=Player.getPlayer(instance);
+		}
+		
+		try{
+			if(instance && instance.player) instance.player.play(true);
+		}catch(e){}
 	},
 	
 	stop:function(instance){
-		if(instance && instance.player) instance.player.play(false);
+		if((typeof instance)=='string'){
+			instance=Player.getPlayer(instance);
+		}
+
+		try{
+			if(instance && instance.player) instance.player.pause();
+		}catch(e){}
 	},
 	
 	reset:function(containerId){
-		var p=this.getJwPlayer(containerId);
+		var p=this.getPlayer(containerId);
 		if(!p) return;
 		
 		_$(containerId).innerHTML='';
-		this.jwPlayers[containerId]=null;
-		this.jwPlayersLoaded[containerId]=null;
+		this.players[containerId]=null;
+		this.playersLoaded[containerId]=null;
 	},
 	
 	hide:function(containerId){
-		var p=this.getJwPlayer(containerId);
-		if(!p) return;
-		if(p.player) p.player.pause(false);
+		var p=this.getPlayer(containerId);
+		if(!p || p.isLive) return;
+		
+		if(p.player) p.player.pause();
 		if(_$(p.containerId)){
 			_$(p.containerId).style.display='none';
 		}
 	},
 	
 	show:function(containerId){
-		var p=this.getJwPlayer(containerId);
-		if(!p) return;
+		var p=this.getPlayer(containerId);
+		if(!p || p.isLive) return;
+		
+		if(p.player) p.player.play(true);
 		if(_$(p.containerId)){
 			_$(p.containerId).style.display='';
 		}
 	},
 	
 	hideAll:function(){
-		for(var i in Player.jwPlayers){
-			var p=Player.jwPlayers[i];
-			if(!p) continue;
-			if(p.player) p.player.pause(false);
+		for(var i in Player.players){
+			var p=Player.players[i];
+			if(!p || p.isLive) return;
+			
+			if(p.player) p.player.pause();
 			if(_$(p.containerId)){
 				_$(p.containerId).style.display='none';
 			}
@@ -3264,9 +3469,11 @@ var Player={
 	},
 	
 	showAll:function(){
-		for(var i in Player.jwPlayers){
-			var p=Player.jwPlayers[i];
-			if(!p) continue;
+		for(var i in Player.players){
+			var p=Player.players[i];
+			if(!p || p.isLive) return;
+			
+			if(p.player) p.player.play(true);
 			if(_$(p.containerId)){
 				_$(p.containerId).style.display='';
 			}
@@ -6298,16 +6505,13 @@ var Layers={
 	saveInstance:function(uuid, win, instance, doClose, divs, type){
 		if(this.getInstance[uuid]) return;
 		this.instances.push(new LayerOrDialog(uuid, win, instance, doClose, divs, type));
-		if(win) win.Player.hideAll();
 	},
  
 	//删除实例
 	delInstance:function(uuid){
 		for(var i=0; i<this.instances.length; i++){
 			if(this.instances[i] && uuid==this.instances[i].uuid){
-				if(this.instances[i].win){
-					this.instances[i].win.Player.showAll();
-				}
+				this.instances[i].destory();
 				this.instances[i]=null;
 			}
 		}
@@ -6329,15 +6533,27 @@ var Layers={
 					for(var d=0; d<this.instances[i].divs.length; d++){
 						this.instances[i].divs[d].style.visibility='hidden';
 					}
-					this.instances[i]=null;
 				}else if(this.instances[i].doClose){
 					this.instances[i].doClose();
 				}else{
 					this.instances[i].instance.close('true');
 				}
+
+				if(this.instances[i]){
+					this.instances[i].destory();
+					this.instances[i]=null;
+				}
 				
 				break;
 			}
+		}
+	},
+	
+	//隐藏所有视频播放器
+	hideAllVideoPlayers:function(uuid){
+		var i=Layers.getInstance(uuid);
+		if(i && i.win){
+			i.win.Player.hideAll();
 		}
 	}
 }
@@ -6350,6 +6566,12 @@ function LayerOrDialog(uuid, win, instance, doClose, divs, type){
 	this.doClose=(doClose?doClose:null);
 	this.divs=(divs?divs:null);
 	this.type=(type?type:null);
+	if(this.win) this.win.Player.hideAll();
+	this._interval=setInterval("Layers.hideAllVideoPlayers('"+uuid+"')",2000);
+}
+LayerOrDialog.prototype.destory=function(){
+	clearInterval(this._interval);
+	if(this.win) this.win.Player.showAll();
 }
 
 var Layer={
@@ -6411,7 +6633,7 @@ var Layer={
 		this.onClose=null;
 		this.win=null;
 		this.url=_url;
-		this.pageName=_pageName;
+		this.pageName=_pageName?_pageName:'';
 		this.zIndex=_zIndex;
 
 		if(_onOk) this.onOk=_onOk;
@@ -6969,7 +7191,7 @@ var LoadingAllImages={
 	},
 	
 	close:function(_invokeCallback){//关闭
-		if(this.win) this.win.Player.hideAll();
+		if(this.win) this.win.Player.showAll();
 		else Player.showAll();
 		
 		if(!_$('loadingAllImages')) return;
@@ -11102,6 +11324,7 @@ var Notifications={
 			var txt=ajax.getResponseText();
 			
 			var ns=JSONUtil.parse(txt).ns;
+			if(!ns) return;
 			if(Notifications.firstLoad){
 				Notifications.firstLoad=false;
 				
@@ -11361,7 +11584,7 @@ Animation.prototype.mediaDisplaySize=function(i){
 }
 
 Animation.prototype.countOfCurrentMediaType=function(){
-	if(this.currentMediaType==null) return animation.photos.length;
+	if(this.currentMediaType==null) return this.photos.length;
 	
 	var count=0;
 	for(var i=0;i<this.mediaTypes.length;i++){	
@@ -11577,20 +11800,20 @@ Animation.prototype.show=function(i){
 	
 	//如果是视频
 	if(this.mediaTypes[i]=='video'){
-		var playerInstance=Player.getJwPlayer(this.id+'.box.'+i+'.player');
+		var playerInstance=Player.getPlayer(this.id+'.box.'+i+'.player');
 		if(!playerInstance){
 			var size=this.mediaDisplaySize(i);
-			Player.addJwPlayer(this.id+'.box.'+i+'.player',
+			Player.addPlayer(this.id+'.box.'+i+'.player',
 					this.medias[i],
 					this.width,
 					this.height,
 					'false',
-					'false',
+					'true',
 					'true',
 					this.photos[i],
 					'false',
 					'');
-			Player.initJwPlayers();
+			Player.initPlayers();
 		}else{
 			Player.show(this.id+'.box.'+i+'.player');
 		}
@@ -13974,10 +14197,10 @@ function videoLoaded(){
 		Utils.setAtt(videos[i],'x5-video-player-type','h5-page');
 		Utils.delAtt(videos[i],'x5-video-player-fullscreen');
 
-		Utils.setAtt(videos[i],'webkit-playsinline','');
-		Utils.setAtt(videos[i],'playsinline','');
-		Utils.setAtt(videos[i],'x5-playsinline','');
-		Utils.setAtt(videos[i],'x-webkit-airplay','');
+		Utils.setAtt(videos[i],'webkit-playsinline','true');
+		Utils.setAtt(videos[i],'playsinline','true');
+		Utils.setAtt(videos[i],'x5-playsinline','true');
+		Utils.setAtt(videos[i],'x-webkit-airplay','allow');
 	}
 } 
 if(Utils.isMobile()) setInterval(videoLoaded,100);
