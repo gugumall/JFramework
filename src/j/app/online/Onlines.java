@@ -1190,7 +1190,7 @@ public class Onlines implements Filter,Runnable{
 				
 				UrlAndFetchType fetchUrlAndType=handler==null?null:handler.adjustUrl(session, request, uri);
 				if(fetchUrlAndType!=null) fetchUrl=fetchUrlAndType.getUrl();
-			
+				
 				String adjustUrl=UIVersions.convert(session, fetchUrl);
 				if(adjustUrl!=null) fetchUrl=adjustUrl;
 				

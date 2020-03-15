@@ -1,5 +1,14 @@
 package j.fs;
 
+import java.io.File;
+import java.util.List;
+
+import javax.servlet.http.HttpSession;
+
+import org.dom4j.Document;
+import org.dom4j.Element;
+
+import j.app.online.UIVersions;
 import j.common.JProperties;
 import j.log.Logger;
 import j.util.ConcurrentList;
@@ -7,12 +16,6 @@ import j.util.ConcurrentMap;
 import j.util.JUtilDom4j;
 import j.util.JUtilMath;
 import j.util.JUtilString;
-
-import java.io.File;
-import java.util.List;
-
-import org.dom4j.Document;
-import org.dom4j.Element;
 
 /**
  * 
@@ -178,8 +181,22 @@ public class JDFS implements Runnable{
 			List monitorFileEles=monitor.elements("file");
 			for(int i=0;i<monitorFileEles.size();i++){
 				Element monitorFileEle=(Element)monitorFileEles.get(i);
-				monitorFiles.put(monitorFileEle.getTextTrim(),new JDFSMonitorFile(monitorFileEle.getTextTrim()));
-				log.log("monitor file: "+monitorFileEle.getTextTrim(),-1);
+				
+				String path=JProperties.getAppRoot()+monitorFileEle.getTextTrim();
+				File monitorFile=new File(path);
+				if(monitorFile.exists() && monitorFile.isDirectory()) {
+					File[] files=monitorFile.listFiles();
+					for(int f=0; f<files.length; f++) {
+						if(files[i].isDirectory()) continue;
+						path=files[i].getAbsolutePath().substring(JProperties.getAppRoot().length());
+						
+						monitorFiles.put(path,new JDFSMonitorFile(path));
+						log.log("monitor file in dir: "+path,-1);
+					}
+				}else {
+					monitorFiles.put(monitorFileEle.getTextTrim(),new JDFSMonitorFile(monitorFileEle.getTextTrim()));
+					log.log("monitor file: "+monitorFileEle.getTextTrim(),-1);
+				}
 			}
 			
 			root=null;
@@ -201,6 +218,18 @@ public class JDFS implements Runnable{
 	 * @return
 	 */
 	public static long getLastModified(String path){
+		JDFSMonitorFile file=(JDFSMonitorFile)monitorFiles.get(path);
+		return file==null?0:file.getLastModified();
+	}
+	
+	/**
+	 * 
+	 * @param path
+	 * @return
+	 */
+	public static long getLastModified(HttpSession session, String path){
+		String convertedPathOfUI=UIVersions.convert(session, path);
+		if(convertedPathOfUI!=null) path=convertedPathOfUI;
 		JDFSMonitorFile file=(JDFSMonitorFile)monitorFiles.get(path);
 		return file==null?0:file.getLastModified();
 	}

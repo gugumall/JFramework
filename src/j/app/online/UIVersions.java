@@ -42,7 +42,7 @@ public class UIVersions extends JObject{
 			
 			List<Element> conversE=vE.elements("path-convert");
 			for(int j=0; j<conversE.size(); j++) {
-				Element cE=conversE.get(i);
+				Element cE=conversE.get(j);
 				version.addConvert(cE.attributeValue("original"), cE.attributeValue("to"));
 			}
 			
