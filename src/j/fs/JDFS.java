@@ -187,8 +187,8 @@ public class JDFS implements Runnable{
 				if(monitorFile.exists() && monitorFile.isDirectory()) {
 					File[] files=monitorFile.listFiles();
 					for(int f=0; f<files.length; f++) {
-						if(files[i].isDirectory()) continue;
-						path=files[i].getAbsolutePath().substring(JProperties.getAppRoot().length());
+						if(files[f].isDirectory()) continue;
+						path=files[f].getAbsolutePath().substring(JProperties.getAppRoot().length());
 						
 						monitorFiles.put(path,new JDFSMonitorFile(path));
 						log.log("monitor file in dir: "+path,-1);
