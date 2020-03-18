@@ -361,6 +361,7 @@ public class Onlines implements Filter,Runnable{
 	 * @return
 	 */
 	public static Online findByUserId(String userId){
+		if(userId==null||"".equals(userId)) return null;
 		List all=getActiveUsers();
 		for(int i=0;i<all.size();i++){
 			Online online=(Online)all.get(i);
@@ -408,6 +409,7 @@ public class Onlines implements Filter,Runnable{
 	 * @return
 	 */
 	public static Online[] findAllByUserId(String userId){
+		if(userId==null||"".equals(userId)) return null;
 		List all=getActiveUsers();
 		List temp=new LinkedList();
 		for(int i=0;i<all.size();i++){
