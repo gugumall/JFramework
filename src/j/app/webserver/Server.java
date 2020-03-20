@@ -79,7 +79,7 @@ public class Server{
 		String navigateUrl=SysUtil.getHttpParameter(request,Constants.J_BACK_URL);//返回给用户的地址
 		if(navigateType==null) navigateType=(String)request.getAttribute(Constants.J_BACK_TYPE);
 		if(navigateUrl==null) navigateUrl=(String)request.getAttribute(Constants.J_BACK_URL);
-
+		boolean setNavigateUrl=navigateUrl!=null;
 		
 		ActionLogger logger=Handlers.selectLogger();
 		boolean toLog=true;
@@ -243,7 +243,7 @@ public class Server{
 				throw new Exception("no defined view matches the result");
 			}
 
-			if(Onlines.getHandler()!=null){
+			if(!setNavigateUrl && Onlines.getHandler()!=null){
 				UrlAndFetchType urlAdjust=Onlines.getHandler().adjustUrl(session,request,navigateUrl);
 				if(urlAdjust!=null) navigateUrl=urlAdjust.getUrl();
 			}
