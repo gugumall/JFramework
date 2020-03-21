@@ -33,7 +33,12 @@ public class UIVersions extends JObject{
 	public static void parse(Element E){
 		_UIVersions.clear();
 		
-		if(E==null) return;
+		if(E==null) {
+			//添加默认版本
+			UIVersion versionDefault=new UIVersion("", "DEFAULT");
+			_UIVersions.add(versionDefault);
+			return;
+		}
 		
 		List<Element> versionsE=E.elements("UI-version");
 		for(int i=0; i<versionsE.size(); i++) {
@@ -68,7 +73,7 @@ public class UIVersions extends JObject{
 		if(session!=null) versionId=(String)session.getAttribute(Constants.J_UI_VERSION);
 		if(versionId==null) versionId=AppConfig.getPara("SYSTEM", Constants.J_UI_VERSION);
 		UIVersion v = getVersion(versionId);
-		if(v==null && versionId!=null && !"".equals(versionId)) v = getVersion("");
+		if(v==null) v = getVersion("");
 		return v;
 	}
 	
