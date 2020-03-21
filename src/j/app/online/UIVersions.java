@@ -50,6 +50,12 @@ public class UIVersions extends JObject{
 			
 			log.log("UI version:\r\n"+version.toString(), -1);
 		}
+		
+		//添加默认版本
+		if(getVersion("") == null) {
+			UIVersion versionDefault=new UIVersion("", "DEFAULT");
+			_UIVersions.add(versionDefault);
+		}
 	}
 	
 	/**
@@ -61,7 +67,9 @@ public class UIVersions extends JObject{
 		String versionId=null;
 		if(session!=null) versionId=(String)session.getAttribute(Constants.J_UI_VERSION);
 		if(versionId==null) versionId=AppConfig.getPara("SYSTEM", Constants.J_UI_VERSION);
-		return getVersion(versionId);
+		UIVersion v = getVersion(versionId);
+		if(v==null && versionId!=null && !"".equals(versionId)) v = getVersion("");
+		return v;
 	}
 	
 	/**
