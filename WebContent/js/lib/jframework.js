@@ -925,6 +925,12 @@ if(_uri.indexOf('/')<0) _uri='/';
 else _uri=_uri.substring(_uri.indexOf('/'));
 if(_uri.indexOf('?')>0) _uri=_uri.substring(0,_uri.indexOf('?'));
 
+//当前登录用户ID
+var _user='';
+
+//指定的返回的第三方页面
+var tpage='';
+
 //如果String未定义startsWith、endsWith方法，增加实现（ie未提供这两个方法）
 if((typeof String.prototype.startsWith)=='undefined'){
 	String.prototype.startsWith=function(prefix){
@@ -1660,11 +1666,11 @@ var MediaManager={
 		if(!_$('mediaManager')) return;
 		
 		if(_content){
-			top.history.pushState("","","#");
+			top.history.pushState('','','');
 			_$('mediaManager').className='mediaManager';
 			this.setContent(_content);
 		}else if(this.url!=url){
-			top.history.pushState("","","#");
+			top.history.pushState('','','');
 			this.url=url;	
 			
 			_$('mediaManagerLoading').style.top=Math.ceil(W.vh()/2)+'px';
@@ -3748,7 +3754,7 @@ var Currency={
 
 		_$('currencySelectorList').style.visibility='visible';
 		
-		this.hideCurrencySelectorTimer=setTimeout(Currency._hideCurrencySelector,1000);
+		this.hideCurrencySelectorTimer=setTimeout(Currency._hideCurrencySelector,3000);
 	},
 	_hideCurrencySelector:function(){
 		if(_$('currencySelectorList')){
@@ -3757,6 +3763,9 @@ var Currency={
 	},
 	_change:function(currency){
 		var loc=top.location.href;
+		while(loc.lastIndexOf('#')==loc.length-1){
+			loc=loc.substring(0,loc.length-1);
+		}
 		if(currencyPara){
 			if(loc.indexOf('?')>0) loc=loc.substring(0,loc.indexOf('?'));
 			var ps=Paras.getParasEx('currency');
@@ -3770,7 +3779,7 @@ var Currency={
 		top.location.href=loc;
 	},
 	_over:function(obj){
-		if(this.hideCurrencySelectorTimer) clearTimeout(this.hideCurrencySelectorTimer);
+		//if(this.hideCurrencySelectorTimer) clearTimeout(this.hideCurrencySelectorTimer);
 		obj.className='currencyItemOver';
 	},
 	_out:function(obj){
@@ -4042,7 +4051,7 @@ var Lang={
 		
 		_$('langSelectorList').style.visibility='visible';
 		
-		this.hideLangSelectorTimer=setTimeout(Lang._hideLangSelector,1000);
+		this.hideLangSelectorTimer=setTimeout(Lang._hideLangSelector,3000);
 	},
 	_hideLangSelector:function(){
 		if(_$('langSelectorList')){
@@ -4050,7 +4059,10 @@ var Lang={
 		}
 	},
 	_changeLang:function(lang){
-		var loc=Str.replaceAll(top.location.href,Lang.l(),lang);
+		var loc=top.location.href;
+		while(loc.lastIndexOf('#')==loc.length-1){
+			loc=loc.substring(0,loc.length-1);
+		}
 		if(langPara){
 			if(loc.indexOf('?')>0) loc=loc.substring(0,loc.indexOf('?'));
 			var ps=Paras.getParasEx('lang');
@@ -4074,7 +4086,7 @@ var Lang={
 		window.open(_pageUrl);
 	},
 	_overLang:function(obj){
-		if(this.hideLangSelectorTimer) clearTimeout(this.hideLangSelectorTimer);
+		//if(this.hideLangSelectorTimer) clearTimeout(this.hideLangSelectorTimer);
 		obj.className='langItemOver';
 	},
 	_outLang:function(obj){
@@ -4168,7 +4180,7 @@ var D={
 		if(!this.isOpen()){
 			this.uuid=(new Date()).getTime();
 			top.Layers.saveInstance(this.uuid, window, this);
-			top.history.pushState("","","#");
+			top.history.pushState('','','');
 		}
 		
 		if((typeof input)=='object') this.inputs=input;
@@ -4225,7 +4237,7 @@ var D={
 		html.push('<div id="Calendar" style="z-index:'+(W.maxZindexLastTime()+2)+' !important;"><table width="100%" cellpadding="2" cellspacing="1" bgcolor="#cccccc" style="font-size:12px;">');
 		html.push('<tr bgcolor="#FFFFFF">');
 		html.push('<td colspan="7" align="left">');
-		html.push('<div style="margin-left:0px; float:left;"><select id="year" onchange="D.onCalendarChange(_$(\'year\').value*1,_$(\'month\').value*1,'+d+');">');
+		html.push('<div style="margin-left:0px; float:left;"><select id="year" style="width:60px !important;" onchange="D.onCalendarChange(_$(\'year\').value*1,_$(\'month\').value*1,'+d+');">');
 		for(var i=ystart;i<=yend;i++){
 			if(i==y) html.push('<option value="'+i+'" selected>'+i+'</option>');
 			else html.push('<option value="'+i+'">'+i+'</option>');
@@ -4233,7 +4245,7 @@ var D={
 		html.push('</select>');
 		
 		
-		html.push('&nbsp;<select id="month" onchange="D.onCalendarChange(_$(\'year\').value*1,_$(\'month\').value*1,'+d+');">');
+		html.push('&nbsp;<select id="month" style="width:60px !important;" onchange="D.onCalendarChange(_$(\'year\').value*1,_$(\'month\').value*1,'+d+');">');
 		for(var i=1;i<=12;i++){
 			var v=i;
 			if(v<10) v='0'+v;
@@ -4505,6 +4517,10 @@ var D={
 
 //窗口操作
 var W={
+	onscroll:function(callback){
+		window.onscroll = callback;
+	},
+	
 	//form状态历史栈，用于无刷新操作，或页面切换返回后的页面状态恢复
 	formInit:function(_form,_formChangeCallback){
 		this.form=_form;
@@ -4804,6 +4820,32 @@ var W={
 	
 	maxZindexLastTime:function(){
 		return this._maxZindex-3;
+	},
+	
+	browserCheck:function(){
+		if(!Utils.isMobile()){
+			var browser=Utils.navigatorType();
+			if(browser!='firefox' && browser!='chrome'){
+				if(!_$('browserCheckTips')){	
+					var htm=new Array();
+					htm.push('<div id="browserCheckTips" style="width:100%; height:80px; background-color:#F4F4F4;">');
+					htm.push('	<div class="fl marginL10" style="font-size:16px; line-height:80px;">为保证上网安全和良好的用户体验，请使用<a style="color:#F00;" href="http://www.firefox.com.cn/" target="_blank">火狐浏览器（推荐）</a>或<a style="color:#F00;" href="https://www.google.cn/intl/zh-CN/chrome/" target="_blank">谷歌浏览器</a>。</div>');
+					//htm.push('	<div class="fl marginL10" style="font-size:16px; line-height:80px;">为保证上网安全和良好的用户体验，请使用网络安全专家推荐的 <a style="color:#F00;" href="http://www.firefox.com.cn/" target="_blank">火狐浏览器</a></div>');
+					htm.push('	<div class="fr marginR10" style="display:inline-table; height:80px;">');
+					htm.push('		<div class="fl alignC" style="display:inline-table;">');
+					htm.push('			<div class="marginT10"><a href="https://www.google.cn/intl/zh-CN/chrome/" target="_blank"><img src="/img/co/Chrome.jpg" width="40"/></a></div>');
+					htm.push('			<div style="line-height:30px;"><a href="https://www.google.cn/intl/zh-CN/chrome/" target="_blank">I{js,下载谷歌浏览器}</a></div>');
+					htm.push('		</div>');
+					htm.push('		<div class="fl alignC marginL30" style="display:inline-table;">');
+					htm.push('			<div class="marginT10"><a href="http://www.firefox.com.cn/" target="_blank"><img src="/img/co/Firefox.jpg" width="40"/></a></div>');
+					htm.push('			<div style="line-height:30px;"><a href="http://www.firefox.com.cn/" target="_blank">I{js,下载火狐浏览器}</a></div>');
+					htm.push('		</div>');
+					htm.push('	</div>');
+					htm.push('</div>');
+					document.body.insertAdjacentHTML('afterBegin', htm.join(''));
+				}
+			}
+		}
 	},
 	
 	isZoom : function(){
@@ -6150,22 +6192,22 @@ Ajax.prototype.callbackDefault=function(){
 			var resp=this.getResponseJson();
 			if(this.setResult) result=resp.code;
 			if(resp.code=='1'){
-				if(top._$('loading')){
-					top.Loading.setMsgOk('<font class="iconfont icon-chenggong font24px"></font><br/>'+resp.message);
-					if(this.closeDialogAuto) top.Loading.closeDelay(1000,true);
-				}else{
+				if(Loading.isOpen()){
 					Loading.setMsgOk('<font class="iconfont icon-chenggong font24px"></font><br/>'+resp.message);
 					if(this.closeDialogAuto) Loading.closeDelay(1000,true);
+				}else{
+					top.Loading.setMsgOk('<font class="iconfont icon-chenggong font24px"></font><br/>'+resp.message);
+					if(this.closeDialogAuto) top.Loading.closeDelay(1000,true);
 				}
 			}else if(resp.code=='-login'){
 				showNotLoginMessage();
 			}else{
-				if(top._$('loading')){
-					top.Loading.setMsgErr('<font class="iconfont icon-shibai1 font24px"></font><br/>'+resp.message);
-					if(this.closeDialogAuto) top.Loading.closeDelay(2000,true);
-				}else{
+				if(Loading.isOpen()){
 					Loading.setMsgErr('<font class="iconfont icon-shibai1 font24px"></font><br/>'+resp.message);
 					if(this.closeDialogAuto) Loading.closeDelay(2000,true);
+				}else{
+					top.Loading.setMsgErr('<font class="iconfont icon-shibai1 font24px"></font><br/>'+resp.message);
+					if(this.closeDialogAuto) top.Loading.closeDelay(2000,true);
 				}
 			}
 		}catch(e){
@@ -6278,7 +6320,7 @@ Selector.prototype.write=function(){
 	if(this.widthMin>0) _style+='min-width:'+this.widthMin+'px;';
 	
 	htm.push('<div style="'+_style+'" id="'+this.displayerId+'" class="'+this.displayerStyle+'" onclick="SelectorShowItems(\''+this.displayerId+'\');">\n');
-	htm.push('	<div id="'+this.displayerId+'_text" class="'+this.displayerTextStyle+'">'+this.itemCurrent[1]+'</div><div class="'+this.displayerArrowStyle+'"></div>\n');
+	htm.push('	<div id="'+this.displayerId+'_text" class="'+this.displayerTextStyle+'">'+this.findItem(this.itemCurrent[0])[1]+'</div><div class="'+this.displayerArrowStyle+'"></div>\n');
 	htm.push('</div>\n\n');
 
 	_style='';
@@ -6303,7 +6345,7 @@ Selector.prototype.insert=function(parentId){
 	if(this.widthMin>0) _style+='min-width:'+this.widthMin+'px;';
 	
 	htm.push('<div style="'+_style+'" id="'+this.displayerId+'" class="'+this.displayerStyle+'" onclick="SelectorShowItems(\''+this.displayerId+'\');">\n');
-	htm.push('	<div id="'+this.displayerId+'_text" class="'+this.displayerTextStyle+'">'+this.itemCurrent[1]+'</div><div class="'+this.displayerArrowStyle+'"></div>\n');
+	htm.push('	<div id="'+this.displayerId+'_text" class="'+this.displayerTextStyle+'">'+this.findItem(this.itemCurrent[0])[1]+'</div><div class="'+this.displayerArrowStyle+'"></div>\n');
 	htm.push('</div>\n\n');
 	
 	_$(parentId).innerHTML=(htm.join(''));
@@ -6315,8 +6357,8 @@ Selector.prototype.insert=function(parentId){
 
 	htm=new Array();
 	//htm.push('<div id="'+this.listId+'Bg" align="center" class="'+this.listStyle+'" style="z-index:3000; visibility:hidden;"><iframe src="/blank.htm" width="100%" height="100%" frameborder="0" scrolling="no"></iframe></div>');
-	htm.push('<div id="'+this.listId+'" class="dropDownBox '+this.listStyle+'" style="'+_style+'z-index:3001; visibility:hidden;">\n');
-	htm.push('<div class="dropDownBoxTitle paddingR2"><div class="dropDownBoxTitleTab fl paddingR5 paddingL5" id="selector_tab_'+this.listId+'"></div></div>\n');
+	htm.push('<div id="'+this.listId+'" class="dropDownBox '+this.listStyle+'" style="'+_style+' z-index:'+(W.maxZindex())+'; visibility:hidden;">\n');
+	htm.push('<div class="dropDownBoxTitle paddingR10"><div class="dropDownBoxTitleTab fl paddingR5 paddingL5" id="selector_tab_'+this.listId+'"></div></div>\n');
 	htm.push('<div class="dropDownBoxContent" id="selector_list_'+this.listId+'">\n');
 	for(var i=this.startIndexToShow;i<this.items.length;i++){
 		htm.push('	<div class="'+this.itemStyle+'" onmouseover="SelectorKeepItems(\''+this.displayerId+'\');" onmouseout="SelectorHideItemsDelay(\''+this.displayerId+'\');" onclick="SelectorChooseItem(\''+this.displayerId+'\',\''+this.items[i][0]+'\',false);">'+this.items[i][1]+'</div>\n');
@@ -6376,10 +6418,11 @@ function SelectorShowItems(displayerId){
 	var l=W.elementLeft(_$(displayerId));
 	var h=0;//W.elementHeight(_$(displayerId));
 
-	_$('selector_tab_'+selector.listId).innerHTML=selector.itemCurrent[1];
+	_$('selector_tab_'+selector.listId).innerHTML=selector.findItem(selector.itemCurrent[0])[1];
 	_$(selector.listId).style.left=(l+selector.itemsLeftOffset)+'px';
 	_$(selector.listId).style.top=(t+h)+'px';
 	_$(selector.listId).style.visibility='visible';
+	_$('selector_list_'+selector.listId).style.minWidth=(W.elementWidth(_$('selector_tab_'+selector.listId))+10)+'px';
 	
 	//_$(selector.listId+'Bg').style.width=W.elementWidth(_$(selector.listId))+'px';
 	//_$(selector.listId+'Bg').style.height=W.elementHeight(_$(selector.listId))+'px';
@@ -6393,7 +6436,7 @@ function SelectorHideItemsDelay(displayerId){
 	var selector=Selectors[displayerId];
 	if(!selector) return;
 	
-	selector.timer=setTimeout("SelectorHideItems('"+displayerId+"')",3000);
+	selector.timer=setTimeout("SelectorHideItems('"+displayerId+"')",5000);
 }
 function SelectorHideItems(displayerId){
 	var selector=Selectors[displayerId];
@@ -6529,6 +6572,7 @@ var Layers={
 	close:function(){
 		for(var i=this.instances.length-1; i>=0; i--){
 			if(this.instances[i]){
+				var doNotDelInstance=null;//是否不删除实例（比如Layer对象仅仅是返回上页）
 				if(this.instances[i].divs){
 					for(var d=0; d<this.instances[i].divs.length; d++){
 						this.instances[i].divs[d].style.visibility='hidden';
@@ -6536,10 +6580,10 @@ var Layers={
 				}else if(this.instances[i].doClose){
 					this.instances[i].doClose();
 				}else{
-					this.instances[i].instance.close('true');
+					doNotDelInstance=this.instances[i].instance.close('true');
 				}
 
-				if(this.instances[i]){
+				if(!doNotDelInstance && this.instances[i]){
 					this.instances[i].destory();
 					this.instances[i]=null;
 				}
@@ -6708,11 +6752,11 @@ var Layer={
 		
 		if(!_$('layer')){
 			if(this.uuid) top.Layers.delInstance(this.uuid);
-			return;
+			return false;
 		}
 		
 		if(this.canClose==false){
-			return;
+			return true;
 		}
 		
 		this.okBtnName='I{确定}';
@@ -6736,7 +6780,7 @@ var Layer={
 					}
 					this.urlLoaded=temp;
 					 
-					return;
+					return true;
 				}
 			}catch(e){}
 		}
@@ -6794,6 +6838,8 @@ var Layer={
 		}catch(e){}
 		
 		if(this.uuid) top.Layers.delInstance(this.uuid);
+		
+		return false;
 	},
 	
 	ok:function(){
@@ -6907,10 +6953,10 @@ var Layer={
 				this.urlLoaded.push([layerFrame.location.href,_$('layerTitle').innerHTML]);
 			}
 			
-			top.history.pushState("","","#"); 
+			top.history.pushState('','',''); 
 		}else{
 			this.urlLoaded.push(['text:'+_content,_$('layerTitle').innerHTML]);
-			top.history.pushState("","","#");
+			top.history.pushState('','','');
 		}
 	},
 	
@@ -6990,7 +7036,7 @@ var LoadingAllImages={
 		if(!this.isOpen()){
 			this.uuid=(new Date()).getTime();
 			top.Layers.saveInstance(this.uuid, _win?_win:window, this);
-			top.history.pushState("","","#");
+			top.history.pushState('','','');
 		}
 		
 		if(allCovers) this.allCovers=allCovers;
@@ -7093,12 +7139,16 @@ var LoadingAllImages={
         	if(_allImages!=null){
 	        	for(var i=0;i<_allImages.length;i++){
 		        	var img=_allImages[i];
-		        	if(!Utils.visible(img)) continue;
+		        	if(!Utils.visible(img)){
+		        		continue;
+		        	}
 		        	
 		        	var src=Utils.att(img,'_src');
 		        	if(!src) src=img.src;
 		        	if(!src
-		        			||(src.indexOf('/i/')<0&&src.indexOf('/img/chargingpile/')<0)) continue;
+		        			||(src.indexOf('/i/')<0&&src.indexOf('/img/chargingpile/')<0&&src.indexOf('/im/')<0)){
+		        		continue;
+		        	}
 		        	src=Str.replaceAll(src,'_logo','');
 		        	src=Str.replaceAll(src,'_mini','');
 		        	
@@ -7108,8 +7158,8 @@ var LoadingAllImages={
 		        		alt=Utils.att(img.parentNode.parentNode,'alt');
 			        	gid=Utils.att(img.parentNode.parentNode,'gid');
 		        	}
-		        	
-		        	if(_win){
+
+		        	if(_win){ 
 			        	if(_win.hasPageFeature('onlyShowGoodsImages')&&!gid){//仅显示商品图片
 			        		continue;
 			        	}
@@ -7969,7 +8019,7 @@ var Loading={
 		if(!this.isOpen()){
 			this.uuid=(new Date()).getTime();
 			top.Layers.saveInstance(this.uuid, _win?_win:window, this);
-			top.history.pushState("","","#");
+			top.history.pushState('','','');
 		}
 		
 		if((_w+'').indexOf('%')>0){
@@ -8926,7 +8976,7 @@ var Sys={
 	
 	heartbeat:function(){
 		var ajax=new Ajax();
-		ajax.send('GET',Sys.doHeartbeat,'/blank.htm');
+		ajax.send('GET',Sys.doHeartbeat,'/blank.htm?t='+Math.random());
 	},
 	
 	doHeartbeat:function(ajax){
@@ -8939,6 +8989,9 @@ var Sys={
 	
 	changeResponser:function(id, win){
 		var loc=win?win.location.href:top.location.href;
+		while(loc.lastIndexOf('#')==loc.length-1){
+			loc=loc.substring(0,loc.length-1);
+		}
 		if(Paras.getPara('j_responser_set')){
 			if(loc.indexOf('?')>0) loc=loc.substring(0,loc.indexOf('?'));
 			var ps=Paras.getParasEx('j_responser_set');
@@ -9802,7 +9855,7 @@ var Countries={
 			if(!_$('countrySelector')){
 				this.uuid=(new Date()).getTime();
 				top.Layers.saveInstance(this.uuid, window, this, Countries.closeCountrySelector);
-				top.history.pushState("","","#");
+				top.history.pushState('','','');
 				
 				var htm=new Array();
 				htm.push('<div id="countrySelector" style="z-index:'+(W.maxZindex()+1)+' !important;">');
@@ -10093,7 +10146,7 @@ var Region={
 		if(!this.isOpen()){
 			this.uuid=(new Date()).getTime();
 			top.Layers.saveInstance(this.uuid, this.currentWindow, this);
-			top.history.pushState("","","#");
+			top.history.pushState('','','');
 		}
 		
 		if(!_$('regionsSelector')){			
@@ -10869,6 +10922,19 @@ var Region={
 					this.depth);
 		}
 		this.close();
+	},
+	
+	locate:function(onSuccess, onError, options){
+		if (navigator.geolocation){
+			navigator.geolocation.getCurrentPosition(onSuccess,onError,{
+                enableHighAcuracy : options&&options.length>0?options[0]:true,// 指示浏览器获取高精度的位置，默认为false  
+                timeout : options&&options.length>1?options[1]:15000,// 指定获取地理位置的超时时间，默认不限时，单位为毫秒  
+                maximumAge : options&&options.length>2?options[2]:5000// 最长有效期，单位为毫秒  ，在重复获取地理位置时，此参数指定多久再次获取位置。  
+            });
+	    }else{
+	    	console.log('Geolocation is not supported by this browser.');
+	    	_callback(null);
+	    }
 	}
 }
 
@@ -11021,7 +11087,7 @@ var Catalogs={
 		if(!this.isOpen()){
 			this.uuid=(new Date()).getTime();
 			top.Layers.saveInstance(this.uuid, window, this);
-			top.history.pushState("","","#");
+			top.history.pushState('','','');
 		}
 		
 		if(!_$('catalogsSelector')){
@@ -12131,14 +12197,14 @@ function _login(event,isClick){
 	if((ssoLogin.sso_user_id.value.match(/^[\w\.]{1,}@{1}[\w\.]{1,}$/)==null||ssoLogin.sso_user_id.value.length>64)
 			&&!Countries.isMobileValid(ssoLogin.sso_user_id.value)
 			&&ssoLogin.sso_user_id.value.match(/^[a-z0-9]{1}[a-z0-9_.\-]{4,30}[a-z0-9]{1}$/)==null){
-		top.Loading.setMsgErr('I{js,请正确填写会员账号、邮箱或手机}');
+		alert('I{js,请正确填写会员账号、邮箱或手机}');
 		return false;
 	}
 	
 	if(_$('staffIdDiv1')
 			&&_$('staffIdDiv1').style.display!='none'){
 		if(ssoLogin.staff_id.value.match(/^[0-9]{8}$/)==null){
-			top.Loading.setMsgErr('I{js,请输入8位数字的工号}');
+			alert('I{js,请输入8位数字的工号}');
 			return false;
 		}
 		ssoLogin.login_type.value='shop_staff';
@@ -12150,20 +12216,20 @@ function _login(event,isClick){
 	if(_$('smsDiv1')
 			&&_$('smsDiv1').style.display!='none'){//短信登录
 		if(_$('sms').value.match(/^[0-9]{6}$/)==null){
-			top.Loading.setMsgErr('I{.请正确输入短信验证码}');
+			alert('I{.请正确输入短信验证码}');
 			return false;
 		}
 	}else{
 		if(_$('sms')) _$('sms').value='';
 		if(ssoLogin.sso_user_pwd.value.match(/^\S{6,32}$/)==null){
-			top.Loading.setMsgErr('I{js,密码必须是8~32位非空白字符}');
+			alert('I{js,密码必须是8~32位非空白字符}');
 			return false;
 		}
 	}
 	
 	
 	if(_$('sso_verifier_code')&&ssoLogin.sso_verifier_code.value.match(/^[a-zA-Z0-9]{4}$/)==null){
-		top.Loading.setMsgErr('I{.请正确填写4位验证码}');
+		alert('I{.请正确填写4位验证码}');
 		return false;
 	}
 	
@@ -12295,6 +12361,61 @@ var Message={
 	sent:0,
 	received:new Array(),
 	notifySn:1,
+	win:null,
+	websocket:null,
+	heartbeatInterval:null,
+	onGetMessages:null,
+	isStaff:false,
+	
+	openSession:function(onGetMessages,isStaff){
+		if(onGetMessages) this.onGetMessages=onGetMessages;
+		if((typeof isStaff)!='undefined') this.isStaff=isStaff;
+		this.websocket = new JWebSocket('Message','/websocket/chatting',Message.onopen,Message.onmessage,Message.onclose,Message.onerror);
+	},
+	
+	//任意发送一条信息给websocket的服务端以获得分区信息
+	hello:function(rpp, pn){
+		if(!rpp) rpp=100;
+		if(!pn) pn='';
+		var s='{"lang":"'+Lang.l()+'","talk_with":"'+(top.Message.sellerId?top.Message.sellerId:'')+'","rpp":"'+rpp+'","pn":"'+pn+'","seller":"'+(Message.isStaff?'true':'')+'"}';
+		console.log('send to /websocket/chatting/ -> '+s);
+		this.websocket.send(s);
+	},
+	
+	onopen:function(){
+		console.log('connected to /websocket/chatting');
+		Message.hello();
+		
+		//每15秒发一次心跳，以免断开
+		if(Message.heartbeatInterval){
+			clearInterval(Message.heartbeatInterval);
+		}
+		Message.heartbeatInterval=setInterval(Message.heartbeat, 15000);
+	},
+	
+	onerror:function() {
+		console.log('error while connect to /websocket/chatting');
+		//WebSocket连接发生错误
+	},
+	
+	onclose:function(){
+		console.log('disconnect from /websocket/chatting');
+		Toast.show('<a class="awhite" href="javascript:_void();" onclick="location.reload();">I{shopping,通讯中断，请刷[点此]重新连接}</a>',3600000);
+	},
+	
+	onmessage:function(event) {
+		//console.log('get message from /websocket/chatting -> '+event.data);
+		if(event.data=='OK') return;
+		
+		if(Message.onGetMessages){
+			Message.onGetMessages(event.data);
+		}
+	},
+	
+	heartbeat:function(){
+		console.log('heartbeat to /websocket/chatting');
+		Message.websocket.send('{"heartbeat":"true","seller":"'+(Message.isStaff?'true':'')+'"}');
+	},
 	
 	isFileValid:function(fileName){
 		return Str.endsWithOneOf(fileName,this.allowedFileTypes,true);
@@ -12340,7 +12461,8 @@ var Message={
 	
 	showFullPage:function(win){
 		this.sent=0;
-		Layer.open(null,win,'/usr/message.jhtml','I{js,在线客服}');
+		if(this.win) this.win.Layer.open(null,win,'/usr/message.jhtml','I{js,在线客服}');
+		else Layer.open(null,win,'/usr/message.jhtml','I{js,在线客服}');
 	},
 
 	close:function(){
@@ -12428,8 +12550,10 @@ var Message={
 		selector.value=(this.sellerId?this.sellerId:'');
 	},
 	
-	loadSeller:function(sellerId){
+	loadSeller:function(sellerId, window){
 		this.sellerId=sellerId;
+		if(window) this.win=window;
+		else this.win=null;
 		
 		if(!sellerId){
 			if(Utils.isMobile()) this.showFullPage(window);
@@ -12546,7 +12670,7 @@ var Message={
 	}
 }
 
-function _message(goodsId,sellerId,orderId,depositId,drawId){
+function _message(goodsId,sellerId,orderId,depositId,drawId,win){
 	if(depositId){
 		top.Message.depositId=depositId;
 		sellerId=null;
@@ -12558,7 +12682,7 @@ function _message(goodsId,sellerId,orderId,depositId,drawId){
 	if(goodsId) top.Message.goodsId=goodsId;
 	if(orderId) top.Message.orderId=orderId;
 	
-	top.Message.loadSeller(sellerId);
+	top.Message.loadSeller(sellerId, win?win:window);
 }
 
 //结束客户会话
@@ -12768,7 +12892,13 @@ var Share={
 		wx.miniProgram.getEnv(function(res) {
 			Share.weixinInit=true;
 		    if(res.miniprogram) {
-		    	Share.isWeixinMiniProgram=true;
+		    	if(tpage!='null' && tpage!=''){
+		            wx.miniProgram.navigateTo({url: tpage+(tpage.indexOf('?')>0?'&':'?')+'uid='+_user+'&?sc='+getReferer()});
+		            return;
+		    	}
+		    	
+		    	top.Share.isWeixinMiniProgram=true;
+		    	
 		        // 小程序环境下逻辑 
 		    	wx.miniProgram.postMessage({ data:
 		    		{title: Share.sharedTitle, 
@@ -14080,6 +14210,8 @@ var IOT={
 	}
 }
 ///////////////////////////////物联网 END///////////////////
+
+
 //一些全局的通用操作
 var adjustOnInputBlurTimer=null;
 var focusInInputLastTime=false;//上次检查时输入焦点是否在input(input、textarea、select)内
@@ -14206,11 +14338,14 @@ function videoLoaded(){
 if(Utils.isMobile()) setInterval(videoLoaded,100);
 //设置视频样式属性 end
 
-//电脑版监视浏览器缩放
-if(!Utils.isMobile()&&location.href==top.location.href){
-	setInterval(W.isZoomMonitor,200);
+if(location.href==top.location.href){
+	setInterval(Sys.heartbeat, 15000);//保持连接
+	if(!Utils.isMobile()){
+		setInterval(W.isZoomMonitor,200);
+		//setTimeout(W.browserCheck, 1000);
+		//setTimeout(W.browserCheck, 2000);
+	}
 }
-//电脑版监视浏览器缩放 end
 //初始化 end
 
 //支付宝小程序
