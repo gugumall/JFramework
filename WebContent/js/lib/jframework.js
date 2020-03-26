@@ -6192,22 +6192,22 @@ Ajax.prototype.callbackDefault=function(){
 			var resp=this.getResponseJson();
 			if(this.setResult) result=resp.code;
 			if(resp.code=='1'){
-				if(Loading.isOpen()){
-					Loading.setMsgOk('<font class="iconfont icon-chenggong font24px"></font><br/>'+resp.message);
-					if(this.closeDialogAuto) Loading.closeDelay(1000,true);
-				}else{
+				if(top.Loading.isOpen() && top.Loading.win && top.Loading.win==window){
 					top.Loading.setMsgOk('<font class="iconfont icon-chenggong font24px"></font><br/>'+resp.message);
 					if(this.closeDialogAuto) top.Loading.closeDelay(1000,true);
+				}else{
+					Loading.setMsgOk('<font class="iconfont icon-chenggong font24px"></font><br/>'+resp.message);
+					if(this.closeDialogAuto) Loading.closeDelay(1000,true);
 				}
 			}else if(resp.code=='-login'){
 				showNotLoginMessage();
 			}else{
-				if(Loading.isOpen()){
-					Loading.setMsgErr('<font class="iconfont icon-shibai1 font24px"></font><br/>'+resp.message);
-					if(this.closeDialogAuto) Loading.closeDelay(2000,true);
-				}else{
+				if(top.Loading.isOpen() && top.Loading.win && top.Loading.win==window){
 					top.Loading.setMsgErr('<font class="iconfont icon-shibai1 font24px"></font><br/>'+resp.message);
 					if(this.closeDialogAuto) top.Loading.closeDelay(2000,true);
+				}else{
+					Loading.setMsgErr('<font class="iconfont icon-shibai1 font24px"></font><br/>'+resp.message);
+					if(this.closeDialogAuto) Loading.closeDelay(2000,true);
 				}
 			}
 		}catch(e){
