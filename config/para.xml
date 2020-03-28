@@ -14,6 +14,20 @@
   	<para name="retry-interval">3000</para>
   </group>
   
+  <group name="BAIDU-SPEECH">
+  	<para name="AppID" desc="AppID" can-be-updated="true">19100970</para>
+  	<para name="APIKey" desc="APIKey" can-be-updated="true">AUK1zITNGuZ9E4oXLR5WF54h</para>
+  	<para name="SecretKey" desc="SecretKey" can-be-updated="true">Ze1NxmtR2zpsY5qPxLRcuzfKuDUqOHjw</para>
+  	<para name="TokenUrl" desc="Token获取地址" can-be-updated="true">https://openapi.baidu.com/oauth/2.0/token?grant_type=client_credentials&amp;client_id=APIKey&amp;client_secret=SecretKey</para>
+  	<para name="text2audioUrl" desc="语音合成地址" can-be-updated="true">http://tsn.baidu.com/text2audio</para>
+  	<para name="speed" desc="语速（0-15）" can-be-updated="true">5</para>
+  	<para name="pitch" desc="语调（0-15）" can-be-updated="true">5</para>
+  	<para name="volume" desc="音量（0-15）" can-be-updated="true">5</para>
+  	<para name="person" desc="人声" can-be-updated="true">111</para>
+  	<para name="persons" desc="人声可选项（勿修改）" can-be-updated="true">度小宇=1，度小美=0，度逍遥=3，度丫丫=4，度博文=106，度小童=110，度小萌=111，度米朵=103，度小娇=5</para>
+  	<para name="audioEncoder" desc="语音编码" can-be-updated="true">3</para>
+  </group>
+  
   <group name="TEST">
   	<para name="user-id">user</para>
   	<para name="user-pwd">password</para>

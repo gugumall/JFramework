@@ -547,9 +547,7 @@ public class SysUtil {
 		if(useDomain!=null&&!"".equals(useDomain)) return getHttpMainDomain(useDomain);
 		
 		String domain=getHttpDomain(request);
-		String[] cells=JUtilString.getTokens(domain, ".");
-		if(cells.length<2) return domain;
-		else return cells[cells.length-2]+"."+cells[cells.length-1];
+		return getHttpMainDomain(domain);
 	}
 	
 	/**
@@ -558,6 +556,10 @@ public class SysUtil {
 	 * @return
 	 */
 	public static String getHttpMainDomain(String domain){
+		String _mainDomains=AppConfig.getPara("SYSTEM", "DOMAINS");
+		String[] mainDomains=_mainDomains==null||"".equals(_mainDomains)?null:_mainDomains.split(",");
+		if(mainDomains!=null && JUtilString.containIgnoreCase(mainDomains, domain)) return domain;
+ 		
 		String[] cells=JUtilString.getTokens(domain, ".");
 		if(cells.length<2) return domain;
 		else return cells[cells.length-2]+"."+cells[cells.length-1];

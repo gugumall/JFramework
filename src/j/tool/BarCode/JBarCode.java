@@ -423,6 +423,6 @@ public class JBarCode {
 	 * @param args
 	 */
 	public static void main(String[] args){
-		createCode128("100000000176","F:/temp/order.png",IMAGE_PNG,0.5,true);
+		createCode128("DZ2008020163","F:/temp/order.png",IMAGE_PNG,0.8,true);
 	}
 }
