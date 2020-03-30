@@ -439,11 +439,7 @@ var UserAgents={
 		return this.DOMAIN_IOS==this.getDomainType(domain);
 	},
 	
-	isMobile(domain) {
-		return this.DOMAIN_MOBILE==this.getDomainType(domain);
-	},
-	
-	isPC(domain) {
+	isPC:function(domain) {
 		return this.DOMAIN_PC==this.getDomainType(domain);
 	},
 	
@@ -3456,7 +3452,7 @@ var Player={
 		var p=this.getPlayer(containerId);
 		if(!p || p.isLive) return;
 		
-		if(p.player) p.player.play(true);
+		//if(p.player) p.player.play(true);
 		if(_$(p.containerId)){
 			_$(p.containerId).style.display='';
 		}
@@ -3479,7 +3475,7 @@ var Player={
 			var p=Player.players[i];
 			if(!p || p.isLive) return;
 			
-			if(p.player) p.player.play(true);
+			//if(p.player) p.player.play(true);
 			if(_$(p.containerId)){
 				_$(p.containerId).style.display='';
 			}
