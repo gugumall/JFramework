@@ -774,9 +774,13 @@ var Utils={
 	hideInputPrompt:function(_input,_prompt){
 		if(_input.value==_prompt) _input.value='';
 	},
-	
+
+	//页面历史记录
+	UrlHistory:new Array(),
 	goBack:function(defaultPage){
-		window.history.back(-1);
+		var backUrl=top.Utils.UrlHistory.pop();
+		if(backUrl && backUrl!=location.href) location.href=backUrl;
+		else window.history.back(-1);
 	},
 	
 	goBackInAPP:function(){
@@ -3649,6 +3653,49 @@ var Paras={
 			}
 		}
 		return url;
+	},
+	
+	//js文件后面的参数
+	parasInJSPath:new Array(),
+	
+	//初始化js文件后面的参数
+	initJS:function(){
+		var js=null;
+		var scripts=null;
+		try{
+			scripts=document.scripts;
+		}catch(e){
+			scripts=document.getElementsByTagName('script');
+		}
+		for(var i=0; i<scripts.length; i++){
+			js=scripts[i].src;
+			if(js.indexOf('jframework.js')>0 || js.indexOf('jframework.jhtml')>0){
+				while(js.lastIndexOf('#')==js.length-1){
+					js=js.substring(0,js.length-1);
+				}
+				var pos = js.indexOf('?');
+				if(pos>0){
+					js = js.substring(pos+1);
+					if (js.indexOf('&')>0){
+						var para = js.split('&');
+						for(i=0;i<para.length;i++){
+							pos = para[i].indexOf('=');
+							var val=JSONUtil.de(decodeURIComponent(para[i].substring(pos+1)));
+							this.parasInJSPath[para[i].substring(0,pos)]=val;
+						}
+					}else{
+						pos = js.indexOf('=');
+						var val=JSONUtil.de(decodeURIComponent(js.substring(pos+1)));
+						this.parasInJSPath[js.substring(0,pos)]=val;
+					}
+				}	 
+			}
+		}
+	},
+	
+	//得到跟在js文件后面的参数
+	getJSPara:function(name){
+		return this.parasInJSPath[name];
 	},
 	
 	//将字符串转换为各字符的整形编码值，用.分割
@@ -14240,7 +14287,7 @@ function adjustOnInputBlur(){
 		adjustOnInputBlurTimer=setTimeout(adjustOnInputBlur,1000);
 	}
 }
-adjustOnInputBlurTimer=setTimeout(adjustOnInputBlur,1000);
+if(Utils.isMobile()) adjustOnInputBlurTimer=setTimeout(adjustOnInputBlur,1000);
 
 //提示关注公众号
 var thirdparty_subscribe='0';
@@ -14342,6 +14389,29 @@ if(location.href==top.location.href){
 		//setTimeout(W.browserCheck, 2000);
 	}
 }
+
+function saveUrlHistory(){
+	try{
+		if(W.w()>0){//网页已加载
+			Paras.initJS();
+			if(Paras.getJSPara('saveUrlHistory')){
+				var exists=false;
+				for(var i=0; i<top.Utils.UrlHistory.length; i++){
+					if(top.Utils.UrlHistory[i] == location.href){
+						exists=true;
+						break;
+					}
+				}
+				if(!exists) top.Utils.UrlHistory.push(location.href);
+			}
+		}else{
+			setTimeout(saveUrlHistory,500);
+		}
+	}catch(e){
+		setTimeout(saveUrlHistory,500);
+	}
+}
+setTimeout(saveUrlHistory,500);
 //初始化 end
 
 //支付宝小程序
