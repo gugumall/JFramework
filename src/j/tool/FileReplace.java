@@ -93,10 +93,10 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
+		File dir=new File("D:\\tomcat\\webapps\\btn\\ROOT\\WEB-INF");
 		replace(dir,
-				"古古商贸",
-				"迅捷能源",
+				"走货",
+				"补货",
 				".jsp");
 		
 //		rotate(new File("D:\\176\\10.4 桃江一中 活动\\形象照\\temp"),180,".jpg");
@@ -151,24 +151,25 @@ public class FileReplace {
 			if(!file.getName().endsWith(ext)) return;
 			
 			String s=JDFSFile.read(file, "UTF-8");
-			
-//			int start=s.indexOf("class=\"searcher\"");
-//			int end=0;
-//			if(start>0) {
-//				end=s.indexOf("</form>",start);
-//			}
-//			if(end>0&&end>start) {
-//				String s1=s.substring(0,start);
+
+			//调整iframeTitle样式
+//			int start=s.indexOf("<div id=\"iframeTitle\">");
+//			int end=s.indexOf("<div id=\"iframe\">");
+//			if(start>0 && end>start) {
+//				String s1=s.substring(0, start);
 //				String s2=s.substring(start,end);
 //				String s3=s.substring(end);
-//				if(s2.indexOf("<div class=\"btnLongLight marginL10\">")>0) {
-//					s2=JUtilString.replaceAll(s2, "<div class=\"btnLongLight marginL10\">", "<div class=\"btnSmall65 marginL10\">");
-//					s=s1+s2+s3;
-//					JDFSFile.saveString(file.getAbsolutePath(), s, false, "UTF-8");
-//					
-//					System.out.println(file.getAbsolutePath());
-//				}
+//				
+//				s2=JUtilString.replaceAll(s2, "marginR10", "marginL10");
+//				s2=JUtilString.replaceAll(s2, "marginR20", "marginL20");
+//				
+//				s=s1+s2+s3;
+//				
+//				JDFSFile.saveString(file.getAbsolutePath(), s, false, "UTF-8");
+//				
+//				System.out.println(file.getAbsolutePath());
 //			}
+			//调整iframeTitle样式 end
 			
 			if(s.indexOf(src)>-1){
 				
