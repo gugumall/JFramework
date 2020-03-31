@@ -443,6 +443,10 @@ var UserAgents={
 		return this.DOMAIN_PC==this.getDomainType(domain);
 	},
 	
+	isMobile:function(domain){
+		return !this.isPC(domain);
+	},
+	
 	replaceFirstDomainCell:function(domain,alt){
 		var cells=domain.split('.');
 		if(cells.length<3) return domain;
