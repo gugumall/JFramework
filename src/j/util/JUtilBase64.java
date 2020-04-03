@@ -10,7 +10,7 @@ public final class JUtilBase64{
 	 * @return Encoded Base64 array
 	 */
 	public static String encode(byte[] binaryData){
-		return Base64.getEncoder().encodeToString(binaryData);
+		return Base64.getMimeEncoder().encodeToString(binaryData);
 	}
 
 	/**
@@ -20,6 +20,6 @@ public final class JUtilBase64{
 	 * @return Array contained decoded data.
 	 */
 	public static byte[] decode(String encoded){
-		return Base64.getDecoder().decode(encoded);
+		return Base64.getMimeDecoder().decode(encoded);
 	}
 }
