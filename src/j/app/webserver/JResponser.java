@@ -8,6 +8,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.http.client.HttpClient;
+
 import j.app.Constants;
 import j.common.JObject;
 import j.http.JHttp;
@@ -36,6 +38,9 @@ public class JResponser extends JObject{
 	private String urlBase;
 	private String key;
 	private String[] urlPatterns;//需要调用远程节点的URL,*号表示全部
+	private JHttp http;
+	private HttpClient httpClient;
+	private JHttpContext httpContext;
 	
 	/**
 	 * 
@@ -134,11 +139,17 @@ public class JResponser extends JObject{
 		map.put(Constants.J_ACTION_RESPONSER_KEY, this.getKey());
 
 		try {
-			JHttpContext httpContext=new JHttpContext();
-			httpContext.setRequestEncoding(SysConfig.sysEncoding);
-			JHttp http=JHttp.getInstance();
+			synchronized(this) {
+				if(httpContext==null) httpContext=new JHttpContext();
+				httpContext.setRequestEncoding(SysConfig.sysEncoding);
+	
+				if(http==null) http=JHttp.getInstance();
+				
+				if(httpClient==null) httpClient=http.createClient(30000);
+			}
+			
 			String url=this.getUrlBase()+requestURI;
-			http.post(httpContext, null, url, map, SysConfig.sysEncoding);
+			http.post(httpContext, httpClient, url, map, SysConfig.sysEncoding);
 			//log.log("call responser["+this+"] result "+resp, -1);
 	    	
 	    	return httpContext;
