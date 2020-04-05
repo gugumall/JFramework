@@ -9,6 +9,7 @@ import j.security.StringEncrypt;
 import j.sys.SysConfig;
 import j.util.JUtilDom4j;
 import j.util.JUtilRandom;
+import j.util.JUtilString;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -92,6 +93,7 @@ public class Permission implements Runnable{
 			return false;
 		}
 		
+		passport=JUtilString.decodeURI(passport, SysConfig.sysEncoding);
 		passport=AES.decrypt(passport, SysConfig.getAesKey(), SysConfig.getAesOffset());
 		
 		return passports.contains(passport);
@@ -106,7 +108,9 @@ public class Permission implements Runnable{
 		waitWhileLoading();
 		int index=JUtilRandom.nextInt(passports.size());
 		String p=(String)passports.get(index);
-		return AES.encrypt(p, SysConfig.getAesKey(), SysConfig.getAesOffset());
+		p=AES.encrypt(p, SysConfig.getAesKey(), SysConfig.getAesOffset());
+		p=JUtilString.encodeURI(p, SysConfig.sysEncoding);
+		return p;
 	}
 	
 	
