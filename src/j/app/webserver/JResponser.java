@@ -113,7 +113,7 @@ public class JResponser extends JObject{
         		
 	        	String value=SysUtil.getHttpParameter(request, parameter);
         		if(value!=null) {
-        			value=AES.encrypt(value, SysConfig.getAesKey(), SysConfig.getAesOffset());
+        			//value=AES.encrypt(value, SysConfig.getAesKey(), SysConfig.getAesOffset());
         			map.put(parameter,value);
         		}
 				//log.log("call this parameter "+parameter+"="+value, -1);
