@@ -1,14 +1,24 @@
 
 package j.util;
 
+import java.awt.image.BufferedImage;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 
-import j.db.Jlog;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
+import javax.imageio.stream.ImageOutputStream;
+
+import j.http.JHttp;
+import j.http.JHttpContext;
 
 
 /**
@@ -221,16 +231,46 @@ public final class JUtilUUID {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		Properties ps=System.getProperties();
-
-		for(Iterator it=ps.keySet().iterator();it.hasNext();){
-			String key=(String)it.next();
-			String value=(String)ps.getProperty(key);
-			//System.out.println(key+" = "+value);
+		try {
+			String accessToken="32_nUTl78GD3W6VGNdUjluc0LlWHyISCiQHFrwO1a_2rTVQiC0QjySjP2xAZYTcReZpY_5Fl6uIs9YAPAe_45rk46rtPoLx-JnuZKBNu6wjU7AZzyalBRV10jG4jjkqkOczrK6BEIae0twLegNAVKBbADABQH";
+		
+			String url="https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=ACCESS_TOKEN";
+			url=url.replaceAll("ACCESS_TOKEN", accessToken);
+		
+			Map paras=new HashMap();
+			paras.put("scene","821");
+			paras.put("page","pages/index/index");
+			paras.put("width",430);
+			paras.put("auto_color",new Boolean(true));
+			paras.put("is_hyaline",new Boolean(false));
+			
+			String json=JUtilBean.map2Json(paras);
+					
+			System.out.println(json);
+			
+			JHttp http=JHttp.getInstance();
+			JHttpContext context=new JHttpContext();
+			context.setRequestBody(json);
+			http.postStream(context, null, url, null);
+			
+			BufferedImage img=ImageIO.read(context.getResponseStream());
+			
+			FileOutputStream os = new FileOutputStream("f:/temp/aaa.png"); // 输出到文件流
+			ImageWriter writer = (ImageWriter) ImageIO.getImageWritersByFormatName("PNG").next();
+			ImageOutputStream ios = ImageIO.createImageOutputStream(os);
+			writer.setOutput(ios);
+			ImageWriteParam param = new JPEGImageWriteParam(Locale.getDefault());
+			param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+			param.setCompressionQuality(1);
+			writer.write(null, new IIOImage(img, null, null), param);
+			writer.dispose();
+			ios.flush();
+			ios.close();
+			os.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+			//return null;
 		}
-		String lotteryOrder=System.currentTimeMillis()+JUtilString.randomNum(7);
-		System.out.println(lotteryOrder);
-	
 
 		System.exit(0);
 	}
