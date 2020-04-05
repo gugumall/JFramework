@@ -20,8 +20,8 @@
 	<database name="jframework" min-uuid="0" max-uuid="10000000" db-key-prefix="10"/>
 	
 	<security>
-		<AES-KEY></AES-KEY>
-		<AES-OFFSET></AES-OFFSET>
+		<AES-KEY>A6PtjqXaMmmTswSB</AES-KEY>
+		<AES-OFFSET>3TtzCex2QQBCLEht</AES-OFFSET>
 	</security>
 	
 	<!--初始化系统-->
