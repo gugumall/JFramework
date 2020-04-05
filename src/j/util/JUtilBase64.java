@@ -4,22 +4,42 @@ import java.util.Base64;
 
 public final class JUtilBase64{
 	/**
-	 * Encodes hex octects into Base64
 	 * 
-	 * @param binaryData Array containing binaryData
-	 * @return Encoded Base64 array
+	 * @param binaryData
+	 * @return
 	 */
 	public static String encode(byte[] binaryData){
-		return Base64.getMimeEncoder().encodeToString(binaryData);
+		return encode(binaryData, true);
 	}
 
 	/**
-	 * Decodes Base64 data into octects
 	 * 
-	 * @param encoded string containing Base64 data
-	 * @return Array contained decoded data.
+	 * @param encoded
+	 * @return
 	 */
 	public static byte[] decode(String encoded){
-		return Base64.getMimeDecoder().decode(encoded);
+		return decode(encoded, true);
+	}
+	
+	/**
+	 * 
+	 * @param binaryData
+	 * @param useMimeEncoder
+	 * @return
+	 */
+	public static String encode(byte[] binaryData, boolean useMimeEncoder){
+		if(useMimeEncoder) return Base64.getMimeEncoder().encodeToString(binaryData);
+		else return Base64.getEncoder().encodeToString(binaryData);
+	}
+
+	/**
+	 * 
+	 * @param encoded
+	 * @param useMimeDecoder
+	 * @return
+	 */
+	public static byte[] decode(String encoded, boolean useMimeDecoder){
+		if(useMimeDecoder) return Base64.getMimeDecoder().decode(encoded);
+		else return Base64.getDecoder().decode(encoded);
 	}
 }

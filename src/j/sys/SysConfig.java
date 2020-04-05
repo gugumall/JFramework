@@ -35,11 +35,16 @@ public class SysConfig{
 
 	public static String errorPage;//发生错误时转向页面
 	
+	//系统默认数据库相关配置
 	public static String databaseName;//数据库名
 	public static long   minUuid;//自增uuid开始值
 	public static long   maxUuid;//自增uuid最大值
 	public static String   dbKeyPrefix="";
+	//系统默认数据库相关配置 end
 	
+	//AES加密配置
+	private static String AES_KEY;
+	private static String AES_OFFSET;
 	
 	static{
 		try{
@@ -63,6 +68,22 @@ public class SysConfig{
 	 */
 	public static String getMachineID(){
 		return machineId;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static String getAesKey() {
+		return AES_KEY;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static String getAesOffset() {
+		return AES_OFFSET;
 	}
 
 	/**
@@ -121,6 +142,19 @@ public class SysConfig{
       	
       	SysConfig.dbKeyPrefix=databaseE.attributeValue("db_key_prefix")==null?"":databaseE.attributeValue("db_key_prefix");
       	log.log("SysConfig.dbKeyPrefix:"+SysConfig.dbKeyPrefix,-1);
+      	
+
+        //security
+        Element security=root.element("security");
+        if(security==null) {
+        	AES_KEY=null;
+        	AES_OFFSET=null;
+        }else {
+        	AES_KEY=security.elementText("AES-KEY");
+        	AES_OFFSET=security.elementText("AES_OFFSET");
+        }
+      	log.log("security.AES_KEY:"+AES_KEY,-1);
+      	log.log("security.AES_OFFSET:"+AES_OFFSET,-1);
 	}	
 	
 	/**

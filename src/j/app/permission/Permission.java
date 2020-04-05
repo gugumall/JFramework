@@ -4,8 +4,11 @@ import j.Properties;
 import j.app.Constants;
 import j.app.sso.User;
 import j.log.Logger;
+import j.security.AES;
 import j.security.StringEncrypt;
+import j.sys.SysConfig;
 import j.util.JUtilDom4j;
+import j.util.JUtilRandom;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -89,6 +92,8 @@ public class Permission implements Runnable{
 			return false;
 		}
 		
+		passport=AES.decrypt(passport, SysConfig.getAesKey(), SysConfig.getAesOffset());
+		
 		return passports.contains(passport);
 	}
 	
@@ -99,10 +104,9 @@ public class Permission implements Runnable{
 	 */
 	public static String getSSOPassport(){
 		waitWhileLoading();
-		Random r=new Random();
-		int index=r.nextInt(passports.size());
-		r=null;
-		return (String)passports.get(index);
+		int index=JUtilRandom.nextInt(passports.size());
+		String p=(String)passports.get(index);
+		return AES.encrypt(p, SysConfig.getAesKey(), SysConfig.getAesOffset());
 	}
 	
 	

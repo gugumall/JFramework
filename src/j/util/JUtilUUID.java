@@ -228,7 +228,8 @@ public final class JUtilUUID {
 			String value=(String)ps.getProperty(key);
 			//System.out.println(key+" = "+value);
 		}
-		System.out.println(JUtilUUID.genUUID());
+		String lotteryOrder=System.currentTimeMillis()+JUtilString.randomNum(7);
+		System.out.println(lotteryOrder);
 	
 
 		System.exit(0);

@@ -35,6 +35,7 @@ import j.common.JObject;
 import j.common.JProperties;
 import j.http.JHttp;
 import j.log.Logger;
+import j.security.AES;
 import j.sys.SysConfig;
 import j.sys.SysUtil;
 import j.tool.ip.IP;
@@ -712,6 +713,9 @@ public class Onlines implements Filter,Runnable{
 			if(requestFrom!=null) {
 				//log.log("request from "+requestFrom, -1);
 				String responserKey=SysUtil.getHttpParameter(request, Constants.J_ACTION_RESPONSER_KEY);
+				if(responserKey!=null) {
+					responserKey=AES.decrypt(responserKey, SysConfig.getAesKey(), SysConfig.getAesOffset());
+				}
 				if(responserKey==null || !responserKey.equals(Handlers.getResponserKey())) {
 					try {
 						SysUtil.outHttpResponse(response, "invalid responser key:"+responserKey);
@@ -726,12 +730,16 @@ public class Onlines implements Filter,Runnable{
 			        	String parameter=(String)parameters.nextElement();
 			        	if(parameter.startsWith(Constants.J_ACTION_RESPONSER_SESSION_PREFIX)) {
 			        		String value=SysUtil.getHttpParameter(request, parameter);
-			    			//log.log("request from session object "+parameter+"="+value, -1);
-			        		try {
-			        			Object _value=JObject.string2Serializable(value);
-			        			session.setAttribute(parameter.substring(Constants.J_ACTION_RESPONSER_SESSION_PREFIX.length()), _value);
-			        		}catch(Exception e){
-			        			log.log(e, Logger.LEVEL_ERROR);
+			        		if(value!=null) {
+			        			value=AES.decrypt(value, SysConfig.getAesKey(), SysConfig.getAesOffset());
+				    			//log.log("request from session object "+parameter+"="+value, -1);
+			        			
+			        			try {
+				        			Object _value=JObject.string2Serializable(value);
+				        			session.setAttribute(parameter.substring(Constants.J_ACTION_RESPONSER_SESSION_PREFIX.length()), _value);
+				        		}catch(Exception e){
+				        			log.log(e, Logger.LEVEL_ERROR);
+				        		}
 			        		}
 			        	}
 		        	}

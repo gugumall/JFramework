@@ -8,13 +8,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.http.client.HttpClient;
-
 import j.app.Constants;
 import j.common.JObject;
 import j.http.JHttp;
 import j.http.JHttpContext;
 import j.log.Logger;
+import j.security.AES;
 import j.sys.SysConfig;
 import j.sys.SysUtil;
 import j.util.JUtilString;
@@ -39,7 +38,6 @@ public class JResponser extends JObject{
 	private String key;
 	private String[] urlPatterns;//需要调用远程节点的URL,*号表示全部
 	private JHttp http;
-	private HttpClient httpClient;
 	private JHttpContext httpContext;
 	
 	/**
@@ -112,11 +110,17 @@ public class JResponser extends JObject{
 	        	String parameter=(String)parameters.nextElement();
 	        	if(parameter.equals(Constants.J_ACTION_RESPONSER_SET)
 	        			||(ignoreParameters!=null && JUtilString.contain(ignoreParameters, parameter))) continue;
-        		String value=SysUtil.getHttpParameter(request, parameter);
-        		map.put(parameter,value);
+        		
+	        	String value=SysUtil.getHttpParameter(request, parameter);
+        		if(value!=null) {
+        			value=AES.encrypt(value, SysConfig.getAesKey(), SysConfig.getAesOffset());
+        			map.put(parameter,value);
+        		}
 				//log.log("call this parameter "+parameter+"="+value, -1);
         	}
-    	}catch(Exception e){}
+    	}catch(Exception e){
+    		log.log(e, Logger.LEVEL_ERROR);
+    	}
     	
     	//序列化后的session对象
 		Enumeration sessionNames=session.getAttributeNames();
@@ -124,32 +128,38 @@ public class JResponser extends JObject{
     		while(sessionNames.hasMoreElements()){
 	        	String parameter=(String)sessionNames.nextElement();
 	        	if(parameter.equals(Constants.J_ACTION_RESPONSER)) continue;
-        		Object value=session.getAttribute(parameter);
+        		
+	        	Object value=session.getAttribute(parameter);
         		if(value instanceof Serializable) {
 					//log.log("call responser["+this+"] session object "+parameter+"="+value, -1);
-	        		map.put(Constants.J_ACTION_RESPONSER_SESSION_PREFIX+parameter, JObject.serializable2String((Serializable)value, false));
+        			String s=JObject.serializable2String((Serializable)value, false);
+        			if(s!=null) {
+        				s=AES.encrypt(s, SysConfig.getAesKey(), SysConfig.getAesOffset());
+    	        		map.put(Constants.J_ACTION_RESPONSER_SESSION_PREFIX+parameter, s);
+        			}
         		}
         	}
-    	}catch(Exception e){}
+    	}catch(Exception e){
+    		log.log(e, Logger.LEVEL_ERROR);
+    	}
 		
 		//设置远程调用标志
 		map.put(Constants.J_ACTION_RESPONSER_FROM, SysConfig.getSysId());
 		
 		//交互密钥
-		map.put(Constants.J_ACTION_RESPONSER_KEY, this.getKey());
+		map.put(Constants.J_ACTION_RESPONSER_KEY, AES.encrypt(this.getKey(), SysConfig.getAesKey(), SysConfig.getAesOffset()));
 
 		try {
 			synchronized(this) {
 				if(httpContext==null) httpContext=new JHttpContext();
 				httpContext.setRequestEncoding(SysConfig.sysEncoding);
+				httpContext.setAllowedErrorCodes(new String[] {"200","302"});
 	
 				if(http==null) http=JHttp.getInstance();
-				
-				if(httpClient==null) httpClient=http.createClient(30000);
 			}
 			
 			String url=this.getUrlBase()+requestURI;
-			http.post(httpContext, httpClient, url, map, SysConfig.sysEncoding);
+			http.post(httpContext, http.createClient(30000, 5), url, map, SysConfig.sysEncoding);
 			//log.log("call responser["+this+"] result "+resp, -1);
 	    	
 	    	return httpContext;
