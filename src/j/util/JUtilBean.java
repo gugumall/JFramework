@@ -697,6 +697,14 @@ public class JUtilBean {
 				Object o=JUtilBean.getPropertyValue(bean,name);
 				if(o==null){
 					jsonString.append("\""+name+"\":null");
+				}else if((o instanceof Integer)
+						||(o instanceof Long)
+						||(o instanceof Short)
+						||(o instanceof Boolean)){
+					jsonString.append("\""+name+"\":"+o);
+				}else if((o instanceof Double)
+						||(o instanceof Float)){
+					jsonString.append("\""+name+"\":"+JUtilMath.formatPrintWithoutZero((Double)o, 20));
 				}else if(encode){
 					jsonString.append("\""+name+"\":\""+JUtilJSON.convert(o.toString())+"\"");
 				}else {
@@ -876,12 +884,14 @@ public class JUtilBean {
 				s.append(JUtilBean.beans2Json((List)val));
 			}else if(val instanceof String){
 				s.append("\""+JUtilJSON.convert(val.toString())+"\"");
-			}else if(val instanceof Integer){
-				s.append("\""+val.toString()+"\"");
-			}else if(val instanceof Long){
-				s.append("\""+val.toString()+"\"");
-			}else if(val instanceof Double){
-				s.append("\""+JUtilMath.formatPrintWithoutZero((double)val,20)+"\"");
+			}else if((val instanceof Integer)
+					||(val instanceof Long)
+					||(val instanceof Short)
+					||(val instanceof Boolean)){
+				s.append(val);
+			}else if((val instanceof Double)
+					||(val instanceof Float)){
+				s.append(JUtilMath.formatPrintWithoutZero((Double)val, 20));
 			}else if(val instanceof Timestamp){
 				s.append("\""+val.toString()+"\"");
 			}else{
