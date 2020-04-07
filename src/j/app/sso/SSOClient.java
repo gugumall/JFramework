@@ -555,7 +555,7 @@ public class SSOClient extends JHandler implements Runnable{
 				"");
 		loginStatus.setSubUserId(serverLoginStatus.getSubUserId());
 		
-		User user=User.loadUser(session,request,loginStatus.getUserId());//加载用户信息
+		User user=User.loadUser(session,request,loginStatus.getUserId(),serverLoginStatus.getMessages());//加载用户信息
 		
 		if(user!=null){//加载用户信息成功	
 			loginStatus.setSession(session);
@@ -646,7 +646,7 @@ public class SSOClient extends JHandler implements Runnable{
 					//log.log("Login Status is not found.", -1);
 					SysUtil.redirect(request,response,loginPage);
 				}else{//已经登录，加载用户信息
-					User user=User.loadUser(session,request,loginStatus.getUserId());//加载用户信息
+					User user=User.loadUser(session,request,loginStatus.getUserId(), loginStatus.getMessages());//加载用户信息
 					
 					if(user!=null){//加载用户信息成功	
 						loginStatus.setSession(session);

@@ -87,16 +87,16 @@ public class Properties implements Runnable {
 						JFRAMEWORK_HOME="/"+JFRAMEWORK_HOME;
 					}
 					
-					System.out.println("get JFRAMEWORK_HOME by getResource:"+JFRAMEWORK_HOME);
+					//System.out.println("get JFRAMEWORK_HOME by getResource:"+JFRAMEWORK_HOME);
 				}else{
-					System.out.println("get JFRAMEWORK_HOME from system env:"+JFRAMEWORK_HOME);
+					//System.out.println("get JFRAMEWORK_HOME from system env:"+JFRAMEWORK_HOME);
 				}
 				
 				if(JFRAMEWORK_HOME!=null){
 					JFRAMEWORK_HOME=JUtilString.replaceAll(JFRAMEWORK_HOME,"%20"," ");
 				}
 			}catch(Exception e){
-				System.out.println("load properties error: "+e.getMessage());
+				//System.out.println("load properties error: "+e.getMessage());
 				//e.printStackTrace();
 			}
 			
@@ -126,7 +126,7 @@ public class Properties implements Runnable {
 				System.out.println("key-value pair from system.properties: "+key+" = "+value); 
 			}
 		}catch(Exception e){
-			System.out.println("load properties error: "+e.getMessage());
+			//System.out.println("load properties error: "+e.getMessage());
 			//e.printStackTrace();
 		}
 		loading=false;
@@ -169,7 +169,7 @@ public class Properties implements Runnable {
 				System.out.println("reload key-value pair from system.properties: "+key+" = "+value); 
 			}
 		}catch(Exception e){
-			System.out.println("reload properties error: "+e.getMessage());
+			//System.out.println("reload properties error: "+e.getMessage());
 			e.printStackTrace();
 		}
 

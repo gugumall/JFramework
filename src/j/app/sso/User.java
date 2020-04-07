@@ -1,15 +1,16 @@
 package j.app.sso;
 
+import java.io.Serializable;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import j.app.permission.Role;
 import j.sys.SysConfig;
 import j.tool.region.Countries;
 import j.util.ConcurrentList;
 import j.util.JUtilString;
-
-import java.io.Serializable;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 /**
  * 
@@ -37,6 +38,11 @@ public abstract class User implements Serializable{
 	
 	//加载用户信息
 	public abstract boolean load(HttpSession _session,HttpServletRequest _request) throws Exception;
+	
+	//加载用户信息
+	public boolean load(HttpSession _session,HttpServletRequest _request,Map loginMessages) throws Exception{
+		return load(_session,_request);
+	}
 
 	/**
 	 * constructor
@@ -117,6 +123,26 @@ public abstract class User implements Serializable{
         	user=(User)Class.forName(client.getUserClass()).newInstance();
         	user.setUserId(_userId);
         	boolean loaded=user.load(_session,_request);
+        	if(!loaded&&user!=null) user=null;
+        }catch(Exception e){
+        	e.printStackTrace();
+        	if(user!=null) user=null;
+        }
+        return user;
+    }
+
+	/**
+	 * 加载用户详细信息
+	 * @param _userId
+	 * @return
+	 */
+	public static User loadUser(HttpSession _session,HttpServletRequest _request,String _userId, Map _loginMessages){
+		User user=null;
+        try{
+        	Client client=SSOConfig.getSsoClientByIdOrUrl(SysConfig.getSysId());
+        	user=(User)Class.forName(client.getUserClass()).newInstance();
+        	user.setUserId(_userId);
+        	boolean loaded=user.load(_session,_request,_loginMessages);
         	if(!loaded&&user!=null) user=null;
         }catch(Exception e){
         	e.printStackTrace();

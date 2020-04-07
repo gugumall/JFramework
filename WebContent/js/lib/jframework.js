@@ -293,7 +293,10 @@ var Str={
 	
 	//字符ascii码序列转化成字符串
 	intSequence2String:function(sequence){
-		if(sequence==null||!sequence.startsWith('jis:')) return sequence;
+		if(!sequence) return sequence;
+		if((typeof sequence)!='string') return sequence;
+		
+		if(!sequence.startsWith('jis:')) return sequence;
 		if(sequence.length==4) return '';
 		
 		var s='';
@@ -3574,7 +3577,11 @@ var JSONUtil={
 	},
 	
 	de:function(v){
-		if(v&&v.startsWith('jis:')){
+		if(!v) return v;
+		
+		if((typeof v)!='string') return v;
+		
+		if(v.startsWith('jis:')){
 			v=Str.intSequence2String(v);
 		}
 		return v;
@@ -14313,10 +14320,30 @@ function toWechatMP(){
 		}else{
 			if(_$('officialAccount')) _$('officialAccount').style.display='none';
 		}
+		
+		if(typeof WeixinJSBridge == "object" && typeof WeixinJSBridge.invoke == "function") {
+			setWechatFont();
+        }else{
+        	if(document.addEventListener) {
+                document.addEventListener("WeixinJSBridgeReady", setWechatFont, false);
+            }else if (document.attachEvent) {
+                document.attachEvent("WeixinJSBridgeReady", setWechatFont);
+                document.attachEvent("onWeixinJSBridgeReady", setWechatFont);
+            }
+        }
 	}catch(e){
 		//alert(e);
 		setTimeout(toWechatMP,1000);
 	}
+}
+function setWechatFont() {
+    // 设置网页字体为默认大小
+    WeixinJSBridge.invoke('setFontSizeCallback', {'fontSize' : 12});
+    
+    // 重写设置网页字体大小的事件
+    WeixinJSBridge.on('menu:setfont', function() {
+        WeixinJSBridge.invoke('setFontSizeCallback', {'fontSize' : 12});
+    });
 }
 setTimeout(toWechatMP,1000);
 

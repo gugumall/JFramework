@@ -231,46 +231,7 @@ public final class JUtilUUID {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		try {
-			String accessToken="32_nUTl78GD3W6VGNdUjluc0LlWHyISCiQHFrwO1a_2rTVQiC0QjySjP2xAZYTcReZpY_5Fl6uIs9YAPAe_45rk46rtPoLx-JnuZKBNu6wjU7AZzyalBRV10jG4jjkqkOczrK6BEIae0twLegNAVKBbADABQH";
-		
-			String url="https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=ACCESS_TOKEN";
-			url=url.replaceAll("ACCESS_TOKEN", accessToken);
-		
-			Map paras=new HashMap();
-			paras.put("scene","821");
-			paras.put("page","pages/index/index");
-			paras.put("width",430);
-			paras.put("auto_color",new Boolean(true));
-			paras.put("is_hyaline",new Boolean(false));
-			
-			String json=JUtilBean.map2Json(paras);
-					
-			System.out.println(json);
-			
-			JHttp http=JHttp.getInstance();
-			JHttpContext context=new JHttpContext();
-			context.setRequestBody(json);
-			http.postStream(context, null, url, null);
-			
-			BufferedImage img=ImageIO.read(context.getResponseStream());
-			
-			FileOutputStream os = new FileOutputStream("f:/temp/aaa.png"); // 输出到文件流
-			ImageWriter writer = (ImageWriter) ImageIO.getImageWritersByFormatName("PNG").next();
-			ImageOutputStream ios = ImageIO.createImageOutputStream(os);
-			writer.setOutput(ios);
-			ImageWriteParam param = new JPEGImageWriteParam(Locale.getDefault());
-			param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-			param.setCompressionQuality(1);
-			writer.write(null, new IIOImage(img, null, null), param);
-			writer.dispose();
-			ios.flush();
-			ios.close();
-			os.close();
-		}catch(Exception e) {
-			e.printStackTrace();
-			//return null;
-		}
+		System.out.println(JUtilMD5.MD5EncodeToHex("Aa131232"));
 
 		System.exit(0);
 	}
