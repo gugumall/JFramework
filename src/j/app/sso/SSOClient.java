@@ -446,7 +446,7 @@ public class SSOClient extends JHandler implements Runnable{
 		String _response=context.getStatus()==200?context.getResponseText():null;
 		context.finalize();
 		context=null;
-		log.log("tellServerToLogoutUser - "+_response,-1);
+		//log.log("tellServerToLogoutUser - "+_response,-1);
 	}
 	
 	/**

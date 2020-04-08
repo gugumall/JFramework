@@ -198,6 +198,8 @@ public class Countries {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception{
+		System.out.println(Countries.isMobileValid(Countries.DEFAULT_MOBILE_CODE,"15730109974"));
+		
 		System.out.println(isMobileValid("+86-15730109974"));
 		
 		//^\\d{3,6}\\-?\\d{5,10}\\-?\\d{0,6}$
