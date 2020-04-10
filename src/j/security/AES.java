@@ -13,6 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import j.util.JUtilBase64;
 import j.util.JUtilString;
+import sun.rmi.runtime.Log;
 
 public class AES {
     // 编码
@@ -79,7 +80,7 @@ public class AES {
     	}
     }
 
-    ////////////////////////小程序数据解密//////////////////////////////
+    ////////////////////////微信小程序数据解密//////////////////////////////
     /**
      * 
      * @param data
@@ -101,17 +102,45 @@ public class AES {
     		return data;
     	}
     }
-    ////////////////////////小程序数据解密 end//////////////////////////////
+    ////////////////////////微信小程序数据解密 end//////////////////////////////
+
+    
+    ////////////////////////支付宝小程序数据解密//////////////////////////////
+    public static String decrypt4AlipayMiniProgram(String content, String key, String charset){
+    	try {
+	        //反序列化AES密钥
+	        SecretKeySpec keySpec = new SecretKeySpec(Base64.getMimeDecoder().decode(key.getBytes()), "AES");
+	         
+	        //128bit全零的IV向量
+	        byte[] iv = new byte[16];
+	        for (int i = 0; i < iv.length; i++) {
+	            iv[i] = 0;
+	        }
+	        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+	         
+	        //初始化加密器并加密
+	        Cipher deCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+	        deCipher.init(Cipher.DECRYPT_MODE, keySpec, ivParameterSpec);
+	        byte[] encryptedBytes = Base64.getMimeDecoder().decode(content.getBytes());
+	        byte[] bytes = deCipher.doFinal(encryptedBytes);
+	        return new String(bytes);
+    	}catch(Exception e) {
+    		//e.fillInStackTrace();
+    		return content;
+    	}
+         
+    }
+    ////////////////////////支付宝小程序数据解密 end//////////////////////////////
     
     public static void main(String[] args) throws Exception{
     	/**
     	 * iv -> 
 encryptedData -> 
 session_key -> 
-    	 */
-    	String de=AES.decrypt4WechatMiniProgram("CCk9PjOKGOuHrH6MKGU+O0poEU9XNP4nIQowQivK9+ZOu6GwISo5FT86ZgjtSs2MG43s7DDPGpBS6cZwnojX9yfTe3a28OXXFpdpfBkXG5Cj7SZ3CAWCfAsI7dSS0EUi480itfwKviqrdPfxmDrzSummlNmqLv8MZz/gUr2hAsPvLXHMX3nHzWjzDV/KJ8Xkd72PSJWHNpkPzkf9IfB/Bw==", 
-    			"IUBWdxIsU1H0hreEwZ6Qog==", 
-    			"aqeX6LRP6noYTf3K7fAFhA==");
+    	 */                                     
+    	String de=AES.decrypt4AlipayMiniProgram("pS19C2IgDRd Ud0bOFjdYdULuxyKTSaNCVWe//tcBF1407b4BCcjpiCluuSVKUGXfYulsxVyjsKZue0ZMIJkrA==", 
+    			"x+K3Sja0v5vHoAS/R0SLsA==", 
+    			"UTF-8");
     	System.out.println("");
     	System.out.println("de:"+de);
     }

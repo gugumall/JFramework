@@ -7,6 +7,7 @@ import j.log.Logger;
 import j.security.AES;
 import j.security.StringEncrypt;
 import j.sys.SysConfig;
+import j.sys.SysUtil;
 import j.util.JUtilDom4j;
 import j.util.JUtilRandom;
 import j.util.JUtilString;
@@ -88,12 +89,11 @@ public class Permission implements Runnable{
 			return false;
 		}
 		
-		String passport=request.getParameter(Constants.SSO_PASSPORT);
+		String passport=SysUtil.getHttpParameter(request, Constants.SSO_PASSPORT);
 		if(passport==null){
 			return false;
 		}
 		
-		passport=JUtilString.decodeURI(passport, SysConfig.sysEncoding);
 		passport=AES.decrypt(passport, SysConfig.getAesKey(), SysConfig.getAesOffset());
 		
 		return passports.contains(passport);
