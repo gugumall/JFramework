@@ -28,8 +28,12 @@ public final class JUtilBase64{
 	 * @return
 	 */
 	public static String encode(byte[] binaryData, boolean useMimeEncoder){
-		if(useMimeEncoder) return Base64.getMimeEncoder().encodeToString(binaryData);
-		else return Base64.getEncoder().encodeToString(binaryData);
+		try {
+			if(useMimeEncoder) return Base64.getMimeEncoder().encodeToString(binaryData);
+			else return Base64.getEncoder().encodeToString(binaryData);
+		}catch(Exception e) {
+			return new String(binaryData);
+		}
 	}
 
 	/**
@@ -39,7 +43,11 @@ public final class JUtilBase64{
 	 * @return
 	 */
 	public static byte[] decode(String encoded, boolean useMimeDecoder){
-		if(useMimeDecoder) return Base64.getMimeDecoder().decode(encoded);
-		else return Base64.getDecoder().decode(encoded);
+		try {
+			if(useMimeDecoder) return Base64.getMimeDecoder().decode(encoded);
+			else return Base64.getDecoder().decode(encoded);
+		}catch(Exception e) {
+			return encoded.getBytes();
+		}
 	}
 }

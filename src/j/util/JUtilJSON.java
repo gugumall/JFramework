@@ -88,6 +88,20 @@ public class JUtilJSON{
 	
 	/**
 	 * 
+	 * @param js
+	 * @param key
+	 * @return
+	 */
+	public static Object get(JSONObject js,String key){
+		try{
+			return js.get(key);
+		}catch(Exception e){
+			return null;
+		}
+	}
+	
+	/**
+	 * 
 	 * @param s
 	 * @return
 	 */

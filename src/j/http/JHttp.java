@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -493,7 +494,14 @@ public class JHttp{
 			while (keys.hasNext()) {
 				Object key = keys.next();
 				Object val = params.get(key);
-				formparams.add(new BasicNameValuePair((String)key, val==null?"":val.toString()));
+				if(val!=null && val instanceof String[]) {
+					String[] vals=(String[])val;
+					for(int i=0; i<vals.length;i++) {
+						formparams.add(new BasicNameValuePair((String)key, vals[i]));
+					}
+				}else {
+					formparams.add(new BasicNameValuePair((String)key, val==null?"":val.toString()));
+				}
 			}
 			if(context.getRequestEncoding()==null) request.setEntity(new UrlEncodedFormEntity(formparams));
 			else request.setEntity(new UrlEncodedFormEntity(formparams,context.getRequestEncoding()));
@@ -521,6 +529,17 @@ public class JHttp{
 					builder=builder.addPart((String)key, new ByteArrayBody((byte[])val,(String)key));
 				}else if(val instanceof InputStream){					
 					builder=builder.addPart((String)key, new InputStreamBody((InputStream)val,(String)key));
+				}else if(val instanceof String[]){	
+					String[] array=(String[])val;
+					for(int i=0; i<array.length; i++) {
+						if(context.getRequestEncoding()!=null&&!"".equals(context.getRequestEncoding())){
+							System.out.println("add.........."+array[i]);
+							builder=builder.addPart((String)key, new StringBody((String)array[i],ContentType.create(context.getContentType()==null?"text/plain":context.getContentType(),Charset.forName(context.getRequestEncoding()))));
+						}else{
+							System.out.println("add.x........."+array[i]);
+							builder=builder.addPart((String)key, new StringBody((String)array[i],ContentType.TEXT_PLAIN));
+						}
+					}
 				}else if(val instanceof String){	
 					if(context.getRequestEncoding()!=null&&!"".equals(context.getRequestEncoding())){
 						builder=builder.addPart((String)key, new StringBody((String)val,ContentType.create(context.getContentType()==null?"text/plain":context.getContentType(),Charset.forName(context.getRequestEncoding()))));
@@ -538,8 +557,10 @@ public class JHttp{
 				Object key = keys.next();
 				Object val = strings.get(key);
 				if(context.getRequestEncoding()!=null&&!"".equals(context.getRequestEncoding())){
+					System.out.println("add.xx........."+val);
 					builder=builder.addPart((String)key, new StringBody((String)val,ContentType.create(context.getContentType()==null?"text/plain":context.getContentType(),Charset.forName(context.getRequestEncoding()))));
 				}else{
+					System.out.println("add.xxx........."+val);
 					builder=builder.addPart((String)key, new StringBody((String)val,ContentType.TEXT_PLAIN));
 				}
 			}
@@ -1049,12 +1070,14 @@ public class JHttp{
 			
 			HttpClient client=http.createClient(30000);
 
-			context.addRequestHeader("Referer","https://bet.hkjc.com/marksix/default.aspx?lang=ch");
+			context.addRequestHeader("Referer","https://www.gugumall.cn/");
+			Map strings=new HashMap();
+			strings.put("lottyID", "540267");
+			strings.put("data[]", new String[] {"58|1|8|1|9.912","58|1|8|1|9.915"});
 			
+			String resp=http.postResponse(context, client, "https://www.gugumall.cn/timex.jhtml", strings, "UTF-8");
 			
-			result=http.getResponse(context, client, "https://bet.hkjc.com/marksix/default.aspx?lang=ch");
-			
-			System.out.println("result:"+result);
+			System.out.println("result:"+resp);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
