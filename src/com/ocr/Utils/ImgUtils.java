@@ -28,7 +28,7 @@ public class ImgUtils {
 			Thread.sleep(100);
 			 
 	        //原始验证码地址
-	        String OriginalImg = "F:\\work\\JGame\\doc\\TransferTT\\cache\\code.png";
+	        String OriginalImg = "F:\\work\\JGame\\doc\\Transfer168\\cache\\code.jpg";
 	        
 	        //识别样本输出地址
 	        String ocrResult = "f:\\temp\\coder.jpg";
@@ -41,7 +41,7 @@ public class ImgUtils {
 	       
 	        //OCR识别
 	        //x,y是以左上角为原点，width和height是以xy为基础
-	        String code = Tess4J.doOCR(OriginalImg, 0, new Rectangle(8, 12, 82, 19));
+	        String code = Tess4J.doOCR(OriginalImg);
 	        
 	        code=JUtilString.replaceAll(code, " ", "");
 	        code=JUtilString.replaceAll(code, "\t", "");

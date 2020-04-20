@@ -23,11 +23,12 @@ public class Tess4J {
      * @throws Exception
      */
     public static String doOCR(String filePath) throws Exception{
-        instance.setLanguage("eng");
-        instance.setPageSegMode(TessPageSegMode.PSM_SINGLE_CHAR);
-        File file = new File(filePath);
-        String ocrResult = instance.doOCR(file);
-        return ocrResult;
+    	synchronized(instance) {
+            instance.setLanguage("eng");
+            File file = new File(filePath);
+            String ocrResult = instance.doOCR(file);
+            return ocrResult;
+    	}
     }
 
     /**
@@ -38,14 +39,16 @@ public class Tess4J {
      * @throws Exception
      */
     public static String doOCR(String filePath, int rotateAngle) throws Exception{
-        instance.setLanguage("eng");
-        File file = new File(filePath);
-        
-        BufferedImage img = ImageIO.read(file);
-        if(rotateAngle!=0) img = ImageHelper.rotateImage(img, rotateAngle);
-
-        String ocrResult = instance.doOCR(img);
-        return ocrResult;
+    	synchronized(instance) {
+	        instance.setLanguage("eng");
+	        File file = new File(filePath);
+	        
+	        //BufferedImage img = ImageIO.read(file);
+	        //if(rotateAngle!=0) img = ImageHelper.rotateImage(img, rotateAngle);
+	
+	        String ocrResult = instance.doOCR(file);
+	        return ocrResult;
+    	}
     }
 
     /**
@@ -57,13 +60,15 @@ public class Tess4J {
      * @throws Exception
      */
     public static String doOCR(String filePath, int rotateAngle, Rectangle rect) throws Exception{
-        instance.setLanguage("eng");
-        File file = new File(filePath);
-        
-        BufferedImage img = ImageIO.read(file);
-        if(rotateAngle!=0) img = ImageHelper.rotateImage(img, rotateAngle);
-
-        String ocrResult = instance.doOCR(img, rect);
-        return ocrResult;
+    	synchronized(instance) {
+	        instance.setLanguage("eng");
+	        File file = new File(filePath);
+	        
+	        //BufferedImage img = ImageIO.read(file);
+	        //if(rotateAngle!=0) img = ImageHelper.rotateImage(img, rotateAngle);
+	
+	        String ocrResult = instance.doOCR(file, rect);
+	        return ocrResult;
+    	}
     }
 }

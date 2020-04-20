@@ -1,5 +1,8 @@
 package j.tool.region;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import j.dao.DAO;
 import j.dao.DB;
 import j.db.Jcity;
@@ -9,9 +12,6 @@ import j.db.Jprovince;
 import j.db.Jzone;
 import j.log.Logger;
 import j.util.ConcurrentMap;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 
@@ -70,7 +70,6 @@ public final class Region{
 			temp=null;
 			log.log(cities.size()+" cities loaded.",-1);
 			
-			
 			temp=dao.find("j_county","");
 			for(int i=0;i<temp.size();i++){
 				Jcounty o=(Jcounty)temp.get(i);
@@ -79,7 +78,6 @@ public final class Region{
 			temp.clear();
 			temp=null;
 			log.log(counties.size()+" counties loaded.",-1);
-			
 			
 			
 			temp=dao.find("j_zone","");
@@ -116,7 +114,7 @@ public final class Region{
 	 * 
 	 * @return
 	 */
-	public static List getCountries(){
+	public static List<Jcountry> getCountries(){
 		if(cache.containsKey("countries")) return (List)cache.get("countries");
 		
 		List list=countries.listValues();
@@ -139,7 +137,7 @@ public final class Region{
 	 * 
 	 * @return
 	 */
-	public static List getProvinces(){
+	public static List<Jprovince> getProvinces(){
 		String key="provinces";
 		if(cache.containsKey(key)) return (List)cache.get(key);
 		
@@ -153,24 +151,23 @@ public final class Region{
 	 * @param countryId
 	 * @return
 	 */
-	public static List getProvinces(String countryId){
+	public static List<Jprovince> getProvinces(String countryId){
 		if(countryId==null||"".equals(countryId)) return null;
 		
 		String key="provinces."+countryId;
 		if(cache.containsKey(key)) return (List)cache.get(key);
-		
+
+		List<Jprovince> of=new ArrayList();
 		List list=provinces.listValues();
 		for(int i=0;i<list.size();i++){
 			Jprovince o=(Jprovince)list.get(i);
-			if(!o.getCountryId().equals(countryId)){
-				list.remove(i);
-				i--;
-				continue;
+			if(o.getCountryId().equals(countryId)){
+				of.add(o);
 			}
 		}
-		cache.put(key,list);
+		cache.put(key,of);
 		
-		return list;
+		return of;
 	}
 	
 	/**
@@ -189,24 +186,23 @@ public final class Region{
 	 * @param provinceId
 	 * @return
 	 */
-	public static List getCities(String provinceId){
+	public static List<Jcity> getCities(String provinceId){
 		if(provinceId==null||"".equals(provinceId)) return null;
 		
 		String key="cities."+provinceId;
 		if(cache.containsKey(key)) return (List)cache.get(key);
-		
+
+		List<Jcity> of=new ArrayList();
 		List list=cities.listValues();
 		for(int i=0;i<list.size();i++){
 			Jcity o=(Jcity)list.get(i);
-			if(!o.getProvinceId().equals(provinceId)){
-				list.remove(i);
-				i--;
-				continue;
+			if(o.getProvinceId().equals(provinceId)){
+				of.add(o);
 			}
 		}
-		cache.put(key,list);
+		cache.put(key,of);
 		
-		return list;
+		return of;
 	}
 	
 	/**
@@ -236,24 +232,23 @@ public final class Region{
 	 * @param cityId
 	 * @return
 	 */
-	public static List getCounties(String cityId){
+	public static List<Jcounty> getCounties(String cityId) throws Exception{
 		if(cityId==null||"".equals(cityId)) return null;
 		
 		String key="counties."+cityId;
 		if(cache.containsKey(key)) return (List)cache.get(key);
 		
+		List<Jcounty> of=new ArrayList();
 		List list=counties.listValues();
 		for(int i=0;i<list.size();i++){
 			Jcounty o=(Jcounty)list.get(i);
-			if(!o.getCityId().equals(cityId)){
-				list.remove(i);
-				i--;
-				continue;
+			if(o.getCityId().equals(cityId)){
+				of.add(o);
 			}
 		}
-		cache.put(key,list);
+		cache.put(key,of);
 		
-		return list;
+		return of;
 	}
 	
 	/**
@@ -271,7 +266,7 @@ public final class Region{
 	 * 
 	 * @return
 	 */
-	public static List getZones(){		
+	public static List<Jzone> getZones(){		
 		return zones.listValues();
 	}
 	
@@ -280,24 +275,23 @@ public final class Region{
 	 * @param countyId
 	 * @return
 	 */
-	public static List getZones(String countyId){
+	public static List<Jzone> getZones(String countyId){
 		if(countyId==null||"".equals(countyId)) return null;
 		
 		String key="zones."+countyId;
 		if(cache.containsKey(key)) return (List)cache.get(key);
-		
+
+		List<Jzone> of=new ArrayList();
 		List list=zones.listValues();
 		for(int i=0;i<list.size();i++){
 			Jzone o=(Jzone)list.get(i);
-			if(!o.getCountyId().equals(countyId)){
-				list.remove(i);
-				i--;
-				continue;
+			if(o.getCountyId().equals(countyId)){
+				of.add(o);
 			}
 		}
-		cache.put(key,list);
+		cache.put(key,of);
 		
-		return list;
+		return of;
 	}
 	
 	/**

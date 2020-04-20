@@ -1,0 +1,328 @@
+//国家列表
+var countries=new Array();
+
+//包含省份-》城市-》区县信息
+var regions=new Object();
+regions.list=new Array();
+regions.cities=new Array();
+
+//当前所选区县下的城镇、街道
+var zones=new Array();
+
+//区号和邮编
+var codes =new Array();
+
+//邮编
+function _p(id,areaCode,postalCode){
+	codes[id]=new Array(areaCode,postalCode);
+}
+
+//国家
+function _country(id,name,nameEn){
+	countries.push(new Array(id,name));
+}
+
+//省份
+function _a(id,name){
+	regions.list.push(new Array(id,name));
+	
+	var child=new Object();
+	child.list=new Array();
+	child.counties=new Array();
+	regions.cities[id]=child;
+}
+
+//城市
+function _b(pid,id,name,areaCode,postalCode){
+	if(pid.length==2) pid+='0000';
+	if(pid.length==4) pid+='00';
+	
+	regions.cities[pid].list.push(new Array(id,name));
+	
+	var child=new Object();
+	child.list=new Array();
+	regions.cities[pid].counties[id]=child;
+	
+	_p(id,areaCode,postalCode);
+}
+
+//区县
+function _c(ppid,pid,id,name,areaCode,postalCode){
+	if(ppid.length==2) ppid+='0000';
+	if(ppid.length==4) ppid+='00';
+	if(pid.length==2) pid+='0000';
+	if(pid.length==4) pid+='00';
+	
+	regions.cities[ppid].counties[pid].list.push(new Array(id,name));
+	
+	_p(id,areaCode,postalCode);
+}
+REGIONS
+
+//国家列表
+function getCountries(){
+	return countries;
+}
+
+//区号和邮编
+function getCodes(id,areaCodeInput,postalCodeInput){
+	var c=codes[id];
+	if(areaCodeInput){
+		if(areaCodeInput.tagName=='INPUT') areaCodeInput.value=c[0];
+		else areaCodeInput.innerHTML=c[0];
+	}
+	
+	if(postalCodeInput){
+		if(postalCodeInput.tagName=='INPUT') postalCodeInput.value=c[1];
+		else postalCodeInput.innerHTML=c[1];
+	}
+	
+	return c;
+}
+
+//按ID或名字查找国家
+function findCountry(idOrName){
+	for(var i=0;i<countries.length;i++){
+		if(countries[i][0]==idOrName||countries[i][1]==idOrName) return [countries[i]];
+	}
+	
+	var alikes=new Array();
+	for(var i=0;i<countries.length;i++){
+		if(countries[i][1].indexOf(idOrName)>-1) alikes.push(countries[i]);
+	}
+	return alikes;
+}
+
+//按ID或名字查找省份
+function findProvince(idOrName){
+	for(var i=0;i<regions.list.length;i++){
+		if(regions.list[i][0]==idOrName||regions.list[i][1]==idOrName) return [regions.list[i]];
+	}
+	
+	var alikes=new Array();
+	for(var i=0;i<regions.list.length;i++){
+		if(regions.list[i][1].indexOf(idOrName)>-1
+				||idOrName.indexOf(regions.list[i][1])>-1) alikes.push(regions.list[i]);
+	}
+	return alikes;
+}
+
+//按ID或名字查找城市（需提供省份ID）
+function findCity(provinceId,idOrName){
+	var cities=regions.cities[provinceId];
+	if(!cities) return null;
+	
+	cities=cities.list;
+	
+	for(var i=0;i<cities.length;i++){
+		if(cities[i][0]==idOrName||cities[i][1]==idOrName) return [cities[i]];
+	}
+	
+	var alikes=new Array();
+	for(var i=0;i<cities.length;i++){
+		if(cities[i][1].indexOf(idOrName)>-1
+				||idOrName.indexOf(cities[i][1])>-1) alikes.push(cities[i]);
+	}
+	return alikes;
+}
+
+//按ID或名字查找区县（需提供省份ID、城市ID）
+function findCounty(provinceId,cityId,idOrName){
+	var counties=regions.cities[provinceId].counties[cityId];
+	if(!counties) return null;
+	
+	counties=counties.list;
+	
+	for(var i=0;i<counties.length;i++){
+		if(counties[i][0]==idOrName||counties[i][1]==idOrName) return [counties[i]];
+	}
+	
+	var alikes=new Array();
+	for(var i=0;i<counties.length;i++){
+		if(counties[i][1].indexOf(idOrName)>-1
+				||idOrName.indexOf(counties[i][1])>-1) alikes.push(counties[i]);
+	}
+	return alikes;
+}
+
+//按ID或名字查找街道/乡镇
+function findZone(idOrName){
+	for(var i=0;i<zones.length;i++){
+		if(zones[i][0]==idOrName||zones[i][1]==idOrName) return [zones[i]];
+	}
+	
+	var alikes=new Array();
+	for(var i=0;i<zones.length;i++){
+		if(zones[i][1].indexOf(idOrName)>-1
+				||idOrName.indexOf(zones[i][1])>-1) alikes.push(zones[i]);
+	}
+	return alikes;
+}
+
+//根据第三方地图组件定位信息获得省、市、区县，返回json格式{"provinceId":"","provinceName":"","cityId":"","cityName":"","countyId":"","countyName":""}
+//adCode 地址编码
+function decodeAddress(adCode,provinceName,cityName,countyName){
+	if(adCode&&adCode!=''){
+		var provincesFound=findProvince(adCode);
+		if(provincesFound&&provincesFound.length>0){//匹配到了省份，说明地址编码为省份ID，定位到了省份
+			return JSONUtil.parse('{"provinceId":"'+adCode+'","provinceName":"'+provincesFound[0][1]+'","cityId":"","cityName":"","countyId":"","countyName":""}');
+		}
+		
+		//地址编码未匹配到省份，匹配城市
+		for(var provinceId in regions.cities){
+			var citiesFound=findCity(provinceId,adCode);
+			if(citiesFound&&citiesFound.length>0){//匹配到了城市，说明地址编码为城市ID，定位到了城市
+				var provice=findProvince(provinceId);
+				return JSONUtil.parse('{"provinceId":"'+provice[0][0]+'","provinceName":"'+provice[0][1]+'","cityId":"'+adCode+'","cityName":"'+citiesFound[0][1]+'","countyId":"","countyName":""}');
+			}
+		}
+		
+		//地址编码未匹配到城市，匹配区县
+		for(var provinceId in regions.cities){
+			for(var cityId in regions.cities[provinceId].counties){
+				var countyFound=findCounty(provinceId,cityId,adCode);
+				if(countyFound&&countyFound.length>0){//匹配到了区县，说明地址编码为区县ID，定位到了区县
+					var provice=findProvince(provinceId);
+					var city=findCity(provinceId,cityId);
+					return JSONUtil.parse('{"provinceId":"'+provice[0][0]+'","provinceName":"'+provice[0][1]+'","cityId":"'+city[0][0]+'","cityName":"'+city[0][1]+'","countyId":"'+adCode+'","countyName":"'+countyFound[0][1]+'"}');
+				}
+			}
+		}
+	}
+	
+	//未通过adCode匹配到地址，继续下面操作
+	var province=findProvince(provinceName);
+	var city=null;
+	var county=null;
+	if(province&&province.length>0){
+		city=findCity(province[0][0],cityName);
+		if(city&&city.length>0){
+			county=findCounty(province[0][0],city[0][0],countyName);
+		}
+	}
+	
+	if(county&&county.length>0){//匹配到了区县
+		return JSONUtil.parse('{"provinceId":"'+provice[0][0]+'","provinceName":"'+provice[0][1]+'","cityId":"'+city[0][0]+'","cityName":"'+city[0][1]+'","countyId":"'+county[0][0]+'","countyName":"'+county[0][1]+'"}');
+	}else if(city&&city.length>0){//匹配到了城市
+		return JSONUtil.parse('{"provinceId":"'+provice[0][0]+'","provinceName":"'+provice[0][1]+'","cityId":"'+city[0][0]+'","cityName":"'+city[0][1]+'","countyId":"","countyName":""}');
+	}else if(province&&province.length>0){//匹配到了省份
+		return JSONUtil.parse('{"provinceId":"'+provice[0][0]+'","provinceName":"'+provice[0][1]+'","cityId":"","cityName":"","countyId":"","countyName":""}');
+	}
+	
+	//未匹配到地址
+	return JSONUtil.parse('{"provinceId":"","provinceName":"","cityId":"","cityName":"","countyId":"","countyName":""}');
+}
+
+//初始国家列表
+function initCountry(countrySelector){
+	while(countrySelector.options&&countrySelector.options.length>0){
+		countrySelector.options.remove(countrySelector.options.length-1);
+	}
+	countrySelector.options.add(new Option('I{js,请选择国家}','-'));
+	for(var i=0;i<countries.length;i++){
+		var country=countries[i];
+		countrySelector.options.add(new Option(country[1],country[0]));
+	}
+}
+
+//初始化省份列表
+function initProvince(provinceSelector){
+	while(provinceSelector.options&&provinceSelector.options.length>0){
+		provinceSelector.options.remove(provinceSelector.options.length-1);
+	}
+	provinceSelector.options.add(new Option('I{js,请选择省份或地区}','-'));
+	
+	for(var i=0;i<regions.list.length;i++){
+		var province=regions.list[i];
+		provinceSelector.options.add(new Option(province[1],province[0]));
+	}
+}
+
+//选择省份
+function changeProvince(provinceSelector,citySelelector,countySelector,zoneSelector){
+	if(!provinceSelector||!citySelelector) return;
+	
+	while(citySelelector.options&&citySelelector.options.length>0){
+		citySelelector.options.remove(citySelelector.options.length-1);
+	}
+	citySelelector.options.add(new Option('I{js,请选择城市或国家}','-'));
+	
+	if(countySelector){
+		while(countySelector.options&&countySelector.options.length>0){
+			countySelector.options.remove(countySelector.options.length-1);
+		}
+		countySelector.options.add(new Option('I{js,请选择区县}','-'));
+	}
+	
+	if(zoneSelector){
+		while(zoneSelector.options&&zoneSelector.options.length>0){
+			zoneSelector.options.remove(zoneSelector.options.length-1);
+		}
+		zoneSelector.options.add(new Option('I{js,请选择乡镇/街道}','-'));
+	}
+	
+	if(provinceSelector.value==''||provinceSelector.value=='-') return;
+	
+	var temp=regions.cities[provinceSelector.value];
+	var cities=temp?temp.list:(new Array());	
+	for(var i=0;i<cities.length;i++){
+		var city=cities[i];
+		citySelelector.options.add(new Option(city[1],city[0]));
+	}
+}
+
+//选择城市
+function changeCity(provinceSelector,citySelelector,countySelector,zoneSelector){
+	if(!provinceSelector||!citySelelector||!countySelector) return;
+	
+	while(countySelector.options&&countySelector.options.length>0){
+		countySelector.options.remove(countySelector.options.length-1);
+	}
+	countySelector.options.add(new Option('I{js,请选择区县}','-'));
+	
+	if(zoneSelector){
+		while(zoneSelector.options&&zoneSelector.options.length>0){
+			zoneSelector.options.remove(zoneSelector.options.length-1);
+		}
+		zoneSelector.options.add(new Option('I{js,请选择乡镇/街道}','-'));
+	}
+	
+	if(citySelelector.value==''||citySelelector.value=='-') return;
+	
+	var counties=regions.cities[provinceSelector.value].counties[citySelelector.value].list;	
+	for(var i=0;i<counties.length;i++){
+		var county=counties[i];
+		countySelector.options.add(new Option(county[1],county[0]));
+	}
+}
+
+//获取街道
+var thisZoneSelector=null;
+function changeCounty(countySelector,zoneSelector,_callback){
+	if(!countySelector||!zoneSelector) return;
+	thisZoneSelector=zoneSelector;
+	
+	while(zoneSelector.options&&zoneSelector.options.length>0){
+		zoneSelector.options.remove(zoneSelector.options.length-1);
+	}
+	zoneSelector.options.add(new Option('I{js,请选择乡镇/街道}',''));
+	
+	if(countySelector.value==''||countySelector.value=='-') return;
+	
+	zones=new Array();
+	//loadJS({src:'/js/region/zones/'+countySelector.value+'.js?_t='+Math.random(), charset:'utf-8', callback:showZones});
+	loadJS({src:'/js/region/zones.jhtml?county_id='+countySelector.value, charset:'utf-8', callback:(_callback?_callback:showZones)});
+}
+
+//显示街道
+function showZones(){
+	for(var i=0;i<zones.length;i++){
+		thisZoneSelector.options.add(new Option(zones[i][1],zones[i][0]));
+	}
+}
+
+//获取街道
+function  getZones(_countyId,_callback){	
+	zones=new Array();
+	loadJS({src:'/js/region/zones.jhtml?county_id='+_countyId, charset:'utf-8', callback:(_callback?_callback:showZones)});
+}

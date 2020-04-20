@@ -1,12 +1,13 @@
 package j.tool.region;
 
+import java.util.List;
+
 import j.db.Jcity;
 import j.db.Jcountry;
 import j.db.Jcounty;
 import j.db.Jprovince;
+import j.db.Jzone;
 import j.fs.JFile;
-
-import java.util.List;
 
 public class RegionJavaScript {	
 	/**
@@ -14,9 +15,8 @@ public class RegionJavaScript {
 	 *
 	 */
 	public static void generateJs(boolean genZones) throws Exception{
-		System.out.println("generating area.js......");
+		System.out.println("generating region.js......");
 
-		//RFile file=new RFile(SysConfig.getWebRoot()+"templates/area.js");
 		JFile file=JFile.create("F:\\work\\JFramework_v2.0\\WebContent\\js\\region\\region.js.template");
 		String template=file.string("utf-8");
 		file=null;
@@ -31,6 +31,7 @@ public class RegionJavaScript {
 			List list=Region.getCountries();
 			for(int i=0;i<list.size();i++){
 				Jcountry o=(Jcountry)list.get(i);
+				if(!"1".equals(o.getCountryId())) continue;//暂时不要国外地址
 				
 				js.append("_country('"+o.getCountryId()+"','I{r,"+o.getCountryName()+"}');\r\n");	
 				
@@ -61,8 +62,6 @@ public class RegionJavaScript {
 					
 					js.append("_b('"+provinceId+"','"+c.getCityId()+"','I{r,"+c.getCityName()+"}','"+c.getAreaCode()+"','"+c.getPostalCode()+"');\r\n");
 					
-
-					
 					i18n.append("\t\t<string key=\""+c.getCityName()+"\">\r\n");
 					i18n.append("\t\t\t<language code=\"zh-cn\">"+c.getCityName()+"</language>\r\n");
 					i18n.append("\t\t\t<language code=\"en-us\">"+c.getCityNameEn()+"</language>\r\n");
@@ -73,6 +72,9 @@ public class RegionJavaScript {
 					if(cityId.endsWith("00")) cityId=cityId.substring(0,cityId.length()-2);
 					
 					List cs=Region.getCounties(c.getCityId());
+					if("442000".equals(c.getCityId())) {
+						System.out.println(c.getCityName()+" -> "+cs.size());
+					}
 					for(int k=0;k<cs.size();k++){
 						Jcounty county=(Jcounty)cs.get(k);
 						js.append("_c('"+provinceId+"','"+cityId+"','"+county.getCountyId()+"','I{r,"+county.getCountyName()+"}','"+county.getAreaCode()+"','"+county.getPostalCode()+"');\r\n");
@@ -82,28 +84,28 @@ public class RegionJavaScript {
 						i18n.append("\t\t\t<language code=\"en-us\">"+county.getCountyNameEn()+"</language>\r\n");
 						i18n.append("\t\t</string>\r\n");
 						
-//						if(genZones){
+						if(genZones){
 //							List zs=Region.getZones(county.getCountyId());
 //							if(zs.size()>0){
-//								String zsJs="zones=new Array();\r\n";
+//							StringBuffer zsJs=new StringBuffer("zones=new Array();\r\n");
 //								for(int x=0;x<zs.size();x++){
 //									Jzone z=(Jzone)zs.get(x);
 //									zsJs.append("zones.push(new Array('"+z.getZoneId()+"','I{r,"+z.getZoneName()+"}'));\r\n");
 //								}
 //								
 //								JFile savedFile=JFile.create("F:\\work\\JFramework\\WebContent\\js\\region\\zones\\"+county.getCountyId()+".js");
-//								savedFile.save(zsJs, false, "utf-8");
+//								savedFile.save(zsJs.toString(), false, "utf-8");
 //								savedFile=null;
-//								//System.out.println("F:\\work\\JFramework\\WebContent\\js\\region\\zones\\"+county.getCountyId()+".js");
+//								System.out.println("F:\\work\\JFramework\\WebContent\\js\\region\\zones\\"+county.getCountyId()+".js");
 //							}else{
 //								JFile savedFile=JFile.create("F:\\work\\JFramework\\WebContent\\js\\region\\zones\\"+county.getCountyId()+".js");
 //								savedFile.save("", false, "utf-8");
 //								savedFile=null;
-//								//System.out.println("F:\\work\\JFramework\\WebContent\\js\\region\\zones\\"+county.getCountyId()+".js");
+//								System.out.println("F:\\work\\JFramework\\WebContent\\js\\region\\zones\\"+county.getCountyId()+".js");
 //							}
-//						}
+						}
 						
-						System.out.println("...............");
+						//System.out.println("...............");
 					}
 				}
 			}
@@ -111,7 +113,6 @@ public class RegionJavaScript {
 			template=template.replace("REGIONS", js.toString());
 			js=null;
 			
-			//RFile savedFile=new RFile(SysConfig.getWebRoot()+"js/area.js");
 			JFile savedFile=JFile.create("F:\\work\\JFramework_v2.0\\WebContent\\js\\region\\region.js");
 			savedFile.save(template, false, "utf-8");
 			savedFile=null;
@@ -125,11 +126,11 @@ public class RegionJavaScript {
 			savedFile=null;
 			i18n=null;
 			
-			System.out.println("generating area.js ok!");
+			System.out.println("generating region.js ok!");
 			
 			System.exit(0);
 		}catch(Exception e){
-			System.out.println("generating area.js failed!");
+			System.out.println("generating region.js failed!");
 			e.printStackTrace();
 		}
 	}
