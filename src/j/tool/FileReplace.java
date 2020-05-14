@@ -93,10 +93,10 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("D:\\tomcat\\webapps\\btn\\ROOT\\WEB-INF");
+		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
 		replace(dir,
-				"走货",
-				"补货",
+				"allowedAttachTypes=new Array('txt','jpg','jpeg','png','gif',",
+				"allowedAttachTypes=new Array('txt','jpg','jpeg','png','mp4','mov','3gp',",
 				".jsp");
 		
 //		rotate(new File("D:\\176\\10.4 桃江一中 活动\\形象照\\temp"),180,".jpg");

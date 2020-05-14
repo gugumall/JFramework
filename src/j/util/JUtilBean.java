@@ -705,10 +705,14 @@ public class JUtilBean {
 				}else if((o instanceof Double)
 						||(o instanceof Float)){
 					jsonString.append("\""+name+"\":"+JUtilMath.formatPrintWithoutZero((Double)o, 20));
-				}else if(encode){
-					jsonString.append("\""+name+"\":\""+JUtilJSON.convert(o.toString())+"\"");
 				}else {
-					jsonString.append("\""+name+"\":\""+o.toString()+"\"");
+					JSONObject json=JUtilJSON.parse(o.toString());
+					if(json!=null && json.keys()!=null && json.keys().hasNext()) {//本身是json对象
+						json=null;
+						jsonString.append("\""+name+"\":"+o.toString());
+					}else {
+						jsonString.append("\""+name+"\":\""+JUtilJSON.convert(o.toString())+"\"");
+					}
 				}
 				index++;
 			} catch (Exception e){
@@ -726,10 +730,22 @@ public class JUtilBean {
 					Object o=extraKeyValues.get(key);
 					if(o==null){
 						jsonString.append("\""+name+"\":null");
-					}else if(encode){
-						jsonString.append("\""+name+"\":\""+JUtilJSON.convert(o.toString())+"\"");
+					}else if((o instanceof Integer)
+							||(o instanceof Long)
+							||(o instanceof Short)
+							||(o instanceof Boolean)){
+						jsonString.append("\""+name+"\":"+o);
+					}else if((o instanceof Double)
+							||(o instanceof Float)){
+						jsonString.append("\""+name+"\":"+JUtilMath.formatPrintWithoutZero((Double)o, 20));
 					}else {
-						jsonString.append("\""+name+"\":\""+o.toString()+"\"");
+						JSONObject json=JUtilJSON.parse(o.toString());
+						if(json!=null && json.keys()!=null && json.keys().hasNext()) {//本身是json对象
+							json=null;
+							jsonString.append("\""+name+"\":"+o.toString());
+						}else {
+							jsonString.append("\""+name+"\":\""+JUtilJSON.convert(o.toString())+"\"");
+						}
 					}
 					index++;
 				} catch (Exception e){
