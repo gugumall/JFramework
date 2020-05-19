@@ -47,13 +47,26 @@ public class Hmac{
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
-		byte[] data="我们是共产主义接班人".getBytes("UTF-8");
+		//DIDI_OPERATOR_ID + enString + timeStamp + "0001"
+		String enString="{\"OperatorSecret\":\"tNT9Q5hKANhD2CwD\",\"OperatorID\":\"101437000\"}";
+		enString=AES.encrypt(enString, "uYwGAYhrU6nsBbnB", "7UktJHEftTAq8itW");
 
-		byte[] key="7b3b03fe94654e3b7b3b03fe94654e3b7b3b03fe94654e3b7b3b03fe94654e3b7b3b03fe94654e3b7b3b03fe94654e3b".getBytes("UTF-8");//initHmacKey(ALGORITHM_HmacMD5);
+		System.out.println("enString1 -> "+enString);
+		
+		String enString2="J9rRGUJ+AOEIO0hFlfaqsuAgcP7O3FbqfpCihb8PRYm7WQjA3jq2qMyCGXWPTfNUTQWje0RsMavGeACt9eVhHg==";
+		
+		System.out.println("enString2 -> "+enString2);
+		String s="101437000"+enString+"202005151530130001";
+		byte[] data=s.getBytes("UTF-8");
+		
+		byte[] key="DpRJ2QaSHekuh9jE".getBytes("UTF-8");//initHmacKey(ALGORITHM_HmacMD5);
 		System.out.println("key:"+new String(key, "UTF-8"));
 		
 		byte[] _data1=encryptHmac(ALGORITHM_HmacMD5, data, key);
+
+		System.out.println("_data1:"+JUtilBytes.byte2Hex(_data1).toUpperCase());
 		
-		System.out.println("_data1:"+JUtilBytes.byte2Hex(_data1));
+		System.out.println("_data2:"+AES.decrypt(enString, "uYwGAYhrU6nsBbnB", "7UktJHEftTAq8itW"));
+		
 	}
 }

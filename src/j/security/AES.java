@@ -48,7 +48,10 @@ public class AES {
 	        IvParameterSpec iv = new IvParameterSpec(offset.getBytes());//使用CBC模式，需要一个向量iv，可增加加密算法的强度
 	        cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
 	        byte[] encrypted = cipher.doFinal(data.getBytes(ENCODING));
-	        return Base64.getMimeEncoder().encodeToString(encrypted);//此处使用BASE64做转码。
+	        
+	        String s=Base64.getMimeEncoder().encodeToString(encrypted);//此处使用BASE64做转码。
+	        s = s.replaceAll("[\\s*\t\n\r]", "");
+	        return s;
     	}catch(Exception e) {
     		return data;
     	}

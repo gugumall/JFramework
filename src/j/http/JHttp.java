@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -59,14 +60,20 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 
 import j.Properties;
 import j.common.Global;
+import j.security.AES;
+import j.security.Hmac;
 import j.sys.AppConfig;
 import j.sys.SysUtil;
 import j.util.ConcurrentMap;
+import j.util.JUtilBean;
+import j.util.JUtilBytes;
 import j.util.JUtilCompressor;
 import j.util.JUtilInputStream;
+import j.util.JUtilJSON;
 import j.util.JUtilMath;
 import j.util.JUtilRandom;
 import j.util.JUtilString;
@@ -533,10 +540,10 @@ public class JHttp{
 					String[] array=(String[])val;
 					for(int i=0; i<array.length; i++) {
 						if(context.getRequestEncoding()!=null&&!"".equals(context.getRequestEncoding())){
-							System.out.println("add.........."+array[i]);
+							//System.out.println("add.........."+array[i]);
 							builder=builder.addPart((String)key, new StringBody((String)array[i],ContentType.create(context.getContentType()==null?"text/plain":context.getContentType(),Charset.forName(context.getRequestEncoding()))));
 						}else{
-							System.out.println("add.x........."+array[i]);
+							//System.out.println("add.x........."+array[i]);
 							builder=builder.addPart((String)key, new StringBody((String)array[i],ContentType.TEXT_PLAIN));
 						}
 					}
@@ -1069,15 +1076,59 @@ public class JHttp{
 			JHttpContext context=new JHttpContext();
 			
 			HttpClient client=http.createClient(30000);
+			
+			/**
+			 * JSONObject requestBody=null;
+		try{
+			requestBody=JUtilJSON.parse(JUtilInputStream.string(request.getInputStream(), "UTF-8"));
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		this.OperatorID=JUtilJSON.string(requestBody, "OperatorID");
+		this.Data=JUtilJSON.string(requestBody, "Data");
+		this.DataDecrypt=this.decrypt();
+		this.TimeStamp=JUtilJSON.string(requestBody, "TimeStamp");
+		this.Seq=JUtilJSON.string(requestBody, "Seq");
+		this.Sig=JUtilJSON.string(requestBody, "Sig");
+			 */
+			
 
-			context.addRequestHeader("Referer","https://www.gugumall.cn/");
+			String now=(new Timestamp(SysUtil.getNow())).toString().substring(0,19);
+			now=JUtilString.replaceAll(now, " ", "");
+			now=JUtilString.replaceAll(now, "-", "");
+			now=JUtilString.replaceAll(now, ":", "");
+			
+			String Data="{\"OperatorID\":\"MA5FEBMY4\",\"OperatorSecret\":\"tNT9Q5hKANhD2CwD\"}";
+			
+			String DataEncrypt=AES.encrypt(Data, "618c8e506e798acf", "ea0e7e1b8fb8a935");
+			DataEncrypt = DataEncrypt.replaceAll("[\\s*\t\n\r]", "");
+			
+			String x=AES.decrypt(DataEncrypt, "618c8e506e798acf", "ea0e7e1b8fb8a935");
+			System.out.println(x);
+			
+			byte[] signSrc=("101437000"+DataEncrypt+now+"0001").getBytes("UTF-8");
+			byte[] key="7b3b03fe94654e3b".getBytes("UTF-8");
+			byte[] _data=Hmac.encryptHmac(Hmac.ALGORITHM_HmacMD5, signSrc, key);
+			String Sig=JUtilBytes.byte2Hex(_data).toUpperCase();
+
+			context.setContentType("application/json; charset=utf-8");
 			Map strings=new HashMap();
-			strings.put("lottyID", "540267");
-			strings.put("data[]", new String[] {"58|1|8|1|9.912","58|1|8|1|9.915"});
+			strings.put("OperatorID", "101437000");
+			strings.put("Data", DataEncrypt);
+			strings.put("TimeStamp", now);
+			strings.put("Seq", "0001");
+			strings.put("Sig", Sig);
 			
-			String resp=http.postResponse(context, client, "https://www.gugumall.cn/timex.jhtml", strings, "UTF-8");
+			String json=JUtilBean.map2Json(strings);
+			System.out.println("RequestBody -> \r\n"+json);
+			context.setContentType("application/json;charset=UTF-8");
+			context.setRequestBody(json);
+			context.setAllowedErrorCodes(new String[] {"200","301"});
 			
-			System.out.println("result:"+resp);
+			String resp=http.postResponse(context, client, "http://opendev.xiaojukeji.com/operatorplatform/query_token", null, "UTF-8");
+			
+			System.out.println("result -> \r\n"+resp);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}

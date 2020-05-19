@@ -217,7 +217,7 @@ public final class JUtilUUID {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		System.out.println(JUtilMD5.MD5EncodeToHex("Aa131232"));
+		System.out.println(JUtilString.randomStr(16));
 
 		System.exit(0);
 	}

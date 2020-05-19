@@ -1140,7 +1140,7 @@ public final class JUtilImage implements ImageObserver {
 		JUtilImage im = new JUtilImage();
 		im.setQuality(1f);
 		
-		int index=182;
+		int index=192;
 		
 		File dir = new File("F:\\images\\时光(足迹) IV\\temp");
 		File[] fs=dir.listFiles();

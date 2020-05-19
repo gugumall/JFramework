@@ -160,6 +160,7 @@ public class JHttpContext {
 	 */
 	public void setContentType(String contentType){
 		this.contentType=contentType;
+		this.addRequestHeader("Content-Type", contentType);
 	}
 	
 
