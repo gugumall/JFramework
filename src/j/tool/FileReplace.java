@@ -95,8 +95,8 @@ public class FileReplace {
 		
 		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
 		replace(dir,
-				"allowedAttachTypes=new Array('txt','jpg','jpeg','png','gif',",
-				"allowedAttachTypes=new Array('txt','jpg','jpeg','png','mp4','mov','3gp',",
+				"下线提成",
+				"下线佣金",
 				".jsp");
 		
 //		rotate(new File("D:\\176\\10.4 桃江一中 活动\\形象照\\temp"),180,".jpg");

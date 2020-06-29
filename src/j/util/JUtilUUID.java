@@ -6,6 +6,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import j.common.JObject;
+import j.sys.SysConfig;
+
 
 /**
  * 
@@ -217,7 +220,21 @@ public final class JUtilUUID {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		System.out.println(JUtilString.randomStr(16));
+		String redirect="";
+		String url="https://m.gugumall.cn/goods/item.jhtml?id=1&referer=&layer=true";
+		if(url.indexOf("?")>0){
+			url=url.substring(url.indexOf("?")+1);
+			String paras[]=url.split("&");
+			for(int i=0;i<paras.length;i++){
+				if(paras[i].indexOf("=")<0) continue;
+				String name=paras[i].substring(0,paras[i].indexOf("="));
+				String value=paras[i].substring(paras[i].indexOf("=")+1);
+				value=JUtilString.decodeURI(value,SysConfig.sysEncoding);
+				redirect+="<input type=\"hidden\" name=\""+name+"\" value=\"jis:"+JObject.string2IntSequence(value)+"\">\r\n";
+			}
+		}
+		
+		System.out.println(redirect);
 
 		System.exit(0);
 	}

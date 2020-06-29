@@ -5,7 +5,7 @@
 	<database id="Region" name="Region" desc="行政区划数据库（SQLite）" TEST-SQL="select * from j_ip">
 		<mirror uuid="Region:1" config="config/datasource.region.xml" is-monitor="false" monitor="" avail="true" read="true" insert="true" update="true" priority="1"></mirror>
 	</database>
-	<!-- 
+	
 	<database id="jshop" name="jshop" desc="" TEST-SQL="select u_id from js_user where u_id is null">
 		<mirror uuid="jshop:1" config="config/datasource.jshop.xml" is-monitor="true" monitor="/DataSource.service" avail="true" read="true" insert="true" update="true" priority="1"></mirror>
 		<mirror uuid="jshop:2" config="config/datasource.jshop.xml" is-monitor="true" monitor="/DataSource.service" avail="true" read="true" insert="true" update="true" priority="1"></mirror>
@@ -21,8 +21,22 @@
 		        <channel type="http" value="http://sb.xxx.com"/>
 		    </node>
 		</syn>
+		
+		<!--text字段处理-->
+		<text>
+			<table name="table_name2">
+				<load-sql>id='111'</load-sql>
+				<column>COL_NAME1</column>
+				<column>COL_NAME2</column>
+			</table>
+			<table name="table_name2">
+				<load-sql>id='111'</load-sql>
+				<column>COL_NAME1</column>
+				<column>COL_NAME2</column>
+			</table>
+		</text>
 	</database>
 	<database id="jpayment" name="jpayment" desc="">
 		<mirror uuid="jpayment:1" config="config/datasource.jpay.xml" is-monitor="true" monitor="/DataSource.service" avail="true" read="true" insert="true" update="true" priority="1"></mirror>
-	</database> -->
+	</database>
 </root>

@@ -511,6 +511,8 @@ public class SSOServer extends JHandler implements Runnable{
 						}
 					}
 					
+					//log.log("如果只有一个客户端，且当前客户访问域名与sso server域名相同，不需要通知客户端，直接登录: backurl:"+back+", redirect:"+redirect, -1);
+					
 					SysUtil.redirectByFormSubmit(client,request,response,redirect,messages);
 				}else {
 					//通知客户端
