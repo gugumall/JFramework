@@ -27,6 +27,234 @@ public class JBarCode {
 	public static final String IMAGE_JPEG="jpeg";
 	public static final String IMAGE_GIF="gif";
 	public static final String IMAGE_PNG="png";
+	
+	/**
+	 * 
+	 * @param num
+	 * @param imageType
+	 */
+	public static BufferedImage createCode128(String num,String imageType) { 
+		try { 
+			JBarcode code = new JBarcode(Code128Encoder.getInstance(),WidthCodedPainter.getInstance(),BaseLineTextPainter.getInstance()); 
+			BufferedImage image = code.createBarcode(num); 
+			
+			return image;
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		} 
+	} 
+
+	/**
+	 * 
+	 * @param num
+	 * @param imageType
+	 * @param showText
+	 */
+	public static BufferedImage createCode128(String num,String imageType,boolean showText) { 
+		try { 
+			JBarcode code = new JBarcode(Code128Encoder.getInstance(),WidthCodedPainter.getInstance(),BaseLineTextPainter.getInstance()); 
+			code.setShowText(showText);
+			BufferedImage image = code.createBarcode(num); 
+			
+			return image;
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		} 
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param imageType
+	 * @param xDimension
+	 */
+	public static BufferedImage createCode128(String num,String imageType,double xDimension) { 
+		try { 
+			JBarcode code = new JBarcode(Code128Encoder.getInstance(),WidthCodedPainter.getInstance(),BaseLineTextPainter.getInstance()); 
+			code.setXDimension(xDimension);
+			BufferedImage image = code.createBarcode(num); 
+			
+			return image;
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		} 
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param imageType
+	 * @param xDimension
+	 * @param showText
+	 */
+	public static BufferedImage createCode128(String num,String imageType,double xDimension,boolean showText) { 
+		try { 
+			JBarcode code = new JBarcode(Code128Encoder.getInstance(),WidthCodedPainter.getInstance(),BaseLineTextPainter.getInstance()); 
+			code.setXDimension(xDimension);
+			code.setShowText(showText);
+			BufferedImage image = code.createBarcode(num); 
+			
+			return image;
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		} 
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param imageType
+	 */
+	public static BufferedImage createCodeEAN13(String num,String imageType) { 
+		try { 
+			JBarcode code = new JBarcode(EAN13Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN13TextPainter.getInstance()); 
+			BufferedImage image = code.createBarcode(num); 
+			
+			return image;
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		}  
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param imageType
+	 * @param showText
+	 */
+	public static BufferedImage createCodeEAN13(String num,String imageType,boolean showText) { 
+		try { 
+			JBarcode code = new JBarcode(EAN13Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN13TextPainter.getInstance()); 
+			code.setShowText(showText);
+			BufferedImage image = code.createBarcode(num); 
+			
+			return image;
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		}  
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param imageType
+	 * @param xDimension
+	 */
+	public static BufferedImage createCodeEAN13(String num,String imageType,double xDimension) { 
+		try { 
+			JBarcode code = new JBarcode(EAN13Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN13TextPainter.getInstance()); 
+			code.setXDimension(xDimension);
+			BufferedImage image = code.createBarcode(num); 
+			
+			return image;
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		}  
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param imageType
+	 * @param xDimension
+	 * @param showText
+	 */
+	public static BufferedImage createCodeEAN13(String num,String imageType,double xDimension,boolean showText) { 
+		try { 
+			JBarcode code = new JBarcode(EAN13Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN13TextPainter.getInstance()); 
+			code.setXDimension(xDimension);
+			code.setShowText(showText);
+			BufferedImage image = code.createBarcode(num); 
+			
+			return image;
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		}  
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param imageType
+	 */
+	public static BufferedImage createCodeEAN8(String num,String imageType) { 
+		try { 
+			JBarcode code = new JBarcode(EAN8Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN8TextPainter.getInstance()); 
+			BufferedImage image = code.createBarcode(num); 
+			
+			return image;
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		}  
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param imageType
+	 * @param showText
+	 */
+	public static BufferedImage createCodeEAN8(String num,String imageType,boolean showText) { 
+		try { 
+			JBarcode code = new JBarcode(EAN8Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN8TextPainter.getInstance()); 
+			code.setShowText(showText);
+			BufferedImage image = code.createBarcode(num); 
+			
+			return image;
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		}  
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param imageType
+	 * @param xDimension
+	 */
+	public static BufferedImage createCodeEAN8(String num,String imageType,double xDimension) { 
+		try { 
+			JBarcode code = new JBarcode(EAN8Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN8TextPainter.getInstance()); 
+			code.setXDimension(xDimension);
+			BufferedImage image = code.createBarcode(num); 
+			
+			return image;
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		}  
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param imageType
+	 * @param xDimension
+	 * @param showText
+	 */
+	public static BufferedImage createCodeEAN8(String num,String imageType,double xDimension,boolean showText) { 
+		try { 
+			JBarcode code = new JBarcode(EAN8Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN8TextPainter.getInstance()); 
+			code.setXDimension(xDimension);
+			code.setShowText(showText);
+			BufferedImage image = code.createBarcode(num); 
+			
+			return image;
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+			return null;
+		}  
+	} 
 
 	/**
 	 * 
@@ -36,9 +264,7 @@ public class JBarCode {
 	 */
 	public static void createCode128(String num,String imagePath,String imageType) { 
 		try { 
-			JBarcode code = new JBarcode(Code128Encoder.getInstance(),WidthCodedPainter.getInstance(),BaseLineTextPainter.getInstance()); 
-			BufferedImage image = code.createBarcode(num); 
-			
+			BufferedImage image = createCode128(num, imageType); 
 			saveToFile(image, imagePath,imageType);
 		}catch (Exception e) { 
 			log.log(e, Logger.LEVEL_ERROR);
@@ -54,9 +280,7 @@ public class JBarCode {
 	 */
 	public static void createCode128(String num,String imagePath,String imageType,boolean showText) { 
 		try { 
-			JBarcode code = new JBarcode(Code128Encoder.getInstance(),WidthCodedPainter.getInstance(),BaseLineTextPainter.getInstance()); 
-			code.setShowText(showText);
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCode128(num,imageType,showText);
 			
 			saveToFile(image, imagePath,imageType);
 		}catch (Exception e) { 
@@ -73,9 +297,7 @@ public class JBarCode {
 	 */
 	public static void createCode128(String num,String imagePath,String imageType,double xDimension) { 
 		try { 
-			JBarcode code = new JBarcode(Code128Encoder.getInstance(),WidthCodedPainter.getInstance(),BaseLineTextPainter.getInstance()); 
-			code.setXDimension(xDimension);
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCode128(num,imageType,xDimension);
 			
 			saveToFile(image, imagePath,imageType);
 		}catch (Exception e) { 
@@ -93,10 +315,7 @@ public class JBarCode {
 	 */
 	public static void createCode128(String num,String imagePath,String imageType,double xDimension,boolean showText) { 
 		try { 
-			JBarcode code = new JBarcode(Code128Encoder.getInstance(),WidthCodedPainter.getInstance(),BaseLineTextPainter.getInstance()); 
-			code.setXDimension(xDimension);
-			code.setShowText(showText);
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCode128(num,imageType,xDimension,showText);
 			
 			saveToFile(image, imagePath,imageType);
 		}catch (Exception e) { 
@@ -112,8 +331,7 @@ public class JBarCode {
 	 */
 	public static void createCodeEAN13(String num,String imagePath,String imageType) { 
 		try { 
-			JBarcode code = new JBarcode(EAN13Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN13TextPainter.getInstance()); 
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCodeEAN13(num,imageType); 
 			
 			saveToFile(image, imagePath,imageType);
 		}catch (Exception e) { 
@@ -130,9 +348,7 @@ public class JBarCode {
 	 */
 	public static void createCodeEAN13(String num,String imagePath,String imageType,boolean showText) { 
 		try { 
-			JBarcode code = new JBarcode(EAN13Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN13TextPainter.getInstance()); 
-			code.setShowText(showText);
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCodeEAN13(num,imageType,showText); 
 			
 			saveToFile(image, imagePath,imageType);
 		}catch (Exception e) { 
@@ -149,9 +365,7 @@ public class JBarCode {
 	 */
 	public static void createCodeEAN13(String num,String imagePath,String imageType,double xDimension) { 
 		try { 
-			JBarcode code = new JBarcode(EAN13Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN13TextPainter.getInstance()); 
-			code.setXDimension(xDimension);
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCodeEAN13(num,imageType,xDimension); 
 			
 			saveToFile(image, imagePath,imageType);
 		}catch (Exception e) { 
@@ -169,10 +383,7 @@ public class JBarCode {
 	 */
 	public static void createCodeEAN13(String num,String imagePath,String imageType,double xDimension,boolean showText) { 
 		try { 
-			JBarcode code = new JBarcode(EAN13Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN13TextPainter.getInstance()); 
-			code.setXDimension(xDimension);
-			code.setShowText(showText);
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCodeEAN13(num,imageType,xDimension,showText); 
 			
 			saveToFile(image, imagePath,imageType);
 		}catch (Exception e) { 
@@ -188,8 +399,7 @@ public class JBarCode {
 	 */
 	public static void createCodeEAN8(String num,String imagePath,String imageType) { 
 		try { 
-			JBarcode code = new JBarcode(EAN8Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN8TextPainter.getInstance()); 
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCodeEAN8(num, imageType); 
 			
 			saveToFile(image, imagePath,imageType);
 		}catch (Exception e) { 
@@ -206,9 +416,7 @@ public class JBarCode {
 	 */
 	public static void createCodeEAN8(String num,String imagePath,String imageType,boolean showText) { 
 		try { 
-			JBarcode code = new JBarcode(EAN8Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN8TextPainter.getInstance()); 
-			code.setShowText(showText);
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCodeEAN8(num,imageType,showText); 
 			
 			saveToFile(image, imagePath,imageType);
 		}catch (Exception e) { 
@@ -225,9 +433,7 @@ public class JBarCode {
 	 */
 	public static void createCodeEAN8(String num,String imagePath,String imageType,double xDimension) { 
 		try { 
-			JBarcode code = new JBarcode(EAN8Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN8TextPainter.getInstance()); 
-			code.setXDimension(xDimension);
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCodeEAN8(num,imageType,xDimension); 
 			
 			saveToFile(image, imagePath,imageType);
 		}catch (Exception e) { 
@@ -235,42 +441,6 @@ public class JBarCode {
 		}  
 	} 
 	
-	/**
-	 * 
-	 * @param num
-	 * @param imagePath
-	 * @param imageType
-	 * @param xDimension
-	 * @param showText
-	 */
-	public static void createCodeEAN8(String num,String imagePath,String imageType,double xDimension,boolean showText) { 
-		try { 
-			JBarcode code = new JBarcode(EAN8Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN8TextPainter.getInstance()); 
-			code.setXDimension(xDimension);
-			code.setShowText(showText);
-			BufferedImage image = code.createBarcode(num); 
-			
-			saveToFile(image, imagePath,imageType);
-		}catch (Exception e) { 
-			log.log(e, Logger.LEVEL_ERROR);
-		}  
-	} 
-
-	/**
-	 * 
-	 * @param image
-	 * @param imagePath
-	 * @param imageType
-	 */
-	private static void saveToFile(BufferedImage image, String imagePath, String imageType) { 
-		try { 
-			FileOutputStream fos = new FileOutputStream(imagePath); 
-			ImageUtil.encodeAndWrite(image, imageType, fos, ImageUtil.DEFAULT_DPI, ImageUtil.DEFAULT_DPI); 
-			fos.close(); 
-		}catch (Exception e) { 
-			log.log(e, Logger.LEVEL_ERROR);
-		} 
-	} 
 	
 	/**
 	 * 
@@ -280,8 +450,23 @@ public class JBarCode {
 	 */
 	public static void createCode128(String num,HttpServletResponse response,String imageType) { 
 		try { 
-			JBarcode code = new JBarcode(Code128Encoder.getInstance(),WidthCodedPainter.getInstance(),BaseLineTextPainter.getInstance()); 
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCode128(num, imageType); 
+			writeImage(image, response,imageType);
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+		} 
+	} 
+
+	/**
+	 * 
+	 * @param num
+	 * @param response
+	 * @param imageType
+	 * @param showText
+	 */
+	public static void createCode128(String num,HttpServletResponse response,String imageType,boolean showText) { 
+		try { 
+			BufferedImage image = createCode128(num,imageType,showText);
 			
 			writeImage(image, response,imageType);
 		}catch (Exception e) { 
@@ -298,9 +483,7 @@ public class JBarCode {
 	 */
 	public static void createCode128(String num,HttpServletResponse response,String imageType,double xDimension) { 
 		try { 
-			JBarcode code = new JBarcode(Code128Encoder.getInstance(),WidthCodedPainter.getInstance(),BaseLineTextPainter.getInstance()); 
-			code.setXDimension(xDimension);
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCode128(num,imageType,xDimension);
 			
 			writeImage(image, response,imageType);
 		}catch (Exception e) { 
@@ -318,10 +501,7 @@ public class JBarCode {
 	 */
 	public static void createCode128(String num,HttpServletResponse response,String imageType,double xDimension,boolean showText) { 
 		try { 
-			JBarcode code = new JBarcode(Code128Encoder.getInstance(),WidthCodedPainter.getInstance(),BaseLineTextPainter.getInstance()); 
-			code.setXDimension(xDimension);
-			code.setShowText(showText);
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCode128(num,imageType,xDimension,showText);
 			
 			writeImage(image, response,imageType);
 		}catch (Exception e) { 
@@ -337,8 +517,24 @@ public class JBarCode {
 	 */
 	public static void createCodeEAN13(String num,HttpServletResponse response,String imageType) { 
 		try { 
-			JBarcode code = new JBarcode(EAN13Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN13TextPainter.getInstance()); 
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCodeEAN13(num,imageType); 
+			
+			writeImage(image, response,imageType);
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+		}  
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param response
+	 * @param imageType
+	 * @param showText
+	 */
+	public static void createCodeEAN13(String num,HttpServletResponse response,String imageType,boolean showText) { 
+		try { 
+			BufferedImage image = createCodeEAN13(num,imageType,showText); 
 			
 			writeImage(image, response,imageType);
 		}catch (Exception e) { 
@@ -355,9 +551,25 @@ public class JBarCode {
 	 */
 	public static void createCodeEAN13(String num,HttpServletResponse response,String imageType,double xDimension) { 
 		try { 
-			JBarcode code = new JBarcode(EAN13Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN13TextPainter.getInstance()); 
-			code.setXDimension(xDimension);
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCodeEAN13(num,imageType,xDimension); 
+			
+			writeImage(image, response,imageType);
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+		}  
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param response
+	 * @param imageType
+	 * @param xDimension
+	 * @param showText
+	 */
+	public static void createCodeEAN13(String num,HttpServletResponse response,String imageType,double xDimension,boolean showText) { 
+		try { 
+			BufferedImage image = createCodeEAN13(num,imageType,xDimension,showText); 
 			
 			writeImage(image, response,imageType);
 		}catch (Exception e) { 
@@ -373,8 +585,24 @@ public class JBarCode {
 	 */
 	public static void createCodeEAN8(String num,HttpServletResponse response,String imageType) { 
 		try { 
-			JBarcode code = new JBarcode(EAN8Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN8TextPainter.getInstance()); 
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCodeEAN8(num, imageType); 
+			
+			writeImage(image, response,imageType);
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+		}  
+	} 
+	
+	/**
+	 * 
+	 * @param num
+	 * @param response
+	 * @param imageType
+	 * @param showText
+	 */
+	public static void createCodeEAN8(String num,HttpServletResponse response,String imageType,boolean showText) { 
+		try { 
+			BufferedImage image = createCodeEAN8(num,imageType,showText); 
 			
 			writeImage(image, response,imageType);
 		}catch (Exception e) { 
@@ -391,15 +619,30 @@ public class JBarCode {
 	 */
 	public static void createCodeEAN8(String num,HttpServletResponse response,String imageType,double xDimension) { 
 		try { 
-			JBarcode code = new JBarcode(EAN8Encoder.getInstance(),WidthCodedPainter.getInstance(),EAN8TextPainter.getInstance()); 
-			code.setXDimension(xDimension);
-			BufferedImage image = code.createBarcode(num); 
+			BufferedImage image = createCodeEAN8(num,imageType,xDimension); 
 			
 			writeImage(image, response,imageType);
 		}catch (Exception e) { 
 			log.log(e, Logger.LEVEL_ERROR);
 		}  
 	}
+	
+
+	/**
+	 * 
+	 * @param image
+	 * @param imagePath
+	 * @param imageType
+	 */
+	private static void saveToFile(BufferedImage image, String imagePath, String imageType) { 
+		try { 
+			FileOutputStream fos = new FileOutputStream(imagePath); 
+			ImageUtil.encodeAndWrite(image, imageType, fos, ImageUtil.DEFAULT_DPI, ImageUtil.DEFAULT_DPI); 
+			fos.close(); 
+		}catch (Exception e) { 
+			log.log(e, Logger.LEVEL_ERROR);
+		} 
+	} 
 	
 	/**
 	 * 

@@ -240,6 +240,7 @@ public class SSOServer extends JHandler implements Runnable{
 //		SSONotifier.getNotifier(client).logout(client,
 //				loginStatus.getGlobalSessionId(),
 //				loginStatus.getUserId(),
+//				loginStatus.getSubUserId(),
 //				loginStatus.getUserIp());
 		
 		//其它SSO Client通过通知线程发送注销命令
@@ -247,7 +248,7 @@ public class SSOServer extends JHandler implements Runnable{
 		for(int i=0;i<ssoClients.size();i++){
 			Client c=(Client)ssoClients.get(i);
 			
-			//if(c.getId().equals(client.getId())) continue;//当前操作的SSO Client直接发送注销命令
+//			if(c.getId().equals(client.getId())) continue;//当前操作的SSO Client不发送注销命令
 			
 			SSONotifier.addTask(c,
 					loginStatus.getGlobalSessionId(),
@@ -429,8 +430,10 @@ public class SSOServer extends JHandler implements Runnable{
 				if((SSOConfig.getSsoClients().size()==1
 						&&JUtilString.getHost(back).equalsIgnoreCase(SysUtil.getHttpDomain(request)))
 						||agent==null) {
+					//log.log("only one sso client and back host equals request host, so log in locally(SSOConfig.getAuthenticator().login).", -1);
 					String ip=JHttp.getRemoteIp(request);
 					result=SSOConfig.getAuthenticator().login(request,session,ip);	
+					//log.log("only one sso client and back host equals request host, so log in locally(SSOConfig.getAuthenticator().login), finished.", -1);
 				}else {
 					result=agent.login(client.getId(),request);
 				}
@@ -495,6 +498,7 @@ public class SSOServer extends JHandler implements Runnable{
 				//如果只有一个客户端，且当前客户访问域名与sso server域名相同，不需要通知客户端，直接登录
 				if(SSOConfig.getSsoClients().size()==1
 						&&JUtilString.getHost(back).equalsIgnoreCase(SysUtil.getHttpDomain(request))) {
+					//log.log("only one sso client and back host equals request host, so log in locally(SSOClient.ssologin).", -1);
 					//本地登录
 					redirect=SSOClient.ssologin(session, 
 							request, 

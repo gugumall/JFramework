@@ -3,6 +3,7 @@ package j.app.online;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -71,7 +72,7 @@ public class Onlines implements Filter,Runnable{
 	private static int maxUploadSize=1024;
 	
 	private static String[] ignoredIps=new String[]{};
-	private static String[] credibleIps=new String[]{};
+	private static ConcurrentList<String> credibleIps=new ConcurrentList();
 	private static ConcurrentList blackIps=new ConcurrentList();
 	private static ConcurrentList blackRegions=new ConcurrentList();
 	private static ConcurrentList domainLimits=new ConcurrentList();
@@ -206,11 +207,11 @@ public class Onlines implements Filter,Runnable{
 				ignoredIps[i]=temp.getTextTrim();
 			}
 			
+			credibleIps.clear();
 			eles=root.elements("credible-ip");
-			credibleIps=new String[eles.size()];
 			for(int i=0;i<eles.size();i++){
 				Element temp=(Element)eles.get(i);
-				credibleIps[i]=temp.getTextTrim();
+				credibleIps.add(temp.getTextTrim());
 			}
 
 			blackIps.clear();
@@ -553,8 +554,8 @@ public class Onlines implements Filter,Runnable{
 		if(Permission.hasValidPassport(request)){
 			credible=true;
 		}else{
-			for(int i=0;i<credibleIps.length;i++){
-				if(JUtilString.match(ip, credibleIps[i], "*")>-1){
+			for(int i=0;i<credibleIps.size();i++){
+				if(JUtilString.match(ip, credibleIps.get(i), "*")>-1){
 					credible=true;
 					break;
 				}
@@ -562,6 +563,14 @@ public class Onlines implements Filter,Runnable{
 		}
 		
 		return credible;
+	}
+	
+	/**
+	 * 
+	 * @param ip
+	 */
+	public static void addCredibleIp(String ip) {
+		if(!credibleIps.contains(ip)) credibleIps.add(ip);
 	}
 	
 	/**

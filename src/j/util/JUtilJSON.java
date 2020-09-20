@@ -1,9 +1,12 @@
 package j.util;
 
+import java.io.File;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import j.common.JObject;
+import j.fs.JDFSFile;
 
 /**
  * 
@@ -130,18 +133,10 @@ public class JUtilJSON{
 	 */
 	public static String convert(String s){
 		if(s==null||"".equals(s)) return s;
-		s=JUtilString.replaceAll(s,"\"","\\\"");
-		//s=JUtilString.replaceAll(s,"[","\\[");
-		//s=JUtilString.replaceAll(s,"]","\\]");
-		//s=JUtilString.replaceAll(s,"{","\\{");
-		//s=JUtilString.replaceAll(s,"}","\\}");
-		return s;
+		return JUtilString.encodeURI(s, "UTF-8");
 	}
 	
 	public static void main(String[] args) throws Exception{
-		String a="{\"StationIDs\":[\"1553933605720538\",\"1553933605720538\"]}";
-		JSONObject json=JUtilJSON.parse(a);
-		JSONArray _StationIDs=JUtilJSON.array(json, "StationIDs");
-		System.out.println(JUtilJSON.getObject(_StationIDs, 0));
+		System.out.println(System.currentTimeMillis()/1000);
 	}
 }

@@ -10,10 +10,8 @@ import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +37,12 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -60,20 +58,14 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
 
 import j.Properties;
 import j.common.Global;
-import j.security.AES;
-import j.security.Hmac;
 import j.sys.AppConfig;
 import j.sys.SysUtil;
 import j.util.ConcurrentMap;
-import j.util.JUtilBean;
-import j.util.JUtilBytes;
 import j.util.JUtilCompressor;
 import j.util.JUtilInputStream;
-import j.util.JUtilJSON;
 import j.util.JUtilMath;
 import j.util.JUtilRandom;
 import j.util.JUtilString;
@@ -93,6 +85,13 @@ public class JHttp{
 	private PoolingHttpClientConnectionManager poolingmgr;
 	//private SSLConnectionSocketFactory factory;
 	private HttpClient[] clients = new HttpClient[Properties.getClientsOfJHttpInstance()];
+	private CookieStore cookieStore = new BasicCookieStore();
+	
+	static {
+//		System.setProperty("jdk.tls.allowUnsafeServerCertChange", "true");
+//		System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true");
+//		System.setProperty("jdk.tls.client.protocols", "TLSv1,TLSv1.1,TLSv1.2");
+	}
 
 	/**
 	 * 
@@ -108,12 +107,7 @@ public class JHttp{
 	 * @throws Exception
 	 */
 	public static JHttp getInstance(){
-		synchronized(default_user_agent){
-			CookieStore cookieStore = new BasicCookieStore();
-			
-			HttpClientContext context = HttpClientContext.create();
-			context.setCookieStore(cookieStore);
-			
+		synchronized(default_user_agent){			
 			int random=instances.length==1?0:JUtilRandom.nextInt(instances.length);
 			JHttp jhttp =instances[random];
 			if(jhttp==null){
@@ -146,12 +140,7 @@ public class JHttp{
 	 * @return
 	 */
 	public static JHttp getInstance(String certFilePath, String certFilePassword){
-		synchronized(default_user_agent){
-			CookieStore cookieStore = new BasicCookieStore();
-			
-			HttpClientContext context = HttpClientContext.create();
-			context.setCookieStore(cookieStore);
-			
+		synchronized(default_user_agent){			
 			int random=instances.length==1?0:JUtilRandom.nextInt(instances.length);
 			JHttp jhttp =instances[random];
 			if(jhttp==null){
@@ -321,6 +310,16 @@ public class JHttp{
 	public void finalize(){
 		destroy();
 	}
+	
+	/**
+	 * 
+	 * @param client
+	 * @return
+	 */
+	public static RequestConfig getConfigOfClient(HttpClient client) {
+		if(configOfClients==null) return null;
+		return (RequestConfig)configOfClients.get(client.toString());
+	}
 
 	/**
 	 * 
@@ -350,9 +349,9 @@ public class JHttp{
 	 * @param redirects
 	 * @return
 	 */
-	public HttpClient createClient(int timeout, int redirects) {		
-		CloseableHttpClient client = HttpClients.custom().setConnectionManager(poolingmgr).build();
-
+	public HttpClient createClient(int timeout, int redirects) {
+		CloseableHttpClient client = HttpClients.custom().setConnectionManager(poolingmgr).setDefaultCookieStore(cookieStore).build();
+	
 		RequestConfig requestConfig = RequestConfig.custom().setMaxRedirects(redirects).setSocketTimeout(timeout).setConnectTimeout(timeout).build();
 		configOfClients.put(client.toString(), requestConfig);
 		
@@ -375,19 +374,35 @@ public class JHttp{
 	public HttpClient createClient(int timeout,String host,int port,String scheme,String username, String password) {
 		HttpHost proxy=new HttpHost(host,port,scheme==null?"http":scheme);
 		
-		CredentialsProvider credsProvider = new BasicCredentialsProvider();
-		credsProvider.setCredentials(AuthScope.ANY,new UsernamePasswordCredentials(username, password));
+		CredentialsProvider credsProvider=null;
+		if(username!=null && !"".equals(username)) {
+			credsProvider = new BasicCredentialsProvider();
+			credsProvider.setCredentials(AuthScope.ANY,new UsernamePasswordCredentials(username, password));
+		}
 	
-		CloseableHttpClient client = HttpClients.custom()
-				.setConnectionManager(poolingmgr)
-				.setProxy(proxy)
-				.setDefaultCredentialsProvider(credsProvider).build();
+		CloseableHttpClient client = null;
+		if(credsProvider!=null) {
+			client=HttpClients.custom()
+			.setConnectionManager(poolingmgr)
+			.setDefaultCookieStore(cookieStore)
+			.setProxy(proxy)
+			.setDefaultCredentialsProvider(credsProvider).build();
+		}else {
+			client=HttpClients.custom()
+			.setConnectionManager(poolingmgr)
+			.setDefaultCookieStore(cookieStore)
+			.setProxy(proxy).build();
+		}
 		
 		int redirects=default_redirects;
 		if(JUtilMath.isInt(AppConfig.getPara("HTTP","redirects"))){
 			redirects=Integer.parseInt(AppConfig.getPara("HTTP","redirects"));
 		}
-		RequestConfig requestConfig = RequestConfig.custom().setMaxRedirects(redirects).setSocketTimeout(timeout).setConnectTimeout(timeout).build();
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setMaxRedirects(redirects)
+				.setSocketTimeout(timeout)
+				.setConnectTimeout(timeout)
+				.setProxy(proxy).build();
 		
 		configOfClients.put(client.toString(), requestConfig);
 
@@ -439,7 +454,7 @@ public class JHttp{
 	 * @param context
 	 * @param response
 	 */
-	private static void getStatusAndHeaders(JHttpContext context,HttpResponse response){
+	private void getStatusAndHeaders(JHttpContext context,HttpResponse response){
 		if(context==null||response==null) return;
 		
 		StatusLine status=response.getStatusLine();
@@ -450,6 +465,13 @@ public class JHttp{
             for(int i=0;i<headers.length;i++){
             	context.addResponseHeader(headers[i].getName(),headers[i].getValue());
             }
+        }
+        
+        List<Cookie> cookies=cookieStore.getCookies();
+        if(cookies!=null) {
+        	for(int i=0; i<cookies.size(); i++) {
+        		context.addCookie(cookies.get(i).getName(), cookies.get(i).getValue());
+        	}
         }
 	}
 	
@@ -587,7 +609,7 @@ public class JHttp{
 	 * @param responseType 0 - String, 1 - InputStream
 	 * @throws Exception
 	 */
-	private static void execute(JHttpContext context,HttpClient client,HttpRequestBase request,String encoding,int responseType) throws Exception{
+	private void execute(JHttpContext context,HttpClient client,HttpRequestBase request,String encoding,int responseType) throws Exception{
 		int retries=1;
 		if(context!=null&&context.getRetries()>0){
 			retries=context.getRetries();
@@ -629,7 +651,7 @@ public class JHttp{
 	 * @param responseType 0 - String, 1 - InputStream
 	 * @throws Exception
 	 */
-	private static void doExecute(JHttpContext context,HttpClient client,HttpRequestBase request,String encoding,int responseType,boolean abort) throws Exception{
+	private void doExecute(JHttpContext context,HttpClient client,HttpRequestBase request,String encoding,int responseType,boolean abort) throws Exception{
 		try {			
 			RequestConfig config=(RequestConfig)configOfClients.get(client.toString());
 			if(config!=null) request.setConfig(config);
@@ -1075,58 +1097,9 @@ public class JHttp{
 			JHttp http=JHttp.getInstance();
 			JHttpContext context=new JHttpContext();
 			
-			HttpClient client=http.createClient(30000);
+			HttpClient client=http.createClient("156.225.3.89", 3128, "http", "", "");
 			
-			/**
-			 * JSONObject requestBody=null;
-		try{
-			requestBody=JUtilJSON.parse(JUtilInputStream.string(request.getInputStream(), "UTF-8"));
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		this.OperatorID=JUtilJSON.string(requestBody, "OperatorID");
-		this.Data=JUtilJSON.string(requestBody, "Data");
-		this.DataDecrypt=this.decrypt();
-		this.TimeStamp=JUtilJSON.string(requestBody, "TimeStamp");
-		this.Seq=JUtilJSON.string(requestBody, "Seq");
-		this.Sig=JUtilJSON.string(requestBody, "Sig");
-			 */
-			
-
-			String now=(new Timestamp(SysUtil.getNow())).toString().substring(0,19);
-			now=JUtilString.replaceAll(now, " ", "");
-			now=JUtilString.replaceAll(now, "-", "");
-			now=JUtilString.replaceAll(now, ":", "");
-			
-			String Data="{\"OperatorID\":\"MA5FEBMY4\",\"OperatorSecret\":\"tNT9Q5hKANhD2CwD\"}";
-			
-			String DataEncrypt=AES.encrypt(Data, "618c8e506e798acf", "ea0e7e1b8fb8a935");
-			DataEncrypt = DataEncrypt.replaceAll("[\\s*\t\n\r]", "");
-			
-			String x=AES.decrypt(DataEncrypt, "618c8e506e798acf", "ea0e7e1b8fb8a935");
-			System.out.println(x);
-			
-			byte[] signSrc=("101437000"+DataEncrypt+now+"0001").getBytes("UTF-8");
-			byte[] key="7b3b03fe94654e3b".getBytes("UTF-8");
-			byte[] _data=Hmac.encryptHmac(Hmac.ALGORITHM_HmacMD5, signSrc, key);
-			String Sig=JUtilBytes.byte2Hex(_data).toUpperCase();
-
-			context.setContentType("application/json; charset=utf-8");
-			Map strings=new HashMap();
-			strings.put("OperatorID", "101437000");
-			strings.put("Data", DataEncrypt);
-			strings.put("TimeStamp", now);
-			strings.put("Seq", "0001");
-			strings.put("Sig", Sig);
-			
-			String json=JUtilBean.map2Json(strings);
-			System.out.println("RequestBody -> \r\n"+json);
-			context.setContentType("application/json;charset=UTF-8");
-			context.setRequestBody(json);
-			context.setAllowedErrorCodes(new String[] {"200","301"});
-			
-			String resp=http.postResponse(context, client, "http://opendev.xiaojukeji.com/operatorplatform/query_token", null, "UTF-8");
+			String resp=http.getResponse(context, client, "https://www.baidu.com", "UTF-8");
 			
 			System.out.println("result -> \r\n"+resp);
 		}catch (Exception e) {

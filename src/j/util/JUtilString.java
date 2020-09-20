@@ -1412,34 +1412,40 @@ public class JUtilString extends JUtilSorter {
 	 * @return
 	 */
 	public static String toString(Object[] objects){
-		if(objects==null||objects.length==0) return "";
-		
-		StringBuffer sb=new StringBuffer();
-		for(int i=0;i<objects.length;i++){
-			if(objects[i]==null) sb.append("null,");
-			else sb.append(objects[i].toString()+",");
-		}
-	
-		if(sb.length()>0) sb.deleteCharAt(sb.length()-1);
-		
-		return sb.toString();
+		return toString(objects, "", "", false);
 	}
 	
 	/**
 	 * 
 	 * @param objects
+	 * @param objectStartFlag
+	 * @param objectEndFlag
 	 * @return
 	 */
 	public static String toString(Object[] objects,String objectStartFlag,String objectEndFlag){
+		return toString(objects, objectStartFlag, objectEndFlag, false);
+	}
+	
+	/**
+	 * 
+	 * @param objects
+	 * @param objectStartFlag
+	 * @param objectEndFlag
+	 * @param quotNulls
+	 * @return
+	 */
+	public static String toString(Object[] objects,String objectStartFlag,String objectEndFlag, boolean quotNulls){
 		if(objects==null||objects.length==0) return "";
 		
 		StringBuffer sb=new StringBuffer();
 		for(int i=0;i<objects.length;i++){
-			if(objects[i]==null) sb.append(objectStartFlag+"null"+objectEndFlag+",");
-			else sb.append(objectStartFlag+objects[i].toString()+objectEndFlag+",");
+			if(i>0) sb.append(",");
+			if(objects[i]==null) {
+				if(quotNulls) sb.append(objectStartFlag+"null"+objectEndFlag);
+				else sb.append("null");
+			}
+			else sb.append(objectStartFlag+objects[i].toString()+objectEndFlag);
 		}
-	
-		if(sb.length()>0) sb.deleteCharAt(sb.length()-1);
 		
 		return sb.toString();
 	}
@@ -1449,6 +1455,7 @@ public class JUtilString extends JUtilSorter {
 	 * @param args
 	 */
 	public static void main(String[] args){
+		String[] x=new String[] {"111","000"};
 //		String s=JDFSFile.read(new File("C:\\Users\\one\\Desktop\\aaa.js"),"UTF-8");
 //		JDFSFile.saveString("C:\\Users\\one\\Desktop\\aaax.js",JUtilString.decodeUnicode(s),false,"UTF-8");
 //		StringBuffer sb=new StringBuffer();
@@ -1490,11 +1497,6 @@ public class JUtilString extends JUtilSorter {
 //		}
 //		
 //		JDFSFile.saveString("F://temp//temp.sql",sb.toString(),false,"UTF-8");
-		System.out.println("111\\\"");
-		
-
-		System.out.println(getHost("/ddd/dd.htm"));
-		System.out.println(getHost(""));
-		System.out.println(getHost("www.ddd.com"));
+		System.out.println(JUtilString.toString(x, "'", "'"));
 	}
 }

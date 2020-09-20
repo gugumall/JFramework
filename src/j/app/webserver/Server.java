@@ -15,7 +15,6 @@ import j.app.online.UIVersions;
 import j.app.online.UrlAndFetchType;
 import j.log.Logger;
 import j.nvwa.Nvwa;
-import j.security.AES;
 import j.sys.SysConfig;
 import j.sys.SysUtil;
 import j.util.ConcurrentMap;
@@ -119,11 +118,12 @@ public class Server{
 					&&requestUuidSn!=null
 							&&!"".equals(requestUuidSn)){
 				String _requestUuid=(String)session.getAttribute(Constants.J_REQUEST_UUID+"_"+requestUuidSn);
-				session.removeAttribute(Constants.J_REQUEST_UUID+"_"+requestUuidSn);
-				if(!requestUuid.equals(_requestUuid)){
+				if(requestUuid.equals(_requestUuid)){
 					logger.after(action,session,requestUuid,Constants.J_DUPLICATED_RQUEST);
 					SysUtil.outHttpResponse(response,Constants.J_DUPLICATED_RQUEST);//print返回内容给用户
 					return;
+				}else {
+					session.setAttribute(Constants.J_REQUEST_UUID+"_"+requestUuidSn, requestUuid);
 				}
 			}
 			//重复提交检查 end

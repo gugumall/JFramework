@@ -1,12 +1,12 @@
 package j.http;
 
-import j.util.JUtilString;
-
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.client.methods.HttpRequestBase;
+
+import j.util.JUtilString;
 
 /**
  * 
@@ -24,9 +24,12 @@ public class JHttpContext {
 	private String requestEncoding;
 	private Map requestHeaders;
 	private Map responseHeaders;
+	private Map cookies;
 	private int retries;
 	private long retryInterval;
 	private String requestBody=null;
+	
+	private String sessionId="";
 
 	/**
 	 * 
@@ -35,6 +38,7 @@ public class JHttpContext {
 	public JHttpContext() {
 		requestHeaders = new HashMap();
 		responseHeaders = new HashMap();
+		cookies = new HashMap();
 		retries=0;
 		retryInterval=0;
 		
@@ -231,7 +235,7 @@ public class JHttpContext {
 	 * @param value
 	 */
 	public void addResponseHeader(String name, String value) {
-		this.responseHeaders.put(name, value);
+		this.responseHeaders.put(name.toLowerCase(), value);
 	}
 
 	/**
@@ -240,7 +244,26 @@ public class JHttpContext {
 	 * @return
 	 */
 	public String getResponseHeader(String name) {
-		return (String)this.responseHeaders.get(name);
+		return (String)this.responseHeaders.get(name.toLowerCase());
+	}
+
+
+	/**
+	 * 
+	 * @param name
+	 * @param value
+	 */
+	public void addCookie(String name, String value) {
+		this.cookies.put(name.toLowerCase(), value);
+	}
+
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public String getCookie(String name) {
+		return (String)this.cookies.get(name.toLowerCase());
 	}
 	
 	/**
@@ -249,25 +272,6 @@ public class JHttpContext {
 	 */
 	public String getSessionId() {
 		return getCookie("JSESSIONID");
-	}
-	
-	/**
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public String getCookie(String name) {
-		//yunsuo_session_verify=aaf369ebff5ba91c054d900045e06cd7; expires=Sun, 01-Mar-20 19:09:56 GMT; path=/; HttpOnly
-		String setCookie=this.getResponseHeader("Set-Cookie");
-		if(setCookie!=null&&setCookie.indexOf(name+"=")>-1) {
-			setCookie=setCookie.substring(name.length()+1);
-			if(setCookie.indexOf(";")>0) {
-				setCookie=setCookie.substring(0,setCookie.indexOf(";"));
-			}
-			return setCookie;
-		}else {
-			return null;
-		}
 	}
 
 	/**

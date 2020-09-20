@@ -98,6 +98,29 @@ public class ThreadRunner implements Runnable{
 	
 	/**
 	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public ThreadTaskResult getResultAsyn(String uuid) {
+		if(uuid==null||"".equals(uuid)) return null;
+		
+		if(results.containsKey(uuid)) {
+			ThreadTaskResult result=(ThreadTaskResult)results.remove(uuid);
+			if(result==null) return null;
+			
+			Object[] resultObjs=result.getResult();
+			if(resultObjs!=null && resultObjs.length>0 && "IS-NULL".equals(resultObjs[0])) {
+				return null;
+			}
+			
+			return result;
+		}else {
+			return null;
+		}
+	}
+	
+	/**
+	 * 
 	 */
 	public void destroy(){
 		end=true;

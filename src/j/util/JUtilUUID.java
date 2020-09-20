@@ -6,8 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.client.HttpClient;
+
 import j.common.JObject;
-import j.sys.SysConfig;
+import j.http.JHttp;
+import j.http.JHttpContext;
 
 
 /**
@@ -220,21 +223,14 @@ public final class JUtilUUID {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		String redirect="";
-		String url="https://m.gugumall.cn/goods/item.jhtml?id=1&referer=&layer=true";
-		if(url.indexOf("?")>0){
-			url=url.substring(url.indexOf("?")+1);
-			String paras[]=url.split("&");
-			for(int i=0;i<paras.length;i++){
-				if(paras[i].indexOf("=")<0) continue;
-				String name=paras[i].substring(0,paras[i].indexOf("="));
-				String value=paras[i].substring(paras[i].indexOf("=")+1);
-				value=JUtilString.decodeURI(value,SysConfig.sysEncoding);
-				redirect+="<input type=\"hidden\" name=\""+name+"\" value=\"jis:"+JObject.string2IntSequence(value)+"\">\r\n";
-			}
-		}
+
+		JHttpContext context=new JHttpContext();
+		JHttp http=JHttp.getInstance();
+		HttpClient client=http.createClient(30000);
 		
-		System.out.println(redirect);
+		String resp=http.getResponse(context, client, "https://m.gugumall.cn/", "UTF-8");
+		
+		System.out.println(context.getSessionId());
 
 		System.exit(0);
 	}

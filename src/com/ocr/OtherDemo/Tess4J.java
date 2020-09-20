@@ -28,7 +28,27 @@ public class Tess4J {
 	    	ITesseract inst=instances.get(lang);
 	    	if(inst==null) {
 	    		inst=new Tesseract();
-	    		inst.setDatapath("F:\\work\\JFramework_v2.0\\tessdata");
+	    		//String dir=System.getProperty("user.dir");
+	    		//inst.setDatapath(dir+File.separator+"tessdata");
+	    		inst.setLanguage(lang);
+	    		instances.put(lang, inst);
+	    	}
+	    	return inst;
+    	}
+    }
+    
+
+    /**
+     * 
+     * @param lang
+     * @return
+     */
+    public static ITesseract getInstance(String lang, String dataPath) {
+    	synchronized(lang.intern()) {
+	    	ITesseract inst=instances.get(lang);
+	    	if(inst==null) {
+	    		inst=new Tesseract();
+	    		inst.setDatapath(dataPath);
 	    		inst.setLanguage(lang);
 	    		instances.put(lang, inst);
 	    	}
@@ -137,7 +157,7 @@ public class Tess4J {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception{
-    	String s=Tess4J.doOCR("chi_sim", "C:\\Users\\ceo\\Desktop\\temp\\ed2e2d69fb1cccb5704314823ea4421e.jpg");
+    	String s=Tess4J.doOCR("eng", "C:\\Users\\ceo\\Desktop\\temp\\aaa.jpg");
     	System.out.println(s);
     	System.exit(0);
     }

@@ -12,10 +12,13 @@ import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -1140,9 +1143,9 @@ public final class JUtilImage implements ImageObserver {
 		JUtilImage im = new JUtilImage();
 		im.setQuality(1f);
 		
-		int index=486;
+		int index=337;
 		
-		File dir = new File("F:\\images\\时光(容颜)\\temp");
+		File dir = new File("F:\\images\\时光(足迹) V\\temp");
 		File[] fs=dir.listFiles();
 		for(int i=0;i<fs.length;i++){
 			if(fs[i].getName().toLowerCase().endsWith(".jpg")
@@ -1152,7 +1155,7 @@ public final class JUtilImage implements ImageObserver {
 				String newName=index+"";
 				while(newName.length()<6) newName="0"+newName;
 				try {
-				im.zoomToSize(fs[i], new File("F:\\images\\时光(容颜)\\"+newName+".jpg"), 2000, JUtilImage.FORMAT_JPEG);
+				im.zoomToSize(fs[i], new File("F:\\images\\时光(足迹) V\\"+newName+".jpg"), 2000, JUtilImage.FORMAT_JPEG);
 				fs[i].delete();
 				}catch(Exception e) {
 					
@@ -1529,4 +1532,22 @@ public final class JUtilImage implements ImageObserver {
 		
 		return original;
 	}
+    
+    /**
+     * 
+     * @param image
+     * @param imageType
+     * @return
+     */
+    public static InputStream image2InputStream(BufferedImage image, String imageType){
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(image, imageType, os);
+            InputStream input = new ByteArrayInputStream(os.toByteArray());
+            return input;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

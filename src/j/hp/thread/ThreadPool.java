@@ -112,7 +112,7 @@ public class ThreadPool{
 	 * @param task
 	 * @return
 	 */
-	private ThreadRunner exists(ThreadTask task){
+	public ThreadRunner exists(ThreadTask task){
 		for(int i=0;i<this.threads.size();i++){
 			ThreadRunner runner=(ThreadRunner)this.threads.get(i);
 			if(runner.exists(task)) return runner;
