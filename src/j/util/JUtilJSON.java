@@ -131,10 +131,50 @@ public class JUtilJSON{
 	 * @param s
 	 * @return
 	 */
-	public static String convert(String s){
+	public static String encode(String s){
 		if(s==null||"".equals(s)) return s;
 		return JUtilString.encodeURI(s, "UTF-8");
 	}
+	
+	/**
+	 * 
+	 * @param s
+	 * @return
+	 */
+	public static String convert(String s){
+		if(s==null||"".equals(s)) return s;
+		
+		s=JUtilString.replaceAll(s, "\"", "\\\"");
+		s=JUtilString.replaceAll(s, "\\", "\\\\");
+		s=JUtilString.replaceAll(s, "/", "\\/");
+		s=JUtilString.replaceAll(s, "\b", "\\b");
+		s=JUtilString.replaceAll(s, "\f", "\\f");
+		s=JUtilString.replaceAll(s, "\n", "\\n");
+		s=JUtilString.replaceAll(s, "\r", "\\r");
+		s=JUtilString.replaceAll(s, "\t", "\\t");
+		
+		return s;
+	}
+	
+	/**
+	 * 
+	 * @param s
+	 * @return
+	 */
+	public static String convertChars(String s){
+		if(s==null||"".equals(s)) return s;
+		
+		s=JUtilString.replaceAll(s, "\"", "\\\"");
+		s=JUtilString.replaceAll(s, "\\", "\\\\");
+		s=JUtilString.replaceAll(s, "/", "\\/");
+		s=JUtilString.replaceAll(s, "\b", "\\b");
+		s=JUtilString.replaceAll(s, "\f", "\\f");
+		s=JUtilString.replaceAll(s, "\n", "\\n");
+		s=JUtilString.replaceAll(s, "\r", "\\r");
+		s=JUtilString.replaceAll(s, "\t", "\\t");
+		
+		return s;
+	}  
 	
 	public static void main(String[] args) throws Exception{
 		System.out.println(System.currentTimeMillis()/1000);

@@ -1143,9 +1143,9 @@ public final class JUtilImage implements ImageObserver {
 		JUtilImage im = new JUtilImage();
 		im.setQuality(1f);
 		
-		int index=337;
+		int index=509;
 		
-		File dir = new File("F:\\images\\时光(足迹) V\\temp");
+		File dir = new File("F:\\images\\时光(容颜)\\temp");
 		File[] fs=dir.listFiles();
 		for(int i=0;i<fs.length;i++){
 			if(fs[i].getName().toLowerCase().endsWith(".jpg")
@@ -1155,7 +1155,7 @@ public final class JUtilImage implements ImageObserver {
 				String newName=index+"";
 				while(newName.length()<6) newName="0"+newName;
 				try {
-				im.zoomToSize(fs[i], new File("F:\\images\\时光(足迹) V\\"+newName+".jpg"), 2000, JUtilImage.FORMAT_JPEG);
+				im.zoomToSizeIfLarger(fs[i], new File("F:\\images\\时光(容颜)\\"+newName+".jpg"), 4000, JUtilImage.FORMAT_JPEG);
 				fs[i].delete();
 				}catch(Exception e) {
 					
@@ -1172,47 +1172,6 @@ public final class JUtilImage implements ImageObserver {
 				index++;	
 			}
 		}
-		
-//		im.zoomToSize(new File("F:\\work\\商城\\衣服\\狼爪\\1388\\1388A.gif"), new File("F:\\work\\商城\\衣服\\狼爪\\1388\\temp.gif"), 300, "JPEG");
-
-//		processLogo(im,
-//				new File("F:\\gugu\\products\\多肉\\maskx.png"),
-//				new File("F:\\gugu\\products\\多肉\\"),
-//				"products\\多肉",
-//				"products\\多肉X");
-		
-//		java.awt.Font[] fonts = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();  
-//	    for (java.awt.Font f : fonts) {  
-//	        System.out.println("Name:" + f.getFontName());  
-//	    } 
-//	    
-//	    java.awt.Font font=new java.awt.Font(Font.SANS_SERIF,java.awt.Font.BOLD,20);
-//		im.logoWithTitle(new File("F:\\work\\JShop_v2.0\\WebContent\\img\\QRCODE_BG.png"),
-//				new File("F:\\work\\JShop_v2.0\\WebContent\\img\\shop_default.png"),
-//				new File("F:\\work\\JShop_v2.0\\WebContent\\img\\QRCODE_BGx.png"),0,0,"png",JUtilImage.POS_CE,
-//				"ERGOWEAR BOXER 我是一个好人 我是一个好人我是一个好人",font,new Color(0,0,0),JUtilImage.POS_CT,0,100);
-		
-//		File dir=new File("F:\\temp");
-//		File[] files=dir.listFiles();
-//		for(int i=0;i<files.length;i++) {
-//			if(files[i].getName().endsWith("webp")) {
-//				webp2jpg(files[i],new File(files[i].getAbsolutePath().replace(".webp", "jpg")));
-//			}
-//		}
-		
-		System.out.println(111);
-		
-//		JUtilImage img=new JUtilImage();
-//		img.zoomToWidth(new File("f:/aa.jpg"), 
-//				new File("f:/aaabb.jpg"), 
-//				1000, 
-//				JUtilImage.FORMAT_JPEG);
-//		
-//
-//		img.zoomToWidth(new File("f:/aa.jpg"), 
-//				new File("f:/aaabbx.jpg"), 
-//				1000, 
-//				JUtilImage.FORMAT_JPEG);
 	    
 		System.exit(0);
 	}

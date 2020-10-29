@@ -18,7 +18,10 @@ public class VerifierSetting{
 	 */
 	public static Color bgColor() {
 		String[] p=Nvwa.getParameter("VerifierCodeSetting","bgColor").split(",");
-
+		if(p.length!=3
+				||!JUtilMath.isInt(p[0])) {
+			return null;
+		}
 		return new Color(Integer.parseInt(p[0]),Integer.parseInt(p[1]),Integer.parseInt(p[2]));
 	}
 
@@ -28,7 +31,10 @@ public class VerifierSetting{
 	 */
 	public static Color borderColor() {
 		String[] p=Nvwa.getParameter("VerifierCodeSetting","borderColor").split(",");
-
+		if(p.length!=3
+				||!JUtilMath.isInt(p[0])) {
+			return null;
+		}
 		return new Color(Integer.parseInt(p[0]),Integer.parseInt(p[1]),Integer.parseInt(p[2]));
 	}
 
@@ -38,7 +44,10 @@ public class VerifierSetting{
 	 */
 	public static Color fontColor() {
 		String[] p=Nvwa.getParameter("VerifierCodeSetting","fontColor").split(",");
-
+		if(p.length!=3
+				||!JUtilMath.isInt(p[0])) {
+			return null;
+		}
 		return new Color(Integer.parseInt(p[0]),Integer.parseInt(p[1]),Integer.parseInt(p[2]));
 	}
 
@@ -48,6 +57,7 @@ public class VerifierSetting{
 	 */
 	public static Font font() {
 		String fontName=Nvwa.getParameter("VerifierCodeSetting","fontName");
+		if(fontName==null || "".equals(fontName)) return null;
 		
 		String fontStyleName=Nvwa.getParameter("VerifierCodeSetting","fontStyle");
 		int fontStyle=0;

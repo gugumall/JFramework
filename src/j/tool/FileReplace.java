@@ -93,10 +93,10 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
+		File dir=new File("F:\\work\\JGame\\WebContent\\WEB-INF\\pages-idc");
 		replace(dir,
-				"下线提成",
-				"下线佣金",
+				"账号",
+				"帐号",
 				".jsp");
 		
 //		rotate(new File("D:\\176\\10.4 桃江一中 活动\\形象照\\temp"),180,".jpg");
@@ -149,6 +149,8 @@ public class FileReplace {
 			}
 		}else{
 			if(!file.getName().endsWith(ext)) return;
+			
+			//if(!file.getName().startsWith("password")) return;
 			
 			String s=JDFSFile.read(file, "UTF-8");
 
