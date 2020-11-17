@@ -63,7 +63,7 @@ public class Router implements Filter{
 		HttpSession session=httpRequest.getSession(true);	
 		String requestURI=httpRequest.getRequestURI();	
 		String requestURL=SysUtil.getRequestURL(httpRequest);
-
+		
 		
 		String requestFrom=SysUtil.getHttpParameter(httpRequest, Constants.J_ACTION_RESPONSER_FROM);
 		

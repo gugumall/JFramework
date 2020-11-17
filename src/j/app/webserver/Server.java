@@ -72,6 +72,7 @@ public class Server{
 		String actionId=SysUtil.getHttpParameter(request,handler.getRequestBy());//得到用户请求的操作名
 		if(actionId==null){//RESTful
 			String requestURI=request.getRequestURI();	
+			if(requestURI.endsWith("/")) requestURI=requestURI.substring(0, requestURI.length()-1);
 			actionId=requestURI.substring(requestURI.lastIndexOf("/")+1);
 		}
 		

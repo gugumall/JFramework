@@ -36,7 +36,7 @@
 			<name>同构系统</name>
 			<urlBase>http://www.xxx.com</urlBase>
 			<key>110</key>
-			<url>*</<url>
+			<url>*</url>
 		</responser>
 	</responsers>
 </sys-config>

@@ -1,10 +1,5 @@
 package j.security;
 
-import java.security.AlgorithmParameters;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.NoSuchProviderException;
-import java.security.Security;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
@@ -12,8 +7,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import j.util.JUtilBase64;
-import j.util.JUtilString;
-import sun.rmi.runtime.Log;
 
 public class AES {
     // 编码

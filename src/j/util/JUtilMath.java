@@ -863,21 +863,9 @@ public class JUtilMath extends JUtilSorter {
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
-		DAO dao=DB.connect("jshopx", JUtilMath.class);
-		StmtAndRs sr=dao.find("select s_phone, s_pw, u_name, u_nick from js_user");
-		ResultSet rs=sr.resultSet();
-		
-		StringBuffer sb=new StringBuffer();
-		System.out.println("List<String[]> users=new ArrayList();");
-		while(rs.next()) {
-			String s1=rs.getString(1);
-			String s2=rs.getString(2);
-			String s3=rs.getString(3);
-			String s4=rs.getString(4);
-			System.out.println("users.add(new String[] {\""+s1+"\",\""+s2+"\",\""+s3+"\",\""+s4+"\"});");
-		}
-		sr.close();
-		dao.close();
-		dao=null;
+		System.out.println(JUtilMath.formatPrintWithoutZero(2.232d, 2));
+		System.out.println(JUtilMath.formatPrintWithoutZero(2.235d, 2));
+		System.out.println(JUtilMath.formatPrintWithoutZero(2.237d, 2));
+		System.out.println(JUtilMath.formatPrintWithoutZero(2.20d, 2));
 	}
 }

@@ -79,7 +79,8 @@ public class Handlers implements Runnable{
 		for(int i=0;i<actionPathPatterns.length;i++){
 			if(requestURI.endsWith(actionPathPatterns[i])) return actionPathPatterns[i];
 		}
-		
+
+		if(requestURI.endsWith("/")) requestURI=requestURI.substring(0, requestURI.length()-1);
 		if(requestURI.lastIndexOf("/")>1){
 			if(requestURI.indexOf(".")>0) return null;//RESTful风格的路径不能包含点(.)
 			
@@ -136,6 +137,7 @@ public class Handlers implements Runnable{
 	 */
 	public static Handler getHandler(String pathOrRESTPath){
 		waitWhileLoading();
+		if(pathOrRESTPath.endsWith("/")) pathOrRESTPath=pathOrRESTPath.substring(0, pathOrRESTPath.length()-1);
 		Handler handler=(Handler)handlersByPath.get(pathOrRESTPath);
 		if(handler==null&&pathOrRESTPath.lastIndexOf("/")>1){
 			handler=(Handler)handlersByRESTPath.get(pathOrRESTPath.substring(0,pathOrRESTPath.lastIndexOf("/")));
