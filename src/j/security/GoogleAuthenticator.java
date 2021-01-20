@@ -2,7 +2,9 @@ package j.security;
 
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Base64;
- 
+
+import j.util.JUtilMath;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
@@ -44,6 +46,7 @@ public class GoogleAuthenticator {
      */
     public static Boolean checkCode(String codes, String savedSecret,int timeWindowSizeSecs) {
         // enter the code shown on device. Edit this and run it fast before the code expires!  
+    	if(!JUtilMath.isLong(codes)) return false;
         long code = Long.parseLong(codes);
         long t = System.currentTimeMillis();
         GoogleAuthenticator ga = new GoogleAuthenticator();

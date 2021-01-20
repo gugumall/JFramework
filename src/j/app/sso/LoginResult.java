@@ -30,6 +30,8 @@ public class LoginResult implements Serializable{
 	public final static int RESULT_PASSWORD_INCORRECT=-13;//密码不正确
 	public final static int RESULT_USER_INVALID=-14;//用户无效（冻结等）
 	
+	public final static int ADDITION_AUTH_FAILED=-21;//二次验证失败
+	
 	public final static int RESULT_ERROR=-100;//其它错误（登录未成功），可用resultMsg进一步指明错误原因
 
 	private String sysId=null;
