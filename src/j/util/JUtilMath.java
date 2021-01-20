@@ -1,15 +1,10 @@
 package j.util;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import j.dao.DAO;
-import j.dao.DB;
-import j.dao.StmtAndRs;
 
 /**
  * 
@@ -73,22 +68,6 @@ public class JUtilMath extends JUtilSorter {
 	}
 	
 	/**
-	 * 是否长整型值
-	 * @param src
-	 * @return
-	 */
-	public static boolean isLong(String src){
-//		if(src==null||(!src.matches("^\\d{1,}$")&&!src.matches("^-\\d{1,}$"))) return false;
-		
-		try{
-			Long.parseLong(src);
-			return true;
-		}catch(Exception e){
-			return false;
-		}
-	}
-	
-	/**
 	 * 是否整型值,16进制
 	 * @param src
 	 * @return
@@ -105,6 +84,23 @@ public class JUtilMath extends JUtilSorter {
 	}
 	
 	/**
+	 * 是否长整型值
+	 * @param src
+	 * @return
+	 */
+	public static boolean isLong(String src){
+//		if(src==null||(!src.matches("^[0-9a-fA-F]{1,}$")&&!src.matches("^-[0-9a-fA-F]{1,}$"))) return false;
+		
+		try{
+			Long.parseLong(src);
+			return true;
+		}catch(Exception e){
+			return false;
+		}
+	}
+	
+	
+	/**
 	 * 是否长整型值,16进制
 	 * @param src
 	 * @return
@@ -118,6 +114,19 @@ public class JUtilMath extends JUtilSorter {
 		}catch(Exception e){
 			return false;
 		}
+	}
+	
+	/**
+	 * 解析科学计数法
+	 * @param src 如：1.00000090586E11
+	 * @return
+	 */
+	public static String convertScientificNotation(String src) throws Exception{
+		if(src.indexOf(".")<0) return src;
+		src=src.toUpperCase();
+		if(src.indexOf("E")<0) return src;
+
+		return Long.valueOf(src.substring(0,src.indexOf("E")).replaceAll("\\.", "")).toString();
 	}
 	
 	/**
@@ -266,29 +275,26 @@ public class JUtilMath extends JUtilSorter {
 	 * @return
 	 */
 	public static String formatPrint(double src,int precision,int validDigits){
-		String temp=formatPrint(src,precision);
-		
-		if(validDigits==0||Double.parseDouble(temp)==src) return temp;
-		
-		String fraction=null;
+		int maxFraction=precision>validDigits?precision:validDigits;
+		String temp=formatPrint(src, maxFraction);
+	
+		String fraction="";
+		String integer=temp;
 		int dot=temp.indexOf(".");
 		if(dot>0){
 			fraction=temp.substring(dot+1);
-			fraction=trimZeroAtHeader(fraction);
+			integer=temp.substring(0, dot);
 		}
 		
-		while(fraction==null||fraction.length()<validDigits){
-			precision++;
-			temp=formatPrint(src,precision);
-			
-			dot=temp.indexOf(".");
-			if(dot>0){
-				fraction=temp.substring(dot+1);
-				fraction=trimZeroAtHeader(fraction);
-			}
+		while(fraction.length()<validDigits){
+			fraction+="0";
 		}
 		
-		return temp;
+		while(fraction.length()>maxFraction && fraction.endsWith("0")){
+			fraction=fraction.substring(0, fraction.length() - 1);
+		}
+
+		return integer+(fraction.length()==0?"":".")+fraction;
 	}
 	
 	/**
@@ -299,31 +305,26 @@ public class JUtilMath extends JUtilSorter {
 	 * @return
 	 */
 	public static String formatPrintWithoutZero(double src,int precision,int validDigits){
-		String temp=formatPrint(src,precision);
-		
-		if(validDigits==0||Double.parseDouble(temp)==src){
-			return formatPrintWithoutZero(src,precision);
-		}
-		
-		String fraction=null;
+		int maxFraction=precision>validDigits?precision:validDigits;
+		String temp=formatPrint(src, maxFraction);
+	
+		String fraction="";
+		String integer=temp;
 		int dot=temp.indexOf(".");
 		if(dot>0){
 			fraction=temp.substring(dot+1);
-			fraction=trimZeroAtHeader(fraction);
+			integer=temp.substring(0, dot);
 		}
 		
-		while(fraction==null||fraction.length()<validDigits){
-			precision++;
-			temp=formatPrint(src,precision);
-			
-			dot=temp.indexOf(".");
-			if(dot>0){
-				fraction=temp.substring(dot+1);
-				fraction=trimZeroAtHeader(fraction);
-			}
+		while(fraction.length()<validDigits){
+			fraction+="0";
 		}
 
-		return formatPrintWithoutZero(src,precision);
+		while(fraction.length()>validDigits && fraction.endsWith("0")){
+			fraction=fraction.substring(0, fraction.length() - 1);
+		}
+
+		return integer+(fraction.length()==0?"":".")+fraction;
 	}
 	
 	/**
@@ -339,6 +340,7 @@ public class JUtilMath extends JUtilSorter {
 		int dot=original.indexOf(".");
 		if(dot>0){
 			fraction=original.substring(dot+1);
+			System.out.println(fraction);
 		}
 		
 		return formatPrint(src,precision,fraction==null?precision:fraction.length());
@@ -450,19 +452,59 @@ public class JUtilMath extends JUtilSorter {
 	
 	/**
 	 * 
+	 * @param numbers
+	 * @return
+	 */
+	public static BigDecimal factorial(int numbers) {
+		if(numbers<1) return new BigDecimal(1);
+		BigDecimal f=new BigDecimal(1);
+		for(int i=1;i<=numbers;i++) f=f.multiply(new BigDecimal(i));
+		return f;
+	}
+	
+	/**
+	 * @deprecated
 	 * @param scope
 	 * @param selected
 	 * @return
 	 */
 	public static long p(int scope, int selected){
-		if(scope<1||selected<1||selected>scope) return 1;
-		long p=1;
-		for(int i=scope-selected+1;i<=scope;i++) p*=i;
-		return p;
+		BigDecimal f1=factorial(scope);
+		BigDecimal f2=factorial(selected);
+		System.out.println("f1-----"+f1.toPlainString());
+		System.out.println("f2-----"+f2.toPlainString());
+		f1=f1.divide(f2);
+		return f1.longValue();
 	}
 	
 	/**
-	 * 打印出所有排列：从先选择1个元素，再从生下元素中选择selected-1个元素......以此递归
+	 * 
+	 * @param scope
+	 * @param selected
+	 * @return
+	 */
+	public static BigDecimal pNew(int scope, int selected){
+		BigDecimal f1=factorial(scope);
+		BigDecimal f2=factorial(scope-selected);
+		f1=f1.divide(f2);
+		return f1;
+	}
+	
+	/**
+	 * 
+	 * @param scope
+	 * @param selected
+	 * @return
+	 */
+	public static long c(int scope, int selected){
+		BigDecimal f1=pNew(scope,selected);
+		BigDecimal f2=factorial(selected);
+		f1=f1.divide(f2);
+		return f1.longValue();
+	}
+	
+	/**
+	 * 打印出所有排列：从先选择1个元素，再从剩下元素中选择selected-1个元素......以此递归
 	 * @param objects 对象列表
 	 * @param selected 排列元素数
 	 * @param assembled 已经选出的排列
@@ -488,20 +530,7 @@ public class JUtilMath extends JUtilSorter {
 	}
 	
 	/**
-	 * 
-	 * @param scope
-	 * @param selected
-	 * @return
-	 */
-	public static long c(int scope, int selected){
-		if(scope<1||selected<1||selected>scope) return 1;
-		long p=1;
-		for(int i=1;i<=selected;i++) p*=i;
-		return p(scope,selected)/p;
-	}
-	
-	/**
-	 * 打印出所有组合：从先选择1个元素，再从生下元素中选择selected-1个元素......以此递归，并去掉重复组合
+	 * 打印出所有组合：从先选择1个元素，再从剩下元素中选择selected-1个元素......以此递归，并去掉重复组合
 	 * @param objects 对象列表
 	 * @param selected 组合元素数
 	 * @param assembled 已经选出的组合
@@ -534,7 +563,10 @@ public class JUtilMath extends JUtilSorter {
 	private static String cPermutationFeature(List array) {
 		array=JUtilString.getInstance().bubble(array, JUtilSorter.ASC);
 		StringBuffer s=new StringBuffer();
-		for(int i=0; i<array.size(); i++) s.append(array.get(i).toString());
+		for(int i=0; i<array.size(); i++) {
+			if(i>0) s.append(",");
+			s.append(array.get(i).toString());
+		}
 		return s.toString();
 	}
 	
@@ -863,9 +895,8 @@ public class JUtilMath extends JUtilSorter {
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
-		System.out.println(JUtilMath.formatPrintWithoutZero(2.232d, 2));
-		System.out.println(JUtilMath.formatPrintWithoutZero(2.235d, 2));
-		System.out.println(JUtilMath.formatPrintWithoutZero(2.237d, 2));
-		System.out.println(JUtilMath.formatPrintWithoutZero(2.20d, 2));
+		long c1=JUtilMath.c(49,3);
+		long c2=JUtilMath.c(6,3);
+		System.out.println(convertScientificNotation("1.00000090586E11"));		
 	}
 }

@@ -148,7 +148,36 @@ public final class JArray {
 		
 		for(int i=0; i<objects.size(); i++) {
 			if(splitter!=null&&i>0) sb.append(splitter);
-			sb.append(objects.get(i).toString());
+			sb.append(objects.get(i)==null?"null":objects.get(i).toString());
+		}
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * 
+	 * @param objects
+	 * @return
+	 */
+	public static String toString(Object[] objects) {
+		return toString(objects, null);
+	}
+	
+	/**
+	 * 
+	 * @param objects
+	 * @param splitter
+	 * @return
+	 */
+	public static String toString(Object[] objects, String splitter) {
+		if(objects==null) return null;
+		if(objects.length==0) return "";
+		
+		StringBuffer sb=new StringBuffer();
+		
+		for(int i=0; i<objects.length; i++) {
+			if(splitter!=null&&i>0) sb.append(splitter);
+			sb.append(objects[i]==null?"null":objects[i].toString());
 		}
 		
 		return sb.toString();

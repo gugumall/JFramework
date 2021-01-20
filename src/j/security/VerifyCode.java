@@ -1,5 +1,13 @@
 package j.security;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.dom4j.Document;
+import org.dom4j.Element;
+
 import j.Properties;
 import j.common.JObject;
 import j.log.Logger;
@@ -9,14 +17,6 @@ import j.sys.SysConfig;
 import j.sys.SysUtil;
 import j.util.ConcurrentMap;
 import j.util.JUtilDom4j;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.dom4j.Document;
-import org.dom4j.Element;
 
 /**
  * 

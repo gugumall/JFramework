@@ -419,14 +419,17 @@ public class SSOServer extends JHandler implements Runnable{
 			String verifierUuid=SysUtil.getHttpParameter(request,Constants.SSO_VERIFIER_UUID);
 			String verifierCode=SysUtil.getHttpParameter(request,Constants.SSO_VERIFIER_CODE);
 			
-			//如果启用了登录验证码，判断验证码是否正确
 			
-			if((SSOConfig.getVerifierCodeEnabled()
-					||(verifierCode!=null&&!"".equals(verifierCode)))
-					&&!Verifier.isCorrect(verifierUuid,verifierCode)){//统一判断验证码	
-				result=new LoginResult();
-				result.setResult(LoginResult.RESULT_VERIFIER_CODE_INCORRECT);
-			}else{
+			//如果启用了登录验证码，判断验证码是否正确
+			if(SSOConfig.getVerifierCodeEnabled()
+					||(verifierCode!=null&&!"".equals(verifierCode))){//统一判断验证码
+				if(!Verifier.isCorrect(verifierUuid,verifierCode)) {
+					result=new LoginResult();
+					result.setResult(LoginResult.RESULT_VERIFIER_CODE_INCORRECT);
+				}
+			}
+			
+			if(result==null) {
 				if((SSOConfig.getSsoClients().size()==1
 						&&JUtilString.getHost(back).equalsIgnoreCase(SysUtil.getHttpDomain(request)))
 						||agent==null) {

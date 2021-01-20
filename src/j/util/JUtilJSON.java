@@ -143,9 +143,9 @@ public class JUtilJSON{
 	 */
 	public static String convert(String s){
 		if(s==null||"".equals(s)) return s;
-		
-		s=JUtilString.replaceAll(s, "\"", "\\\"");
+
 		s=JUtilString.replaceAll(s, "\\", "\\\\");
+		s=JUtilString.replaceAll(s, "\"", "\\\"");
 		s=JUtilString.replaceAll(s, "/", "\\/");
 		s=JUtilString.replaceAll(s, "\b", "\\b");
 		s=JUtilString.replaceAll(s, "\f", "\\f");
@@ -164,8 +164,8 @@ public class JUtilJSON{
 	public static String convertChars(String s){
 		if(s==null||"".equals(s)) return s;
 		
-		s=JUtilString.replaceAll(s, "\"", "\\\"");
 		s=JUtilString.replaceAll(s, "\\", "\\\\");
+		s=JUtilString.replaceAll(s, "\"", "\\\"");
 		s=JUtilString.replaceAll(s, "/", "\\/");
 		s=JUtilString.replaceAll(s, "\b", "\\b");
 		s=JUtilString.replaceAll(s, "\f", "\\f");
@@ -177,6 +177,6 @@ public class JUtilJSON{
 	}  
 	
 	public static void main(String[] args) throws Exception{
-		System.out.println(System.currentTimeMillis()/1000);
+		System.out.println(JUtilJSON.convert("{\"agParent0\":\"v888888\",\"agParent1\":\"cc9988\"}"));
 	}
 }

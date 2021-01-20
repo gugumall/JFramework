@@ -12,8 +12,9 @@
 
 		<property name="c3p0.initialPoolSize">15</property>
 		<property name="c3p0.maxPoolSize">300</property>
-		<property name="c3p0.idleConnectionTestPeriod">60</property>
 		<property name="c3p0.maxIdleTime">1800</property>
+		<property name="c3p0.idleConnectionTestPeriod">60</property>
+		<!-- <property name="c3p0.preferredTestQuery">select event_id from j_log where event_id='1'</property> -->
 
 		<!-- <property name="dbcp.maxActive">300</property> -->
 		<!-- <property name="dbcp.validationQuery">SELECT 1</property> -->
@@ -26,7 +27,7 @@
 		<!-- <property name="proxool.properties">j/db/proxool.properties</property> -->
 		<!-- <property name="proxool.pool_alias">DBPool</property> -->
 		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
-		<property name="connection.url">jdbc:mysql://localhost/jframework?useUnicode=true&amp;characterEncoding=utf-8</property>
+		<property name="connection.url">jdbc:mysql://localhost/jframework?useUnicode=true&amp;autoReconnect=true</property>
 		<property name="connection.username">root</property>
 		<property name="connection.password">20081016</property>
 		<property name="show_sql">false</property>
@@ -53,7 +54,6 @@
 		<mapping resource="j/db/Jtest.xml" />
 		<mapping resource="j/db/JthirdpartyUser.xml" />
 		<mapping resource="j/db/JuserLogin.xml" />
-		<mapping resource="j/db/JuserCertification.xml" />
 		<mapping resource="j/db/Jwebserver.xml" />
 		<mapping resource="j/db/JwebserverToAppserver.xml" />
 		<mapping resource="j/db/Jzone.xml" />

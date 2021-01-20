@@ -2488,7 +2488,7 @@ public class RdbmsDao implements DAO {
 				if("".equals(tmp.replaceAll("0",""))) ret=ret.substring(0,ret.indexOf("."));
 			}
 			
-			return ret;
+			return JUtilMath.convertScientificNotation(ret);
 		}catch(Exception e){
 			if(sr!=null) sr.close();		
 			throw e;
@@ -2552,7 +2552,7 @@ public class RdbmsDao implements DAO {
 				if("".equals(tmp.replaceAll("0",""))) ret=ret.substring(0,ret.indexOf("."));
 			}
 			
-			return ret;
+			return JUtilMath.convertScientificNotation(ret);
 		}catch(Exception e){
 			if(sr!=null) sr.close();
 			throw e;
@@ -2660,7 +2660,6 @@ public class RdbmsDao implements DAO {
 	}
 	public String autoIncreaseKey(String table,String column,long addition) throws Exception{
 		String key=(factory.getDbName().toLowerCase()+"."+table.toLowerCase()+"."+column.toLowerCase()).intern();
-		
 		
 		synchronized(key){
 			Long max=null;

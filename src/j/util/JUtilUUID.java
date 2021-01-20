@@ -1,11 +1,14 @@
 
 package j.util;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.client.HttpClient;
 
 import j.common.JObject;
@@ -223,15 +226,10 @@ public final class JUtilUUID {
 	}
 	
 	public static void main(String[] args) throws Exception{
-
-		JHttpContext context=new JHttpContext();
-		JHttp http=JHttp.getInstance();
-		HttpClient client=http.createClient(30000);
+		System.out.println(Timestamp.valueOf("2020-12-25 06:00:00").getTime());
 		
-		String resp=http.getResponse(context, client, "https://m.gugumall.cn/", "UTF-8");
 		
-		System.out.println(context.getSessionId());
-
+		
 		System.exit(0);
 	}
 }

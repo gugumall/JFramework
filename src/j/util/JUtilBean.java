@@ -678,7 +678,7 @@ public class JUtilBean {
 	 * @param excludes
 	 * @return
 	 */
-	public static String bean2Json(Object bean, boolean encode, Map extraKeyValues, List<String> excludes){
+	public static String bean2Json(Object bean, boolean encodex, Map extraKeyValues, List<String> excludes){
 		if(bean==null) return "{}";
 		
 		StringBuffer jsonString=new StringBuffer();
@@ -717,7 +717,7 @@ public class JUtilBean {
 				index++;
 			} catch (Exception e){
 				//log.log(e, Logger.LEVEL_ERROR);
-				return null;
+				continue;
 			}
 		}
 		
@@ -750,7 +750,7 @@ public class JUtilBean {
 					index++;
 				} catch (Exception e){
 					//log.log(e, Logger.LEVEL_ERROR);
-					return null;
+					continue;
 				}
 			}
 		}
@@ -937,7 +937,7 @@ public class JUtilBean {
 					if(o!=null) map.put(name,o.toString());
 				} catch (Exception e){
 					log.log(e, Logger.LEVEL_ERROR);
-					return null;
+					//return null;
 				}
 			}
 		}
@@ -963,7 +963,7 @@ public class JUtilBean {
 					if(o!=null) map.put(factory.getColName(table,name).toLowerCase(),o);
 				} catch (Exception e){
 					log.log(e, Logger.LEVEL_ERROR);
-					return null;
+					//return null;
 				}
 			}
 		}
@@ -989,7 +989,7 @@ public class JUtilBean {
 					if(o!=null) map.put(factory.getColName(table,name).toLowerCase(),o.toString());
 				} catch (Exception e){
 					log.log(e, Logger.LEVEL_ERROR);
-					return null;
+					//return null;
 				}
 			}
 		}

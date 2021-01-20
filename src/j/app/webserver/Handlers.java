@@ -395,19 +395,27 @@ public class Handlers implements Runnable{
 			        	
 			        	Element logEle=actionEle.element("log");
 			        	if(logEle!=null){
-			        		action.setLogEnabled("false".equalsIgnoreCase(logEle.attributeValue("avail"))?0:1);
+			        		if("true".equalsIgnoreCase(logEle.attributeValue("avail"))) {//action显示申明为“true”时，不管主配置是否开启日志，该action日志都将开启
+				        		action.setLogEnabled(1);
+			        		}else if("false".equalsIgnoreCase(logEle.attributeValue("avail"))) {//action显示申明为“false”时，不管主配置是否开启日志，该action日志都将关闭
+				        		action.setLogEnabled(0);
+			        		}else {//否则，以主配置为准
+				        		action.setLogEnabled(-1);
+			        		}
 			        		
+			        		//需要保存的参数
 			        		List logParams=logEle.elements("p");
-			        		if(logParams.size()>0){
+			        		if(logParams!=null && logParams.size()>0){//指定了需要保存的参数
 			        			action.setLogAllParameters(false);
+
+				        		for(int k=0;k<logParams.size();k++){
+				        			Element logParamEle=(Element)logParams.get(k);
+				        			action.addLogParam(logParamEle.getTextTrim());
+				        		}
 			        		}else{
+			        			//是否保存全部参数
 			        			action.setLogAllParameters(!"false".equalsIgnoreCase(logEle.attributeValue("save-all-parameters")));
 				        	}
-
-			        		for(int k=0;k<logParams.size();k++){
-			        			Element logParamEle=(Element)logParams.get(k);
-			        			action.addLogParam(logParamEle.getTextTrim());
-			        		}
 			        	}else{
 			        		action.setLogEnabled(-1);
 		        			action.setLogAllParameters(true);

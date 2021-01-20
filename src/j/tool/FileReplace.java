@@ -93,10 +93,10 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("F:\\work\\JGame\\WebContent\\WEB-INF\\pages-idc\\site\\m\\game");
+		File dir=new File("D:\\work\\JFighting\\WebContent\\WEB-INF\\pages-168\\game");
 		replace(dir,
-				"I{game,请点击选中赔率进行下注}!!!",
-				"I{game,请选择下注内容。}",
+				"Welcome",
+				"<title>Welcome</title>",
 				".jsp");
 		
 //		rotate(new File("D:\\176\\10.4 桃江一中 活动\\形象照\\temp"),180,".jpg");
@@ -150,7 +150,7 @@ public class FileReplace {
 		}else{
 			if(!file.getName().endsWith(ext)) return;
 			
-			if(!file.getName().startsWith("index")) return;
+			if(!file.getName().equals("index.jsp")) return;
 			
 			String s=JDFSFile.read(file, "UTF-8");
 

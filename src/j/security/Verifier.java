@@ -44,7 +44,7 @@ public class Verifier{
 				VerifyCode.TYPE_NUMBER, 
 				VerifierSetting.chars(),
 				VerifierSetting.timeout(),
-				1000);
+				100);
 		return uuid;
 	}
 	

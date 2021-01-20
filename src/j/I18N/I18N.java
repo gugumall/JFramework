@@ -34,6 +34,7 @@ import j.util.ConcurrentList;
 import j.util.ConcurrentMap;
 import j.util.JUtilDom4j;
 import j.util.JUtilSorter;
+import j.util.JUtilString;
 
 /**
  * 
@@ -45,7 +46,7 @@ public class I18N extends JHandler implements Initializer,Runnable{
 	
 	private static ConcurrentList I18NResourceFileNames=new ConcurrentList();//多语言资源文件名列表
 	private static List urls=new LinkedList();//需要进行多语言处理的url
-	private static ConcurrentMap I18NStringCollection=new ConcurrentMap();//多语言资源
+	private static ConcurrentMap<String, I18NResource> I18NStringCollection=new ConcurrentMap();//多语言资源
 
 	public static ConcurrentMap languages=new ConcurrentMap();//可选语言
 	public static String defaultLanguage;
@@ -195,6 +196,33 @@ public class I18N extends JHandler implements Initializer,Runnable{
 		}
 		
 		return string;
+	}
+	
+	/**
+	 * 
+	 * @param group
+	 * @param lang
+	 * @return
+	 */
+	private static ConcurrentMap getTexts(String group, String lang){
+		ConcurrentMap texts=new ConcurrentMap();
+		List keys=I18N.I18NStringCollection.listKeys();
+		for(int i=0;i<keys.size();i++){
+			String key=(String)keys.get(i);
+			String[] keyCells=key.split("<SPL>");
+			
+			if(group==null||group.equals("")){
+				if(keyCells.length==2){
+					if(I18N.I18NStringCollection.get(key)!=null) texts.put(key, I18N.I18NStringCollection.get(key).getLanguage(lang));
+				}
+			}else{
+				if(keyCells.length==3&&keyCells[0].equals(group)){
+					if(I18N.I18NStringCollection.get(key)!=null) texts.put(key, I18N.I18NStringCollection.get(key).getLanguage(lang));
+				}
+			}
+		}
+		
+		return texts;
 	}
 	
 	/*
@@ -629,9 +657,38 @@ public class I18N extends JHandler implements Initializer,Runnable{
 		cells.clear();
 		cells=null;
 		
-		//log.log("convert "+group+" done", -1);
+		//引入到js
+		content=_content.toString();
+		int start=content.indexOf("<import-i1n8>")+13;
+		int end=content.indexOf("</import-i1n8>",start);
+		while(start>=13){			
+			group=content.substring(start,end);
+			String _src=content.substring(start-13,end+14);
+			
+			ConcurrentMap strings=getTexts(group, lang);
+			String js="";
+			List keys=strings.listKeys();
+			for(int i=0;i<keys.size();i++){
+				String key=(String)keys.get(i);
+				String[] keyCells=key.split("<SPL>");
+				
+				if(keyCells.length==2){
+					js+="Lang.a('"+keyCells[0]+"','"+keyCells[1]+"','"+strings.get(key)+"');\r\n";
+				}else{
+					js+="Lang.a('"+keyCells[1]+"','"+keyCells[2]+"','"+strings.get(key)+"');\r\n";
+				}
+			}
+			
+			content=JUtilString.replaceAll(content, _src, js);
+			
+			start=content.indexOf("<import-i1n8>",end)+13;
+			end=content.indexOf("</import-i1n8>",start);
+		}
+		//引入到js end
 		
-		return _content.toString();
+		_content=null;
+		
+		return content;
 	}
 	
 	/**
@@ -688,9 +745,38 @@ public class I18N extends JHandler implements Initializer,Runnable{
 		cells.clear();
 		cells=null;
 		
-		//log.log("convert "+group+" done", -1);
+		//引入到js
+		content=_content.toString();
+		int start=content.indexOf("<import-i1n8>")+13;
+		int end=content.indexOf("</import-i1n8>",start);
+		while(start>=13){			
+			String group=content.substring(start,end);
+			String _src=content.substring(start-13,end+14);
+			
+			ConcurrentMap strings=getTexts(group, lang);
+			String js="";
+			List keys=strings.listKeys();
+			for(int i=0;i<keys.size();i++){
+				String key=(String)keys.get(i);
+				String[] keyCells=key.split("<SPL>");
+				
+				if(keyCells.length==2){
+					js+="Lang.a('"+keyCells[0]+"','"+keyCells[1]+"','"+strings.get(key)+"');\r\n";
+				}else{
+					js+="Lang.a('"+keyCells[1]+"','"+keyCells[2]+"','"+strings.get(key)+"');\r\n";
+				}
+			}
+			
+			content=JUtilString.replaceAll(content, _src, js);
+			
+			start=content.indexOf("<import-i1n8>",end)+13;
+			end=content.indexOf("</import-i1n8>",start);
+		}
+		//引入到js end
 		
-		return _content.toString();
+		_content=null;
+		
+		return content;
 	}
 	
 	/**
