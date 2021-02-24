@@ -1,5 +1,6 @@
 package j.app.sso;
 
+import java.sql.Timestamp;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import j.cache.JCacheParams;
 import j.common.JObject;
 import j.http.JHttp;
 import j.http.JHttpContext;
+import j.log.JLogger;
 import j.log.Logger;
 import j.sys.SysConfig;
 import j.sys.SysUtil;
@@ -364,9 +366,13 @@ public class SSOClient extends JHandler implements Runnable{
 			if(session!=null){
 				removeLoginStatus(session);
 				removeCurrentUser(session);
-				session.removeAttribute(Constants.SSO_TIME);
-				session.removeAttribute(Constants.SSO_USER_ID);
-				session.removeAttribute(Constants.SSO_GLOBAL_SESSION_ID);			
+				try {
+					session.removeAttribute(Constants.SSO_TIME);
+					session.removeAttribute(Constants.SSO_USER_ID);
+					session.removeAttribute(Constants.SSO_GLOBAL_SESSION_ID);	
+				}catch(Exception e) {
+		    		log.log(e.getMessage(),Logger.LEVEL_WARNING);
+				}
 			}
 			
 			try{
@@ -388,9 +394,13 @@ public class SSOClient extends JHandler implements Runnable{
 		if(session!=null){
 			removeLoginStatus(session);
 			removeCurrentUser(session);
-			session.removeAttribute(Constants.SSO_TIME);
-			session.removeAttribute(Constants.SSO_USER_ID);
-			session.removeAttribute(Constants.SSO_GLOBAL_SESSION_ID);			
+			try {
+				session.removeAttribute(Constants.SSO_TIME);
+				session.removeAttribute(Constants.SSO_USER_ID);
+				session.removeAttribute(Constants.SSO_GLOBAL_SESSION_ID);	
+			}catch(Exception e) {
+	    		log.log(e.getMessage(),Logger.LEVEL_WARNING);
+			}		
 		}
 		
 		try{
@@ -726,6 +736,7 @@ public class SSOClient extends JHandler implements Runnable{
 					String userId=SysUtil.getHttpParameter(request,Constants.SSO_USER_ID);
 					String subUserId=SysUtil.getHttpParameter(request,Constants.SSO_SUB_USER_ID);
 					String userIp=SysUtil.getHttpParameter(request,Constants.SSO_USER_IP);
+					String isTimeout=SysUtil.getHttpParameter(request,Constants.SSO_USER_IS_TIMEOUT);
 					
 					String md5=JUtilMD5.MD5EncodeToHex(client.getPassport()+time+globalSessionId+userId+userIp);
 					if(md5.equalsIgnoreCase(key)){//md5校验通过
@@ -733,6 +744,20 @@ public class SSOClient extends JHandler implements Runnable{
 						jsession.resultString=Constants.RESPONSE_OK;//返回给server处理结果
 					}else{						
 						jsession.resultString=Constants.RESPONSE_MD5_ERR;//返回给server处理结果
+					}
+					
+					if("true".equalsIgnoreCase(isTimeout)) {//超时注销，记录日志
+						JLogger.update(null, 
+								userId, 
+								"LOGIN", 
+								new Timestamp(SysUtil.getNow()), 
+								"LOGOUT", 
+								null, 
+								null, 
+								"TIMEOUT", 
+								null, 
+								null, 
+								null);
 					}
 				}
 			}

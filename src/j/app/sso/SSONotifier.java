@@ -121,7 +121,7 @@ public class SSONotifier implements Runnable{
 	 * @param subUserId
 	 * @param userIp
 	 */
-	public void logout(Client client,String globalSessionId,String userId,String subUserId,String userIp){
+	public void logout(Client client,String globalSessionId,String userId,String subUserId,String userIp,String isTimeout){
 		long now=SysUtil.getNow();
 		String md5=JUtilMD5.MD5EncodeToHex(client.getPassport()+now+globalSessionId+userId+userIp);
 		String url=client.getUrlDefault()+client.getLogoutInterface();
@@ -137,6 +137,7 @@ public class SSONotifier implements Runnable{
 			url+="&"+Constants.SSO_SUB_USER_ID+"="+subUserId;
 		}
 		url+="&"+Constants.SSO_USER_IP+"="+userIp;
+		url+="&"+Constants.SSO_USER_IS_TIMEOUT+"="+isTimeout;
 		url+="&"+Constants.SSO_PASSPORT+"="+Permission.getSSOPassport();
 
 		int loop=0;
@@ -206,6 +207,19 @@ public class SSONotifier implements Runnable{
 	}
 	
 	/**
+	 * 添加注销或登录任务
+	 * @param client
+	 * @param globalSessionId
+	 * @param userId
+	 * @param type
+	 */
+	public static void addTask(Client client,String globalSessionId,String userId,String subUserId,String userIp,String type,String isTimeout){
+		SSONotifier notifier=getNotifier(client);
+		notifier.tasks.add(new Object[]{client,globalSessionId,userId,subUserId,userIp,type,isTimeout});
+	}
+	
+	
+	/**
 	 * 添加注销全部的任务
 	 * @param client
 	 */
@@ -232,11 +246,12 @@ public class SSONotifier implements Runnable{
 				String subUserId=(String)cells[3];
 				String userIp=(String)cells[4];
 				String type=(String)cells[5];
+				String isTimeout=(cells.length>6)?((String)cells[6]):"false";
 				
 				if(type.equals(type_login)){
 					this.login(client,globalSessionId,userId,subUserId,userIp);
 				}else if(type.equals(type_logout)){
-					this.logout(client,globalSessionId,userId,subUserId,userIp);
+					this.logout(client,globalSessionId,userId,subUserId,userIp,isTimeout);
 				}else{
 					this.logout(client);
 				}

@@ -1,11 +1,19 @@
 package j.log;
 
+import java.sql.Timestamp;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import j.app.webserver.JHandler;
 import j.app.webserver.JResponse;
 import j.app.webserver.JSession;
 import j.common.JProperties;
 import j.dao.DAO;
 import j.dao.DB;
+import j.dao.QueryPool;
 import j.dao.util.SQLUtil;
 import j.db.Jlog;
 import j.sys.SysConfig;
@@ -15,13 +23,6 @@ import j.util.JUtilBean;
 import j.util.JUtilMath;
 import j.util.JUtilTimestamp;
 import j.util.JUtilUUID;
-
-import java.sql.Timestamp;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  * 
@@ -784,6 +785,30 @@ public class JLogger extends JHandler implements Runnable{
 				else sqls.append(",'"+SQLUtil.deleteCriminalChars(extra)+"'");
 			}
 			
+			if(log.getUpdEventTime()==null) sqls.append(",null");//UPD_EVENT_TIME
+			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getUpdEventTime().toString().substring(0,19))+"'");
+			
+			if(log.getUpdEventCode()==null) sqls.append(",null");//UPD_EVENT_CODE
+			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getUpdEventCode())+"'");
+			
+			if(log.getUpdEventData()==null) sqls.append(",null");//UPD_EVENT_DATA
+			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getUpdEventData())+"'");
+			
+			if(log.getUpdEventInfluence()==null) sqls.append(",null");//UPD_EVENT_INFLUENCE
+			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getUpdEventInfluence())+"'");
+			
+			if(log.getUpdEventStat()==null) sqls.append(",null");//UPD_EVENT_STAT
+			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getUpdEventStat())+"'");
+			
+			if(log.getUpdStaffId()==null) sqls.append(",null");//UPD_STAFF_ID
+			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getUpdStaffId())+"'");
+			
+			if(log.getUpdSellerId()==null) sqls.append(",null");//UPD_SELLER_ID
+			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getUpdSellerId())+"'");
+			
+			if(log.getUpdStaffIdOfShop()==null) sqls.append(",null");//UPD_STAFF_ID_OF_SHOP
+			else sqls.append(",'"+SQLUtil.deleteCriminalChars(log.getUpdStaffIdOfShop())+"'");
+			
 			sqls.append(")");
 		}
 		
@@ -804,6 +829,109 @@ public class JLogger extends JHandler implements Runnable{
 			loggerSelector++;
 			return logger;
 		}
+	}
+	
+	/**
+	 * 
+	 * @param eventId
+	 * @param auId
+	 * @param eventCode
+	 * @param updEventTime
+	 * @param updEventCode
+	 * @param updEventData
+	 * @param updEventInfluence
+	 * @param updEventStat
+	 * @param updStaffId
+	 * @param updSellerId
+	 * @param updStaffIdOfShop
+	 * @return
+	 */
+	public static boolean update(String eventId,
+			String auId,
+			String eventCode,
+			Timestamp updEventTime,
+			String updEventCode,
+			String updEventData,
+			String updEventInfluence,
+			String updEventStat,
+			String updStaffId,
+			String updSellerId,
+			String updStaffIdOfShop){
+		Jlog log=null;
+		QueryPool queryPool=QueryPool.getPool(JProperties.getLogDatabase(), "logger", JProperties.getLoggers());
+		if(eventId!=null && !"".equals(eventId)) {
+			log=(Jlog)queryPool.querySingle(null, "j_log", "event_id='"+SQLUtil.deleteCriminalChars(eventId)+"'");
+		}else {
+			log=(Jlog)queryPool.querySingle(null, "j_log", "a_u_id='"+auId+"' and (event_code='"+SQLUtil.deleteCriminalChars(eventCode)+"' or biz_code='"+SQLUtil.deleteCriminalChars(eventCode)+"') order by event_time desc");
+		}
+		if(log==null) return false;
+		
+		Jlog upd=new Jlog();
+		upd.setEventId(log.getEventId());
+		upd.setUpdEventTime(updEventTime);
+		upd.setUpdEventCode(updEventCode);
+		upd.setUpdEventData(updEventData);
+		upd.setEventInfluence(updEventInfluence);
+		upd.setUpdEventStat(updEventStat);
+		upd.setUpdStaffId(updStaffId);
+		upd.setUpdSellerId(updSellerId);
+		upd.setUpdStaffIdOfShop(updStaffIdOfShop);
+		
+		selectLogger().add(upd);
+		
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @param dao
+	 * @param eventId
+	 * @param auId
+	 * @param eventCode
+	 * @param updEventTime
+	 * @param updEventCode
+	 * @param updEventData
+	 * @param updEventInfluence
+	 * @param updEventStat
+	 * @param updStaffId
+	 * @param updSellerId
+	 * @param updStaffIdOfShop
+	 * @return
+	 */
+	public static boolean updateSyn(DAO dao,
+			String eventId,
+			String auId,
+			String eventCode,
+			Timestamp updEventTime,
+			String updEventCode,
+			String updEventData,
+			String updEventInfluence,
+			String updEventStat,
+			String updStaffId,
+			String updSellerId,
+			String updStaffIdOfShop) throws Exception{		
+		Jlog log=null;
+		if(eventId!=null && !"".equals(eventId)) {
+			log=(Jlog)dao.findSingle("j_log", "event_id='"+SQLUtil.deleteCriminalChars(eventId)+"'");
+		}else {
+			log=(Jlog)dao.findSingle("j_log", "a_u_id='"+auId+"' and (event_code='"+SQLUtil.deleteCriminalChars(eventCode)+"' or biz_code='"+SQLUtil.deleteCriminalChars(eventCode)+"') order by event_time desc");
+		}
+		if(log==null) return false;
+		
+		Jlog upd=new Jlog();
+		upd.setEventId(log.getEventId());
+		upd.setUpdEventTime(updEventTime);
+		upd.setUpdEventCode(updEventCode);
+		upd.setUpdEventData(updEventData);
+		upd.setEventInfluence(updEventInfluence);
+		upd.setUpdEventStat(updEventStat);
+		upd.setUpdStaffId(updStaffId);
+		upd.setUpdSellerId(updSellerId);
+		upd.setUpdStaffIdOfShop(updStaffIdOfShop);
+		
+		dao.updateByKeysIgnoreNulls(upd);
+		
+		return true;
 	}
 	
 	/**
@@ -1069,7 +1197,11 @@ public class JLogger extends JHandler implements Runnable{
 				while(!this.events.isEmpty()){
 					log=this.events.remove(0);
 					if(log instanceof String) dao.executeSQL((String)log);
-					else dao.insert(log);
+					else {
+						Jlog _log=(Jlog)log;
+						if(_log.getEventTime()==null) dao.updateByKeysIgnoreNulls(log);//更新
+						else dao.insert(log);//插入
+					}
 					log=null;
 				}
 			}catch(Exception e){

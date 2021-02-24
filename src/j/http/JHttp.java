@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +67,7 @@ import j.sys.SysUtil;
 import j.util.ConcurrentMap;
 import j.util.JUtilCompressor;
 import j.util.JUtilInputStream;
+import j.util.JUtilMD5;
 import j.util.JUtilMath;
 import j.util.JUtilRandom;
 import j.util.JUtilString;
@@ -1090,18 +1092,50 @@ public class JHttp{
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
-		System.out.println("begin");
+		System.out.println(JUtilMD5.MD5EncodeToHex("1864|42.385|01|5"));
 		
-		String result = "";
 		try {
+			String latestUrl="http://w1.it1v.com/";
 			JHttp http=JHttp.getInstance();
 			JHttpContext context=new JHttpContext();
 			
-			HttpClient client=http.createClient("156.225.3.89", 3128, "http", "", "");
+			HttpClient client=http.createClient(10000, 10);
 			
-			String resp=http.getResponse(context, client, "https://www.baidu.com", "UTF-8");
+			context.addRequestHeader("User-Agent", " Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0");
+			String resp=http.getResponse(context, client, latestUrl, "UTF-8");
 			
-			System.out.println("result -> \r\n"+resp);
+			long f=SysUtil.getNow();
+			Map params=new HashMap();
+			params.put("act", "userlogin");
+			params.put("username", "kpp999902");
+			params.put("pwd", "As321321");
+			params.put("x", JUtilRandom.nextInt(60));
+			params.put("y", JUtilRandom.nextInt(30));
+			params.put("f", ""+f);
+
+			context.addRequestHeader("User-Agent", " Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0");
+			context.addRequestHeader("Referer", latestUrl);
+			resp=http.postResponse(context, client, latestUrl+"index.php/Login?t="+f, params, "UTF-8");
+			
+			context.addRequestHeader("User-Agent", " Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0");
+			context.addRequestHeader("Referer", latestUrl+"index.php/Login?t="+f);
+			resp=http.getResponse(context, client, latestUrl+"vip/welcome.php", "UTF-8");
+
+			params.clear();
+			params.put("act", "同意");
+			context.addRequestHeader("User-Agent", " Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0");
+			context.addRequestHeader("Referer", latestUrl+"vip/welcome.php");
+			context.setRequestEncoding("UTF-8");
+			resp=http.postResponse(context, client, latestUrl+"vip/welcome.php", params, "UTF-8");
+
+			context.addRequestHeader("User-Agent", " Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0");
+			context.addRequestHeader("Referer", latestUrl+"vip/welcome.php");
+			resp=http.getResponse(context, client, latestUrl+"vip/welcome", "UTF-8");
+
+			context.addRequestHeader("User-Agent", " Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0");
+			context.addRequestHeader("Referer", latestUrl);
+			resp=http.getResponse(context, client, latestUrl+"index.php/index/cust_info.html", "UTF-8");
+			System.out.println("---> "+resp);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -1,5 +1,5 @@
 /*
- * Created on 2020-02-11
+ * Created on 2021-02-06
  *
  */
 package j.db;
@@ -50,6 +50,14 @@ public class Jlog implements Serializable{
 	private java.lang.String eXTRA8;
 	private java.lang.String eXTRA9;
 	private java.lang.String eXTRA10;
+	private java.sql.Timestamp updEventTime;
+	private java.lang.String updEventCode;
+	private java.lang.String updEventData;
+	private java.lang.String updEventInfluence;
+	private java.lang.String updEventStat;
+	private java.lang.String updStaffId;
+	private java.lang.String updSellerId;
+	private java.lang.String updStaffIdOfShop;
 
 	public java.lang.String getEventId(){
 		return this.eventId;
@@ -301,6 +309,62 @@ public class Jlog implements Serializable{
 	}
 	public void setEXTRA10(java.lang.String eXTRA10){
 		this.eXTRA10=eXTRA10;
+	}
+
+	public java.sql.Timestamp getUpdEventTime(){
+		return this.updEventTime;
+	}
+	public void setUpdEventTime(java.sql.Timestamp updEventTime){
+		this.updEventTime=updEventTime;
+	}
+
+	public java.lang.String getUpdEventCode(){
+		return this.updEventCode;
+	}
+	public void setUpdEventCode(java.lang.String updEventCode){
+		this.updEventCode=updEventCode;
+	}
+
+	public java.lang.String getUpdEventData(){
+		return this.updEventData;
+	}
+	public void setUpdEventData(java.lang.String updEventData){
+		this.updEventData=updEventData;
+	}
+
+	public java.lang.String getUpdEventInfluence(){
+		return this.updEventInfluence;
+	}
+	public void setUpdEventInfluence(java.lang.String updEventInfluence){
+		this.updEventInfluence=updEventInfluence;
+	}
+
+	public java.lang.String getUpdEventStat(){
+		return this.updEventStat;
+	}
+	public void setUpdEventStat(java.lang.String updEventStat){
+		this.updEventStat=updEventStat;
+	}
+
+	public java.lang.String getUpdStaffId(){
+		return this.updStaffId;
+	}
+	public void setUpdStaffId(java.lang.String updStaffId){
+		this.updStaffId=updStaffId;
+	}
+
+	public java.lang.String getUpdSellerId(){
+		return this.updSellerId;
+	}
+	public void setUpdSellerId(java.lang.String updSellerId){
+		this.updSellerId=updSellerId;
+	}
+
+	public java.lang.String getUpdStaffIdOfShop(){
+		return this.updStaffIdOfShop;
+	}
+	public void setUpdStaffIdOfShop(java.lang.String updStaffIdOfShop){
+		this.updStaffIdOfShop=updStaffIdOfShop;
 	}
 
 	public boolean equals(Object obj){

@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2020-02-11 08:13:20                          */
+/* Created on:     2021-02-06 11:08:42                          */
 /*==============================================================*/
 
 
@@ -370,6 +370,19 @@ create table j_log
    EXTRA8               varchar(128),
    EXTRA9               varchar(128),
    EXTRA10              varchar(128),
+   UPD_EVENT_TIME       datetime,
+   UPD_EVENT_CODE       varchar(32),
+   UPD_EVENT_DATA       text,
+   UPD_EVENT_INFLUENCE  text,
+   UPD_EVENT_STAT       varchar(8) comment 'TRACE
+            DEBUG
+            INFO
+            WARNING
+            ERROR
+            FATAL',
+   UPD_STAFF_ID         varchar(128),
+   UPD_SELLER_ID        varchar(128),
+   UPD_STAFF_ID_OF_SHOP varchar(128),
    primary key (EVENT_ID)
 );
 

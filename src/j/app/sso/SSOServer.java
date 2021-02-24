@@ -255,7 +255,8 @@ public class SSOServer extends JHandler implements Runnable{
 					loginStatus.getUserId(),
 					loginStatus.getSubUserId(),
 					loginStatus.getUserIp(),
-					SSONotifier.type_logout);
+					SSONotifier.type_logout,
+					"true");
 		}
 		
 		loginStatus=null;//set to null

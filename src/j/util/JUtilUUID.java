@@ -11,6 +11,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.client.HttpClient;
 
+import j.common.JArray;
 import j.common.JObject;
 import j.http.JHttp;
 import j.http.JHttpContext;
@@ -228,7 +229,11 @@ public final class JUtilUUID {
 	public static void main(String[] args) throws Exception{
 		System.out.println(Timestamp.valueOf("2020-12-25 06:00:00").getTime());
 		
-		
+		ConcurrentList<String> finished=new ConcurrentList();
+		finished.add("111");
+		finished.add("222");
+
+		System.out.println(JArray.toString(finished,","));
 		
 		System.exit(0);
 	}

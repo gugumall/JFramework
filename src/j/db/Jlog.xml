@@ -80,5 +80,21 @@
 
 <property name="eXTRA10" type="java.lang.String" column="EXTRA10" not-null="false" gzip="false" length="128"/>
 
+<property name="updEventTime" type="java.sql.Timestamp" column="UPD_EVENT_TIME" not-null="false" gzip="false" length="19"/>
+
+<property name="updEventCode" type="java.lang.String" column="UPD_EVENT_CODE" not-null="false" gzip="false" length="32"/>
+
+<property name="updEventData" type="java.lang.String" column="UPD_EVENT_DATA" not-null="false" gzip="false" length="16383"/>
+
+<property name="updEventInfluence" type="java.lang.String" column="UPD_EVENT_INFLUENCE" not-null="false" gzip="false" length="16383"/>
+
+<property name="updEventStat" type="java.lang.String" column="UPD_EVENT_STAT" not-null="false" gzip="false" length="8"/>
+
+<property name="updStaffId" type="java.lang.String" column="UPD_STAFF_ID" not-null="false" gzip="false" length="128"/>
+
+<property name="updSellerId" type="java.lang.String" column="UPD_SELLER_ID" not-null="false" gzip="false" length="128"/>
+
+<property name="updStaffIdOfShop" type="java.lang.String" column="UPD_STAFF_ID_OF_SHOP" not-null="false" gzip="false" length="128"/>
+
 </class>
 </hibernate-mapping>

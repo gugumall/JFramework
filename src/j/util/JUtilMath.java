@@ -2,6 +2,7 @@ package j.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -125,8 +126,12 @@ public class JUtilMath extends JUtilSorter {
 		if(src.indexOf(".")<0) return src;
 		src=src.toUpperCase();
 		if(src.indexOf("E")<0) return src;
+		
+		int digits=Integer.parseInt(src.substring(src.indexOf("E")+1)) + 1;
+		src=src.substring(0,src.indexOf("E")).replaceAll("\\.", "");
+		while(src.length()<digits) src+="0";
 
-		return Long.valueOf(src.substring(0,src.indexOf("E")).replaceAll("\\.", "")).toString();
+		return Long.valueOf(src).toString();
 	}
 	
 	/**
@@ -340,7 +345,6 @@ public class JUtilMath extends JUtilSorter {
 		int dot=original.indexOf(".");
 		if(dot>0){
 			fraction=original.substring(dot+1);
-			System.out.println(fraction);
 		}
 		
 		return formatPrint(src,precision,fraction==null?precision:fraction.length());
@@ -471,8 +475,8 @@ public class JUtilMath extends JUtilSorter {
 	public static long p(int scope, int selected){
 		BigDecimal f1=factorial(scope);
 		BigDecimal f2=factorial(selected);
-		System.out.println("f1-----"+f1.toPlainString());
-		System.out.println("f2-----"+f2.toPlainString());
+		//System.out.println("f1-----"+f1.toPlainString());
+		//System.out.println("f2-----"+f2.toPlainString());
 		f1=f1.divide(f2);
 		return f1.longValue();
 	}
@@ -897,6 +901,7 @@ public class JUtilMath extends JUtilSorter {
 	public static void main(String[] args)throws Exception{
 		long c1=JUtilMath.c(49,3);
 		long c2=JUtilMath.c(6,3);
-		System.out.println(convertScientificNotation("1.00000090586E11"));		
+		System.out.println(Timestamp.valueOf("2021-02-19 07:00:00").getTime());	
+		System.out.println(Timestamp.valueOf("2021-02-20 06:00:00").getTime());			
 	}
 }

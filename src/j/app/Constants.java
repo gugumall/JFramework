@@ -17,6 +17,7 @@ public class Constants {
 	public static final String SSO_USER_ROLE="sso_user_role";	
 	public static final String SSO_WEBSITE="sso_website";	
 	public static final String SSO_USER_IP="sso_user_ip";
+	public static final String SSO_USER_IS_TIMEOUT="sso_user_is_timeout";
 	public static final String SSO_USER_PWD="sso_user_pwd";
 	public static final String SSO_USER_DOMAIN="sso_user_domain";
 	public static final String SSO_VERIFIER_UUID="sso_verifier_uuid";
