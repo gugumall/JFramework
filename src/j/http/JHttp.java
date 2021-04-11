@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -23,6 +24,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -59,14 +62,18 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 
 import j.Properties;
 import j.common.Global;
+import j.common.JObject;
+import j.log.Logger;
 import j.sys.AppConfig;
 import j.sys.SysUtil;
 import j.util.ConcurrentMap;
 import j.util.JUtilCompressor;
 import j.util.JUtilInputStream;
+import j.util.JUtilJSON;
 import j.util.JUtilMD5;
 import j.util.JUtilMath;
 import j.util.JUtilRandom;
@@ -1068,6 +1075,7 @@ public class JHttp{
 	 * @return
 	 */
 	public static String[] getRemoteIps(HttpServletRequest request){
+		if(request==null) return new String[] {"127.0.0.1"};
 		String ip=SysUtil.getCookie(request,"ROAR_STATIC_IP");
 		if(ip!=null&&ip.indexOf("127.0.0.1")>-1) ip=null;
 		if(ip==null) ip=request.getHeader("x-forwarded-for");
@@ -1087,58 +1095,57 @@ public class JHttp{
 	
 	
 	/**
+	 * 
+	 * @param sellerId
+	 * @param data
+	 * @return
+	 */
+	private static String getDatadigest(String sellerId, String data) {
+		System.out.println(data);
+		data+="31ada638f569948c3799b7ea5266f922";
+		
+		byte[] bytes=null;
+		try {
+			bytes=data.getBytes("UTF-8");
+		}catch(Exception e) {}
+		
+		return Base64.encodeBase64String(DigestUtils.md5(bytes));
+	}
+	
+	
+	/**
 	 * 测试
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args)throws Exception{
 		System.out.println(JUtilMD5.MD5EncodeToHex("1864|42.385|01|5"));
-		
-		try {
-			String latestUrl="http://w1.it1v.com/";
-			JHttp http=JHttp.getInstance();
-			JHttpContext context=new JHttpContext();
-			
-			HttpClient client=http.createClient(10000, 10);
-			
-			context.addRequestHeader("User-Agent", " Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0");
-			String resp=http.getResponse(context, client, latestUrl, "UTF-8");
-			
-			long f=SysUtil.getNow();
-			Map params=new HashMap();
-			params.put("act", "userlogin");
-			params.put("username", "kpp999902");
-			params.put("pwd", "As321321");
-			params.put("x", JUtilRandom.nextInt(60));
-			params.put("y", JUtilRandom.nextInt(30));
-			params.put("f", ""+f);
-
-			context.addRequestHeader("User-Agent", " Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0");
-			context.addRequestHeader("Referer", latestUrl);
-			resp=http.postResponse(context, client, latestUrl+"index.php/Login?t="+f, params, "UTF-8");
-			
-			context.addRequestHeader("User-Agent", " Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0");
-			context.addRequestHeader("Referer", latestUrl+"index.php/Login?t="+f);
-			resp=http.getResponse(context, client, latestUrl+"vip/welcome.php", "UTF-8");
-
-			params.clear();
-			params.put("act", "同意");
-			context.addRequestHeader("User-Agent", " Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0");
-			context.addRequestHeader("Referer", latestUrl+"vip/welcome.php");
-			context.setRequestEncoding("UTF-8");
-			resp=http.postResponse(context, client, latestUrl+"vip/welcome.php", params, "UTF-8");
-
-			context.addRequestHeader("User-Agent", " Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0");
-			context.addRequestHeader("Referer", latestUrl+"vip/welcome.php");
-			resp=http.getResponse(context, client, latestUrl+"vip/welcome", "UTF-8");
-
-			context.addRequestHeader("User-Agent", " Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0");
-			context.addRequestHeader("Referer", latestUrl);
-			resp=http.getResponse(context, client, latestUrl+"index.php/index/cust_info.html", "UTF-8");
-			System.out.println("---> "+resp);
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
+		System.out.println(JObject.intSequence2String("jis:1x,2a,2a"));
+//		
+//		try{
+//			String url="https://japi.zto.com/zto.open.queryAvailableBalanceNew";
+//			
+//			StringBuffer content=new StringBuffer();
+//			content.append("{\"datetime\":\""+(new Timestamp(System.currentTimeMillis())).toString().substring(0, 19)+"\"");
+//			content.append(",\"partner\":\"6269b804881f4e969ac50057c55bf77b\"");
+//			content.append(",\"verify\":\"Z4RIFF27\"");
+//			content.append(",\"content\":{}");
+//			content.append("}");
+//
+//			JHttp http=JHttp.getInstance();
+//			JHttpContext context=new JHttpContext();
+//			context.setContentType("application/json; charset=utf-8");
+//			context.addRequestHeader("x-appKey","bc9e336c153e190b4d75e");
+//			System.out.println(getDatadigest("", content.toString()));
+//			context.addRequestHeader("x-datadigest",getDatadigest("", content.toString()));
+//			context.setRequestEncoding("UTF-8");
+//			context.setRequestBody(content.toString());
+//			
+//			String resp=http.postResponse(context,null,url,null,"UTF-8");
+//			System.out.println("resp:"+resp);
+//		}catch(Exception e){
+//			e.printStackTrace();
+//		}
 		System.exit(0);
 	}
 }

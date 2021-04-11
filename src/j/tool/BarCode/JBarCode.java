@@ -666,6 +666,16 @@ public class JBarCode {
 	 * @param args
 	 */
 	public static void main(String[] args){
-		createCode128("20041701345","F:/temp/order.png",IMAGE_PNG,0.8,true);
+//		8（保留位）400031（重庆邮编）03（款式）1（1/2/3 平角、加长、三角）1（1/2/3  白色/黑色/...）1（1/2/3/4.....L/XL/XXL/XXXL）
+//		840003103111
+		createCodeEAN13("840003104111","F:\\gugu\\products\\man-underwear\\teenwear\\V2\\物料\\型号标签\\04B_W_L.png",IMAGE_PNG,0.8,true);
+		createCodeEAN13("840003104112","F:\\gugu\\products\\man-underwear\\teenwear\\V2\\物料\\型号标签\\04B_W_XL.png",IMAGE_PNG,0.8,true);
+		createCodeEAN13("840003104113","F:\\gugu\\products\\man-underwear\\teenwear\\V2\\物料\\型号标签\\04B_W_2XL.png",IMAGE_PNG,0.8,true);
+		createCodeEAN13("840003104114","F:\\gugu\\products\\man-underwear\\teenwear\\V2\\物料\\型号标签\\04B_W_3XL.png",IMAGE_PNG,0.8,true);
+		createCodeEAN13("840003104121","F:\\gugu\\products\\man-underwear\\teenwear\\V2\\物料\\型号标签\\04B_B_L.png",IMAGE_PNG,0.8,true);
+		createCodeEAN13("840003104122","F:\\gugu\\products\\man-underwear\\teenwear\\V2\\物料\\型号标签\\04B_B_XL.png",IMAGE_PNG,0.8,true);
+		createCodeEAN13("840003104123","F:\\gugu\\products\\man-underwear\\teenwear\\V2\\物料\\型号标签\\04B_B_2XL.png",IMAGE_PNG,0.8,true);
+		createCodeEAN13("840003104124","F:\\gugu\\products\\man-underwear\\teenwear\\V2\\物料\\型号标签\\04B_B_3XL.png",IMAGE_PNG,0.8,true);
+		System.exit(0);
 	}
 }

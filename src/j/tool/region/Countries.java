@@ -36,7 +36,7 @@ public class Countries {
 		countries.add(new CountryData("KR","82","韩国","South Korea","亚洲","^(82){1}\\-?0{0,1}[7,1](?:\\d{8}|\\d{9})$"));
 		countries.add(new CountryData("LK","94","斯里兰卡","Sri Lanka","亚洲","^(94){1}\\-?\\d{7,11}"));
 		countries.add(new CountryData("TR","90","土耳其","Turkey","亚洲","^(90){1}\\-?\\d{7,11}"));
-		countries.add(new CountryData("TH","66","泰国","Thailand","亚洲","^(66){1}\\-?[13456789]\\d{7,8}$"));
+		countries.add(new CountryData("TH","66","泰国","Thailand","亚洲","^(66){1}\\-?[013456789]\\d{7,9}$"));
 		countries.add(new CountryData("AE","971","阿联酋","United Arab Emirates","亚洲","^(971){1}\\-?\\d{7,11}"));
 		countries.add(new CountryData("VN","84","越南","Vietnam","亚洲","^(84){1}\\-?[1-9]\\d{6,9}$"));
 		countries.add(new CountryData("AT","43","奥地利","Austria","欧洲","^(43){1}\\-?\\d{7,11}"));
@@ -132,7 +132,7 @@ public class Countries {
 		String[] temp=getMobileOrTelInfo(num);
 		
 		CountryData c=getCountry(temp[0]);
-		if(c==null) return false;
+		if(c==null) return isMobileValid(Countries.DEFAULT_MOBILE_CODE, num);
 		
 		return (temp[0]+"-"+temp[1]).matches(c.RE);
 	}

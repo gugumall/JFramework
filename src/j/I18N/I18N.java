@@ -44,6 +44,7 @@ import j.util.JUtilString;
 public class I18N extends JHandler implements Initializer,Runnable{	
 	private static Logger log=Logger.create(I18N.class);
 	
+	private static ConcurrentMap<String, String> namesOfFiles=new ConcurrentMap();
 	private static ConcurrentList I18NResourceFileNames=new ConcurrentList();//多语言资源文件名列表
 	private static List urls=new LinkedList();//需要进行多语言处理的url
 	private static ConcurrentMap<String, I18NResource> I18NStringCollection=new ConcurrentMap();//多语言资源
@@ -87,6 +88,15 @@ public class I18N extends JHandler implements Initializer,Runnable{
 	public static List getI18NResourceFileNames(){
 		I18NFileSorter sorter=new I18NFileSorter();
 		return sorter.bubble(I18NResourceFileNames,JUtilSorter.ASC);
+	}
+	
+	/**
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public static String getNameOfFile(String fileName) {
+		return (String)namesOfFiles.get(fileName);
 	}
 	
 	/**
@@ -264,6 +274,7 @@ public class I18N extends JHandler implements Initializer,Runnable{
 				module.addAttribute("remark",remark);
 				module.setText(fileName);
 				I18NResourceFileNames.add(fileName);
+				namesOfFiles.put(fileName, remark);
 				
 				JUtilDom4j.save(docForConfig,JProperties.getI18NPath()+"config.xml", "UTF-8");
 			}
@@ -385,7 +396,8 @@ public class I18N extends JHandler implements Initializer,Runnable{
         for(int i=0;i<strs.size();i++){
       		Element str=(Element)strs.get(i);
       		I18N.I18NResourceFileNames.add(str.getText());
-          	log.log("I18N.I18NResourceFileName:"+str.getText(),-1);
+			namesOfFiles.put(str.getText(), str.attributeValue("remark"));
+          	log.log("I18N.I18NResourceFileName:"+str.attributeValue("remark")+" -> "+str.getText(),-1);
       	}
         
         Element urlsEle=rootForConfig.element("urls");
@@ -638,15 +650,22 @@ public class I18N extends JHandler implements Initializer,Runnable{
 			}
 			
 			if(alt==null) {
+				String thisGroup="";
 				if(key.startsWith(".")){
 					alt=key.substring(1);
+					thisGroup=".";
 				}else if(key.indexOf(",")>0){
 					alt=key.substring(key.indexOf(",")+1);
+					thisGroup=key.substring(0,key.indexOf(",")+1);
 				}else{
 					alt=key;
 				}
-				if(alt.startsWith("NON-JS")){
-					alt=alt.substring(6).replaceAll("'", "\\\\'");
+				if(!alt.startsWith("NON-JS")){
+					alt=alt.replaceAll("'", "\\\\'");
+				}
+				
+				if(_showUnknownTag(lang)) {
+					alt="I{"+thisGroup+alt+"}";
 				}
 			}
 			
@@ -726,15 +745,22 @@ public class I18N extends JHandler implements Initializer,Runnable{
 			}
 			
 			if(alt==null) {
+				String thisGroup="";
 				if(key.startsWith(".")){
 					alt=key.substring(1);
+					thisGroup=".";
 				}else if(key.indexOf(",")>0){
 					alt=key.substring(key.indexOf(",")+1);
+					thisGroup=key.substring(0,key.indexOf(",")+1);
 				}else{
 					alt=key;
 				}
-				if(alt.startsWith("NON-JS")){
-					alt=alt.substring(6).replaceAll("'", "\\\\'");
+				if(!alt.startsWith("NON-JS")){
+					alt=alt.replaceAll("'", "\\\\'");
+				}
+				
+				if(_showUnknownTag(lang)) {
+					alt="I{"+thisGroup+alt+"}";
 				}
 			}
 			

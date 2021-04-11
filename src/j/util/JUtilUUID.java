@@ -1,6 +1,7 @@
 
 package j.util;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -227,13 +228,7 @@ public final class JUtilUUID {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		System.out.println(Timestamp.valueOf("2020-12-25 06:00:00").getTime());
-		
-		ConcurrentList<String> finished=new ConcurrentList();
-		finished.add("111");
-		finished.add("222");
 
-		System.out.println(JArray.toString(finished,","));
 		
 		System.exit(0);
 	}

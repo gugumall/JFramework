@@ -113,7 +113,7 @@ public class SysUtil {
 	 * @return
 	 */
 	public static String getCookie(HttpServletRequest request,String name){
-		Cookie[] cs=request.getCookies();
+		Cookie[] cs=request==null?null:request.getCookies();
 		if(cs==null) return null;
 		
 		String value=null;

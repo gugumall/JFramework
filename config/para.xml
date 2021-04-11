@@ -1,43 +1,883 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <root>
-  <group name="SYSTEM">
-  	<para name="time-zone-diff" desc="时间调整(ms)">0</para>
-  	<para name="http-get-parameter-encoding-convert" desc="HTTP参数是否转换编码">false</para>
-  	<para name="j_ui_version" desc="界面版本"></para>
-  </group>  
-  
-  <group name="HTTP">
-  	<para name="User-Agent">Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)</para>
-  	<para name="retries">1</para>
-  	<para name="redirects">1</para>
-  	<para name="retry-interval">3000</para>
+  <group name="SYSTEM" desc="系统参数设置">
+    <para name="suspended" desc="系统暂停" can-be-updated="true">F</para>
+    <para name="currency_id" desc="系统币种" can-be-updated="true">1</para>
+    <para name="currency_precision" desc="资金默认小数点位数" can-be-updated="true">2</para>
+    <para name="time-zone-diff" desc="时间调整" can-be-updated="true">0</para>
+    <para name="html-generators" desc="静态页面生成线程数" can-be-updated="true">1</para>
+    <para name="DOMAIN" desc="" can-be-updated="false">gugumall.cn</para>
+    <para name="HOST" desc="" can-be-updated="false">www.gugumall.cn</para>
+    <para name="DOMAINS" desc="" can-be-updated="false">gugumall.cn,gugupay.cn,xiaoxiaoxia.cn,wechat-tangguang.gugumall.cn</para>
+    <para name="CONTEXT" desc="" can-be-updated="false">/</para>
+    <para name="URL_BASE" desc="根网址" can-be-updated="true">https://www.gugumall.cn</para>
+    <para name="BACKUP" desc="" can-be-updated="false">1469497197643</para>
+    <para name="local-cache-clear-interval" desc="" can-be-updated="false">0</para>
+    <para name="block-time-after-illegal-request" desc="非法访问后IP屏蔽时长" can-be-updated="true">60000</para>
+    <para name="SPREADER_LEVELS" desc="会员推广体系最多层级" can-be-updated="true">2</para>
+    <para name="maintenance" desc="是否维护" can-be-updated="true">false</para>
+    <para name="maintenanceStart" desc="维护开始时间" can-be-updated="true">2019-02-09 10:00:00</para>
+    <para name="maintenanceEnd" desc="维护结束时间" can-be-updated="true">2019-02-09 23:59:59</para>
+    <para name="SHOW_AUTHOR" desc="" can-be-updated="false">true</para>
+    <para name="License" desc="" can-be-updated="false">gugu999*</para>
+    <para name="WECHAT_NAME" desc="微信公众号名称" can-be-updated="true">古古商贸</para>
+    <para name="j_ui_version" desc="界面版本" can-be-updated="true"></para>
+    <para name="AUTO_LOGIN_IN_THIRDPARTY" desc="第三方自动登录" can-be-updated="true">false</para>
   </group>
-  
-  <group name="BAIDU-SPEECH">
-  	<para name="AppID" desc="AppID" can-be-updated="true">19100970</para>
-  	<para name="APIKey" desc="APIKey" can-be-updated="true">AUK1zITNGuZ9E4oXLR5WF54h</para>
-  	<para name="SecretKey" desc="SecretKey" can-be-updated="true">Ze1NxmtR2zpsY5qPxLRcuzfKuDUqOHjw</para>
-  	<para name="TokenUrl" desc="Token获取地址" can-be-updated="true">https://openapi.baidu.com/oauth/2.0/token?grant_type=client_credentials&amp;client_id=APIKey&amp;client_secret=SecretKey</para>
-  	<para name="text2audioUrl" desc="语音合成地址" can-be-updated="true">http://tsn.baidu.com/text2audio</para>
-  	<para name="speed" desc="语速（0-15）" can-be-updated="true">5</para>
-  	<para name="pitch" desc="语调（0-15）" can-be-updated="true">5</para>
-  	<para name="volume" desc="音量（0-15）" can-be-updated="true">5</para>
-  	<para name="person" desc="人声" can-be-updated="true">111</para>
-  	<para name="persons" desc="人声可选项（勿修改）" can-be-updated="true">度小宇=1，度小美=0，度逍遥=3，度丫丫=4，度博文=106，度小童=110，度小萌=111，度米朵=103，度小娇=5</para>
-  	<para name="audioEncoder" desc="语音编码" can-be-updated="true">3</para>
+  <group name="APP" desc="APP设置">
+    <para name="VERSION" desc="最新版本(安卓)" can-be-updated="true">2.5.4</para>
+    <para name="NAME" desc="APP名称(安卓)" can-be-updated="true">古古商贸</para>
+    <para name="URL" desc="下载地址(安卓)" can-be-updated="true">https://gugumall.cn/downloads/app.apk</para>
+    <para name="MUST_UPDATE_ANDROID" desc="必须更新(安卓)" can-be-updated="true">F</para>
+    <para name="VERSION_IOS" desc="最新版本(苹果)" can-be-updated="true">2.5.2</para>
+    <para name="NAME_IOS" desc="APP名称(苹果)" can-be-updated="true">古古商贸</para>
+    <para name="URL_IOS" desc="下载地址(苹果)" can-be-updated="true">itms-services://?action=download-manifest&amp;url=https://gugumall.cn/downloads/app.plist</para>
+    <para name="MUST_UPDATE_IOS" desc="必须更新(苹果)" can-be-updated="true">F</para>
   </group>
-  
-  <group name="BAIDU-OCR">
-  	<para name="AppID" desc="AppID" can-be-updated="true">20613104</para>
-  	<para name="APIKey" desc="APIKey" can-be-updated="true">Ga5jj0Ioyi08sAbO8lweBQ3G</para>
-  	<para name="SecretKey" desc="SecretKey" can-be-updated="true">dIlaY3pnIHOnq4Khs5U1R840Ecbvu1Qx</para>
+  <group name="SavingsCard" desc="卡密设置">
+    <para name="cardNumType" desc="卡号形式（random/sequence）" can-be-updated="true">random</para>
+    <para name="cardNumLength" desc="卡号长度" can-be-updated="true">12</para>
+    <para name="cardPwType" desc="密码形式（num/string）" can-be-updated="true">num</para>
+    <para name="cardPwLength" desc="密码长度" can-be-updated="true">8</para>
   </group>
-
-  <group name="TEST">
-  	<para name="user-id">user</para>
-  	<para name="user-pwd">password</para>
-  	<para name="admin-id">admin</para>
-  	<para name="admin-pwd">password</para>
+  <group name="SMS" desc="短信发送设置">
+    <para name="MANUAL" desc="是否手动发送" can-be-updated="true">F</para>
+    <para name="SUPPLIER" desc="短信提供商" can-be-updated="true">ALIYUNSMS</para>
+  </group>
+  <group name="YUNXUNTONG" desc="云通讯短信接口">
+    <para name="ACCOUNT_SID" desc="账号" can-be-updated="true">aaf98f894f402f15014f46b1316b058d</para>
+    <para name="ACCOUNT_TOKEN" desc="密钥" can-be-updated="true">b51578bb2e6a4d2f82c3ef4a1712c75f</para>
+    <para name="App_ID" desc="应用ID" can-be-updated="true">aaf98f894f402f15014f46b6f32d0598</para>
+    <para name="interface" desc="接口地址" can-be-updated="true">https://app.cloopen.com:8883/2013-12-26/Accounts/ACCOUNT_SID/SMS/TemplateSMS?sig=signature</para>
+    <para name="templateId" desc="通用验证模板ID" can-be-updated="true">76444</para>
+    <para name="templateId_en-us" desc="(英文)通用验证模板ID" can-be-updated="true">76444</para>
+    <para name="templateIdOrderStatus" desc="订单状态变更提醒模板ID" can-be-updated="true">170610</para>
+    <para name="templateIdNewUserWelcome" desc="欢迎新会员模板ID" can-be-updated="true">35030</para>
+    <para name="templateIdInitPassword" desc="初始密码发送" can-be-updated="true">351097</para>
+    <para name="templateIdRequirementPushNotify" desc="需求订阅推送模板ID" can-be-updated="true">256147</para>
+    <para name="templateIdGoodsPushNotify" desc="产品订阅推送模板ID" can-be-updated="true">256148</para>
+    <para name="templateIdManageDeposit" desc="管理-充值通知模板ID" can-be-updated="true">35053</para>
+    <para name="templateIdManageWithdraw" desc="管理-提款通知模板ID" can-be-updated="true">35055</para>
+    <para name="templateIdManageOfflineMsg" desc="管理-客服离线消息模板ID" can-be-updated="true">35041</para>
+    <para name="templateIdSellerRegAccept" desc="商户入驻审核通过模板ID" can-be-updated="true">366763</para>
+    <para name="templateIdSellerRegReject" desc="商户入驻审核未通过模板ID" can-be-updated="true">366764</para>
+    <para name="templateIdLowStock" desc="库存预警模板ID" can-be-updated="true">367146</para>
+    <para name="templateIdIotWarning" desc="物联网设备告警通知模板ID" can-be-updated="true">426716</para>
+    <para name="templateIdPromotion" desc="优惠券发放通知模板ID" can-be-updated="true">430763</para>
+    <para name="templateIdMsgFromSys" desc="系统消息通知模板ID" can-be-updated="true">442477</para>
+  </group>
+  <group name="ALIYUNSMS" desc="阿里云短信接口">
+    <para name="AccessKeyID" desc="AccessKey ID" can-be-updated="true">LTAI3R9ctszz3mYo</para>
+    <para name="AccessKeySecret" desc="Access Key Secret" can-be-updated="true">ztxbZHCXOMfU2s6CX8Jltv9p2PA6oy</para>
+    <para name="domain" desc="接口域名" can-be-updated="true">dysmsapi.aliyuncs.com</para>
+    <para name="version" desc="接口版本" can-be-updated="true">2017-05-25</para>
+    <para name="sign" desc="短信签名" can-be-updated="true">古古商贸</para>
+    <para name="templateId" desc="通用验证模板ID" can-be-updated="true">SMS_171850668</para>
+    <para name="templateId_en-us" desc="(英文)通用验证模板ID" can-be-updated="true">SMS_171850668</para>
+    <para name="templateIdOrderStatus" desc="订单状态变更提醒模板ID" can-be-updated="true">SMS_171850682</para>
+    <para name="templateIdNewUserWelcome" desc="欢迎新会员模板ID" can-be-updated="true">SMS_171850673</para>
+    <para name="templateIdInitPassword" desc="初始密码发送" can-be-updated="true">SMS_171855666</para>
+    <para name="templateIdRequirementPushNotify" desc="需求订阅推送模板ID" can-be-updated="true">SMS_171855653</para>
+    <para name="templateIdGoodsPushNotify" desc="产品订阅推送模板ID" can-be-updated="true">SMS_171855655</para>
+    <para name="templateIdManageDeposit" desc="管理-充值通知模板ID" can-be-updated="true">SMS_171850678</para>
+    <para name="templateIdManageWithdraw" desc="管理-提款通知模板ID" can-be-updated="true">SMS_171850679</para>
+    <para name="templateIdManageOfflineMsg" desc="管理-客服离线消息模板ID" can-be-updated="true">SMS_171850676</para>
+    <para name="templateIdSellerRegAccept" desc="商户入驻审核通过模板ID" can-be-updated="true">SMS_171850694</para>
+    <para name="templateIdSellerRegReject" desc="商户入驻审核未通过模板ID" can-be-updated="true">SMS_171855668</para>
+    <para name="templateIdLowStock" desc="库存预警模板ID" can-be-updated="true">SMS_171855672</para>
+    <para name="templateIdIotWarning" desc="物联网设备告警通知模板ID" can-be-updated="true">SMS_171850701</para>
+    <para name="templateIdPromotion" desc="优惠券发放通知模板ID" can-be-updated="true">SMS_171855687</para>
+    <para name="templateIdMsgFromSys" desc="系统消息通知模板ID" can-be-updated="true">SMS_171855690</para>
+    <para name="templateIdPromotionNotify" desc="促销活动开始通知模板ID" can-be-updated="true">SMS_206539114</para>
+    <para name="templateIdCloseNotify" desc="休店公告模板ID" can-be-updated="true">SMS_208636742</para>
+  </group>
+  <group name="HTTP" desc="HTTP Client设置">
+    <para name="User-Agent" desc="" can-be-updated="true">Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)</para>
+    <para name="retries" desc="" can-be-updated="true">3</para>
+    <para name="retry-interval" desc="" can-be-updated="true">3000</para>
+    <para name="http-get-parameter-encoding-convert" desc="" can-be-updated="true">true</para>
+  </group>
+  <group name="JPay" desc="资金系统参数设置">
+    <para name="ACCOUNT_TYPE_DEFAULT" desc="默认账户类型" can-be-updated="true">001</para>
+    <para name="PRECISION" desc="账户余额精度" can-be-updated="true">6</para>
+  </group>
+  <group name="JShop" desc="业务参数设置">
+    <para name="VERIFY-KEY" desc="" can-be-updated="false">any</para>
+    <para name="order-close-thread" desc="关闭超时订单线程数" can-be-updated="true">2</para>
+    <para name="order-confirm-thread" desc="自动确认收货线程数" can-be-updated="true">2</para>
+    <para name="order-notify-thread" desc="订单通知线程数" can-be-updated="true">2</para>
+    <para name="order-clear-thread" desc="订单清算线程数" can-be-updated="true">2</para>
+    <para name="order-clear-spreader-thread" desc="订单提成清算线程数" can-be-updated="true">2</para>
+    <para name="order-agree-back-thread" desc="自动同意退款线程数" can-be-updated="true">2</para>
+    <para name="order-confirm-back-thread" desc="自动确认退款线程数" can-be-updated="true">2</para>
+    <para name="order-auction-thread" desc="竞拍处理线程数" can-be-updated="true">2</para>
+    <para name="auto-order-from-supplier-thread" desc="自动采购线程数" can-be-updated="true">2</para>
+    <para name="LINE0" desc="分割线" can-be-updated="true">==========================================</para>
+    <para name="DEFAULT_SELLER" desc="默认卖家账号" can-be-updated="true">systemseller</para>
+    <para name="DEFAULT_SELLER_SERVICE_PERIOD" desc="卖家默认服务费缴纳周期" can-be-updated="true">004</para>
+    <para name="DEFAULT_SELLER_SERVICE_FEE" desc="卖家默认服务费(已弃用设置)" can-be-updated="true">0</para>
+    <para name="LINE1" desc="分割线" can-be-updated="true">==========================================</para>
+    <para name="DEFAULT_CLEAR_TYPE" desc="默认清算周期" can-be-updated="true">2</para>
+    <para name="DEFAULT_SELLER_COMMISION" desc="卖家默认平台提成比率" can-be-updated="true">0.026</para>
+    <para name="SELLER_TRIAL_DAYS" desc="审核通过后试用天数" can-be-updated="true">7</para>
+    <para name="LINE2" desc="分割线" can-be-updated="true">==========================================</para>
+    <para name="BUY_REQUIRES_INVITE" desc="购物是否需要邀请码" can-be-updated="true">true</para>
+    <para name="LINE3" desc="分割线" can-be-updated="true">==========================================</para>
+    <para name="REG_BONUS" desc="注册赠送金（元）" can-be-updated="true">8</para>
+    <para name="REG_REQUIRES_INVITE" desc="注册是否需要邀请码" can-be-updated="true">false</para>
+    <para name="NEW-USER-STAT" desc="新注册用户状态" can-be-updated="true">000</para>
+    <para name="NEW-USER-IS-SELLER" desc="新注册用户是否卖家" can-be-updated="true">000</para>
+    <para name="sendWelcomeWordsSms" desc="是否发送注册欢迎短信" can-be-updated="true">false</para>
+    <para name="sendWelcomeWordsMail" desc="是否发送注册欢迎邮件" can-be-updated="true">false</para>
+    <para name="IS-SELLER-NEED-CERT" desc="商户实名认证要求" can-be-updated="true">002</para>
+    <para name="IS-SELLER-NEED-CERT-P" desc="商户是否需个人实名认证" can-be-updated="true">optional</para>
+    <para name="IS-SELLER-NEED-CERT-C" desc="商户是否需企业实名认证" can-be-updated="true">optional</para>
+    <para name="autoRegInThirdparty" desc="是否自动注册第三方用户" can-be-updated="true">false</para>
+    <para name="defaultLoginPwdThirdparty" desc="第三方用户默认登录密码" can-be-updated="true">88888888</para>
+    <para name="defaultPayPwdThirdparty" desc="第三方用户默认支付密码" can-be-updated="true">88888888</para>
+    <para name="LINE4" desc="分割线" can-be-updated="true">==========================================</para>
+    <para name="MAX-ADDRS-PER-USER" desc="用户最多保存地址数" can-be-updated="true">10</para>
+    <para name="MAX-FAVORS" desc="最多收藏商品数" can-be-updated="true">1000</para>
+    <para name="MAX-ALBUM-LEVELS" desc="图片库最多目录级数" can-be-updated="true">4</para>
+    <para name="MAX-GOODS-PHOTOS-PREVIEW" desc="商品最多预览图片数" can-be-updated="true">20</para>
+    <para name="MAX-GOODS-PHOTOS-COVER" desc="商品最多封面图片数" can-be-updated="true">1</para>
+    <para name="MIN-GOODS-PHOTOS-PREVIEW" desc="商品最少预览图片数" can-be-updated="true">1</para>
+    <para name="MIN-GOODS-PHOTOS-COVER" desc="商品最少预览图片数" can-be-updated="true">1</para>
+    <para name="SELLER-MAX-GOODS" desc="卖家最多商品数" can-be-updated="true">1000</para>
+    <para name="SELLER-MAX-GROUPS" desc="卖家最多专区数" can-be-updated="true">100</para>
+    <para name="SELLER-MAX-STORES" desc="卖家最多仓库数" can-be-updated="true">10</para>
+    <para name="SELLER-MAX-SERVICE-TABLES" desc="卖家最多餐位/服务位" can-be-updated="true">1000</para>
+    <para name="SELLER-MAX-ALBUMS" desc="卖家最多相册数" can-be-updated="true">1000</para>
+    <para name="SELLER-MAX-PHOTOS" desc="卖家最多图片数" can-be-updated="true">10000</para>
+    <para name="SELLER-MAX-EXPRESS-AGENTS" desc="卖家最多货代数" can-be-updated="true">10</para>
+    <para name="SELLER-MAX-EXPRESS-FEE-TEMPLATES" desc="卖家最多运费模板数" can-be-updated="true">50</para>
+    <para name="SELLER-MAX-EXPRESS-FEE-RULES" desc="卖家每个运费模板最多规则数" can-be-updated="true">100</para>
+    <para name="SELLER-MAX-PAGES" desc="卖家最多自定义页面数" can-be-updated="true">100</para>
+    <para name="SELLER-MAX-ARTICLES" desc="卖家最多发布文章数" can-be-updated="true">1000</para>
+    <para name="SELLER-MAX-REQUIREMENTS" desc="卖家最多发布需求数" can-be-updated="true">1000</para>
+    <para name="LINE5" desc="分割线" can-be-updated="true">==========================================</para>
+    <para name="phoneVerifyRequires" desc="手机号是否需要验证" can-be-updated="true">true</para>
+    <para name="mailVerifyRequires" desc="邮箱是否需要验证" can-be-updated="true">true</para>
+    <para name="changePhoneNeedVerify" desc="修改手机号是否需要验证" can-be-updated="true">true</para>
+    <para name="changeMailNeedVerify" desc="修改邮箱是否需要验证" can-be-updated="true">true</para>
+    <para name="changePasswordNeedVerify" desc="修改密码是否需要验证码" can-be-updated="true">true</para>
+    <para name="setPersonalInfoNeedVerify" desc="设置个人信息是否需要验证码" can-be-updated="true">true</para>
+    <para name="addBankCardNeedVerify" desc="添加收款账户是否需要验证码" can-be-updated="true">true</para>
+    <para name="withdrawNeedVerify" desc="提款是否需要验证码" can-be-updated="true">true</para>
+    <para name="withdrawNeedPasswordPay" desc="提款是否需要支付密码" can-be-updated="true">false</para>
+    <para name="payNeedVerify" desc="余额支付是否需要验证码" can-be-updated="true">false</para>
+    <para name="payNeedPasswordPay" desc="余额支付是否需要支付密码" can-be-updated="true">false</para>
+    <para name="openLoginGuard" desc="是否启用登录保护功能" can-be-updated="true">true</para>
+    <para name="LINE6" desc="分割线" can-be-updated="true">==========================================</para>
+    <para name="maxArticleContentChars" desc="文章最多字符数" can-be-updated="true">10240</para>
+    <para name="maxRequirementContentChars" desc="需求最多字符数" can-be-updated="true">10240</para>
+    <para name="maxNotifyContentChars" desc="公告最多字符数" can-be-updated="true">10240</para>
+    <para name="LINE7" desc="分割线" can-be-updated="true">==========================================</para>
+    <para name="POINTS_ADD_FOR_REG" desc="注册赠送积分数" can-be-updated="true">1000</para>
+    <para name="POINTS_ADD_FOR_LOGIN" desc="访问网站赠送积分数（每天只记1次）" can-be-updated="true">10</para>
+    <para name="POINTS_ADD_FOR_SPREAD_REG" desc="每推荐1人注册赠送积分数" can-be-updated="true">100</para>
+    <para name="POINTS_ADD_FOR_SHOPPING_FINISHED" desc="订单成交赠送积分数（每元）" can-be-updated="true">1</para>
+    <para name="POINTS_ADD_FOR_SPREAD_SHOPPING_FINISHED" desc="下线订单成交赠送积分数（每元）" can-be-updated="true">1</para>
+    <para name="LINE8" desc="分割线" can-be-updated="true">==========================================</para>
+    <para name="EXPRESS_DEFAULT" desc="默认快递方式" can-be-updated="true">SF</para>
+    <para name="VirtualCoinValue" desc="每积分抵多少现金（元）" can-be-updated="true">0.01</para>
+    <para name="LINE9" desc="分割线" can-be-updated="true">==========================================</para>
+    <para name="weixin_notify_tid_charging_done" desc="微信公众号通知模板（充电结束）" can-be-updated="true">6P0XtK9xC6vuOjOeD2vFQsNUkzoSDP5KDJK37gfbR4o</para>
+    <para name="miniprogram_notify_tid_charging_done" desc="微信小程序通知模板（充电结束）" can-be-updated="true">6P0XtK9xC6vuOjOeD2vFQsNUkzoSDP5KDJK37gfbR4o</para>
+    <para name="weixin_notify_tid_order" desc="微信公众号通知模板（订单状态）" can-be-updated="true">kHTK9DA3yiZu_V9pcyO0SYm0NarKAhS1Vz2DueJhQms</para>
+    <para name="miniprogram_notify_tid_express" desc="微信小程序通知模板（发货提醒）" can-be-updated="true">RONaf8Hp0wmB7cWTcuzG0PL3Iv_sjrZuz289k60abjY</para>
+    <para name="miniprogram_notify_tid_order" desc="微信小程序通知模板（订单状态）" can-be-updated="true">mELio_lhm1z01P6Gd8WHecvGiIa4yQMATdexQWufj8k</para>
+    <para name="weixin_notify_tid_chatting" desc="微信公众号通知模板（在线客服留言）" can-be-updated="true">TZqJQPYBhFWt6ExOD0fPaof3pUeWeGRuAjWqaEKZpGY</para>
+  </group>
+  <group name="JShop.wechat-tangguang.gugumall.cn" desc="业务参数设置（堂光新食）">
+    <para name="miniprogram_notify_tid_express" desc="微信小程序通知模板（发货提醒）" can-be-updated="true">Ujwwl3_63CrkXoTm-lKxem1KyKcvGillvm1dbIrKkXg</para>
+    <para name="miniprogram_notify_tid_order" desc="微信小程序通知模板（订单状态）" can-be-updated="true">ZZyzDB__2coziVaCjapSIOxUU5hsUAUyuPwD1wdRX9s</para>
+  </group>
+  <group name="JShop.SHOPPING" desc="购物参数设置">
+    <para name="SHOPPING-ON" desc="购物功能是否开启" can-be-updated="true">true</para>
+    <para name="CAN-ORDER-WITHOUT-PAY" desc="是否可先提交订单再支付" can-be-updated="true">true</para>
+    <para name="MAX-UNPAID-ORDERS" desc="允许用户的最多未支付订单" can-be-updated="true">100</para>
+    <para name="MAX-ORDERS-UNPAID-OR-CANCELLED-PER-DAY" desc="每个用户每天最多未支付或取消订单数" can-be-updated="true">100</para>
+    <para name="MAX-CART-ITEMS" desc="购物车最多明细数" can-be-updated="true">100</para>
+    <para name="MAX-OBJECTS-PER-ITEM" desc="最个订单明细最多物品记录" can-be-updated="true">100</para>
+    <para name="MAX-PROOF" desc="每个订单最多上传附件数" can-be-updated="true">10</para>
+    <para name="MAX-COMMENT-CHARS" desc="商品评论最多字数" can-be-updated="true">300</para>
+    <para name="AUTO-CONFIRM-PERIOD" desc="自动确认收货天数" can-be-updated="true">7</para>
+    <para name="CANCEL-IF-UNPAID" desc="多久未付款关闭交易（分钟，设为0不关闭）" can-be-updated="true">0</para>
+    <para name="CLOSE-BY-BUYER-AFTER-PAID" desc="买家是否可关闭已付款订单" can-be-updated="true">F</para>
+    <para name="MERGE-ENABLED" desc="自动合并同配送订单" can-be-updated="true">T</para>
+    <para name="HOW-LONG-AFTER-BACK-APPLIED-CAN-BE-ARBITRATED" desc="申请退款多久后可提起仲裁 （小时）" can-be-updated="true">48</para>
+    <para name="HOW-LONG-AFTER-CONFIRM-CAN-APPLY-BACK" desc="确认收货多久内可申请售后 （小时）" can-be-updated="true">360</para>
+    <para name="HOW-LONG-AFTER-APPLY-BACK-AUTO-AGREE" desc="申请退款后多久自动同意退款 （小时）" can-be-updated="true">48</para>
+    <para name="HOW-LONG-AFTER-DONE-BACK-AUTO-CONFIRM" desc="提交退货物流后多久自动确认退款 （小时）" can-be-updated="true">240</para>
+    <para name="OrderNotifySms" desc="是否短信发送订单通知给卖家" can-be-updated="true">F</para>
+    <para name="OrderNotifyMail" desc="是否邮件发送订单通知给卖家" can-be-updated="true">F</para>
+    <para name="OrderNotifyToBuyerSms" desc="是否短信发送订单通知给买家" can-be-updated="true">T</para>
+    <para name="OrderNotifyToBuyerMail" desc="是否邮件发送订单通知给买家" can-be-updated="true">F</para>
+    <para name="OrderNotifyToAdminSms" desc="是否短信发送订单通知给管理员" can-be-updated="true">F</para>
+    <para name="OrderNotifyToAdminMail" desc="是否邮件发送订单通知给管理员" can-be-updated="true">F</para>
+    <para name="OrderNotifyToAdminSmsPhone" desc="管理员接收订单通知手机" can-be-updated="true">17623391339</para>
+    <para name="OrderNotifyToAdminMailAddress" desc="管理员接收订单通知邮箱" can-be-updated="true">tech@gugumall.cn</para>
+    <para name="LINE1" desc="发货单设置" can-be-updated="true">==========================================</para>
+    <para name="noticeOnOrderItems-zh-cn" desc="发货单温馨提示（简体）" can-be-updated="true">敬请关注本公司微信公众号[古古商城]，第一时间获取最新产品信息，更可领取新会员微信红包、每日签到微信红包哦。&lt;br/&gt;&lt;br/&gt;另外，您可通过本公司微信公众号、官网（www.gugumall.cn）、官网手机版（m.gugumall.cn）、官方APP &lt;古古商城&gt; 查询、购买本公司产品。通过以上官方渠道购买产品将可能享受更多优惠，并可以累积积分享受更低价格。官网和APP还会不定期推出时尚健康写真、资讯。</para>
+    <para name="noticeOnOrderItems-zh-tw" desc="发货单温馨提示（繁体）" can-be-updated="true">敬请关注本公司微信公众号[古古商城]，第一时间获取最新产品信息，更可领取新会员微信红包、每日签到微信红包哦。&lt;br/&gt;&lt;br/&gt;另外，您可通过本公司微信公众号、官网（www.gugumall.cn）、官网手机版（m.gugumall.cn）、官方APP &lt;古古商城&gt; 查询、购买本公司产品。通过以上官方渠道购买产品将可能享受更多优惠，并可以累积积分享受更低价格。官网和APP还会不定期推出时尚健康写真、资讯。</para>
+    <para name="noticeOnOrderItems-en-us" desc="发货单温馨提示（英文）" can-be-updated="true">敬请关注本公司微信公众号[古古商城]，第一时间获取最新产品信息，更可领取新会员微信红包、每日签到微信红包哦。&lt;br/&gt;&lt;br/&gt;另外，您可通过本公司微信公众号、官网（www.gugumall.cn）、官网手机版（m.gugumall.cn）、官方APP &lt;古古商城&gt; 查询、购买本公司产品。通过以上官方渠道购买产品将可能享受更多优惠，并可以累积积分享受更低价格。官网和APP还会不定期推出时尚健康写真、资讯。</para>
+    <para name="orderCreatedByCustomAgentNotice-zh-cn" desc="代客下单提示（简体）" can-be-updated="true">您的订单已同步到本公司官网，请使用手机号SPHONE登录查看，无需注册，默认登录密码为SPWD</para>
+    <para name="orderCreatedByCustomAgentNotice-zh-tw" desc="代客下单提示（繁体）" can-be-updated="true">您的订单已同步到本公司官网，请使用手机号SPHONE登录查看，无需注册，默认登录密码为SPWD</para>
+    <para name="orderCreatedByCustomAgentNotice-zh-us" desc="代客下单提示（英文）" can-be-updated="true">您的订单已同步到本公司官网，请使用手机号SPHONE登录查看，无需注册，默认登录密码为SPWD</para>
+    <para name="LINE2" desc="会员推广专属优惠码默认设置" can-be-updated="true">==========================================</para>
+    <para name="spreaderDefaultCode" desc="是否自动生成会员推广专属优惠码" can-be-updated="true">F</para>
+    <para name="spreaderDefaultCodePriceStart" desc="优惠码满减最低订单金额" can-be-updated="true">29</para>
+    <para name="spreaderDefaultCodeItemsStart" desc="优惠码满减最少件数" can-be-updated="true">0</para>
+    <para name="spreaderDefaultCodePriceItemsRelation" desc="优惠码满减条件关系（OR/AND）" can-be-updated="true">AND</para>
+    <para name="spreaderDefaultCodePriceOff" desc="优惠码折扣" can-be-updated="true">0.9</para>
+    <para name="spreaderDefaultCodeName" desc="优惠码名称" can-be-updated="true">9折专属优惠码</para>
+    <para name="spreaderDefaultAutoUsed" desc="优惠码是否自动应用" can-be-updated="true">F</para>
+    <para name="LINE3" desc="其它设置" can-be-updated="true">==========================================</para>
+    <para name="resellOpen" desc="是否开启转卖功能" can-be-updated="true">T</para>
+    <para name="resellStopBeforeSending" desc="预计发货前多久内禁止转卖(天)" can-be-updated="true">0</para>
+    <para name="howLongCanDefinedSendTimeLaterThanPlanned" desc="自定义发货时间最多比计划时间晚多久(天)" can-be-updated="true">7</para>
+    <para name="divideLineForOrderDeliverOfDay" desc="每天几点后的订单发货时间顺延一天" can-be-updated="true">18:00</para>
+    <para name="mustBeSellerBeforeDistributor" desc="申请分销是否需先成为商户" can-be-updated="true">true</para>
+  </group>
+  <group name="JShop.QUESTION-TYPE" desc="">
+    <para name="REG" desc="" can-be-updated="true">注册</para>
+    <para name="LOGIN" desc="" can-be-updated="true">登录</para>
+    <para name="PASSWORD" desc="" can-be-updated="true">忘记密码</para>
+    <para name="ACCOUNT" desc="" can-be-updated="true">忘记账号</para>
+    <para name="SHOPPING" desc="" can-be-updated="true">购物</para>
+    <para name="PAYMENT" desc="" can-be-updated="true">支付</para>
+    <para name="BACK" desc="" can-be-updated="true">退货</para>
+    <para name="DEPOSIT" desc="" can-be-updated="true">充值</para>
+    <para name="WITHDRAW" desc="" can-be-updated="true">提款</para>
+    <para name="OTHER" desc="" can-be-updated="true">其它问题</para>
+  </group>
+  <group name="JShop.SEO" desc="网站内容设置">
+    <para name="COMPANY_NAME_zh-cn" desc="订单打印公司名称（中文）" can-be-updated="true">古古商城</para>
+    <para name="COMPANY_NAME_en-us" desc="订单打印公司名称（英文）" can-be-updated="true">GUGU MALL</para>
+    <para name="TITLE" desc="网站标题" can-be-updated="false">公司名</para>
+    <para name="KEYWORDS" desc="网站关键字" can-be-updated="true"></para>
+    <para name="DESCRIPTION" desc="网站描述" can-be-updated="true"></para>
+    <para name="HOT-KEYWORDS" desc="热门搜素" can-be-updated="true"></para>
+    <para name="LOGO" desc="默认LOGO" can-be-updated="true">/logo/logo.gif</para>
+    <para name="allowed-user-agent" desc="放行哪些搜索引擎" can-be-updated="true">googlebot,baiduspider,sosospider,bingbot,sogou</para>
+  </group>
+  <group name="JShop.OnlineServie" desc="在线客服参数设置">
+    <para name="message-savers" desc="客服消息保存线程数" can-be-updated="true">2</para>
+    <para name="message-notify-interval" desc="客服人员离线时提醒发送间隔" can-be-updated="true">300000</para>
+    <para name="message-notify-receiver-mail-1" desc="客服消息提醒接收邮箱（1）" can-be-updated="true"></para>
+    <para name="message-notify-receiver-mail-2" desc="客服消息提醒接收邮箱（2）" can-be-updated="true"></para>
+    <para name="message-notify-receiver-mail-3" desc="客服消息提醒接收邮箱（3）" can-be-updated="true"></para>
+    <para name="message-notify-receiver-mail-4" desc="客服消息提醒接收邮箱（4）" can-be-updated="true"></para>
+    <para name="message-notify-receiver-mail-5" desc="客服消息提醒接收邮箱（5）" can-be-updated="true"></para>
+    <para name="message-notify-receiver-phone-1" desc="客服消息提醒接收手机（1）" can-be-updated="true"></para>
+    <para name="message-notify-receiver-phone-2" desc="客服消息提醒接收手机（2）" can-be-updated="true"></para>
+    <para name="message-notify-receiver-phone-3" desc="客服消息提醒接收手机（3）" can-be-updated="true"></para>
+    <para name="message-notify-receiver-phone-4" desc="客服消息提醒接收手机（4）" can-be-updated="true"></para>
+    <para name="message-notify-receiver-phone-5" desc="客服消息提醒接收手机（5）" can-be-updated="true"></para>
+    <para name="message-notify-mail-title" desc="客服消息提醒邮件标题" can-be-updated="true">所有客服不在线时收到客户的留言，请尽快处理</para>
+    <para name="MAX-MESSAGES-IN-QUEUE" desc="" can-be-updated="false">50</para>
+    <para name="fastReplies" desc="快捷回复" can-be-updated="true">您好，很高兴为您服务，请问有什么可以帮您？END</para>
+    <para name="notification" desc="店铺公告" can-be-updated="true">如果您需要使用 &lt;img src="/img/co/TB.png"/&gt; 购买，请在淘宝APP搜索店铺【古古商贸】或宝贝【TEENWEAR]。</para>
+    <para name="message-send-interval" desc="信息发送最小间隔" can-be-updated="true">3000</para>
+  </group>
+  <group name="JShop.OnlineServie-SELLER" desc="在线客服参数设置">
+    <para name="fastReplies" desc="快捷回复" can-be-updated="true">您好，很高兴为您服务，请问有什么可以帮您？END</para>
+    <para name="notification" desc="店铺公告" can-be-updated="true">如果您需要使用&lt;font class="iconfont icon-taobao red"&gt;&lt;/font&gt;购买，请在淘宝APP搜索店铺【古古商贸】或宝贝【TEENWEAR]。</para>
+  </group>
+  <group name="JShop.HomePage" desc="首页设置">
+    <para name="adGroupName1" desc="广告分组1名称" can-be-updated="true">限时秒杀</para>
+    <para name="adGroupName2" desc="广告分组2名称" can-be-updated="true">新品推荐</para>
+    <para name="adGroupName3" desc="广告分组3名称" can-be-updated="true">热销产品</para>
+    <para name="adGroupName4" desc="广告分组4名称" can-be-updated="true"></para>
+    <para name="adGroupName5" desc="广告分组5名称" can-be-updated="true"></para>
+  </group>
+  <group name="JShop.HomePage-SELLER" desc="首页设置">
+    <para name="adGroupName1" desc="广告分组1名称" can-be-updated="true">限时秒杀</para>
+    <para name="adGroupName2" desc="广告分组2名称" can-be-updated="true">新品推荐</para>
+    <para name="adGroupName3" desc="广告分组3名称" can-be-updated="true">热销产品</para>
+    <para name="adGroupName4" desc="广告分组4名称" can-be-updated="true"></para>
+    <para name="adGroupName5" desc="广告分组5名称" can-be-updated="true"></para>
+  </group>
+  <group name="JShop.HomePage.100" desc="鞋服 - 首页设置">
+    <para name="adGroupName1" desc="广告分组1名称" can-be-updated="true">原创精品</para>
+    <para name="adGroupName2" desc="广告分组2名称" can-be-updated="true">新品推荐</para>
+    <para name="adGroupName3" desc="广告分组3名称" can-be-updated="true">热销产品</para>
+    <para name="adGroupName4" desc="广告分组4名称" can-be-updated="true"></para>
+    <para name="adGroupName5" desc="广告分组5名称" can-be-updated="true"></para>
+  </group>
+  <group name="JShop.HomePage.100-SELLER" desc="鞋服 - 首页设置">
+    <para name="adGroupName1" desc="广告分组1名称" can-be-updated="true">限时秒杀</para>
+    <para name="adGroupName2" desc="广告分组2名称" can-be-updated="true">新品推荐</para>
+    <para name="adGroupName3" desc="广告分组3名称" can-be-updated="true">热销产品</para>
+    <para name="adGroupName4" desc="广告分组4名称" can-be-updated="true"></para>
+    <para name="adGroupName5" desc="广告分组5名称" can-be-updated="true"></para>
+  </group>
+  <group name="JShop.HomePage.200" desc="鲜花 - 首页设置">
+    <para name="adGroupName1" desc="广告分组1名称" can-be-updated="true">限时秒杀</para>
+    <para name="adGroupName2" desc="广告分组2名称" can-be-updated="true">新品推荐</para>
+    <para name="adGroupName3" desc="广告分组3名称" can-be-updated="true">热销产品</para>
+    <para name="adGroupName4" desc="广告分组4名称" can-be-updated="true"></para>
+    <para name="adGroupName5" desc="广告分组5名称" can-be-updated="true"></para>
+  </group>
+  <group name="JShop.HomePage.200-SELLER" desc="鲜花 - 首页设置">
+    <para name="adGroupName1" desc="广告分组1名称" can-be-updated="true">限时秒杀</para>
+    <para name="adGroupName2" desc="广告分组2名称" can-be-updated="true">新品推荐</para>
+    <para name="adGroupName3" desc="广告分组3名称" can-be-updated="true">热销产品</para>
+    <para name="adGroupName4" desc="广告分组4名称" can-be-updated="true"></para>
+    <para name="adGroupName5" desc="广告分组5名称" can-be-updated="true"></para>
+  </group>
+  <group name="JShop.HomePage.400" desc="餐饮 - 首页设置">
+    <para name="adGroupName1" desc="广告分组1名称" can-be-updated="true">限时秒杀</para>
+    <para name="adGroupName2" desc="广告分组2名称" can-be-updated="true">新品推荐</para>
+    <para name="adGroupName3" desc="广告分组3名称" can-be-updated="true">热销产品</para>
+    <para name="adGroupName4" desc="广告分组4名称" can-be-updated="true"></para>
+    <para name="adGroupName5" desc="广告分组5名称" can-be-updated="true"></para>
+  </group>
+  <group name="JShop.HomePage.400-SELLER" desc="餐饮 - 首页设置">
+    <para name="adGroupName1" desc="广告分组1名称" can-be-updated="true">限时秒杀</para>
+    <para name="adGroupName2" desc="广告分组2名称" can-be-updated="true">新品推荐</para>
+    <para name="adGroupName3" desc="广告分组3名称" can-be-updated="true">热销产品</para>
+    <para name="adGroupName4" desc="广告分组4名称" can-be-updated="true"></para>
+    <para name="adGroupName5" desc="广告分组5名称" can-be-updated="true"></para>
+  </group>
+  <group name="JShop.HomePage.500" desc="家电 - 首页设置">
+    <para name="adGroupName1" desc="广告分组1名称" can-be-updated="true">限时秒杀</para>
+    <para name="adGroupName2" desc="广告分组2名称" can-be-updated="true">新品推荐</para>
+    <para name="adGroupName3" desc="广告分组3名称" can-be-updated="true">热销产品</para>
+    <para name="adGroupName4" desc="广告分组4名称" can-be-updated="true"></para>
+    <para name="adGroupName5" desc="广告分组5名称" can-be-updated="true"></para>
+  </group>
+  <group name="JShop.HomePage.500-SELLER" desc="家电 - 首页设置">
+    <para name="adGroupName1" desc="广告分组1名称" can-be-updated="true">限时秒杀</para>
+    <para name="adGroupName2" desc="广告分组2名称" can-be-updated="true">新品推荐</para>
+    <para name="adGroupName3" desc="广告分组3名称" can-be-updated="true">热销产品</para>
+    <para name="adGroupName4" desc="广告分组4名称" can-be-updated="true"></para>
+    <para name="adGroupName5" desc="广告分组5名称" can-be-updated="true"></para>
+  </group>
+  <group name="JShop.HomePage.600" desc="充电桩 - 首页设置">
+    <para name="adGroupName1" desc="广告分组1名称" can-be-updated="true">限时秒杀</para>
+    <para name="adGroupName2" desc="广告分组2名称" can-be-updated="true">新品推荐</para>
+    <para name="adGroupName3" desc="广告分组3名称" can-be-updated="true">热销产品</para>
+    <para name="adGroupName4" desc="广告分组4名称" can-be-updated="true"></para>
+    <para name="adGroupName5" desc="广告分组5名称" can-be-updated="true"></para>
+  </group>
+  <group name="JShop.HomePage.600-SELLER" desc="充电桩 - 首页设置">
+    <para name="adGroupName1" desc="广告分组1名称" can-be-updated="true">限时秒杀</para>
+    <para name="adGroupName2" desc="广告分组2名称" can-be-updated="true">新品推荐</para>
+    <para name="adGroupName3" desc="广告分组3名称" can-be-updated="true">热销产品</para>
+    <para name="adGroupName4" desc="广告分组4名称" can-be-updated="true"></para>
+    <para name="adGroupName5" desc="广告分组5名称" can-be-updated="true"></para>
+  </group>
+  <group name="JShop.Sales" desc="销售设置">
+    <para name="maxVirtualCoinUsedRatio" desc="积分抵扣最高比率(%)" can-be-updated="true">0</para>
+    <para name="SERVICE_DISTANCE_MAX" desc="外卖最远派送距离(米)" can-be-updated="true">0</para>
+  </group>
+  <group name="JShop.Sales-SELLER" desc="销售设置">
+    <para name="maxVirtualCoinUsedRatio" desc="积分抵扣最高比率(%)" can-be-updated="true">0</para>
+    <para name="SERVICE_DISTANCE_MAX" desc="外卖最远派送距离(米)" can-be-updated="true">0</para>
+  </group>
+  <group name="JShop.PAYMENT.Promotions" desc="充值优惠活动设置">
+    <para name="promotions" desc="充值优惠活动设置" can-be-updated="true">500,50;1000,150;2000,400</para>
+  </group>
+  <group name="WEIXINMINIPROGRAM_LIVE" desc="微信小程序直播设置">
+    <para name="startRoomId" desc="有效起始房间号" can-be-updated="true">1</para>
+  </group>
+  <group name="JShop.PAYMENT" desc="支付参数设置">
+    <para name="is-open" desc="是否启用支付平台" can-be-updated="true">T</para>
+    <para name="user-balance-refresh-thread" desc="用户余额显示刷新线程数" can-be-updated="true">2</para>
+    <para name="ALLOWED-CURRENCIES-WITHDRAW" desc="提款可选币种" can-be-updated="true">1,3</para>
+    <para name="CurrencyUpdateAuto" desc="是否自动更新汇率" can-be-updated="true">true</para>
+    <para name="useGUGUPAY" desc="是否使用古古支付" can-be-updated="false">false</para>
+    <para name="DEFAULT_BIZ_NAME" desc="默认业务名称" can-be-updated="true">GUGUMALL.CN</para>
+    <para name="JShop.PAYMENT.LINE1" desc="个人设置" can-be-updated="true">=========================</para>
+    <para name="MAX-WITHDRAW" desc="每次最高提款金额" can-be-updated="true">1000000</para>
+    <para name="MIN-WITHDRAW" desc="每次最小提款金额" can-be-updated="true">10</para>
+    <para name="MAX-WITHDRAWS-PER-DAY" desc="每天最多提款次数" can-be-updated="true">3</para>
+    <para name="MAX-DEPOSIT" desc="单次最高存款金额" can-be-updated="true">1000000</para>
+    <para name="MAX-DEPOSIT-ONLINE" desc="在线存款单次最高存款金额" can-be-updated="true">50000</para>
+    <para name="MIN-DEPOSIT" desc="单次最小存款金额" can-be-updated="true">1</para>
+    <para name="MAX-DEPOSITS-PER-DAY" desc="每天最多存款次数" can-be-updated="true">10</para>
+    <para name="MAX-BANKCARDS-PER-USER" desc="用户最多绑定银行卡数" can-be-updated="true">3</para>
+    <para name="WithdrawFeeRate" desc="提款手续费率（%）" can-be-updated="true">1</para>
+    <para name="WithdrawFeeMin" desc="每笔提款最低手续费" can-be-updated="true">1</para>
+    <para name="WithdrawFeeMax" desc="每笔提款最高手续费" can-be-updated="true">10000</para>
+    <para name="WithdrawFeeRateFast" desc="提款手续费率（%）[加急]" can-be-updated="true">2</para>
+    <para name="WithdrawFeeMinFast" desc="每笔提款最低手续费[加急]" can-be-updated="true">5</para>
+    <para name="WithdrawFeeMaxFast" desc="每笔提款最高手续费[加急]" can-be-updated="true">10000</para>
+    <para name="JShop.PAYMENT.LINE2" desc="商户设置1" can-be-updated="true">=========================</para>
+    <para name="MerchantType1" desc="商户结算类别1" can-be-updated="true">T0</para>
+    <para name="MerchantType1DepositAmountMin" desc="商户结算类别1 充值每笔最低金额" can-be-updated="true">1</para>
+    <para name="MerchantType1DepositAmountMax" desc="商户结算类别1 充值每笔最高金额" can-be-updated="true">100000</para>
+    <para name="MerchantType1DepositFeeRate" desc="商户结算类别1 充值费率（%）" can-be-updated="true">0.5</para>
+    <para name="MerchantType1DepositFeeMin" desc="商户结算类别1 充值每笔最低手续费" can-be-updated="true">0.01</para>
+    <para name="MerchantType1WithdrawAmountMin" desc="商户结算类别1 提款每笔最低金额" can-be-updated="true">1</para>
+    <para name="MerchantType1WithdrawAmountMax" desc="商户结算类别1 提款每笔最高金额" can-be-updated="true">100000</para>
+    <para name="MerchantType1WithdrawFeeRate" desc="商户结算类别1 提款费率（%）" can-be-updated="true">1</para>
+    <para name="MerchantType1WithdrawFeeMin" desc="商户结算类别1 提款每笔最低手续费" can-be-updated="true">5</para>
+    <para name="MerchantType1WithdrawFeeMax" desc="商户结算类别1 提款每笔最高手续费" can-be-updated="true">100</para>
+    <para name="MerchantType1WithdrawFeeRateFast" desc="商户结算类别1 提款费率（%）[加急]" can-be-updated="true">2</para>
+    <para name="MerchantType1WithdrawFeeMinFast" desc="商户结算类别1 提款每笔最低手续费[加急]" can-be-updated="true">5</para>
+    <para name="MerchantType1WithdrawFeeMaxFast" desc="商户结算类别1 提款每笔最高手续费[加急]" can-be-updated="true">100</para>
+    <para name="JShop.PAYMENT.LINE3" desc="商户设置2" can-be-updated="true">=========================</para>
+    <para name="MerchantType2" desc="商户结算类别2" can-be-updated="true">T1</para>
+    <para name="MerchantType2DepositAmountMin" desc="商户结算类别2 充值每笔最低金额" can-be-updated="true">1</para>
+    <para name="MerchantType2DepositAmountMax" desc="商户结算类别2 充值每笔最高金额" can-be-updated="true">100000</para>
+    <para name="MerchantType2DepositFeeRate" desc="商户结算类别2 充值费率（%）" can-be-updated="true">1</para>
+    <para name="MerchantType2DepositFeeMin" desc="商户结算类别2 充值每笔最低手续费" can-be-updated="true">0.01</para>
+    <para name="MerchantType2WithdrawAmountMin" desc="商户结算类别2 提款每笔最低金额" can-be-updated="true">1</para>
+    <para name="MerchantType2WithdrawAmountMax" desc="商户结算类别2 提款每笔最高金额" can-be-updated="true">100000</para>
+    <para name="MerchantType2WithdrawFeeRate" desc="商户结算类别2 提款费率（%）" can-be-updated="true">1</para>
+    <para name="MerchantType2WithdrawFeeMin" desc="商户结算类别2 提款每笔最低手续费" can-be-updated="true">5</para>
+    <para name="MerchantType2WithdrawFeeMax" desc="商户结算类别2 提款每笔最高手续费" can-be-updated="true">100</para>
+    <para name="MerchantType2WithdrawFeeRateFast" desc="商户结算类别2 提款费率（%）[加急]" can-be-updated="true">2</para>
+    <para name="MerchantType2WithdrawFeeMinFast" desc="商户结算类别2 提款每笔最低手续费[加急]" can-be-updated="true">5</para>
+    <para name="MerchantType2WithdrawFeeMaxFast" desc="商户结算类别2 提款每笔最高手续费[加急]" can-be-updated="true">100</para>
+    <para name="JShop.PAYMENT.LINE4" desc="商户设置3" can-be-updated="true">=========================</para>
+    <para name="MerchantType3" desc="商户结算类别3" can-be-updated="true">T7</para>
+    <para name="MerchantType3DepositAmountMin" desc="商户结算类别3 充值每笔最低金额" can-be-updated="true">1</para>
+    <para name="MerchantType3DepositAmountMax" desc="商户结算类别3 充值每笔最高金额" can-be-updated="true">100000</para>
+    <para name="MerchantType3DepositFeeRate" desc="商户结算类别3 充值费率（%）" can-be-updated="true">1.5</para>
+    <para name="MerchantType3DepositFeeMin" desc="商户结算类别3 充值每笔最低手续费" can-be-updated="true">0.01</para>
+    <para name="MerchantType3WithdrawAmountMin" desc="商户结算类别3 提款每笔最低金额" can-be-updated="true">1</para>
+    <para name="MerchantType3WithdrawAmountMax" desc="商户结算类别3 提款每笔最高金额" can-be-updated="true">100000</para>
+    <para name="MerchantType3WithdrawFeeRate" desc="商户结算类别3 提款费率（%）" can-be-updated="true">1</para>
+    <para name="MerchantType3WithdrawFeeMin" desc="商户结算类别3 提款每笔最低手续费" can-be-updated="true">5</para>
+    <para name="MerchantType3WithdrawFeeMax" desc="商户结算类别3 提款每笔最高手续费" can-be-updated="true">100</para>
+    <para name="MerchantType3WithdrawFeeRateFast" desc="商户结算类别3 提款费率（%）[加急]" can-be-updated="true">2</para>
+    <para name="MerchantType3WithdrawFeeMinFast" desc="商户结算类别3 提款每笔最低手续费[加急]" can-be-updated="true">5</para>
+    <para name="MerchantType3WithdrawFeeMaxFast" desc="商户结算类别3 提款每笔最高手续费[加急]" can-be-updated="true">100</para>
+    <para name="JShop.PAYMENT.LINE5" desc="保证金设置" can-be-updated="true">=========================</para>
+    <para name="MerchantEnsuraceRate" desc="保证金比率" can-be-updated="true">0.05</para>
+    <para name="MerchantEnsuraceFrozenTime" desc="保证金冻结时长（小时）" can-be-updated="true">120</para>
+    <para name="JShop.PAYMENT.LINE6" desc="推广提成设置" can-be-updated="true">=========================</para>
+    <para name="SPREADER_PERCENTAGE" desc="直接下级 提成比例" can-be-updated="true">0.01</para>
+    <para name="JShop.PAYMENT.LINE7" desc="其它设置" can-be-updated="true">=========================</para>
+    <para name="CurrencyOkcoinLoginName" desc="okcoin账号" can-be-updated="true">18620005501</para>
+    <para name="CurrencyOkcoinPassword" desc="okcoin密码" can-be-updated="true">20081016.cc</para>
+    <para name="CurrencyOkcoinPriceLowLine" desc="比特币低价提醒" can-be-updated="true">0</para>
+    <para name="CurrencyOkcoinPriceHighLine" desc="比特币高价提醒" can-be-updated="true">8000</para>
+    <para name="CurrencyOkcoinPriceNotifyUnit" desc="比特币价格变动提醒最小量" can-be-updated="true">100</para>
+    <para name="SPREADER_PERCENTAGE2" desc="二级下级 提成比例" can-be-updated="true">0.01</para>
+    <para name="SPREADER_PERCENTAGE3" desc="三级下级 提成比例" can-be-updated="true">0.01</para>
+    <para name="SPREADER_PERCENTAGE4" desc="四级下级 提成比例" can-be-updated="true">0.01</para>
+  </group>
+  <group name="ALIPAY" desc="支付宝接口设置">
+    <para name="AppName" desc="在第三方注册名称" can-be-updated="true">古古商贸</para>
+    <para name="seller" desc="支付宝账号" can-be-updated="true">one@gugumall.cn</para>
+    <para name="merchant-id" desc="商户ID" can-be-updated="true">2088911320789826</para>
+    <para name="gateway" desc="支付网关" can-be-updated="true">https://mapi.alipay.com/gateway.do</para>
+    <para name="gateway_open" desc="支付网关（开放平台）" can-be-updated="true">https://openapi.alipay.com/gateway.do</para>
+    <para name="gateway_mcloudmonitor" desc="支付网关（mcloudmonitor）" can-be-updated="true">http://mcloudmonitor.com/gateway.do</para>
+    <para name="log_path" desc="支付日志" can-be-updated="true">WEB-INF/logs/alipay/</para>
+    <para name="verify_url" desc="确认接口" can-be-updated="true">https://mapi.alipay.com/gateway.do?service=notify_verify</para>
+    <para name="LINE-1" desc="分割线" can-be-updated="true">============================</para>
+    <para name="merchant-key" desc="密钥" can-be-updated="true">yf0ics8tksdbk4azbwl7v8bjxbjnqq4a</para>
+    <para name="RSA_PUB_KEY" desc="RSA公钥" can-be-updated="true">MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDM8IY0kB6n+UGaBICUVZxFC8v0OfnAnxzpf3Ecc6LA2OJuPtGozKC9HWj9tzPYtxs43LAO0pFHB+xtyXOQOp12MGxOAWjjN+i1rvsl8s1ImWc8+Z/BEPlHCVGUMf6RLuvy7YDf3YuC/mq3SBWtF4Lh09D5/HdZ73GwtnUuNkZ6aQIDAQAB</para>
+    <para name="RSA_PRI_KEY" desc="RSA私钥" can-be-updated="true">MIICXQIBAAKBgQDM8IY0kB6n+UGaBICUVZxFC8v0OfnAnxzpf3Ecc6LA2OJuPtGozKC9HWj9tzPYtxs43LAO0pFHB+xtyXOQOp12MGxOAWjjN+i1rvsl8s1ImWc8+Z/BEPlHCVGUMf6RLuvy7YDf3YuC/mq3SBWtF4Lh09D5/HdZ73GwtnUuNkZ6aQIDAQABAoGAKV1y+TENvwHEh/3YphgRjq4u4IDDNGnpQAgFIKUGeL5OFcqALv3+g61n/632vQtYZ0XEE3nU8O1cf1xmAvqRxWi/1I3l5rsseNFhyp1gTmBPQ1bhiSyWzgBFSANkILy/c935mBtHvOXznAFxluKk84k9+GqlBihvY/k7f3+21cECQQDuHqRrIqP8jDVU00cfvug35PeKTipg8YvuqiJRY5yeyIOysIPevx3+phwh3DUGHcjQdEGupf+/VdPw5gt8HFfFAkEA3FQP+BM4eezfw8WinUao04Ed6dgg+x6sBtnBwMlShhI8utMHSkcWoDt46bw19DbDblDYB+MkNC6CuuL1TUdeVQJBALLd56nmioIxm/oM/tc042DhKKUGlETgDLoJqN+0ULjhbDQ07cnLjC91/ZndvSLMCsWzHoefgB3szdieJTBkZfUCQQC79cbNxm/mq+pVFDRe4dnC3aKMTMIOGSN+kKRW+Ci7kbFXXBIbDrxBo5rKI7MPjOx6HuO9Dsxi687A6j+EVr8lAkAZCvF0ROCpEaFFUMivLYMwrM8IpSMNeWaCf+yoA0DJrDKGW9hghFczGJjDEqsGkxmsUkn7Kt8+VnJ5U31lQYMu</para>
+    <para name="RSA_PRI_KEY_PKCS8" desc="RSA私钥PKCS8" can-be-updated="true">MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMzwhjSQHqf5QZoEgJRVnEULy/Q5+cCfHOl/cRxzosDY4m4+0ajMoL0daP23M9i3GzjcsA7SkUcH7G3Jc5A6nXYwbE4BaOM36LWu+yXyzUiZZzz5n8EQ+UcJUZQx/pEu6/LtgN/di4L+ardIFa0XguHT0Pn8d1nvcbC2dS42RnppAgMBAAECgYApXXL5MQ2/AcSH/dimGBGOri7ggMM0aelACAUgpQZ4vk4VyoAu/f6DrWf/rfa9C1hnRcQTedTw7Vx/XGYC+pHFaL/UjeXmuyx40WHKnWBOYE9DVuGJLJbOAEVIA2QgvL9z3fmYG0e85fOcAXGW4qTziT34aqUGKG9j+Tt/f7bVwQJBAO4epGsio/yMNVTTRx++6Dfk94pOKmDxi+6qIlFjnJ7Ig7Kwg96/Hf6mHCHcNQYdyNB0Qa6l/79V0/DmC3wcV8UCQQDcVA/4Ezh57N/DxaKdRqjTgR3p2CD7HqwG2cHAyVKGEjy60wdKRxagO3jpvDX0NsNuUNgH4yQ0LoK64vVNR15VAkEAst3nqeaKgjGb+gz+1zTjYOEopQaUROAMugmo37RQuOFsNDTtycuML3X9md29IswKxbMeh5+AHezN2J4lMGRl9QJBALv1xs3Gb+ar6lUUNF7h2cLdooxMwg4ZI36QpFb4KLuRsVdcEhsOvEGjmsojsw+M7Hoe470OzGLrzsDqP4RWvyUCQBkK8XRE4KkRoUVQyK8tgzCszwilIw15ZoJ/7KgDQMmsMoZb2GCEVzMYmMMSqwaTGaxSSfsq3z5WcnlTfWVBgy4=</para>
+    <para name="RSA_PUB_KEY_ALI" desc="RSA公钥（对方）" can-be-updated="true">MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCnxj/9qwVfgoUh/y2W89L6BkRAFljhNhgPdyPuBV64bfQNN1PjbCzkIM6qRdKBoLPXmKKMiFYnkd6rAoprih3/PrQEB/VsW8OoM8fxn67UDYuyBTqA23MML9q1+ilIZwBC2AQ2UBVOrFXfFl75p6/B5KsiNG9zpgmLCUYuLkxpLQIDAQAB</para>
+    <para name="LINE-2" desc="分割线" can-be-updated="true">============================</para>
+    <para name="merchant-key-wap" desc="密钥[WAP]" can-be-updated="true">yf0ics8tksdbk4azbwl7v8bjxbjnqq4a</para>
+    <para name="RSA_PUB_KEY-wap" desc="RSA公钥[WAP]" can-be-updated="true">MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDM8IY0kB6n+UGaBICUVZxFC8v0OfnAnxzpf3Ecc6LA2OJuPtGozKC9HWj9tzPYtxs43LAO0pFHB+xtyXOQOp12MGxOAWjjN+i1rvsl8s1ImWc8+Z/BEPlHCVGUMf6RLuvy7YDf3YuC/mq3SBWtF4Lh09D5/HdZ73GwtnUuNkZ6aQIDAQAB</para>
+    <para name="RSA_PRI_KEY-wap" desc="RSA私钥[WAP]" can-be-updated="true">MIICXQIBAAKBgQDM8IY0kB6n+UGaBICUVZxFC8v0OfnAnxzpf3Ecc6LA2OJuPtGozKC9HWj9tzPYtxs43LAO0pFHB+xtyXOQOp12MGxOAWjjN+i1rvsl8s1ImWc8+Z/BEPlHCVGUMf6RLuvy7YDf3YuC/mq3SBWtF4Lh09D5/HdZ73GwtnUuNkZ6aQIDAQABAoGAKV1y+TENvwHEh/3YphgRjq4u4IDDNGnpQAgFIKUGeL5OFcqALv3+g61n/632vQtYZ0XEE3nU8O1cf1xmAvqRxWi/1I3l5rsseNFhyp1gTmBPQ1bhiSyWzgBFSANkILy/c935mBtHvOXznAFxluKk84k9+GqlBihvY/k7f3+21cECQQDuHqRrIqP8jDVU00cfvug35PeKTipg8YvuqiJRY5yeyIOysIPevx3+phwh3DUGHcjQdEGupf+/VdPw5gt8HFfFAkEA3FQP+BM4eezfw8WinUao04Ed6dgg+x6sBtnBwMlShhI8utMHSkcWoDt46bw19DbDblDYB+MkNC6CuuL1TUdeVQJBALLd56nmioIxm/oM/tc042DhKKUGlETgDLoJqN+0ULjhbDQ07cnLjC91/ZndvSLMCsWzHoefgB3szdieJTBkZfUCQQC79cbNxm/mq+pVFDRe4dnC3aKMTMIOGSN+kKRW+Ci7kbFXXBIbDrxBo5rKI7MPjOx6HuO9Dsxi687A6j+EVr8lAkAZCvF0ROCpEaFFUMivLYMwrM8IpSMNeWaCf+yoA0DJrDKGW9hghFczGJjDEqsGkxmsUkn7Kt8+VnJ5U31lQYMu</para>
+    <para name="RSA_PRI_KEY_PKCS8-wap" desc="RSA私钥PKCS8[WAP]" can-be-updated="true">MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMzwhjSQHqf5QZoEgJRVnEULy/Q5+cCfHOl/cRxzosDY4m4+0ajMoL0daP23M9i3GzjcsA7SkUcH7G3Jc5A6nXYwbE4BaOM36LWu+yXyzUiZZzz5n8EQ+UcJUZQx/pEu6/LtgN/di4L+ardIFa0XguHT0Pn8d1nvcbC2dS42RnppAgMBAAECgYApXXL5MQ2/AcSH/dimGBGOri7ggMM0aelACAUgpQZ4vk4VyoAu/f6DrWf/rfa9C1hnRcQTedTw7Vx/XGYC+pHFaL/UjeXmuyx40WHKnWBOYE9DVuGJLJbOAEVIA2QgvL9z3fmYG0e85fOcAXGW4qTziT34aqUGKG9j+Tt/f7bVwQJBAO4epGsio/yMNVTTRx++6Dfk94pOKmDxi+6qIlFjnJ7Ig7Kwg96/Hf6mHCHcNQYdyNB0Qa6l/79V0/DmC3wcV8UCQQDcVA/4Ezh57N/DxaKdRqjTgR3p2CD7HqwG2cHAyVKGEjy60wdKRxagO3jpvDX0NsNuUNgH4yQ0LoK64vVNR15VAkEAst3nqeaKgjGb+gz+1zTjYOEopQaUROAMugmo37RQuOFsNDTtycuML3X9md29IswKxbMeh5+AHezN2J4lMGRl9QJBALv1xs3Gb+ar6lUUNF7h2cLdooxMwg4ZI36QpFb4KLuRsVdcEhsOvEGjmsojsw+M7Hoe470OzGLrzsDqP4RWvyUCQBkK8XRE4KkRoUVQyK8tgzCszwilIw15ZoJ/7KgDQMmsMoZb2GCEVzMYmMMSqwaTGaxSSfsq3z5WcnlTfWVBgy4=</para>
+    <para name="RSA_PUB_KEY_ALI-wap" desc="RSA公钥（对方）[WAP]" can-be-updated="true">MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCJgfEeulMvQnXgGxDKmoj97bvxTCZFeMKlgPo/ 00f8Ar0fWQhBmr9dncBv1P0lBkSBwkgtyHDi3Z709GNtfV4VIz+w1ND7TsRgEmE+avc67nkgkLr/ vbx8c3O8h3ubV3rQhf+BFUzQmXItoZB1E1c6Uguo821/uSdnSJbde5VcaQIDAQAB</para>
+    <para name="LINE-3" desc="分割线" can-be-updated="true">============================</para>
+    <para name="APP_ID-web" desc="APP ID[网页应用]" can-be-updated="true">2016040801279559</para>
+    <para name="RSA_PUB_KEY-web" desc="RSA公钥[网页应用]" can-be-updated="true">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAll4odBUG4CvSjbC03BDVXuuDFosbL3Mkfh5RQ5evYykcNSacAqibJ/YsDZv3JK6bAglSEhqWhikSH18UdmXE+U3u7C3b9NZAZmr27xJrVfUNBLO0RYiR9SbwGTc7qK4CXER3r8FLCWpGOnA/p9n6A4jJvxIBkFDctwuvqjzZWAGl38VKuXcjgYrIChtWnii5sWH5GrO8ClTQOZmJwqh2Q1TjVfe5wl/sgzuKXHB7JLcrOfnlr+cGoIzPEfIoBoa/5RWZ96T1j/7sTmUy6FCY5ySFFXQan0uYudOkEd8ccrgWaoGu+V/avWs5g4JnUNnbVkwDzCYKhTee1oc8CuaJVwIDAQAB</para>
+    <para name="RSA_PRI_KEY-web" desc="RSA私钥[网页应用]" can-be-updated="true">MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCWXih0FQbgK9KNsLTcENVe64MWixsvcyR+HlFDl69jKRw1JpwCqJsn9iwNm/ckrpsCCVISGpaGKRIfXxR2ZcT5Te7sLdv01kBmavbvEmtV9Q0Es7RFiJH1JvAZNzuorgJcRHevwUsJakY6cD+n2foDiMm/EgGQUNy3C6+qPNlYAaXfxUq5dyOBisgKG1aeKLmxYfkas7wKVNA5mYnCqHZDVONV97nCX+yDO4pccHsktys5+eWv5wagjM8R8igGhr/lFZn3pPWP/uxOZTLoUJjnJIUVdBqfS5i506QR3xxyuBZqga75X9q9azmDgmdQ2dtWTAPMJgqFN57WhzwK5olXAgMBAAECggEAZJrK5h/LYeDwFuzLlRGOMNvR8RtRLQYUvGz8YgTyy52NyeHzL7QvWyVRhCl9yYUpIMurpYE0hL6l6WdsAWtFxqdl248zQzS2EdAvNvVT60bxVtwFGSCuxx8uNTDHMax619DXYzgoRDxekGrZrCwjIoo6sSQS98OiaLXg6j2cDUzFs3ypaFg03cjfJd6CqPQTDU2IvQzsF1ea7APJLHjOSojZAKBYb9uQu/w1p7aKwXY0nfXTXifNsy8DriPuLfUfMqbe6tSYar16chSzSZaykAFBQYOjWo7F0Vkj1FA3WkA6OG5dZmZKYrlJV9ClWsA6DSNXB7IKRfDvE9zZbfx2AQKBgQDTR2uv3urAP5KjyBn5YLQ5SMW0w/+SbNnQEcgl8TabpTyH6NbcRlSAdsyIbLmRVHqAILHThvWpxjiGTG/uesKd9dtTuRHF5ZB0TWPh20c36veXCcBjQLxboZk7IuYEnlbFrYQYdNOH0cqZJ8L3d2PCm5EDy3qFEFpQc5DjUPZbIQKBgQC2MiRIqs36+R6xUdpEfRO/mEttzJr7HfMGHOVll2xfho9Yba5VeSAcFtIEM73nqjZH3oKWOTmYeuE0kGfDdctveBcAaGdbM0t0gOSzYPUJgsMhr/D3mg00aA5hwWkHJBB8i545rvurGNF1PdgFbnhbcS63E1iy2wpNYLKLSxGNdwKBgC7/KhMa8PkGqyXHcw+n1S8Q4vmMx6LYl7LS4cSe3VjN7qMExhaFhnJ0+pY2KSkMs5sgqq20zZyQPS6Sfit8HyJn9/utpShyIinctSUeU786gwyT3Lm3Qq7XSXCAGM5aMk8Sg9m00wDZR8m9sH6/je9SD3Xao0xKEOzoaAhIkCRBAoGAAtDxmKHzPx7cp5cBTa+1P2/mMpNIDfufhwepUBGwHiXhT1eaqz2NDoIXyvLVy5/o6OF6mUHXLxEvK/XTdMT8WQO9L0dt2Y4Ia4uWfWNRRk1cIMgsbFdYPugg2Mf5jJ+1FYe+8VtQDov6qNpE3YigmaE9PJ0y8MjL9vg4qkiFw+8CgYEAlt68hzCcct1QRcSyCBTstnvO8QjE0lBeAt99Tfhcb5XBVO507S1zFPzLEqt3Ra3g9rQxUV3SUnKGj0/18bBEO7T8OjGTglc+aB6vIVIDSNe5IkxfzRx+pafLzWL3myRW2OmVGgo3HjZD3AZumP/5x0nJkkNlJQFN8lnRAtMfzFM=</para>
+    <para name="RSA_PRI_KEY_PKCS8-web" desc="RSA私钥PKCS8[网页应用]" can-be-updated="true">MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCWXih0FQbgK9KNsLTcENVe64MWixsvcyR+HlFDl69jKRw1JpwCqJsn9iwNm/ckrpsCCVISGpaGKRIfXxR2ZcT5Te7sLdv01kBmavbvEmtV9Q0Es7RFiJH1JvAZNzuorgJcRHevwUsJakY6cD+n2foDiMm/EgGQUNy3C6+qPNlYAaXfxUq5dyOBisgKG1aeKLmxYfkas7wKVNA5mYnCqHZDVONV97nCX+yDO4pccHsktys5+eWv5wagjM8R8igGhr/lFZn3pPWP/uxOZTLoUJjnJIUVdBqfS5i506QR3xxyuBZqga75X9q9azmDgmdQ2dtWTAPMJgqFN57WhzwK5olXAgMBAAECggEAZJrK5h/LYeDwFuzLlRGOMNvR8RtRLQYUvGz8YgTyy52NyeHzL7QvWyVRhCl9yYUpIMurpYE0hL6l6WdsAWtFxqdl248zQzS2EdAvNvVT60bxVtwFGSCuxx8uNTDHMax619DXYzgoRDxekGrZrCwjIoo6sSQS98OiaLXg6j2cDUzFs3ypaFg03cjfJd6CqPQTDU2IvQzsF1ea7APJLHjOSojZAKBYb9uQu/w1p7aKwXY0nfXTXifNsy8DriPuLfUfMqbe6tSYar16chSzSZaykAFBQYOjWo7F0Vkj1FA3WkA6OG5dZmZKYrlJV9ClWsA6DSNXB7IKRfDvE9zZbfx2AQKBgQDTR2uv3urAP5KjyBn5YLQ5SMW0w/+SbNnQEcgl8TabpTyH6NbcRlSAdsyIbLmRVHqAILHThvWpxjiGTG/uesKd9dtTuRHF5ZB0TWPh20c36veXCcBjQLxboZk7IuYEnlbFrYQYdNOH0cqZJ8L3d2PCm5EDy3qFEFpQc5DjUPZbIQKBgQC2MiRIqs36+R6xUdpEfRO/mEttzJr7HfMGHOVll2xfho9Yba5VeSAcFtIEM73nqjZH3oKWOTmYeuE0kGfDdctveBcAaGdbM0t0gOSzYPUJgsMhr/D3mg00aA5hwWkHJBB8i545rvurGNF1PdgFbnhbcS63E1iy2wpNYLKLSxGNdwKBgC7/KhMa8PkGqyXHcw+n1S8Q4vmMx6LYl7LS4cSe3VjN7qMExhaFhnJ0+pY2KSkMs5sgqq20zZyQPS6Sfit8HyJn9/utpShyIinctSUeU786gwyT3Lm3Qq7XSXCAGM5aMk8Sg9m00wDZR8m9sH6/je9SD3Xao0xKEOzoaAhIkCRBAoGAAtDxmKHzPx7cp5cBTa+1P2/mMpNIDfufhwepUBGwHiXhT1eaqz2NDoIXyvLVy5/o6OF6mUHXLxEvK/XTdMT8WQO9L0dt2Y4Ia4uWfWNRRk1cIMgsbFdYPugg2Mf5jJ+1FYe+8VtQDov6qNpE3YigmaE9PJ0y8MjL9vg4qkiFw+8CgYEAlt68hzCcct1QRcSyCBTstnvO8QjE0lBeAt99Tfhcb5XBVO507S1zFPzLEqt3Ra3g9rQxUV3SUnKGj0/18bBEO7T8OjGTglc+aB6vIVIDSNe5IkxfzRx+pafLzWL3myRW2OmVGgo3HjZD3AZumP/5x0nJkkNlJQFN8lnRAtMfzFM=</para>
+    <para name="RSA_PUB_KEY_ALI-web" desc="RSA公钥（对方）[网页应用]" can-be-updated="true">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmMaZUZemA9jEEcuc3k7d4lechX29lpbk5JuEg0lYDThEFXaAMNThqz373bt0tTPYYAEAco7Ed5B/C0mC48k1x6ZREcZQOUUm+//QFUOLqdG+ZfU5swVTQF3AyX1zWa73PzlB3kRubMhPihdIxtuvl4EoJ3zTYfDhfOYUxEXihwOqaytGFnmO+BONM28Eou3SA++kp8OuMXfPlWM6N7vIPnRny2/UW4z3dQiuO/P5l5b1a6Zbmn6XU52UMJQOjtsGUq9g8LUt8R0jfVbmRx6R2du3YAndlwLl2gs9ykLzQwExePT7BA0ZmZgXaodP/+8IiPedaOwcbwX1TiHUs4jxvQIDAQAB</para>
+    <para name="LINE-4" desc="分割线" can-be-updated="true">============================</para>
+    <para name="APP_ID-app" desc="APP ID[移动应用]" can-be-updated="true">2016040801279567</para>
+    <para name="RSA_PUB_KEY-app" desc="RSA公钥[移动应用]" can-be-updated="true">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhNXCcp0JlPlZmC0r8ulSnOSLstaJDzFdY2zDQik3wOi5x/muEUCA80JbLVd/bxR1l8Bcrni0bp/30ubbpN1DUVopcfTLiZ9J/Oc4RBnInZlXZQCSc+CYzU81LNo9G9PT6KComu25v4oXcy/jtrfGGUWZUR1YUNYoZVhQD7or6Ic54hxEeEj8s/G7Ux3MO78ak5ddL6Y23ji8a6rgQsiQTw4tV12rFHR9HlWYQes10/67wbblCV/jLQyhyYf176yqkCBhHTfBAUcktPeg3bqU5+7t9I6U9e0HvKcJ0lHz65sMB+vX3ZmdyHppdd1o0/Pr3Q8K/fd5+6gg6+7JrIsnKwIDAQAB</para>
+    <para name="RSA_PRI_KEY-app" desc="RSA私钥[移动应用]" can-be-updated="true">MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCE1cJynQmU+VmYLSvy6VKc5Iuy1okPMV1jbMNCKTfA6LnH+a4RQIDzQlstV39vFHWXwFyueLRun/fS5tuk3UNRWilx9MuJn0n85zhEGcidmVdlAJJz4JjNTzUs2j0b09PooKia7bm/ihdzL+O2t8YZRZlRHVhQ1ihlWFAPuivohzniHER4SPyz8btTHcw7vxqTl10vpjbeOLxrquBCyJBPDi1XXasUdH0eVZhB6zXT/rvBtuUJX+MtDKHJh/XvrKqQIGEdN8EBRyS096DdupTn7u30jpT17Qe8pwnSUfPrmwwH69fdmZ3Ieml13WjT8+vdDwr993n7qCDr7smsiycrAgMBAAECggEBAIPsyHGMBTgvbQv10PAvSh0H3rZ+2yB7poRYQJQ022p7uAcjsfzwUyFFhchCXg20BBXythmRR6GWvkp3fSz/kxv4r7C9rmfAC3thKEB6WwQqhuGI7+ql5RwCzoz9MjOw7YTcCpfUAeZ4/1Em/sE5Q0VWGi61NkEScIw2aU01WOZV8i81550shtbEJn0Da/TD1ZSW790/6kOkuTs4/QIRnuEV7anlyE10u8Mk/ybZTZwCk4GwDTGC+Mr+kWuOviZS0fqK9U/2B+2A/zmpAaqPp+vHHHRAwytITjJMRPkmJt4GciOomH57vk3HALy2o9/yTo5QfN/0DlzAB+e/TcxRmAECgYEA3lVfZcDGcVg2kKEesiYLpty8IscXqAiM+uyM/KGWeYl9uWfm9/SjmGzgO6bhC36xTcS7AbNHZBleoUH2z28ZP2zCcnwUfDkg7T07GVxEIfKU1asi9QjJTHbczIlZRFgeDCalaVk5CMu4eMkKMNfs57CXKe+dllU6T6LJZDr103ECgYEAmPMHywHwqAqiQdlaEExjXTcPEKtToDB7sIFvup5eg5FAGI+7ubgeYxbF50HVmeM1lLyHiNYocKyCF0U86WCKYwfQx8Ixxkc7sFCPvczpKTjhPI2Fle+clUi04KFoUu0soxTF0UomcnbSPrGkRTyh5LTHYP3L/QH/q9/mAPYd3lsCgYEAw5VummB/MW5ccdaK3kTBs0Qy7JUfpl3/Ry2YyRSM/tWIl/VjJXU8BPaiO1eOWUJWTwdlSxWfE9uNd2ZD7C7bkwPl+jhU/QJ0iL54otKbzRFNBLnLwqq8Clv12KhqssihhibpFEe8+JPd78NLB7SrXxXlpKp5gqnu5edaKqYDYsECgYAZ1lxHqAE+ceVtGEmFnVHfylBKMZcD5YzPiV4VeXFf6maYf5dnzTmc5Zjy8wUhZOeFQ7/llr/oIMwtIC4lAoD+L7DOPfjolNn5c/KETpxIsWojL4kUhhC+izS7Cak08QnsVrMAIvWRuo7TtnCYnaB/oSZZNSaDjBXjtAQHv4vWJwKBgGFyB+BONI9clyMv0gy8cW8FUfaV8W7jqPSxNhgJaq/5weaTt5+l3gy6hRffzL4Ov814KkzoODDsh1HTLhEi3cyl3bu6nOuAJKSTpMbCBgN1YjVVkDsgjllWHgTVNKwJ5Go3MMhnDjUnhHEjf7QDtq0Q1d27zcQTVspDHk5j3SV1</para>
+    <para name="RSA_PRI_KEY_PKCS8-app" desc="RSA私钥PKCS8[移动应用]" can-be-updated="true">MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCE1cJynQmU+VmYLSvy6VKc5Iuy1okPMV1jbMNCKTfA6LnH+a4RQIDzQlstV39vFHWXwFyueLRun/fS5tuk3UNRWilx9MuJn0n85zhEGcidmVdlAJJz4JjNTzUs2j0b09PooKia7bm/ihdzL+O2t8YZRZlRHVhQ1ihlWFAPuivohzniHER4SPyz8btTHcw7vxqTl10vpjbeOLxrquBCyJBPDi1XXasUdH0eVZhB6zXT/rvBtuUJX+MtDKHJh/XvrKqQIGEdN8EBRyS096DdupTn7u30jpT17Qe8pwnSUfPrmwwH69fdmZ3Ieml13WjT8+vdDwr993n7qCDr7smsiycrAgMBAAECggEBAIPsyHGMBTgvbQv10PAvSh0H3rZ+2yB7poRYQJQ022p7uAcjsfzwUyFFhchCXg20BBXythmRR6GWvkp3fSz/kxv4r7C9rmfAC3thKEB6WwQqhuGI7+ql5RwCzoz9MjOw7YTcCpfUAeZ4/1Em/sE5Q0VWGi61NkEScIw2aU01WOZV8i81550shtbEJn0Da/TD1ZSW790/6kOkuTs4/QIRnuEV7anlyE10u8Mk/ybZTZwCk4GwDTGC+Mr+kWuOviZS0fqK9U/2B+2A/zmpAaqPp+vHHHRAwytITjJMRPkmJt4GciOomH57vk3HALy2o9/yTo5QfN/0DlzAB+e/TcxRmAECgYEA3lVfZcDGcVg2kKEesiYLpty8IscXqAiM+uyM/KGWeYl9uWfm9/SjmGzgO6bhC36xTcS7AbNHZBleoUH2z28ZP2zCcnwUfDkg7T07GVxEIfKU1asi9QjJTHbczIlZRFgeDCalaVk5CMu4eMkKMNfs57CXKe+dllU6T6LJZDr103ECgYEAmPMHywHwqAqiQdlaEExjXTcPEKtToDB7sIFvup5eg5FAGI+7ubgeYxbF50HVmeM1lLyHiNYocKyCF0U86WCKYwfQx8Ixxkc7sFCPvczpKTjhPI2Fle+clUi04KFoUu0soxTF0UomcnbSPrGkRTyh5LTHYP3L/QH/q9/mAPYd3lsCgYEAw5VummB/MW5ccdaK3kTBs0Qy7JUfpl3/Ry2YyRSM/tWIl/VjJXU8BPaiO1eOWUJWTwdlSxWfE9uNd2ZD7C7bkwPl+jhU/QJ0iL54otKbzRFNBLnLwqq8Clv12KhqssihhibpFEe8+JPd78NLB7SrXxXlpKp5gqnu5edaKqYDYsECgYAZ1lxHqAE+ceVtGEmFnVHfylBKMZcD5YzPiV4VeXFf6maYf5dnzTmc5Zjy8wUhZOeFQ7/llr/oIMwtIC4lAoD+L7DOPfjolNn5c/KETpxIsWojL4kUhhC+izS7Cak08QnsVrMAIvWRuo7TtnCYnaB/oSZZNSaDjBXjtAQHv4vWJwKBgGFyB+BONI9clyMv0gy8cW8FUfaV8W7jqPSxNhgJaq/5weaTt5+l3gy6hRffzL4Ov814KkzoODDsh1HTLhEi3cyl3bu6nOuAJKSTpMbCBgN1YjVVkDsgjllWHgTVNKwJ5Go3MMhnDjUnhHEjf7QDtq0Q1d27zcQTVspDHk5j3SV1</para>
+    <para name="RSA_PUB_KEY_ALI-app" desc="RSA公钥（对方）[移动应用]" can-be-updated="true">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmMaZUZemA9jEEcuc3k7d4lechX29lpbk5JuEg0lYDThEFXaAMNThqz373bt0tTPYYAEAco7Ed5B/C0mC48k1x6ZREcZQOUUm+//QFUOLqdG+ZfU5swVTQF3AyX1zWa73PzlB3kRubMhPihdIxtuvl4EoJ3zTYfDhfOYUxEXihwOqaytGFnmO+BONM28Eou3SA++kp8OuMXfPlWM6N7vIPnRny2/UW4z3dQiuO/P5l5b1a6Zbmn6XU52UMJQOjtsGUq9g8LUt8R0jfVbmRx6R2du3YAndlwLl2gs9ykLzQwExePT7BA0ZmZgXaodP/+8IiPedaOwcbwX1TiHUs4jxvQIDAQAB</para>
+    <para name="LINE-5" desc="分割线" can-be-updated="true">============================</para>
+    <para name="APP_ID-service" desc="APP ID[服务窗应用]" can-be-updated="true">2016021301142877</para>
+    <para name="RSA_PUB_KEY-service" desc="RSA公钥[服务窗应用]" can-be-updated="true">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAplQ8nUc923UdX6qMBWObskmE5fabV47rnPwpdwXwQQFkFuO0zfa7UHp2q+/pPlQtRiHTdFCXjLvDMEl34eHyZ2ED1kiZ8pIZxI85IBOcPcIXpV6aOfoBAlOoKRBZ1Ec2iECmVyuw324CYVdUGfIEPoeNvEtTamxTH/ELZT56yq7gcpd1RJ7joVJT8Xhg7M1GeI/JDEPqaEsg31XcM5PFCbSFQq4j2yZe4EuAX+lfbwO7+bVi5lNixhVOKyl1tHQOhHxU1qT2RFDXIZTlMTP605A8XzAUwK+YTE+2PJPKv+XDp/lGBvErdwcrgqtORO5JOrBUhg5C1npAfWuFaOmvrQIDAQAB</para>
+    <para name="RSA_PRI_KEY-service" desc="RSA私钥[服务窗应用]" can-be-updated="true">MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCmVDydRz3bdR1fqowFY5uySYTl9ptXjuuc/Cl3BfBBAWQW47TN9rtQenar7+k+VC1GIdN0UJeMu8MwSXfh4fJnYQPWSJnykhnEjzkgE5w9whelXpo5+gECU6gpEFnURzaIQKZXK7DfbgJhV1QZ8gQ+h428S1NqbFMf8QtlPnrKruByl3VEnuOhUlPxeGDszUZ4j8kMQ+poSyDfVdwzk8UJtIVCriPbJl7gS4Bf6V9vA7v5tWLmU2LGFU4rKXW0dA6EfFTWpPZEUNchlOUxM/rTkDxfMBTAr5hMT7Y8k8q/5cOn+UYG8St3ByuCq05E7kk6sFSGDkLWekB9a4Vo6a+tAgMBAAECggEAVJOvAtbQGIDz/8psSu08pasGvhzpHtvY6Um8F/7YDWYUrCL7tGPLGgA7yfBDrWMGZowaxyGX/oMXnL0vDZhkN7c4SUU/qv4pxi6CANKX9ztz5K43RFXhH3rEnqTm2K+hhiVBsD/SP7rj0PWkGVFcYSNyqhWvhAUzO6HJhqD/tYHnKaECYcWzfJH72w2BeR4LtKphYLPy03mtcJh6cZsM8mgS3KQNKk+VLh5rlSGYKTF0A9/Nqw/VC8W8qo2d7vwaJ3sk++0dpxEsbNYOQndoD3vxEQKLVZcJlSVuRXKa6IVGn1kZJPgWLMeht40Apxra7zvbQfw4qLhOSzw6Wb0ULQKBgQDXUVTBDQ24ZnqMtXiFuVe7q7plMRxdyCjZCkr6DeP61MQv/XbkbUGXRGvKgtpG4u6HA18XvOIW+xKyhMAZgj8Jvn/bndMg9psbeZ01RJP/T/xt3KoA3T+w438BGd8jIXaJkxy8uYK/DMAxc7vvQrLJlp+951kM8BRmAyCqt50pkwKBgQDFwWGV0E5Zewl+DGZEf/9xE1pZMWOkEz5dyPeYAiN9n0mCrDc1+kxOIRjIHIx2bAGQB2Zn9mJ6EHLgO2R+ZirWyuh1Y1yCrt9F6FacqWcrrjJXiFt4muTWOTu8jqcpnnqqBnup3Ziego25NMdBK9tZ8+OlNYnnEY4fOBPyc/iJvwKBgQCQw0+2U65r0gqG2+NiFNCVjsnNCw3FR7Oe6LqsD/a9R5t3oHP09DfrGcdW6k8S5bP09iFS9l0Tkk5p07LL87OqO3f/EcdHHEYAXO2DSM4wE3jl7DwoRJhztyBGfzx0hCUMLepeQGNVS59UIDm0jSVjP2+63/YRKsCsLWIjJTv3HQKBgFZV6wjA/LPMJ4TEXRGi4B652EQAcAP98sh3KMFQjbYWiL1n+mKyeAXUJUGYVSqOVNBQqsDQrIWmEMEcrO8SI7nKtFormwPi3M9kdAvJWaWUU54rhePNnAJ60j2r+gcNjXgVhH/QowTw8nbdN/CX+Rf4hnZmPWKII4g1r1+2idd5AoGAT91LQqIGeTDX4VS9Vlm/Z7b9eJQv9lGm3mFjXkFNyJvnBXh480wCyTs1+41c5zaY8pGggVlWaDcE9ZvVfjC7wf3jR+DkB8Fz+iM7izY+JU4g6P9s9NGChNWUOL3CgxCxZhz84DJ8weScBakqy4TH0s50cZZyCdNP6VTxIqzBYqM=</para>
+    <para name="RSA_PRI_KEY_PKCS8-service" desc="RSA私钥PKCS8[服务窗应用]" can-be-updated="true">MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCmVDydRz3bdR1fqowFY5uySYTl9ptXjuuc/Cl3BfBBAWQW47TN9rtQenar7+k+VC1GIdN0UJeMu8MwSXfh4fJnYQPWSJnykhnEjzkgE5w9whelXpo5+gECU6gpEFnURzaIQKZXK7DfbgJhV1QZ8gQ+h428S1NqbFMf8QtlPnrKruByl3VEnuOhUlPxeGDszUZ4j8kMQ+poSyDfVdwzk8UJtIVCriPbJl7gS4Bf6V9vA7v5tWLmU2LGFU4rKXW0dA6EfFTWpPZEUNchlOUxM/rTkDxfMBTAr5hMT7Y8k8q/5cOn+UYG8St3ByuCq05E7kk6sFSGDkLWekB9a4Vo6a+tAgMBAAECggEAVJOvAtbQGIDz/8psSu08pasGvhzpHtvY6Um8F/7YDWYUrCL7tGPLGgA7yfBDrWMGZowaxyGX/oMXnL0vDZhkN7c4SUU/qv4pxi6CANKX9ztz5K43RFXhH3rEnqTm2K+hhiVBsD/SP7rj0PWkGVFcYSNyqhWvhAUzO6HJhqD/tYHnKaECYcWzfJH72w2BeR4LtKphYLPy03mtcJh6cZsM8mgS3KQNKk+VLh5rlSGYKTF0A9/Nqw/VC8W8qo2d7vwaJ3sk++0dpxEsbNYOQndoD3vxEQKLVZcJlSVuRXKa6IVGn1kZJPgWLMeht40Apxra7zvbQfw4qLhOSzw6Wb0ULQKBgQDXUVTBDQ24ZnqMtXiFuVe7q7plMRxdyCjZCkr6DeP61MQv/XbkbUGXRGvKgtpG4u6HA18XvOIW+xKyhMAZgj8Jvn/bndMg9psbeZ01RJP/T/xt3KoA3T+w438BGd8jIXaJkxy8uYK/DMAxc7vvQrLJlp+951kM8BRmAyCqt50pkwKBgQDFwWGV0E5Zewl+DGZEf/9xE1pZMWOkEz5dyPeYAiN9n0mCrDc1+kxOIRjIHIx2bAGQB2Zn9mJ6EHLgO2R+ZirWyuh1Y1yCrt9F6FacqWcrrjJXiFt4muTWOTu8jqcpnnqqBnup3Ziego25NMdBK9tZ8+OlNYnnEY4fOBPyc/iJvwKBgQCQw0+2U65r0gqG2+NiFNCVjsnNCw3FR7Oe6LqsD/a9R5t3oHP09DfrGcdW6k8S5bP09iFS9l0Tkk5p07LL87OqO3f/EcdHHEYAXO2DSM4wE3jl7DwoRJhztyBGfzx0hCUMLepeQGNVS59UIDm0jSVjP2+63/YRKsCsLWIjJTv3HQKBgFZV6wjA/LPMJ4TEXRGi4B652EQAcAP98sh3KMFQjbYWiL1n+mKyeAXUJUGYVSqOVNBQqsDQrIWmEMEcrO8SI7nKtFormwPi3M9kdAvJWaWUU54rhePNnAJ60j2r+gcNjXgVhH/QowTw8nbdN/CX+Rf4hnZmPWKII4g1r1+2idd5AoGAT91LQqIGeTDX4VS9Vlm/Z7b9eJQv9lGm3mFjXkFNyJvnBXh480wCyTs1+41c5zaY8pGggVlWaDcE9ZvVfjC7wf3jR+DkB8Fz+iM7izY+JU4g6P9s9NGChNWUOL3CgxCxZhz84DJ8weScBakqy4TH0s50cZZyCdNP6VTxIqzBYqM=</para>
+    <para name="RSA_PUB_KEY_ALI-service" desc="RSA公钥（对方）[服务窗应用]" can-be-updated="true">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmMaZUZemA9jEEcuc3k7d4lechX29lpbk5JuEg0lYDThEFXaAMNThqz373bt0tTPYYAEAco7Ed5B/C0mC48k1x6ZREcZQOUUm+//QFUOLqdG+ZfU5swVTQF3AyX1zWa73PzlB3kRubMhPihdIxtuvl4EoJ3zTYfDhfOYUxEXihwOqaytGFnmO+BONM28Eou3SA++kp8OuMXfPlWM6N7vIPnRny2/UW4z3dQiuO/P5l5b1a6Zbmn6XU52UMJQOjtsGUq9g8LUt8R0jfVbmRx6R2du3YAndlwLl2gs9ykLzQwExePT7BA0ZmZgXaodP/+8IiPedaOwcbwX1TiHUs4jxvQIDAQAB</para>
+    <para name="LINE-6" desc="分割线" can-be-updated="true">============================</para>
+    <para name="APP_ID-mini" desc="APP ID[小程序]" can-be-updated="true">2021001140633701</para>
+    <para name="RSA_PUB_KEY-mini" desc="RSA公钥[小程序]" can-be-updated="true">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzZuBWmmQZpuvDd7u/vNcBCZA0BdBXSS3rhcCMhJ2Gwn5g6ga0SSQPEPTQWqD9x/IhLeKFejx2+j4g8byQo27V16uOvGSQ2nt941+J+P7G2V+pwJAxP2Iit0mynUw7WbZHnzWZEVUCWSopK5YWVmvYJcIxYx3/HxAk69gPdFkZVSOVnMFysnfjGOByD5+IO4J2OrhkJ1gRwSHj7K9L0t20QuBM4Evb5n3V7lf87a1yqvF9ZCZSr9CLSDGNv032bQFJNS3KDvEY3GBopNeYxf4a4H3aV4KFSwZdqk3ahIn0v4nM+yEMAJcRjFsoKx1SdKg/0dp2u5JDWkgCt7bgB5oFwIDAQAB</para>
+    <para name="RSA_PRI_KEY-mini" desc="RSA私钥[小程序]" can-be-updated="true">MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDNm4FaaZBmm68N3u7+81wEJkDQF0FdJLeuFwIyEnYbCfmDqBrRJJA8Q9NBaoP3H8iEt4oV6PHb6PiDxvJCjbtXXq468ZJDae33jX4n4/sbZX6nAkDE/YiK3SbKdTDtZtkefNZkRVQJZKikrlhZWa9glwjFjHf8fECTr2A90WRlVI5WcwXKyd+MY4HIPn4g7gnY6uGQnWBHBIePsr0vS3bRC4EzgS9vmfdXuV/ztrXKq8X1kJlKv0ItIMY2/TfZtAUk1LcoO8RjcYGik15jF/hrgfdpXgoVLBl2qTdqEifS/icz7IQwAlxGMWygrHVJ0qD/R2na7kkNaSAK3tuAHmgXAgMBAAECggEBAK1LJQJUOS4Sh7/UJ3HhIawppbT99MyRtvLXV7VmU/9EL/ZkiH3AKIVy0SqwoRt3wWUC4TLITJmCSXugAe5QURc5qPXrR9DkBnsA2dS7VZjouY//2SFvY1dPQHOhxKRDbDpDE9wdhtAH9BAhFjvw2F07z1vZogO/ohoX1bEkvE6eLC1cYaCLJoPTHNKS8wheCiHd6cNySmfbajlDgeeOvTqLWGKA2AxzyeDp3kBjIK9xqeQeJNqJ0q3sJHdjKl2xpc5RVKKg+Yq2SSoRwoeydaduD2HbXCnAzp8QcY0tleAv+1e4hIdP28B/D68sFpbfjeH5JjpbRA2/Kru8xib0g9ECgYEA6fhzr1tbf6AHhmUa1Yl8wAmnGT3UPdyd6rVMNZbG6jcDSEjSwQEY/3dqc6o6Za4Eh+AJAUZly6PXquonWUwlKy3+Tf1edbCs3NywZUEIgjlbbmhi82DZA34aSRV6f2x9nmedcfkLAKzZ6Z2b3q2DBingbzyJ8Ivgw9+syLrmRY8CgYEA4PdmNOsbFiQWT+LjRIGnsici13euaFPXLnfjpNSTAWVzQOcdx3OBV5YQRtTgwMtY6qmrRom6uSQTmULC9iAD4HK5RgFO3OvD0ur1fEtFZbKEAsJWIoNEiUGurfn7MI+Ey7RFHWwB1OcXoyDk24pxqlozgtcmOgPbGn9L/+ivQPkCgYAisLDOXjhJyvtypMj+wjzZ6FR7PJycc3qCk1DyXSGvFmsJK6r77OK89gK1lZbE/rEzSDdtlfd/4xIWCFO/PLgCF/atr5Ry1Lg8owgQaz0Mud5hl16cgU6L4wWYsnOQMxDJDMneXTORbQ9+QN0cfhOANXNOauZ04Ph5ck+XD4cW5wKBgQDgKOPomtOUjkTFORinrGGCfMiU1iYswk3JeaCVH1OTspjS9PeRQ6B/u4FgcsG4mWZx/LozQQ2TaUU2E3XcdS4nuWivPqJsM2gehAwz23S8ztIHRck5/n6OHaqGpG4MhxUVPP0ZQgPZNqMw4pfnwd1clyB4oRTv/eOWVX1O83WdUQKBgGGEyvBtdjHonKFnqpMQf5ONUSktbMIMMH/kFO5NwqP4o1iED+PMsVTkgVpj/irJkHqKeCCe99vSfgRHTJNVVy8CzWFZKP/1nJzItekgKCAb4XwdPFTMBDbcNL70IlQwJs8SZnxrAAR8i6SyNs5chA2uwiVDpzZPT6eJIOfHuZwG</para>
+    <para name="RSA_PRI_KEY_PKCS8-mini" desc="RSA私钥PKCS8[小程序]" can-be-updated="true">MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDNm4FaaZBmm68N3u7+81wEJkDQF0FdJLeuFwIyEnYbCfmDqBrRJJA8Q9NBaoP3H8iEt4oV6PHb6PiDxvJCjbtXXq468ZJDae33jX4n4/sbZX6nAkDE/YiK3SbKdTDtZtkefNZkRVQJZKikrlhZWa9glwjFjHf8fECTr2A90WRlVI5WcwXKyd+MY4HIPn4g7gnY6uGQnWBHBIePsr0vS3bRC4EzgS9vmfdXuV/ztrXKq8X1kJlKv0ItIMY2/TfZtAUk1LcoO8RjcYGik15jF/hrgfdpXgoVLBl2qTdqEifS/icz7IQwAlxGMWygrHVJ0qD/R2na7kkNaSAK3tuAHmgXAgMBAAECggEBAK1LJQJUOS4Sh7/UJ3HhIawppbT99MyRtvLXV7VmU/9EL/ZkiH3AKIVy0SqwoRt3wWUC4TLITJmCSXugAe5QURc5qPXrR9DkBnsA2dS7VZjouY//2SFvY1dPQHOhxKRDbDpDE9wdhtAH9BAhFjvw2F07z1vZogO/ohoX1bEkvE6eLC1cYaCLJoPTHNKS8wheCiHd6cNySmfbajlDgeeOvTqLWGKA2AxzyeDp3kBjIK9xqeQeJNqJ0q3sJHdjKl2xpc5RVKKg+Yq2SSoRwoeydaduD2HbXCnAzp8QcY0tleAv+1e4hIdP28B/D68sFpbfjeH5JjpbRA2/Kru8xib0g9ECgYEA6fhzr1tbf6AHhmUa1Yl8wAmnGT3UPdyd6rVMNZbG6jcDSEjSwQEY/3dqc6o6Za4Eh+AJAUZly6PXquonWUwlKy3+Tf1edbCs3NywZUEIgjlbbmhi82DZA34aSRV6f2x9nmedcfkLAKzZ6Z2b3q2DBingbzyJ8Ivgw9+syLrmRY8CgYEA4PdmNOsbFiQWT+LjRIGnsici13euaFPXLnfjpNSTAWVzQOcdx3OBV5YQRtTgwMtY6qmrRom6uSQTmULC9iAD4HK5RgFO3OvD0ur1fEtFZbKEAsJWIoNEiUGurfn7MI+Ey7RFHWwB1OcXoyDk24pxqlozgtcmOgPbGn9L/+ivQPkCgYAisLDOXjhJyvtypMj+wjzZ6FR7PJycc3qCk1DyXSGvFmsJK6r77OK89gK1lZbE/rEzSDdtlfd/4xIWCFO/PLgCF/atr5Ry1Lg8owgQaz0Mud5hl16cgU6L4wWYsnOQMxDJDMneXTORbQ9+QN0cfhOANXNOauZ04Ph5ck+XD4cW5wKBgQDgKOPomtOUjkTFORinrGGCfMiU1iYswk3JeaCVH1OTspjS9PeRQ6B/u4FgcsG4mWZx/LozQQ2TaUU2E3XcdS4nuWivPqJsM2gehAwz23S8ztIHRck5/n6OHaqGpG4MhxUVPP0ZQgPZNqMw4pfnwd1clyB4oRTv/eOWVX1O83WdUQKBgGGEyvBtdjHonKFnqpMQf5ONUSktbMIMMH/kFO5NwqP4o1iED+PMsVTkgVpj/irJkHqKeCCe99vSfgRHTJNVVy8CzWFZKP/1nJzItekgKCAb4XwdPFTMBDbcNL70IlQwJs8SZnxrAAR8i6SyNs5chA2uwiVDpzZPT6eJIOfHuZwG</para>
+    <para name="RSA_PUB_KEY_ALI-mini" desc="RSA公钥（对方）[小程序]" can-be-updated="true">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmMaZUZemA9jEEcuc3k7d4lechX29lpbk5JuEg0lYDThEFXaAMNThqz373bt0tTPYYAEAco7Ed5B/C0mC48k1x6ZREcZQOUUm+//QFUOLqdG+ZfU5swVTQF3AyX1zWa73PzlB3kRubMhPihdIxtuvl4EoJ3zTYfDhfOYUxEXihwOqaytGFnmO+BONM28Eou3SA++kp8OuMXfPlWM6N7vIPnRny2/UW4z3dQiuO/P5l5b1a6Zbmn6XU52UMJQOjtsGUq9g8LUt8R0jfVbmRx6R2du3YAndlwLl2gs9ykLzQwExePT7BA0ZmZgXaodP/+8IiPedaOwcbwX1TiHUs4jxvQIDAQAB</para>
+    <para name="AES-KEY-mini" desc="AES解密KEY[小程序]" can-be-updated="true">x+K3Sja0v5vHoAS/R0SLsA==</para>
+  </group>
+  <group name="PAYPAL" desc="PAYPAL接口设置 (1)">
+    <para name="gv_APIEndpoint" desc="通信接口" can-be-updated="true">https://api-3t.paypal.com/nvp</para>
+    <para name="PAYPAL_URL" desc="支付网关" can-be-updated="true">https://www.paypal.com/cgi-bin/webscr</para>
+    <para name="gv_APIUserName" desc="用户名" can-be-updated="true">xiaojiong_api1.ymail.com</para>
+    <para name="gv_APIPassword" desc="密码" can-be-updated="true">Q2Q2VVRN6STBV6PR</para>
+    <para name="gv_APISignature" desc="签名" can-be-updated="true">AuRhCcy8EW8U5A7eKXZVMl9SYBPmAp5RuCEa4vkiCsppkwtFP1PvLoDu</para>
+    <para name="gv_Version" desc="版本" can-be-updated="true">109.0</para>
+  </group>
+  <group name="PAYPAL2" desc="PAYPAL接口设置(2)">
+    <para name="gv_APIEndpoint" desc="通信接口" can-be-updated="true">https://api-3t.sandbox.paypal.com/nvp</para>
+    <para name="PAYPAL_URL" desc="支付网关" can-be-updated="true">https://www.sandbox.paypal.com/cgi-bin/webscr</para>
+    <para name="gv_APIUserName" desc="用户名" can-be-updated="true">xiaoxiaoxiake_api1.qq.com</para>
+    <para name="gv_APIPassword" desc="密码" can-be-updated="true">QZ4ZF22QRCTXTLWL</para>
+    <para name="gv_APISignature" desc="签名" can-be-updated="true">ArLyI7QMz6r7mHoDy.FACJz870SkAOc2Q3KCmH.mkz5VpO3bA7hSExOB</para>
+    <para name="gv_Version" desc="版本" can-be-updated="true">109.0</para>
+  </group>
+  <group name="KUAIDI100" desc="快递100接口">
+    <para name="key" desc="key" can-be-updated="true">mHOgAMuK4590</para>
+    <para name="customer" desc="customer" can-be-updated="true">08E9C2A098F3E028338A2A25A5867D5F</para>
+    <para name="subscribe_interface" desc="订阅接口" can-be-updated="true">http://poll.kuaidi100.com/poll</para>
+    <para name="subscribe_callback" desc="订阅接收" can-be-updated="true">/express/kuaidi100/callback.jhtml</para>
+    <para name="subscribe_salt" desc="订阅签名随机数" can-be-updated="true">15db9742161470366f23</para>
+    <para name="query_interface" desc="查询接口" can-be-updated="true">http://poll.kuaidi100.com/poll/query.do</para>
+    <para name="e_order_create_interface" desc="电子面单生成接口" can-be-updated="true">http://api.kuaidi100.com/eorderapi.do?method=getElecOrder</para>
+    <para name="e_order_create_interface_key" desc="电子面单生成接口秘钥" can-be-updated="true">292dd0e6610b49e3a974e93ec8a75c48</para>
+    <para name="FIRST_METHOD" desc="优先使用接口版本（HTML/API）" can-be-updated="true">API</para>
+  </group>
+  <group name="WEIXIN" desc="微信公众平台设置">
+    <para name="AppName" desc="公众号名称" can-be-updated="true">古古商贸</para>
+    <para name="AccessTokenUrl" desc="网页授权access token获取地址" can-be-updated="true">https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&amp;secret=SECRET&amp;code=CODE&amp;grant_type=authorization_code</para>
+    <para name="AccessTokenUrl2" desc="基础接口access token获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid=APPID&amp;secret=SECRET</para>
+    <para name="LoginUrl" desc="网页授权code获取地址" can-be-updated="true">https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&amp;redirect_uri=REDIRECT_URI&amp;response_type=code&amp;scope=snsapi_userinfo&amp;state=STATE#wechat_redirect</para>
+    <para name="UserInfoUrl" desc="用户信息获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/user/info?access_token=ACCESS_TOKEN&amp;openid=OPENID&amp;lang=zh_CN</para>
+    <para name="LoginRedirectUrl" desc="微信登录REDIRECT_URL" can-be-updated="true">https://w.gugumall.cn</para>
+    <para name="AppID" desc="应用ID" can-be-updated="true">wx236956a2f0a3c97d</para>
+    <para name="AppSecret" desc="应用密钥" can-be-updated="true">6b91014b73568ed3d9ae58cba5e26720</para>
+    <para name="MID" desc="商户ID" can-be-updated="true">1268824501</para>
+    <para name="PAYKEY" desc="支付密钥" can-be-updated="true">7d2f11714fa7c1be42ZmCPGMRI888888</para>
+    <para name="unifiedorder" desc="统一订单地址" can-be-updated="true">https://api.mch.weixin.qq.com/pay/unifiedorder</para>
+    <para name="JSSDKJS" desc="JSSDK所需JS" can-be-updated="true">https://res.wx.qq.com/open/js/jweixin-1.3.2.js</para>
+    <para name="JsApiTicket" desc="JsApiTicket获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&amp;access_token=ACCESS_TOKEN</para>
+    <para name="JsApiAccessToken" desc="JsApiAccessToken获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid=APPID&amp;secret=SECRET</para>
+    <para name="JsApiTicketTimeout" desc="JsApiTicket超时时间（秒）" can-be-updated="true">7200</para>
+    <para name="JsApiAccessTokenTimeout" desc="JsApiAccessToken超时时间（秒）" can-be-updated="true">7200</para>
+    <para name="refundInterface" desc="退款接口" can-be-updated="true">https://api.mch.weixin.qq.com/secapi/pay/refund</para>
+    <para name="refundQueryInterface" desc="退款查询接口" can-be-updated="true">https://api.mch.weixin.qq.com/pay/refundquery</para>
+    <para name="token" desc="公众号服务器配置-token" can-be-updated="true">15db9742161470366f23</para>
+    <para name="EncodingAESKey" desc="公众号服务器配置-EncodingAESKey" can-be-updated="true">JNbYBrtAYE6xaxi93gDczde3voPlr5o31NX9nifQc6j</para>
+    <para name="orderscanbyseller" desc="扫码收款订单地址" can-be-updated="true">https://api.mch.weixin.qq.com/pay/micropay</para>
+    <para name="queryInterface" desc="订单查询接口" can-be-updated="true">https://api.mch.weixin.qq.com/pay/orderquery</para>
+    <para name="reserveInterface" desc="撤单接口" can-be-updated="true">https://api.mch.weixin.qq.com/secapi/pay/reverse</para>
+    <para name="uid" desc="公众号UID" can-be-updated="true">3011698186</para>
+    <para name="wx_to_mini_program_auto" desc="自动跳转小程序" can-be-updated="true">false</para>
+  </group>
+  <group name="WEIXIN.gugupay.cn" desc="微信公众平台设置（古古物联）">
+    <para name="AppName" desc="小公众号名称" can-be-updated="true">古古物联</para>
+    <para name="AccessTokenUrl" desc="网页授权access token获取地址" can-be-updated="true">https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&amp;secret=SECRET&amp;code=CODE&amp;grant_type=authorization_code</para>
+    <para name="AccessTokenUrl2" desc="基础接口access token获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid=APPID&amp;secret=SECRET</para>
+    <para name="LoginUrl" desc="网页授权code获取地址" can-be-updated="true">https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&amp;redirect_uri=REDIRECT_URI&amp;response_type=code&amp;scope=snsapi_userinfo&amp;state=STATE#wechat_redirect</para>
+    <para name="UserInfoUrl" desc="用户信息获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/user/info?access_token=ACCESS_TOKEN&amp;openid=OPENID&amp;lang=zh_CN</para>
+    <para name="LoginRedirectUrl" desc="微信登录REDIRECT_URL" can-be-updated="true">http://w.gugupay.cn</para>
+    <para name="AppID" desc="应用ID" can-be-updated="true">wx96639e8d9202151c</para>
+    <para name="AppSecret" desc="应用密钥" can-be-updated="true">3d634c46c863a6c713e9829c2fd5b377</para>
+    <para name="MID" desc="商户ID" can-be-updated="true">1268824501</para>
+    <para name="PAYKEY" desc="支付密钥" can-be-updated="true">7d2f11714fa7c1be42ZmCPGMRI888888</para>
+    <para name="unifiedorder" desc="统一订单地址" can-be-updated="true">https://api.mch.weixin.qq.com/pay/unifiedorder</para>
+    <para name="JSSDKJS" desc="JSSDK所需JS" can-be-updated="true">https://res.wx.qq.com/open/js/jweixin-1.3.2.js</para>
+    <para name="JsApiTicket" desc="JsApiTicket获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&amp;access_token=ACCESS_TOKEN</para>
+    <para name="JsApiAccessToken" desc="JsApiAccessToken获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid=APPID&amp;secret=SECRET</para>
+    <para name="JsApiTicketTimeout" desc="JsApiTicket超时时间（秒）" can-be-updated="true">7200</para>
+    <para name="JsApiAccessTokenTimeout" desc="JsApiAccessToken超时时间（秒）" can-be-updated="true">7200</para>
+    <para name="refundInterface" desc="退款接口" can-be-updated="true">https://api.mch.weixin.qq.com/secapi/pay/refund</para>
+    <para name="refundQueryInterface" desc="退款查询接口" can-be-updated="true">https://api.mch.weixin.qq.com/pay/refundquery</para>
+    <para name="token" desc="公众号服务器配置-token" can-be-updated="true">15db9742161470366f23</para>
+    <para name="EncodingAESKey" desc="公众号服务器配置-EncodingAESKey" can-be-updated="true">JNbYBrtAYE6xaxi93gDczde3voPlr5o31NX9nifQc6j</para>
+    <para name="orderscanbyseller" desc="扫码收款订单地址" can-be-updated="true">https://api.mch.weixin.qq.com/pay/micropay</para>
+    <para name="queryInterface" desc="订单查询接口" can-be-updated="true">https://api.mch.weixin.qq.com/pay/orderquery</para>
+    <para name="reserveInterface" desc="撤单接口" can-be-updated="true">https://api.mch.weixin.qq.com/secapi/pay/reverse</para>
+    <para name="uid" desc="公众号UID" can-be-updated="true">3011698186</para>
+    <para name="wx_to_mini_program_auto" desc="自动跳转小程序" can-be-updated="true">false</para>
+  </group>
+  <group name="WEIXIN.xiaoxiaoxia.cn" desc="微信公众平台设置（古古鲜花）">
+    <para name="AppName" desc="小公众号名称" can-be-updated="true">古古鲜花</para>
+    <para name="AccessTokenUrl" desc="网页授权access token获取地址" can-be-updated="true">https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&amp;secret=SECRET&amp;code=CODE&amp;grant_type=authorization_code</para>
+    <para name="AccessTokenUrl2" desc="基础接口access token获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid=APPID&amp;secret=SECRET</para>
+    <para name="LoginUrl" desc="网页授权code获取地址" can-be-updated="true">https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&amp;redirect_uri=REDIRECT_URI&amp;response_type=code&amp;scope=snsapi_userinfo&amp;state=STATE#wechat_redirect</para>
+    <para name="UserInfoUrl" desc="用户信息获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/user/info?access_token=ACCESS_TOKEN&amp;openid=OPENID&amp;lang=zh_CN</para>
+    <para name="LoginRedirectUrl" desc="微信登录REDIRECT_URL" can-be-updated="true">http://w.xiaoxiaoxia.cn</para>
+    <para name="AppID" desc="应用ID" can-be-updated="true">wxd7847323dcc80ffc</para>
+    <para name="AppSecret" desc="应用密钥" can-be-updated="true">421ac637f848408a14ea81a7bf5794ee</para>
+    <para name="MID" desc="商户ID" can-be-updated="true">1268824501</para>
+    <para name="PAYKEY" desc="支付密钥" can-be-updated="true">7d2f11714fa7c1be42ZmCPGMRI888888</para>
+    <para name="unifiedorder" desc="统一订单地址" can-be-updated="true">https://api.mch.weixin.qq.com/pay/unifiedorder</para>
+    <para name="JSSDKJS" desc="JSSDK所需JS" can-be-updated="true">https://res.wx.qq.com/open/js/jweixin-1.3.2.js</para>
+    <para name="JsApiTicket" desc="JsApiTicket获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&amp;access_token=ACCESS_TOKEN</para>
+    <para name="JsApiAccessToken" desc="JsApiAccessToken获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid=APPID&amp;secret=SECRET</para>
+    <para name="JsApiTicketTimeout" desc="JsApiTicket超时时间（秒）" can-be-updated="true">7200</para>
+    <para name="JsApiAccessTokenTimeout" desc="JsApiAccessToken超时时间（秒）" can-be-updated="true">7200</para>
+    <para name="refundInterface" desc="退款接口" can-be-updated="true">https://api.mch.weixin.qq.com/secapi/pay/refund</para>
+    <para name="refundQueryInterface" desc="退款查询接口" can-be-updated="true">https://api.mch.weixin.qq.com/pay/refundquery</para>
+    <para name="token" desc="公众号服务器配置-token" can-be-updated="true">15db9742161470366f23</para>
+    <para name="EncodingAESKey" desc="公众号服务器配置-EncodingAESKey" can-be-updated="true">JNbYBrtAYE6xaxi93gDczde3voPlr5o31NX9nifQc6j</para>
+    <para name="orderscanbyseller" desc="扫码收款订单地址" can-be-updated="true">https://api.mch.weixin.qq.com/pay/micropay</para>
+    <para name="queryInterface" desc="订单查询接口" can-be-updated="true">https://api.mch.weixin.qq.com/pay/orderquery</para>
+    <para name="reserveInterface" desc="撤单接口" can-be-updated="true">https://api.mch.weixin.qq.com/secapi/pay/reverse</para>
+    <para name="uid" desc="公众号UID" can-be-updated="true">3011698186</para>
+    <para name="wx_to_mini_program_auto" desc="自动跳转小程序" can-be-updated="true">false</para>
+  </group>
+  <group name="WEIXINOPEN" desc="微信开放平台登录设置">
+    <para name="JS" desc="微信登录所需JS" can-be-updated="true">http://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js</para>
+    <para name="AccessTokenUrl" desc="网页授权access token获取地址" can-be-updated="true">https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&amp;secret=SECRET&amp;code=CODE&amp;grant_type=authorization_code</para>
+    <para name="LoginUrl" desc="网页授权code获取地址" can-be-updated="true">https://open.weixin.qq.com/connect/qrconnect?appid=APPID&amp;redirect_uri=REDIRECT_URI&amp;response_type=code&amp;scope=snsapi_login&amp;state=STATE#wechat_redirect</para>
+    <para name="UserInfoUrl" desc="用户信息获取地址" can-be-updated="true">https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&amp;openid=OPENID&amp;lang=zh_CN</para>
+    <para name="AppID" desc="应用ID" can-be-updated="true">wx94ee676779f611c9</para>
+    <para name="AppSecret" desc="应用密钥" can-be-updated="true">a31a48ae44e27e2f00b59dbb83958690</para>
+  </group>
+  <group name="WEIXINHB" desc="微信新会员红包设置">
+    <para name="interface" desc="接口地址" can-be-updated="true">https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack</para>
+    <para name="interfaceMiniProgram" desc="接口地址(小程序)" can-be-updated="true">https://api.mch.weixin.qq.com/mmpaymkttransfers/sendminiprogramhb</para>
+    <para name="send_name" desc="商户名称" can-be-updated="true">古古商城</para>
+    <para name="wishing" desc="祝福语" can-be-updated="true">初次见面，小小红包，聊表心意，请笑纳。</para>
+    <para name="act_name" desc="活动名" can-be-updated="true">新会员红包</para>
+    <para name="remark" desc="备注" can-be-updated="true">新会员红包</para>
+    <para name="total_amount" desc="红包最小金额" can-be-updated="true">68</para>
+    <para name="total_amount_max" desc="红包最大金额" can-be-updated="true">1680</para>
+    <para name="limit" desc="每天每人可领红包数" can-be-updated="true">1</para>
+  </group>
+  <group name="WEIXINHBDAILY" desc="微信每日红包设置">
+    <para name="interface" desc="接口地址" can-be-updated="true">https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack</para>
+    <para name="send_name" desc="商户名称" can-be-updated="true">古古商城</para>
+    <para name="wishing" desc="祝福语" can-be-updated="true">欢迎您每天来打望打望，小小红包，聊表心意，请笑纳。</para>
+    <para name="act_name" desc="活动名" can-be-updated="true">每日红包</para>
+    <para name="remark" desc="备注" can-be-updated="true">每日红包</para>
+    <para name="total_amount" desc="红包最小金额" can-be-updated="true">68</para>
+    <para name="total_amount_max" desc="红包最大金额" can-be-updated="true">168</para>
+    <para name="limit" desc="每天每人可领红包数" can-be-updated="true">1</para>
+    <para name="maxSentOneDay" desc="每天最多派送红包数" can-be-updated="true">100</para>
+    <para name="sentToday" desc="今天已发出红包数" can-be-updated="false">2020-10-29:0</para>
+    <para name="minRank" desc="最低会员级别" can-be-updated="true">1</para>
+  </group>
+  <group name="WEIXINPAYUSER" desc="微信付款给用户">
+    <para name="interface" desc="接口地址" can-be-updated="true">https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers</para>
+    <para name="desc" desc="描述" can-be-updated="true">感谢惠顾</para>
+  </group>
+  <group name="GUGUPAY" desc="古古支付设置">
+    <para name="gateway" desc="支付网关" can-be-updated="true">http://www.gugupay.cn/pay/index.jhtml</para>
+    <para name="gatewaywap" desc="支付网关（手机网页）" can-be-updated="true">http://m.gugupay.cn/pay/index.jhtml</para>
+    <para name="gatewayapp" desc="支付网关（APP）" can-be-updated="true">http://app.gugupay.cn/pay/index.jhtml</para>
+    <para name="gatewayweixin" desc="支付网关（微信）" can-be-updated="true">http://w.gugupay.cn/pay/index.jhtml</para>
+    <para name="query_interface" desc="查询接口" can-be-updated="true">http://www.gugupay.cn/merchant.handler?request=query</para>
+    <para name="merchant_id" desc="商户ID" can-be-updated="true">105500000001</para>
+    <para name="secret" desc="通信秘钥" can-be-updated="true">0b031c23c99354b0bc992b4becc13e41</para>
+  </group>
+  <group name="MINIPROGRAM" desc="微信小程序设置">
+    <para name="AppName" desc="小程序名称" can-be-updated="true">古古商贸</para>
+    <para name="AppID" desc="应用ID" can-be-updated="true">wxd381a7a449e1f7f7</para>
+    <para name="AppSecret" desc="应用密钥" can-be-updated="true">b0ace945a397b737b5ba3217b64432a0</para>
+    <para name="AccessTokenUrl" desc="网页授权access token获取地址" can-be-updated="true">https://api.weixin.qq.com/sns/jscode2session?appid=APPID&amp;secret=SECRET&amp;js_code=JSCODE&amp;grant_type=authorization_code</para>
+    <para name="AccessTokenUrl2" desc="基础接口access token获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid=APPID&amp;secret=SECRET</para>
+    <para name="UserInfoUrl" desc="用户信息获取地址" can-be-updated="true">https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&amp;openid=OPENID&amp;lang=zh_CN</para>
+    <para name="unifiedorder" desc="统一订单地址" can-be-updated="true">https://api.mch.weixin.qq.com/pay/unifiedorder</para>
+    <para name="refundInterface" desc="退款接口" can-be-updated="true">https://api.mch.weixin.qq.com/secapi/pay/refund</para>
+    <para name="refundQueryInterface" desc="退款查询接口" can-be-updated="true">https://api.mch.weixin.qq.com/pay/refundquery</para>
+    <para name="MID" desc="商户ID" can-be-updated="true">1268824501</para>
+    <para name="PAYKEY" desc="支付密钥" can-be-updated="true">7d2f11714fa7c1be42ZmCPGMRI888888</para>
+    <para name="MiniProgramCodeUrl" desc="生成小程序码接口" can-be-updated="true">https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=ACCESS_TOKEN</para>
+    <para name="token" desc="公众号服务器配置-token" can-be-updated="true">15db9742161470366f23</para>
+    <para name="EncodingAESKey" desc="公众号服务器配置-EncodingAESKey" can-be-updated="true">JNbYBrtAYE6xaxi93gDczde3voPlr5o31NX9nifQc6j</para>
+  </group>
+  <group name="MINIPROGRAM.wechat-tangguang.gugumall.cn" desc="微信小程序设置（堂光新食）">
+    <para name="AppName" desc="小程序名称" can-be-updated="true">堂光新食</para>
+    <para name="AppID" desc="应用ID" can-be-updated="true">wxcf02065be7dd0c57</para>
+    <para name="AppSecret" desc="应用密钥" can-be-updated="true">20ca69025d137300e6a20b57621a060b</para>
+    <para name="AccessTokenUrl" desc="网页授权access token获取地址" can-be-updated="true">https://api.weixin.qq.com/sns/jscode2session?appid=APPID&amp;secret=SECRET&amp;js_code=JSCODE&amp;grant_type=authorization_code</para>
+    <para name="AccessTokenUrl2" desc="基础接口access token获取地址" can-be-updated="true">https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid=APPID&amp;secret=SECRET</para>
+    <para name="UserInfoUrl" desc="用户信息获取地址" can-be-updated="true">https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&amp;openid=OPENID&amp;lang=zh_CN</para>
+    <para name="unifiedorder" desc="统一订单地址" can-be-updated="true">https://api.mch.weixin.qq.com/pay/unifiedorder</para>
+    <para name="refundInterface" desc="退款接口" can-be-updated="true">https://api.mch.weixin.qq.com/secapi/pay/refund</para>
+    <para name="refundQueryInterface" desc="退款查询接口" can-be-updated="true">https://api.mch.weixin.qq.com/pay/refundquery</para>
+    <para name="MID" desc="商户ID" can-be-updated="true">1268824501</para>
+    <para name="PAYKEY" desc="支付密钥" can-be-updated="true">7d2f11714fa7c1be42ZmCPGMRI888888</para>
+    <para name="MiniProgramCodeUrl" desc="生成小程序码接口" can-be-updated="true">https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=ACCESS_TOKEN</para>
+    <para name="token" desc="公众号服务器配置-token" can-be-updated="true">15db9742161470366f23</para>
+    <para name="EncodingAESKey" desc="公众号服务器配置-EncodingAESKey" can-be-updated="true">JNbYBrtAYE6xaxi93gDczde3voPlr5o31NX9nifQc6j</para>
+  </group>
+  <group name="QQCONNECT" desc="QQ互联">
+    <para name="AppName" desc="在第三方注册名称" can-be-updated="true">古古商贸</para>
+    <para name="app_ID" desc="应用ID" can-be-updated="true">101252508</para>
+    <para name="app_KEY" desc="应用密钥" can-be-updated="true">171dffffdfa4fef3bbcf12a5c033649c</para>
+    <para name="redirect_URI" desc="回调地址" can-be-updated="true"></para>
+    <para name="scope" desc="scope" can-be-updated="true">get_user_info</para>
+    <para name="baseURL" desc="baseURL" can-be-updated="true">https://graph.qq.com/</para>
+    <para name="getUserInfoURL" desc="getUserInfoURL" can-be-updated="true">https://graph.qq.com/user/get_user_info?access_token=TOKEN&amp;oauth_consumer_key=APPID&amp;openid=OPENID</para>
+    <para name="accessTokenURL" desc="accessTokenURL" can-be-updated="true">https://graph.qq.com/oauth2.0/token?grant_type=authorization_code&amp;client_id=APPID&amp;client_secret=SECRET&amp;code=CODE&amp;redirect_uri=REDIRECT_URI</para>
+    <para name="authorizeURL" desc="authorizeURL" can-be-updated="true">https://graph.qq.com/oauth2.0/authorize?response_type=code&amp;client_id=APPID&amp;redirect_uri=REDIRECT_URI&amp;state=STATE&amp;display=DISPLAY</para>
+    <para name="getOpenIDURL" desc="getOpenIDURL" can-be-updated="true">https://graph.qq.com/oauth2.0/me?access_token=TOKEN</para>
+    <para name="version" desc="version" can-be-updated="true">2.0.0.0</para>
+  </group>
+  <group name="WEIBOCONNECT" desc="微博平台接口设置">
+    <para name="AppName" desc="在第三方注册名称" can-be-updated="true">古古商贸</para>
+    <para name="codeUrl" desc="code获取地址" can-be-updated="true">https://api.weibo.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&amp;response_type=code&amp;redirect_uri=YOUR_REGISTERED_REDIRECT_URI&amp;state=STATE&amp;display=DISPLAY</para>
+    <para name="accessTokenUrl" desc="access token获取地址" can-be-updated="true">https://api.weibo.com/oauth2/access_token</para>
+    <para name="uidUrl" desc="uid获取地址" can-be-updated="true">https://api.weibo.com/2/account/get_uid.json?access_token=TOKEN</para>
+    <para name="emailUrl" desc="email获取地址" can-be-updated="true">https://api.weibo.com/2/account/profile/email.json?access_token=TOKEN</para>
+    <para name="getUserInfoURL" desc="用户信息获取地址" can-be-updated="true">https://api.weibo.com/2/users/show.json?access_token=TOKEN&amp;uid=UID</para>
+    <para name="AppKey" desc="App Key" can-be-updated="true">340887209</para>
+    <para name="AppSercet" desc="App Sercet" can-be-updated="true">0b031c23c99354b0bc992b4becc13e41</para>
+  </group>
+  <group name="SUBSCRIBE" desc="订阅设置">
+    <para name="MAX_SUBSCRIBERS" desc="每个用户最多可创建订阅器数" can-be-updated="true">10</para>
+    <para name="LATEST_SUBSCRIBE_SEND_DATE" desc="最近一次订阅推送时间点" can-be-updated="true">2021-03-03 01:00:00</para>
+    <para name="SUBSCRIBE_AT" desc="订阅推送时间点" can-be-updated="true">01:00:00</para>
+  </group>
+  <group name="DRIVING" desc="LBS设置">
+    <para name="FEE_OF_ORDERR" desc="每个订单费用" can-be-updated="false">1</para>
+    <para name="MAX_ADJUST" desc="距离调整最高比率" can-be-updated="false">0.1</para>
+    <para name="AMAP_VERSION" desc="高德地图版本" can-be-updated="true">1.4.8</para>
+    <para name="AMAP_KEY" desc="高德地图密钥" can-be-updated="true">ca2187ac56dc903a820591985dfc26cb</para>
+    <para name="AMAP_KEY_ANDROID" desc="高德地图密钥（安卓平台）" can-be-updated="true">ca2187ac56dc903a820591985dfc26cb</para>
+    <para name="AMAP_KEY_WEBSERVICE" desc="高德地图密钥（WEB服务）" can-be-updated="true">f5840d12d5f54fab03c251a995d712b0</para>
+  </group>
+  <group name="TENCET_LIVE" desc="腾讯云直播">
+    <para name="appId" desc="APP ID" can-be-updated="true">1251887951</para>
+    <para name="bizId" desc="BIZ ID" can-be-updated="true">25611</para>
+    <para name="domain" desc="推流域名" can-be-updated="true">livepush.gugumall.cn</para>
+    <para name="domainPlay" desc="播放域名" can-be-updated="true">liveplay.gugumall.cn</para>
+    <para name="key_auth" desc="API鉴权key" can-be-updated="true">242287f64110ef11aab6a7835b5ffec9</para>
+    <para name="key_private" desc="推流防盗链Key" can-be-updated="true">7ecfc35e7ab8f55b37d82e243e22abac</para>
+  </group>
+  <group name="FINANCE" desc="财务模块设置">
+    <para name="max_in_out_types" desc="卖家可定义收支类型" can-be-updated="true">100</para>
+    <para name="max_files_of_item" desc="每条明细最多可添加文件数" can-be-updated="true">10</para>
+    <para name="max_file_size" desc="单个文件最大多少K" can-be-updated="true">51200</para>
+  </group>
+  <group name="EXPRESS" desc="物流管理设定">
+    <para name="maxTicketsPerOrder" desc="每个订单最多运单数" can-be-updated="true">10</para>
+  </group>
+  <group name="SF-EXPRESS" desc="顺丰速运">
+    <para name="partnerId" desc="账号" can-be-updated="true">0235369485</para>
+    <para name="partnerKey" desc="密钥" can-be-updated="true"></para>
+    <para name="payType" desc="支付方式" can-be-updated="true">月结</para>
+    <para name="exType" desc="快递类型" can-be-updated="true">顺丰特惠</para>
+    <para name="clientCode" desc="API 客户编号" can-be-updated="true">ZQYGDZSW</para>
+    <para name="checkword" desc="API 校验码" can-be-updated="true">f6TYeqonn6LkrurRYoAdwGh3wKLxUy6M</para>
+    <para name="url" desc="API 请求地址" can-be-updated="true">https://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService</para>
+    <para name="callCourier" desc="通知快递员取件" can-be-updated="true">是</para>
+  </group>
+  <group name="SF-EXPRESS-SELLER" desc="顺丰速运">
+    <para name="partnerId" desc="账号" can-be-updated="true"></para>
+    <para name="partnerKey" desc="密钥" can-be-updated="true"></para>
+    <para name="payType" desc="支付方式" can-be-updated="true">月结</para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+    <para name="clientCode" desc="API 客户编号" can-be-updated="true"></para>
+    <para name="checkword" desc="API 校验码" can-be-updated="true"></para>
+    <para name="url" desc="API 请求地址" can-be-updated="true">https://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService</para>
+    <para name="callCourier" desc="通知快递员取件" can-be-updated="true">是</para>
+  </group>
+  <group name="EMS-EXPRESS" desc="EMS">
+    <para name="partnerId" desc="账号" can-be-updated="true">17623391339</para>
+    <para name="partnerKey" desc="密钥" can-be-updated="true"></para>
+    <para name="payType" desc="支付方式" can-be-updated="true"></para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+  </group>
+  <group name="EMS-EXPRESS-SELLER" desc="EMS">
+    <para name="partnerId" desc="账号" can-be-updated="true"></para>
+    <para name="partnerKey" desc="密钥" can-be-updated="true"></para>
+    <para name="payType" desc="支付方式" can-be-updated="true"></para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+  </group>
+  <group name="ZTO-EXPRESS" desc="中通快递">
+    <para name="companyId" desc="公司ID" can-be-updated="true">6269b804881f4e969ac50057c55bf77b</para>
+    <para name="verifyKey" desc="合作商签名key" can-be-updated="true">43930c4c80fd</para>
+    <para name="partnerId" desc="电子面单ID" can-be-updated="true">6269b804881f4e969ac50057c55bf77b</para>
+    <para name="partnerKey" desc="电子面单密钥" can-be-updated="true">Z4RIFF27</para>
+    <para name="payType" desc="支付方式" can-be-updated="true"></para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+    <para name="AppKey" desc="AppKey" can-be-updated="true">6269b804881f4e969ac50057c55bf77b</para>
+    <para name="AppSecret" desc="AppSecret" can-be-updated="true">43930c4c80fd</para>
+  </group>
+  <group name="ZTO-EXPRESS-SELLER" desc="中通快递">
+    <para name="companyId" desc="公司ID" can-be-updated="true"></para>
+    <para name="verifyKey" desc="合作商签名key" can-be-updated="true"></para>
+    <para name="partnerId" desc="电子面单ID" can-be-updated="true"></para>
+    <para name="partnerKey" desc="电子面单密钥" can-be-updated="true"></para>
+    <para name="payType" desc="支付方式" can-be-updated="true"></para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+    <para name="AppKey" desc="AppKey" can-be-updated="true"></para>
+    <para name="AppSecret" desc="AppSecret" can-be-updated="true"></para>
+  </group>
+  <group name="STO-EXPRESS" desc="申通快递">
+    <para name="partnerId" desc="账号" can-be-updated="true"></para>
+    <para name="partnerKey" desc="密钥" can-be-updated="true"></para>
+    <para name="payType" desc="支付方式" can-be-updated="true"></para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+  </group>
+  <group name="STO-EXPRESS-SELLER" desc="申通快递">
+    <para name="partnerId" desc="账号" can-be-updated="true"></para>
+    <para name="partnerKey" desc="密钥" can-be-updated="true"></para>
+    <para name="payType" desc="支付方式" can-be-updated="true"></para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+  </group>
+  <group name="YTO-EXPRESS" desc="圆通快递">
+    <para name="partnerId" desc="账号" can-be-updated="true"></para>
+    <para name="partnerKey" desc="密钥" can-be-updated="true"></para>
+    <para name="payType" desc="支付方式" can-be-updated="true"></para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+  </group>
+  <group name="YTO-EXPRESS-SELLER" desc="圆通快递">
+    <para name="partnerId" desc="账号" can-be-updated="true"></para>
+    <para name="partnerKey" desc="密钥" can-be-updated="true"></para>
+    <para name="payType" desc="支付方式" can-be-updated="true"></para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+  </group>
+  <group name="YUNDA-EXPRESS" desc="韵达快递">
+    <para name="partnerId" desc="账号" can-be-updated="true"></para>
+    <para name="partnerKey" desc="密钥" can-be-updated="true"></para>
+    <para name="payType" desc="支付方式" can-be-updated="true"></para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+  </group>
+  <group name="YUNDA-EXPRESS-SELLER" desc="韵达快递">
+    <para name="partnerId" desc="账号" can-be-updated="true"></para>
+    <para name="partnerKey" desc="密钥" can-be-updated="true"></para>
+    <para name="payType" desc="支付方式" can-be-updated="true"></para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+  </group>
+  <group name="GRABBING" desc="拍市设置">
+    <para name="taxRatio" desc="收取买家税费比率" can-be-updated="true">0.05</para>
+    <para name="allowBuyBeforeGrabbing" desc="开拍前允许以起拍价购买" can-be-updated="true">true</para>
+    <para name="allowPriceDeviation" desc="允许价格偏差" can-be-updated="true">true</para>
+    <para name="minBalance" desc="最低账户余额" can-be-updated="true">100</para>
+    <para name="MaintainDate" desc="" can-be-updated="false">2021-03-03</para>
+    <para name="SetWaitingStartDate" desc="" can-be-updated="false">2021-03-03</para>
+    <para name="ResetStatisticsCacheDate" desc="" can-be-updated="true">2021-03-03</para>
+  </group>
+  <group name="IOT" desc="物联网设置">
+    <para name="DEBUG" desc="是否调试模式" can-be-updated="true">true</para>
+    <para name="thingsCollectorThreads" desc="外部设备采集线程数" can-be-updated="true">2</para>
+    <para name="orderSessionUpdaterThreads" desc="订单更新线程数" can-be-updated="true">2</para>
+    <para name="orderCancelThreads" desc="用于取消超时未开始使用订单的线程数" can-be-updated="true">2</para>
+    <para name="orderEndThreads" desc="用于结束（扣款）订单的线程数" can-be-updated="true">2</para>
+    <para name="thingUpdateThreads" desc="设备信息更新线程" can-be-updated="true">2</para>
+    <para name="showRecommenedGoods" desc="充电页面是否显示推荐商品" can-be-updated="true">true</para>
+    <para name="max_log_files" desc="巡检记录上传照片/视频最多个数" can-be-updated="true">10</para>
+    <para name="max_log_file_size" desc="巡检记录上传照片/视频最大大小（K）" can-be-updated="true">51200</para>
+    <para name="min_defined_service_money" desc="最小预设服务费用（元）" can-be-updated="true">10</para>
+    <para name="min_defined_service_time" desc="最小预设服务时间（分）" can-be-updated="true">10</para>
+    <para name="show_offlines" desc="是否显示离线设备" can-be-updated="true">true</para>
+    <para name="warning" desc="充电提示" can-be-updated="true"></para>
+    <para name="default_province" desc="默认省份" can-be-updated="false">440000</para>
+    <para name="default_city" desc="默认城市" can-be-updated="false">440300</para>
+    <para name="default_county" desc="默认区县" can-be-updated="false"></para>
+    <para name="default_zone" desc="默认街道" can-be-updated="false"></para>
+    <para name="CEC.Operator.Token.101437000" desc="" can-be-updated="true">386352d717231c84efcuDpDRIfU;1589973123205</para>
+    <para name="CEC.Operator.Token.MA5FEBMY4" desc="" can-be-updated="true">1eeb981717231d7afcaPdGb4LSb;1589974153566</para>
+  </group>
+  <group name="IOT.CP000" desc="物联网.光唯充电桩">
+    <para name="SERVER-ADDRESS" desc="服务器地址" can-be-updated="true">127.0.0.1</para>
+    <para name="TCP_NO_DELAY" desc="是否禁用Nagle算法" can-be-updated="true">true</para>
+  </group>
+  <group name="IOT.CPJWY" desc="物联网.金威源充电桩">
+    <para name="SERVER-ADDRESS" desc="服务器地址" can-be-updated="true">127.0.0.1</para>
+    <para name="TCP_NO_DELAY" desc="是否禁用Nagle算法" can-be-updated="true">false</para>
+  </group>
+  <group name="IOT.CM000" desc="矿机.默认">
+    <para name="SERVER-ADDRESS" desc="服务器地址" can-be-updated="true">127.0.0.1</para>
+    <para name="TCP_NO_DELAY" desc="是否禁用Nagle算法" can-be-updated="true">true</para>
+  </group>
+  <group name="UTILS" desc="">
+    <para name="SMS_CODE_FROM_APP" desc="" can-be-updated="true">276084</para>
   </group>
 </root>

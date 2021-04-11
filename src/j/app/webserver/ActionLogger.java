@@ -15,6 +15,7 @@ import j.sys.SysConfig;
 import j.sys.SysUtil;
 import j.util.ConcurrentMap;
 import j.util.JUtilDom4j;
+import j.util.JUtilJSON;
 import j.util.JUtilMath;
 import j.util.JUtilString;
 import j.util.JUtilTimestamp;
@@ -318,43 +319,42 @@ public class ActionLogger extends JHandler implements Runnable {
 		log.setAuIp(JHttp.getRemoteIp(request));
 		log.setAuId(userId);
 		log.setActionHandler(log.getAurl());
-		log.setActionId(action.getId());
-
-		Document doc = DocumentHelper.createDocument();
-		doc.setXMLEncoding(SysConfig.sysEncoding);
+		log.setActionId(action.getId());		
 		
-		Element root = doc.addElement("root");
+		//保存参数
+		StringBuffer ps=new StringBuffer();
+		ps.append("{\"parameters\":{");
+		
+		int pIndex=0;
+		
 		if (action.isLogAllParameters()) {
 			Enumeration parameters = request.getParameterNames();
 			while (parameters.hasMoreElements()) {
 				String parameter = (String) parameters.nextElement();
 				String value=SysUtil.getHttpParameter(request, parameter);
-				if(value==null) value="_null";
-
-				Element pEle = root.addElement("p");
-				pEle.addAttribute("name", parameter);
-				pEle.setText(value);
+				if(value==null) value="_IS_NULL_";
+				
+				if(pIndex>0) ps.append(",");
+				ps.append("\""+parameter+"\":\""+JUtilJSON.convert(value)+"\"");
+				pIndex++;
 			}
 		} else {
 			List temp = action.getLogParams();
 			for (int i = 0; i < temp.size(); i++) {
 				String p = (String) temp.get(i);
 				String value=SysUtil.getHttpParameter(request, p);
-				if(value==null) value="_null";
-
-				Element pEle = root.addElement("p");
-				pEle.addAttribute("name", p);
-				pEle.setText(value);
+				if(value==null) value="_IS_NULL_";
+				
+				if(pIndex>0) ps.append(",");
+				ps.append("\""+p+"\":\""+JUtilJSON.convert(value)+"\"");
+				pIndex++;
 			}
 		}
-		try {
-			String ps = JUtilDom4j.toString(doc);
-			doc = null;
-
-			log.setActionParameters(ps);
-		} catch (Exception e) {
-			logger.log(e, Logger.LEVEL_ERROR);
-		}
+		
+		ps.append("}}");
+		log.setActionParameters(ps.toString());
+		ps=null;
+		//保存参数 end
 
 		log.setActionResult(null);
 		log.setEventTime(new Timestamp(SysUtil.getNow()));

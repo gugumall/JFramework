@@ -2,6 +2,7 @@ package j.sms;
 
 import j.common.JProperties;
 import j.log.Logger;
+import j.tool.region.Countries;
 import j.util.ConcurrentMap;
 import j.util.JUtilDom4j;
 import j.util.JUtilKeyValue;
@@ -174,6 +175,27 @@ public class SMSManager implements Runnable{
 				throw new Exception("can not find region of mobile "+to);
 			}
 			
+			for(int i=0;i<configs.size();i++){
+				SMSSenderConfig config=(SMSSenderConfig)configs.get(i);
+				if(!config.business.equals(business)) continue;//不是指定业务的短信通道
+				
+				if(config.getRegion().equals(region)){//匹配上地区
+					senderId=config.id;
+					
+					List works=(List)senders.get(senderId);
+					
+					if(works==null||works.size()==0){
+						throw new Exception("no works for sender("+senderId+",auto match),business - "+business+", mobile - "+to);
+					}
+					
+					log.log(senderId+" matches business - "+business+",mobile - "+to,-1);
+					
+					return (SMSSender)works.get(JUtilRandom.nextInt(works.size()));
+				}
+			}
+			
+			//未匹配到相应地区，尝试查找region设定为OTHER的发送通道
+			region="OTHER";
 			for(int i=0;i<configs.size();i++){
 				SMSSenderConfig config=(SMSSenderConfig)configs.get(i);
 				if(!config.business.equals(business)) continue;//不是指定业务的短信通道
@@ -413,14 +435,8 @@ public class SMSManager implements Runnable{
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception{
-		for(int i=0;i<5;i++){
-			String str=JUtilString.randomStr(64);
-			SMSManager.send("verify",
-					"",
-					"13800138000",
-					str,
-					"utf-8",
-					null);
-		}
+		System.out.println(Countries.isMobileValid("17623391339"));
+		String[] dest=Countries.getMobileOrTelInfo("+852-64763705");
+		System.out.println(dest[0]);
 	}
 }

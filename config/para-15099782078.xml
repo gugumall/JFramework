@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+  <group name="JShop.Sales" desc="">
+    <para name="maxVirtualCoinUsedRatio" desc="积分可抵扣商品金额比率(%)" can-be-updated="true">0</para>
+    <para name="SERVICE_DISTANCE_MAX" desc="外卖最远派送距离(米)" can-be-updated="true">2000</para>
+  </group>
+  <group name="SF-EXPRESS" desc="">
+    <para name="partnerId" desc="账号" can-be-updated="true">0235369485</para>
+    <para name="partnerKey" desc="密钥" can-be-updated="true"></para>
+    <para name="payType" desc="支付方式" can-be-updated="true">月结</para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+    <para name="clientCode" desc="API 客户编号" can-be-updated="true">ZQYGDZSW</para>
+    <para name="checkword" desc="API 校验码" can-be-updated="true">f6TYeqonn6LkrurRYoAdwGh3wKLxUy6M</para>
+    <para name="url" desc="API 请求地址" can-be-updated="true">https://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService</para>
+    <para name="callCourier" desc="通知快递员取件" can-be-updated="true">是</para>
+  </group>
+  <group name="ZTO-EXPRESS" desc="">
+    <para name="companyId" desc="公司ID" can-be-updated="true">6269b804881f4e969ac50057c55bf77b</para>
+    <para name="verifyKey" desc="验证秘钥" can-be-updated="true">43930c4c80fd</para>
+    <para name="partnerId" desc="电子面单ID" can-be-updated="true">6269b804881f4e969ac50057c55bf77b</para>
+    <para name="partnerKey" desc="电子面单密钥" can-be-updated="true">Z4RIFF27</para>
+    <para name="payType" desc="支付方式" can-be-updated="true"></para>
+    <para name="exType" desc="快递类型" can-be-updated="true">标准快递</para>
+    <para name="AppKey" desc="AppKey" can-be-updated="true">43930c4c80fd</para>
+    <para name="AppSecret" desc="AppSecret" can-be-updated="true">6269b804881f4e969ac50057c55bf77b</para>
+  </group>
+  <group name="JShop.OnlineServie" desc="">
+    <para name="fastReplies" desc="快捷回复" can-be-updated="true"></para>
+    <para name="notification" desc="店铺公告" can-be-updated="true">如果您需要使用 &lt;img src="/img/co/TB.png"/&gt; 购买，请在淘宝APP搜索店铺【古古商贸】或宝贝【TEENWEAR]。</para>
+  </group>
+</root>
