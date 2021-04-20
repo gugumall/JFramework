@@ -10,10 +10,8 @@ import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +65,6 @@ import org.json.JSONObject;
 import j.Properties;
 import j.common.Global;
 import j.common.JObject;
-import j.log.Logger;
 import j.sys.AppConfig;
 import j.sys.SysUtil;
 import j.util.ConcurrentMap;
@@ -1112,6 +1109,32 @@ public class JHttp{
 		return Base64.encodeBase64String(DigestUtils.md5(bytes));
 	}
 	
+	public static String getAccessToken(String mainDomain,String loginVia)throws Exception{
+		String key="WEIXIN.AccessTokens."+mainDomain+"."+loginVia;
+		synchronized(key.intern()) {
+			
+			
+			//参数配置文件中，参数AccessTokenUrl2表示基础接口地址：
+			//https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=SECRET
+			String url="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=SECRET";
+			url=url.replaceAll("APPID", "wxd381a7a449e1f7f7");
+			url=url.replaceAll("SECRET", "b0ace945a397b737b5ba3217b64432a0");
+	
+			String response=JHttp.getInstance().getResponse(null, null, url);
+			//System.out.println("getAccessToken:"+response);
+			
+			JSONObject resp=JUtilJSON.parse(response);
+			long expires_in=3600000;
+			String acessToken=JUtilJSON.string(resp, "access_token");
+			String _expires_in=JUtilJSON.string(resp, "expires_in");
+			if(JUtilMath.isLong(_expires_in) && Long.parseLong(_expires_in)>0) {
+				expires_in=Long.parseLong(_expires_in)*1000;
+			}
+			
+			return acessToken;
+		}
+	}
+	
 	
 	/**
 	 * 测试
@@ -1121,31 +1144,66 @@ public class JHttp{
 	public static void main(String[] args)throws Exception{
 		System.out.println(JUtilMD5.MD5EncodeToHex("1864|42.385|01|5"));
 		System.out.println(JObject.intSequence2String("jis:1x,2a,2a"));
-//		
-//		try{
-//			String url="https://japi.zto.com/zto.open.queryAvailableBalanceNew";
-//			
-//			StringBuffer content=new StringBuffer();
-//			content.append("{\"datetime\":\""+(new Timestamp(System.currentTimeMillis())).toString().substring(0, 19)+"\"");
-//			content.append(",\"partner\":\"6269b804881f4e969ac50057c55bf77b\"");
-//			content.append(",\"verify\":\"Z4RIFF27\"");
-//			content.append(",\"content\":{}");
-//			content.append("}");
-//
-//			JHttp http=JHttp.getInstance();
-//			JHttpContext context=new JHttpContext();
-//			context.setContentType("application/json; charset=utf-8");
-//			context.addRequestHeader("x-appKey","bc9e336c153e190b4d75e");
-//			System.out.println(getDatadigest("", content.toString()));
-//			context.addRequestHeader("x-datadigest",getDatadigest("", content.toString()));
-//			context.setRequestEncoding("UTF-8");
-//			context.setRequestBody(content.toString());
-//			
-//			String resp=http.postResponse(context,null,url,null,"UTF-8");
-//			System.out.println("resp:"+resp);
-//		}catch(Exception e){
-//			e.printStackTrace();
-//		}
+		
+		
+
+
+		String accessToken=getAccessToken("w.gugumall.cn","MINIPROGRAM");
+		if(accessToken!=null) {
+			JHttp http=JHttp.getInstance();
+			JHttpContext context=new JHttpContext();
+			
+//			{
+//				"third_cat_id": 6052,
+//				"third_cat_name": "男式内裤",
+//				"qualification": "",
+//				"qualification_type": 0,
+//				"product_qualification": "",
+//				"product_qualification_type": 0,
+//				"first_cat_id": 6033,
+//				"first_cat_name": "服饰内衣",
+//				"second_cat_id": 6034,
+//				"second_cat_name": "内衣"
+//			}
+			
+//			{
+//			    "audit_req":
+//			    {
+//			        "license": "www.xxxxx.com",
+//			        "category_info":
+//			        {
+//				        "level1": 7419, // 一级类目
+//				        "level2": 7439, // 二级类目
+//				        "level3": 7448, // 三级类目
+//				        "certificate": "www.xxx.com" // 资质材料
+//			        }
+//			    }
+//			}
+			
+			StringBuffer params=new StringBuffer();
+			params.append("{\"audit_req\":{");
+			params.append("\"license\":\"\"");
+			params.append(",\"category_info\":{");
+			params.append("\"level1\":6033");
+			params.append(",\"level2\":6034");
+			params.append(",\"level3\":6052");
+			params.append(",\"certificate\":\"\"");
+			params.append("}");
+			params.append("}}");
+			
+			for(int i=17; i<=45; i++) {
+			
+				context.setRequestBody("{\"out_product_id\": \""+i+"\"}");
+				
+				//String s=http.postResponse(context, null, "https://api.weixin.qq.com/product/brand/get?access_token="+accessToken,null);
+				//String s=http.postResponse(context, null, "https://api.weixin.qq.com/shop/register/check?access_token="+accessToken,null);
+				//String s=http.postResponse(context, null, "https://api.weixin.qq.com/shop/audit/audit_category?access_token="+accessToken,null);
+				String s=http.postResponse(context, null, "https://api.weixin.qq.com/shop/spu/del?access_token="+accessToken,null);
+
+				System.out.println(s);
+			}
+		}
+		
 		System.exit(0);
 	}
 }

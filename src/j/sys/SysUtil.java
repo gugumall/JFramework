@@ -621,7 +621,7 @@ public class SysUtil {
 	 * @return
 	 */
 	public static String getRequestURL(HttpServletRequest request){
-		return getRequestURL(request,null);
+		return getRequestURL(request,(String)null);
 	}	
 	
 	/**
@@ -642,6 +642,51 @@ public class SysUtil {
 	        	if(excludePrefix!=null&&parameter.startsWith(excludePrefix)){
 	        		continue;
 	        	}
+        		String value=getHttpParameter(request,parameter);
+	        	if(value!=null){
+	        		if(value.length()>256) value=value.substring(0,256)+"(too long)";
+	        		try{
+	        			value=JUtilString.encodeURI(value,SysConfig.sysEncoding);
+	        		}catch(Exception e){
+	        			log.log(e,Logger.LEVEL_ERROR);
+	        		}
+	        		if(i==0){
+	        			url+="?"+parameter+"="+value;
+	        		}else{
+	        			url+="&"+parameter+"="+value;
+	        		}
+	        		i++;
+	        	}
+        	}
+    	}catch(Exception e){}
+        return url;
+	}
+	
+	/**
+	 * 得到用户当前访问的url
+	 * @param request
+	 * @param excludePrefix 排除以excludePrefix开头的参数
+	 * @return
+	 */
+	public static String getRequestURL(HttpServletRequest request,String[] excludePrefixs){
+		String url=request.getRequestURL().toString();
+		url=url.replaceFirst(":"+request.getRemotePort(), "");
+
+        int i=0;
+        Enumeration parameters=request.getParameterNames();
+    	try{
+    		while(parameters.hasMoreElements()){
+	        	String parameter=(String)parameters.nextElement();
+	        	
+	        	boolean excluded=false;
+	        	for(int e=0; excludePrefixs!=null && e<excludePrefixs.length; e++) {
+	        		if(parameter.startsWith(excludePrefixs[e])) {
+	        			excluded=true;
+	        			break;
+	        		}
+	        	}
+	        	if(excluded) continue;
+	        	
         		String value=getHttpParameter(request,parameter);
 	        	if(value!=null){
 	        		if(value.length()>256) value=value.substring(0,256)+"(too long)";

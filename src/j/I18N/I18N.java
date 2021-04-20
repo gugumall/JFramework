@@ -666,6 +666,8 @@ public class I18N extends JHandler implements Initializer,Runnable{
 				
 				if(_showUnknownTag(lang)) {
 					alt="I{"+thisGroup+alt+"}";
+				}else if(alt.startsWith("NON-JS")){
+					alt=alt.substring(6);
 				}
 			}
 			
@@ -761,6 +763,8 @@ public class I18N extends JHandler implements Initializer,Runnable{
 				
 				if(_showUnknownTag(lang)) {
 					alt="I{"+thisGroup+alt+"}";
+				}else if(alt.startsWith("NON-JS")){
+					alt=alt.substring(6);
 				}
 			}
 			

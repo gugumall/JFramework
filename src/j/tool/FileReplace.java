@@ -93,11 +93,11 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("F:\\work\\JShop_v2.1\\doc\\IOT\\充电桩+电商一体化解决方案");
+		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
 		replace(dir,
-				"show+=' I{shopping,Left Before Start}';",
-				"show+='I{shopping,Left Before Start}';",
-				".PNG");
+				"商城专区",
+				"群店",
+				".jsp");
 		
 //		rotate(new File("D:\\176\\10.4 桃江一中 活动\\形象照\\temp"),180,".jpg");
 		
@@ -150,39 +150,20 @@ public class FileReplace {
 		}else{
 			if(!file.getName().endsWith(ext)) return;
 			
-			file.renameTo(new File(JUtilString.replaceAll(file.getAbsolutePath(), "幻灯片", "")));
+//			file.renameTo(new File(JUtilString.replaceAll(file.getAbsolutePath(), "幻灯片", "")));
 			
 			//if(!file.getName().startsWith("goods")) return;
 			
-//			String s=JDFSFile.read(file, "UTF-8");
-
-			//调整iframeTitle样式
-//			int start=s.indexOf("<div id=\"iframeTitle\">");
-//			int end=s.indexOf("<div id=\"iframe\">");
-//			if(start>0 && end>start) {
-//				String s1=s.substring(0, start);
-//				String s2=s.substring(start,end);
-//				String s3=s.substring(end);
-//				
-//				s2=JUtilString.replaceAll(s2, "marginR10", "marginL10");
-//				s2=JUtilString.replaceAll(s2, "marginR20", "marginL20");
-//				
-//				s=s1+s2+s3;
-//				
-//				JDFSFile.saveString(file.getAbsolutePath(), s, false, "UTF-8");
-//				
-//				System.out.println(file.getAbsolutePath());
-//			}
-			//调整iframeTitle样式 end
+			String s=JDFSFile.read(file, "UTF-8");
 			
-//			if(s.indexOf(src)>-1){
-//				
-//				s=JUtilString.replaceAll(s, src, alt);
-//				
-//				JDFSFile.saveString(file.getAbsolutePath(), s, false, "UTF-8");
-//				
-//				System.out.println(file.getAbsolutePath());
-//			}
+			if(s.indexOf(src)>-1){
+				
+				s=JUtilString.replaceAll(s, src, alt);
+				
+				JDFSFile.saveString(file.getAbsolutePath(), s, false, "UTF-8");
+				
+				System.out.println(file.getAbsolutePath());
+			}
 		}		
 	}
 	
