@@ -111,8 +111,6 @@ public class Server{
 			
 			if(requestUuid==null||"".equals(requestUuid)) requestUuid=JUtilUUID.genUUID();
 			
-			if(toLog) logger.before(action,requestUuid,session,request);
-			
 			//重复提交检查
 			if(requestUuid!=null
 					&&!"".equals(requestUuid)
@@ -153,6 +151,8 @@ public class Server{
 			jHandler.init(jsession,session,request,response);
 			jHandler.process(jsession,session,request,response);
 			processResult=jsession.result;//处理结果
+			
+			if(toLog) logger.before(action,requestUuid,jsession,session,request);
 			
 			if(response.isCommitted()){
 				if(!handler.getSingleton()&&jHandler!=null) jHandler=null;

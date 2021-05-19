@@ -1145,7 +1145,7 @@ public final class JUtilImage implements ImageObserver {
 		
 		int index=1;
 		
-		File dir = new File("F:\\images\\时光(重庆) IV\\temp");
+		File dir = new File("F:\\images\\时光(足迹) VII\\temp");
 		File[] fs=dir.listFiles();
 		for(int i=0;i<fs.length;i++){
 			if(fs[i].getName().toLowerCase().endsWith(".jpg")
@@ -1155,7 +1155,7 @@ public final class JUtilImage implements ImageObserver {
 				String newName=index+"";
 				while(newName.length()<6) newName="0"+newName;
 				try {
-				im.zoomToSizeIfLarger(fs[i], new File("F:\\images\\时光(重庆) IV\\"+newName+".jpg"), 4000, JUtilImage.FORMAT_JPEG);
+				im.zoomToSizeIfLarger(fs[i], new File("F:\\images\\时光(足迹) VII\\"+newName+".jpg"), 4000, JUtilImage.FORMAT_JPEG);
 				fs[i].delete();
 				}catch(Exception e) {
 					
@@ -1167,7 +1167,7 @@ public final class JUtilImage implements ImageObserver {
 				String newName=index+"";
 				while(newName.length()<6) newName="0"+newName;
 				
-				fs[i].renameTo(new File("F:\\images\\时光(重庆) IV\\"+newName+".mp4"));
+				fs[i].renameTo(new File("F:\\images\\时光(足迹) VII\\"+newName+".mp4"));
 				
 				index++;	
 			}

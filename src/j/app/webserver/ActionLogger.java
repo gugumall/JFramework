@@ -1,5 +1,17 @@
 package j.app.webserver;
 
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import j.app.Constants;
 import j.app.sso.LoginStatus;
 import j.app.sso.User;
@@ -14,27 +26,11 @@ import j.log.Logger;
 import j.sys.SysConfig;
 import j.sys.SysUtil;
 import j.util.ConcurrentMap;
-import j.util.JUtilDom4j;
+import j.util.JUtilInputStream;
 import j.util.JUtilJSON;
 import j.util.JUtilMath;
 import j.util.JUtilString;
 import j.util.JUtilTimestamp;
-
-import java.sql.ResultSet;
-import java.sql.Timestamp;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 /**
  * 
@@ -296,7 +292,7 @@ public class ActionLogger extends JHandler implements Runnable {
 	 * @param session
 	 * @param request
 	 */
-	public void before(Action action, String uuid, HttpSession session,HttpServletRequest request) {
+	public void before(Action action, String uuid, JSession jsession, HttpSession session,HttpServletRequest request) {
 		if (action == null || action.isLogEnabled()==0) return;//对象为空或日志关闭
 		if(action.isLogEnabled()==-1&&!Handlers.isLoggerOn()) return;//日志未设置且默认未开启
 
@@ -350,8 +346,33 @@ public class ActionLogger extends JHandler implements Runnable {
 				pIndex++;
 			}
 		}
+		ps.append("}");
 		
-		ps.append("}}");
+		if(action.saveRequestBody()) {
+			try{
+				String requestBody=null;
+				if(jsession.getRequestBody()!=null) {
+					requestBody=jsession.getRequestBody();
+				}else {
+					requestBody=JUtilInputStream.string(request.getInputStream(), SysConfig.sysEncoding);
+				}
+				
+				if(requestBody!=null) {
+					requestBody=requestBody.trim();
+					
+					if(requestBody.startsWith("{")) {
+						ps.append(",\"requestBody\":"+requestBody);
+					}else {
+						ps.append(",\"requestBody\":{"+requestBody+"}");
+					}
+					requestBody=null;
+				}
+			}catch(Exception e) {
+				//e.printStackTrace();
+			}
+		}
+		
+		ps.append("}");
 		log.setActionParameters(ps.toString());
 		ps=null;
 		//保存参数 end

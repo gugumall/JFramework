@@ -416,7 +416,10 @@ public class Handlers implements Runnable{
 			        			//是否保存全部参数
 			        			action.setLogAllParameters(!"false".equalsIgnoreCase(logEle.attributeValue("save-all-parameters")));
 				        	}
-			        	}else{
+			        		
+		        			//是否保存Request Body
+		        			action.setSaveRequestBody("true".equalsIgnoreCase(logEle.attributeValue("save-request-body")));
+		        		}else{
 			        		action.setLogEnabled(-1);
 		        			action.setLogAllParameters(true);
 			        	}

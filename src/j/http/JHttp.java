@@ -10,11 +10,14 @@ import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -28,23 +31,29 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.conn.util.PublicSuffixMatcher;
+import org.apache.http.conn.util.PublicSuffixMatcherLoader;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.cookie.CookieSpecProvider;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -57,24 +66,32 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.impl.cookie.DefaultCookieSpecProvider;
+import org.apache.http.impl.cookie.RFC6265CookieSpecProvider;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import com.ocr.OtherDemo.Tess4J;
+
 import j.Properties;
 import j.common.Global;
+import j.common.JArray;
 import j.common.JObject;
+import j.common.JProperties;
+import j.fs.JDFSFile;
 import j.sys.AppConfig;
 import j.sys.SysUtil;
 import j.util.ConcurrentMap;
 import j.util.JUtilCompressor;
 import j.util.JUtilInputStream;
 import j.util.JUtilJSON;
-import j.util.JUtilMD5;
 import j.util.JUtilMath;
 import j.util.JUtilRandom;
 import j.util.JUtilString;
+import j.util.JUtilTimestamp;
 
 /**
  * @author 肖炯
@@ -84,14 +101,17 @@ public class JHttp{
 	public static final String default_user_agent="Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0)";
 	public static final int default_redirects=1;
 	public static final int default_retries=1;
-	public static final long default_retry_interval=3000;
+	public static final long default_retry_interval=500;
 
-	private static JHttp[] instances = new JHttp[Properties.getJHttpInstances()];
+	private static JHttp[] instances = new JHttp[JProperties.getJHttpInstances()];
 	private static ConcurrentMap configOfClients=new ConcurrentMap();
 	private PoolingHttpClientConnectionManager poolingmgr;
 	//private SSLConnectionSocketFactory factory;
-	private HttpClient[] clients = new HttpClient[Properties.getClientsOfJHttpInstance()];
+	private HttpClient[] clients = new HttpClient[JProperties.getClientsOfJHttpInstance()];
 	private CookieStore cookieStore = new BasicCookieStore();
+	private String cookieSpec=CookieSpecs.DEFAULT;
+	private boolean redirectsEnabled=true;
+	
 	
 	static {
 //		System.setProperty("jdk.tls.allowUnsafeServerCertChange", "true");
@@ -304,6 +324,30 @@ public class JHttp{
 	
 	/**
 	 * 
+	 * @param cookieSpec
+	 */
+	public void setCookieSpec(String cookieSpec) {
+		this.cookieSpec=cookieSpec;
+	}
+	
+	/**
+	 * 
+	 * @param enabled
+	 */
+	public void setRedirectsEnabled(boolean enabled) {
+		this.redirectsEnabled=enabled;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean getRedirectsEnabled() {
+		return this.redirectsEnabled;
+	}
+	
+	/**
+	 * 
 	 *
 	 */
 	public void destroy(){
@@ -325,6 +369,16 @@ public class JHttp{
 	public static RequestConfig getConfigOfClient(HttpClient client) {
 		if(configOfClients==null) return null;
 		return (RequestConfig)configOfClients.get(client.toString());
+	}
+	
+	/**
+	 * 
+	 * @param client
+	 * @param config
+	 */
+	public static void setConfigOfClient(HttpClient client, RequestConfig config) {
+		if(configOfClients==null) return;
+		configOfClients.put(client.toString(), config);
 	}
 
 	/**
@@ -356,9 +410,28 @@ public class JHttp{
 	 * @return
 	 */
 	public HttpClient createClient(int timeout, int redirects) {
-		CloseableHttpClient client = HttpClients.custom().setConnectionManager(poolingmgr).setDefaultCookieStore(cookieStore).build();
-	
-		RequestConfig requestConfig = RequestConfig.custom().setMaxRedirects(redirects).setSocketTimeout(timeout).setConnectTimeout(timeout).build();
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setCookieSpec(this.cookieSpec)
+				.setMaxRedirects(redirects)
+				.setRedirectsEnabled(getRedirectsEnabled())
+				.setRelativeRedirectsAllowed(getRedirectsEnabled())
+				.setSocketTimeout(timeout)
+				.setConnectTimeout(timeout).build();
+		
+		PublicSuffixMatcher publicSuffixMatcher = PublicSuffixMatcherLoader.getDefault();
+		Registry<CookieSpecProvider> r = RegistryBuilder.<CookieSpecProvider>create()
+		        .register(CookieSpecs.DEFAULT, new DefaultCookieSpecProvider(publicSuffixMatcher))
+		        .register(CookieSpecs.STANDARD, new RFC6265CookieSpecProvider(publicSuffixMatcher))
+		        .build();
+		
+		CloseableHttpClient client = HttpClients.custom()
+				.setConnectionManager(poolingmgr)
+		        .setDefaultCookieSpecRegistry(r)
+				.setDefaultCookieStore(cookieStore)
+				.setDefaultRequestConfig(requestConfig)
+				.setRedirectStrategy(new NoRedirectStrategy())
+				.build();
+		
 		configOfClients.put(client.toString(), requestConfig);
 		
 		return client;
@@ -385,30 +458,46 @@ public class JHttp{
 			credsProvider = new BasicCredentialsProvider();
 			credsProvider.setCredentials(AuthScope.ANY,new UsernamePasswordCredentials(username, password));
 		}
-	
-		CloseableHttpClient client = null;
-		if(credsProvider!=null) {
-			client=HttpClients.custom()
-			.setConnectionManager(poolingmgr)
-			.setDefaultCookieStore(cookieStore)
-			.setProxy(proxy)
-			.setDefaultCredentialsProvider(credsProvider).build();
-		}else {
-			client=HttpClients.custom()
-			.setConnectionManager(poolingmgr)
-			.setDefaultCookieStore(cookieStore)
-			.setProxy(proxy).build();
-		}
 		
 		int redirects=default_redirects;
 		if(JUtilMath.isInt(AppConfig.getPara("HTTP","redirects"))){
 			redirects=Integer.parseInt(AppConfig.getPara("HTTP","redirects"));
 		}
+		
 		RequestConfig requestConfig = RequestConfig.custom()
+				.setCookieSpec(this.cookieSpec)
 				.setMaxRedirects(redirects)
+				.setRedirectsEnabled(getRedirectsEnabled())
 				.setSocketTimeout(timeout)
 				.setConnectTimeout(timeout)
-				.setProxy(proxy).build();
+				.setProxy(proxy)
+				.build();
+		
+		PublicSuffixMatcher publicSuffixMatcher = PublicSuffixMatcherLoader.getDefault();
+		Registry<CookieSpecProvider> r = RegistryBuilder.<CookieSpecProvider>create()
+		        .register(CookieSpecs.DEFAULT, new DefaultCookieSpecProvider(publicSuffixMatcher))
+		        .register(CookieSpecs.STANDARD, new RFC6265CookieSpecProvider(publicSuffixMatcher))
+		        .build();
+	
+		CloseableHttpClient client = null;
+		if(credsProvider!=null) {
+			client=HttpClients.custom()
+			.setConnectionManager(poolingmgr)
+			.setDefaultCookieSpecRegistry(r)
+			.setDefaultCookieStore(cookieStore)
+			.setDefaultRequestConfig(requestConfig)
+			.setProxy(proxy)
+			.setDefaultCredentialsProvider(credsProvider)
+			.build();
+		}else {
+			client=HttpClients.custom()
+			.setConnectionManager(poolingmgr)
+			.setDefaultCookieSpecRegistry(r)
+			.setDefaultCookieStore(cookieStore)
+			.setDefaultRequestConfig(requestConfig)
+			.setProxy(proxy)
+			.build();
+		}
 		
 		configOfClients.put(client.toString(), requestConfig);
 
@@ -464,7 +553,15 @@ public class JHttp{
 		if(context==null||response==null) return;
 		
 		StatusLine status=response.getStatusLine();
-		if(status!=null) context.setStatus(status.getStatusCode());
+		if(status!=null) {
+			context.setStatus(status.getStatusCode());
+			if(HttpStatus.SC_MOVED_TEMPORARILY==status.getStatusCode()) {
+				Header header=response.getFirstHeader("Location");
+				if(header!=null) {
+	            	context.addResponseHeader(header.getName(),header.getValue());
+				}
+			}
+		}
 
         Header[] headers = response.getAllHeaders();
         if(headers!=null){
@@ -476,7 +573,12 @@ public class JHttp{
         List<Cookie> cookies=cookieStore.getCookies();
         if(cookies!=null) {
         	for(int i=0; i<cookies.size(); i++) {
-        		context.addCookie(cookies.get(i).getName(), cookies.get(i).getValue());
+        		Cookie c=cookies.get(i);
+        		context.addCookie(c.getName(), 
+        				c.getValue(),
+        				c.getVersion(),
+        				c.getDomain(),
+        				c.getPath());
         	}
         }
 	}
@@ -487,7 +589,7 @@ public class JHttp{
 	 * @param client
 	 * @param request
 	 */
-	private static void initRequest(JHttpContext context,HttpClient client,HttpRequestBase request){
+	private void initRequest(JHttpContext context,HttpClient client,HttpRequestBase request){
 		if(context==null||request==null) return;
 		context.setRequest(request);
 		
@@ -498,6 +600,29 @@ public class JHttp{
 			} else {
 				request.addHeader("User-Agent", agent);
 			}
+		}
+
+		
+		String sCookies="";
+		Map cookies=context.getCookies();
+		if(cookies!=null&&!cookies.isEmpty()){
+			for(Iterator it=cookies.keySet().iterator();it.hasNext();){
+				String name=(String)it.next();
+				JHttpCookie c=(JHttpCookie)cookies.get(name);
+				
+				if(!"".equals(sCookies)) sCookies+="; ";
+				sCookies+=name+"="+c.getValue();
+				
+				BasicClientCookie cookie = new BasicClientCookie(name, c.getValue());
+				cookie.setVersion(c.getVersion());
+				cookie.setDomain(c.getDomain());
+				cookie.setPath(c.getPath());
+				cookieStore.addCookie(cookie);
+			}
+		}
+		
+		if(!"".equals(sCookies)) {
+			context.addRequestHeader("Cookie", sCookies);
 		}
 		
 		Map headers=context.getRequestHeaders();
@@ -534,6 +659,11 @@ public class JHttp{
 					for(int i=0; i<vals.length;i++) {
 						formparams.add(new BasicNameValuePair((String)key, vals[i]));
 					}
+				}else if(val!=null && val instanceof List) {
+					List vals=(List)val;
+					for(int i=0; i<vals.size();i++) {
+						formparams.add(new BasicNameValuePair((String)key, (String)vals.get(i)));
+					}
 				}else {
 					formparams.add(new BasicNameValuePair((String)key, val==null?"":val.toString()));
 				}
@@ -568,11 +698,18 @@ public class JHttp{
 					String[] array=(String[])val;
 					for(int i=0; i<array.length; i++) {
 						if(context.getRequestEncoding()!=null&&!"".equals(context.getRequestEncoding())){
-							//System.out.println("add.........."+array[i]);
-							builder=builder.addPart((String)key, new StringBody((String)array[i],ContentType.create(context.getContentType()==null?"text/plain":context.getContentType(),Charset.forName(context.getRequestEncoding()))));
+							builder=builder.addPart((String)key, new StringBody(array[i],ContentType.create(context.getContentType()==null?"text/plain":context.getContentType(),Charset.forName(context.getRequestEncoding()))));
 						}else{
-							//System.out.println("add.x........."+array[i]);
-							builder=builder.addPart((String)key, new StringBody((String)array[i],ContentType.TEXT_PLAIN));
+							builder=builder.addPart((String)key, new StringBody(array[i],ContentType.TEXT_PLAIN));
+						}
+					}
+				}else if(val!=null && val instanceof List) {
+					List vals=(List)val;
+					for(int i=0; i<vals.size();i++) {
+						if(context.getRequestEncoding()!=null&&!"".equals(context.getRequestEncoding())){
+							builder=builder.addPart((String)key, new StringBody((String)vals.get(i),ContentType.create(context.getContentType()==null?"text/plain":context.getContentType(),Charset.forName(context.getRequestEncoding()))));
+						}else{
+							builder=builder.addPart((String)key, new StringBody((String)vals.get(i),ContentType.TEXT_PLAIN));
 						}
 					}
 				}else if(val instanceof String){	
@@ -592,10 +729,8 @@ public class JHttp{
 				Object key = keys.next();
 				Object val = strings.get(key);
 				if(context.getRequestEncoding()!=null&&!"".equals(context.getRequestEncoding())){
-					System.out.println("add.xx........."+val);
 					builder=builder.addPart((String)key, new StringBody((String)val,ContentType.create(context.getContentType()==null?"text/plain":context.getContentType(),Charset.forName(context.getRequestEncoding()))));
 				}else{
-					System.out.println("add.xxx........."+val);
 					builder=builder.addPart((String)key, new StringBody((String)val,ContentType.TEXT_PLAIN));
 				}
 			}
@@ -617,6 +752,7 @@ public class JHttp{
 	 */
 	private void execute(JHttpContext context,HttpClient client,HttpRequestBase request,String encoding,int responseType) throws Exception{
 		int retries=1;
+		
 		if(context!=null&&context.getRetries()>0){
 			retries=context.getRetries();
 		}else if(JUtilMath.isInt(AppConfig.getPara("HTTP","retries"))){
@@ -630,11 +766,13 @@ public class JHttp{
 			interval=Long.parseLong(AppConfig.getPara("HTTP","retry-interval"));
 		}
 		
+		if(retries<=0) retries=1;
 		while(retries>0){
 			retries--;
 			try{
 				doExecute(context,client,request,encoding,responseType,retries==0?true:false);
-				if(context!=null&&context.getStatus()==200) return;
+				if(context!=null
+						&&(context.getStatus()==200 || context.isErrorCodeAllowed(context.getStatus()))) return;
 				
 				Thread.sleep(interval);
 			}catch(Exception e){
@@ -663,7 +801,6 @@ public class JHttp{
 			if(config!=null) request.setConfig(config);
 			
 			HttpResponse response = client.execute(request);
-			
 			getStatusAndHeaders(context,response);
 		
 			HttpEntity entity = response.getEntity();			
@@ -971,8 +1108,7 @@ public class JHttp{
 			throw new Exception("获取网页出错（get） - "+url+" - context - "+context+" status - "+(context==null?"unknown":context.getStatus()));
 		}
 		String response=context.getResponseText();
-		context.finalize();
-		context=null;
+		context.finish();
 		
 		return response;
 	}
@@ -1007,8 +1143,7 @@ public class JHttp{
 			throw new Exception("获取网页出错（post） - "+url+" - context - "+context+" status - "+(context==null?"unknown":context.getStatus()));
 		}
 		String response=context.getResponseText();
-		context.finalize();
-		context=null;
+		context.finish();
 		
 		return response;
 	}
@@ -1135,75 +1270,289 @@ public class JHttp{
 		}
 	}
 	
+	public static String getGameDate(Timestamp time) {
+		if(time==null) time=new Timestamp(System.currentTimeMillis());
+		Timestamp line=Timestamp.valueOf(time.toString().substring(0,10)+" 07:00:00");
+		
+		if(time.getTime()>=line.getTime()) return time.toString().substring(0,10);//>=7点算当天
+		else return JUtilTimestamp.addToTime(time, -1).toString().substring(0,10);//<7点算前一天
+	}
+	
+	public static final String[] animals=new String[] {
+			"鼠",
+			"牛",
+			"虎",
+			"兔",
+			"龙",
+			"蛇",
+			"马",
+			"羊",
+			"猴",
+			"鸡",
+			"狗",
+			"猪"	};
 	
 	/**
 	 * 测试
 	 * @param args
 	 * @throws Exception
 	 */
-	public static void main(String[] args)throws Exception{
-		System.out.println(JUtilMD5.MD5EncodeToHex("1864|42.385|01|5"));
-		System.out.println(JObject.intSequence2String("jis:1x,2a,2a"));
-		
-		
-
-
-		String accessToken=getAccessToken("w.gugumall.cn","MINIPROGRAM");
-		if(accessToken!=null) {
+	public static void main(String[] args){
+		try {
 			JHttp http=JHttp.getInstance();
+			http.setRedirectsEnabled(false);
 			JHttpContext context=new JHttpContext();
-			
-//			{
-//				"third_cat_id": 6052,
-//				"third_cat_name": "男式内裤",
-//				"qualification": "",
-//				"qualification_type": 0,
-//				"product_qualification": "",
-//				"product_qualification_type": 0,
-//				"first_cat_id": 6033,
-//				"first_cat_name": "服饰内衣",
-//				"second_cat_id": 6034,
-//				"second_cat_name": "内衣"
-//			}
-			
-//			{
-//			    "audit_req":
-//			    {
-//			        "license": "www.xxxxx.com",
-//			        "category_info":
-//			        {
-//				        "level1": 7419, // 一级类目
-//				        "level2": 7439, // 二级类目
-//				        "level3": 7448, // 三级类目
-//				        "certificate": "www.xxx.com" // 资质材料
-//			        }
-//			    }
-//			}
-			
-			StringBuffer params=new StringBuffer();
-			params.append("{\"audit_req\":{");
-			params.append("\"license\":\"\"");
-			params.append(",\"category_info\":{");
-			params.append("\"level1\":6033");
-			params.append(",\"level2\":6034");
-			params.append(",\"level3\":6052");
-			params.append(",\"certificate\":\"\"");
-			params.append("}");
-			params.append("}}");
-			
-			for(int i=17; i<=45; i++) {
-			
-				context.setRequestBody("{\"out_product_id\": \""+i+"\"}");
-				
-				//String s=http.postResponse(context, null, "https://api.weixin.qq.com/product/brand/get?access_token="+accessToken,null);
-				//String s=http.postResponse(context, null, "https://api.weixin.qq.com/shop/register/check?access_token="+accessToken,null);
-				//String s=http.postResponse(context, null, "https://api.weixin.qq.com/shop/audit/audit_category?access_token="+accessToken,null);
-				String s=http.postResponse(context, null, "https://api.weixin.qq.com/shop/spu/del?access_token="+accessToken,null);
+			context.setAllowedErrorCodes(new String[] {"200","301","302"});
+			context.setClearRequestHeadersOnFinish(false);
+			HttpClient client=http.createClient();
 
-				System.out.println(s);
+			String uid="kk6355c1";
+			String url="http://lqb.ck67890.com/";
+			if(!url.endsWith("/")) url+="/";
+			System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 尝试登录X2，使用线路：\r\n"+url);
+			
+			String dir=System.getProperty("user.dir");
+			http=JHttp.getInstance("F:\\work\\JFramework_v2.0\\config\\server.jks","20081016");
+
+			
+			context.addRequestHeader("User-Agent", "mozilla/5.0 (windows nt 10.0; win64; x64) applewebkit/537.36 (khtml, like gecko) chrome/90.0.4430.93 safari/537.36");
+			context.addRequestHeader("Upgrade-Insecure-Request", "1");
+
+			String resp=http.getResponse(context, client, url+"member/login");
+			if(resp.indexOf("id=\"userAuth\" value=\"")<0) {
+				System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 未获得userAuth -> \r\n"+resp);
+				System.exit(0);
 			}
+			
+			int start=resp.indexOf("id=\"userAuth\" value=\"")+"id=\"userAuth\" value=\"".length();
+			int end=resp.indexOf("\"", start);
+			String userAuth=resp.substring(start, end);
+			
+			String captcha=null;
+			if(resp.indexOf("name=\"captcha\"")>0) {//需要验证码
+				System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 破解验证码......");
+				String code="";
+				String codeSavedPath="f:/temp/cache/"+uid+"_code.jpg";
+				for(int i=0; i<10; i++) {
+					context.addRequestHeader("Referer", url+"member/login");
+					http.getStream(context, client, url+"captcha?tz="+(new Random()).nextDouble());
+					//System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 破解验证码 -> "+resp);
+					
+					JDFSFile.saveStream(context.getResponseStream(), codeSavedPath);
+					
+					try {Thread.sleep(100);}catch(Exception e) {}
+
+			        //OCR识别
+			        code = Tess4J.doOCR(codeSavedPath);
+					System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 破解验证码 -> "+code);
+			        
+			        code=JUtilString.replaceAll(code, " ", "");
+			        code=JUtilString.replaceAll(code, "\t", "");
+			        code=JUtilString.replaceAll(code, "\r", "");
+			        code=JUtilString.replaceAll(code, "\n", "");
+			        code=JUtilString.replaceAll(code, "\b", "");
+			        code=JUtilString.replaceAll(code, ",", "");
+			        code=JUtilString.replaceAll(code, ".", "");
+			        code=JUtilString.replaceAll(code, ")", "");
+			        code=JUtilString.replaceAll(code, "(", "");
+			        code=JUtilString.replaceAll(code, "[", "");
+			        code=JUtilString.replaceAll(code, "]", "");
+			        code=JUtilString.replaceAll(code, "‘", "");
+			        
+			        //成功识别
+			        if(code.length()==4&&JUtilMath.isInt(code)) {
+						System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 成功识别验证码："+code);
+			        }else {
+			        	captcha=null;
+			        }
+				}
+				
+				if(captcha==null) {
+					System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 成功破解失败！");
+					System.exit(0);
+				}
+			}
+			
+			Map paras=new HashMap();
+			paras.put("userAuth",userAuth);
+			paras.put("username",uid);
+			paras.put("password","As222222");
+			paras.put("x","26");
+			paras.put("y","36");
+	
+			resp=http.postResponse(context, client, url+"member/login", paras, "UTF-8");
+			String Location=context.getResponseHeader("Location");
+			if(Location==null || "".equals(Location)) Location=url+"member/welcome";
+			
+			resp=http.getResponse(context, client, Location, "UTF-8");			
+			if(resp.indexOf("同意")<0) {
+				System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 未正确获取用户条款页面 -> \r\n"+resp);
+				System.exit(0);
+			}
+
+			resp=http.getResponse(context, client, url+"member/", "UTF-8");
+			if(resp.indexOf("src=\"/member/top\"")<0) {
+				System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 登入失败 -> \r\n"+resp);
+				System.exit(0);
+			}else {
+				System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 登入成功！");
+			}
+			
+			//赔率
+			Map<String, String> odds=new HashMap();
+			for(int i=2; i<=5; i++) {
+				resp=http.getResponse(context, client, url+"realtime/shengxiaolian/"+(i-1)+"?_="+System.currentTimeMillis(), "UTF-8");
+				resp=JUtilString.decodeUnicode(resp);
+				
+				JSONObject _json=JUtilJSON.parse(resp);
+				JSONObject _data=JUtilJSON.object(_json, "data");
+				JSONObject _odds=JUtilJSON.object(_data, "odds");
+				if(_odds==null) {
+					System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 获取赔率"+i+"失败 -> \r\n"+resp);
+					System.exit(0);
+				}
+				
+				System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+i+"连肖赔率 -> "+_odds);
+				odds.put("string-"+i,_odds.toString());
+			}
+			
+			
+			//模拟下注件注单
+			List<Betting> bettings=new ArrayList();
+			Betting b1=new Betting();
+			b1.typeCode="MultiAnimals_2In7";
+			b1.selectUuid="MultiAnimals_2In7_Gou";
+			b1.sContent="jis:3f,y,2r,33,32,38,2t,32,38,y,1m,y,mon,18,mqy,y,18,y,2r,33,39,32,38,y,1m,y,1d,y,18,y,2x,32,3a,2p,30,2x,2s,1v,33,2s,2t,y,1m,y,32,39,30,30,y,18,y,2x,32,3a,2p,30,2x,2s,25,37,2v,y,1m,y,32,39,30,30,y,18,y,31,39,30,38,2x,28,33,37,37,2x,2q,2x,30,2x,38,2x,2t,37,y,1m,y,1y,y,18,y,37,2t,30,2t,2r,38,37,y,1m,2j,2l,3h";
+			
+			Betting b2=new Betting();
+			b2.typeCode="MultiAnimals_2In7";
+			b2.selectUuid="MultiAnimals_2In7_Zhu";
+			b2.sContent="jis:3f,y,2r,33,32,38,2t,32,38,y,1m,y,mqy,18,v8h,y,18,y,2r,33,39,32,38,y,1m,y,1d,y,18,y,2x,32,3a,2p,30,2x,2s,1v,33,2s,2t,y,1m,y,32,39,30,30,y,18,y,2x,32,3a,2p,30,2x,2s,25,37,2v,y,1m,y,32,39,30,30,y,18,y,31,39,30,38,2x,28,33,37,37,2x,2q,2x,30,2x,38,2x,2t,37,y,1m,y,1y,y,18,y,37,2t,30,2t,2r,38,37,y,1m,2j,2l,3h";
+			
+			Betting b3=new Betting();
+			b3.typeCode="MultiAnimals_2In7";
+			b3.selectUuid="MultiAnimals_2In7_Gou";
+			b3.sContent="jis:3f,y,2r,33,32,38,2t,32,38,y,1m,y,mon,18,v8h,y,18,y,2r,33,39,32,38,y,1m,y,1d,y,18,y,2x,32,3a,2p,30,2x,2s,1v,33,2s,2t,y,1m,y,32,39,30,30,y,18,y,2x,32,3a,2p,30,2x,2s,25,37,2v,y,1m,y,32,39,30,30,y,18,y,31,39,30,38,2x,28,33,37,37,2x,2q,2x,30,2x,38,2x,2t,37,y,1m,y,1y,y,18,y,37,2t,30,2t,2r,38,37,y,1m,2j,2l,3h";
+			
+			b1.betMoney=3;
+			b2.betMoney=3;
+			b3.betMoney=3;
+			
+			bettings.add(b1);
+			bettings.add(b2);
+			bettings.add(b3);
+			
+			Betting b0=null;
+			double amount=0;
+			List<String> groups=new ArrayList();
+			List<String> balls=new ArrayList();
+			List<String> _odds=new ArrayList();
+			
+			for(int i=0; i<bettings.size(); i++) {
+				Betting b=bettings.get(i);
+				if(!b.typeCode.startsWith("MultiAnimals_")) {
+					continue;
+				}
+				
+				long betMoney=Math.round(b.betMoney);
+				if(betMoney < 2) {
+					//return new TransferResult(true, "success", "小于最小单注，忽略该注单。","");
+					continue;
+				}
+				
+				JSONObject sContent=JUtilJSON.parse(JObject.intSequence2String(b.sContent));
+				String content=JUtilJSON.string(sContent, "content");
+				if(content==null) continue;
+				
+				b0=b;
+				
+				break;
+			}
+			
+			JSONObject _oddsString=null;
+			if(b0.typeCode.equals("MultiAnimals_2In7")) _oddsString=JUtilJSON.parse(odds.get("string-2"));
+			if(b0.typeCode.equals("MultiAnimals_3In7")) _oddsString=JUtilJSON.parse(odds.get("string-3"));
+			if(b0.typeCode.equals("MultiAnimals_4In7")) _oddsString=JUtilJSON.parse(odds.get("string-4"));
+			if(b0.typeCode.equals("MultiAnimals_5In7")) _oddsString=JUtilJSON.parse(odds.get("string-5"));
+			
+			for(int i=0; i<bettings.size(); i++) {
+				Betting b=bettings.get(i);
+				if(!b.typeCode.startsWith("MultiAnimals_")) {
+					continue;
+				}
+				
+				long betMoney=Math.round(b.betMoney);
+				if(betMoney < 2) {
+					//return new TransferResult(true, "success", "小于最小单注，忽略该注单。","");
+					continue;
+				}
+				
+				JSONObject sContent=JUtilJSON.parse(JObject.intSequence2String(b.sContent));
+				String content=JUtilJSON.string(sContent, "content");
+				if(content==null) continue;
+				
+				String[] choices=content.split(",");
+				List<String> _choices=new ArrayList();//按生肖顺序排列
+				for(int j=0; j<animals.length; j++) {
+					if(JUtilString.contain(choices, animals[j])) {
+						_choices.add(animals[j]);
+						if(!balls.contains(animals[j])) {
+							balls.add(animals[j]);
+						}
+					}
+				}
+				
+				//转繁体
+				for(int c=0; c<_choices.size(); c++) {
+					_choices.set(c, JUtilString.toZhTw(_choices.get(c)));
+				}
+				
+				String __choices=JArray.toString(_choices,",");
+				System.out.println("__choices -> "+__choices);
+				
+				String minOdds="0";
+				for(int j=0; j<_choices.size(); j++) {
+					String thisOdds=JUtilJSON.string(_oddsString, _choices.get(j));
+					if(Double.parseDouble(minOdds)<0.01
+							||Double.parseDouble(minOdds)>Double.parseDouble(thisOdds)) {
+						minOdds=thisOdds;
+					}
+				}
+				
+				groups.add(__choices+"|"+minOdds);
+				_odds.add(minOdds);
+				
+				amount+=betMoney;
+			}
+			for(int c=0; c<balls.size(); c++) {
+				balls.set(c, JUtilString.toZhTw(balls.get(c)));
+			}
+			
+			System.out.println("groups -> "+JArray.toString(groups," * "));
+			System.out.println("count -> "+groups.size());
+			System.out.println("amount -> "+Math.round(amount));
+			System.out.println("single_amount -> "+Math.round(b0.betMoney));
+			System.out.println("balls -> "+JArray.toString(balls,","));
+			System.out.println("odds -> "+JArray.toString(_odds,","));
+			
+			context.setRequestEncoding("UTF-8");
+			Map params=new HashMap();
+			params.put("groups[]",groups);
+			params.put("count",groups.size()+"");	
+			params.put("amount", ""+Math.round(amount));
+			params.put("single_amount", ""+Math.round(b0.betMoney));
+			params.put("balls",JArray.toString(balls,","));
+			params.put("odds",JArray.toString(_odds,","));
+			
+			resp=http.postResponse(context, client, url+"member/shengxiaolian/fushi", params, "UTF-8");
+			
+			System.out.println("模拟下注 -> "+resp);
+			
+			System.exit(0);
+		}catch(Exception e) {
+			System.out.println(SysUtil.getException(e));
+			e.printStackTrace();
+			System.exit(0);
 		}
-		
-		System.exit(0);
 	}
 }

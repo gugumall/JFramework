@@ -20,6 +20,7 @@ public class Action{
 	private Map navigates;//返回地址,key condition,value Navigate（根据业务处理类的处理结果来决定返回那个地址）
 	private int logEnabled=-1;//-1，默认；0，关闭；1，开启
 	private boolean logAllParameters=false;
+	private boolean saveRequestBody=false;
 	private boolean isBrowserOnly=false;
 	private List logParams;
 	
@@ -73,6 +74,10 @@ public class Action{
 		return this.logAllParameters;
 	}
 	
+	public boolean saveRequestBody() {
+		return this.saveRequestBody;
+	}
+	
 	public List getLogParams(){
 		return this.logParams;
 	}
@@ -118,6 +123,10 @@ public class Action{
 	
 	public void setLogAllParameters(boolean logAllParameters){
 		this.logAllParameters=logAllParameters;
+	}
+	
+	public void setSaveRequestBody(boolean saveRequestBody) {
+		this.saveRequestBody=saveRequestBody;
 	}
 	
 	public void addLogParam(String logParam){

@@ -93,11 +93,11 @@ public class FileReplace {
 //			end=s.indexOf("\"",start);
 //		}
 		
-		File dir=new File("F:\\work\\JShop_v2.1\\WebContent\\WEB-INF\\pages");
+		File dir=new File("D:\\work\\JFighting\\src");
 		replace(dir,
-				"商城专区",
-				"群店",
-				".jsp");
+				"肖炯",
+				"恭喜发财",
+				".java");
 		
 //		rotate(new File("D:\\176\\10.4 桃江一中 活动\\形象照\\temp"),180,".jpg");
 		

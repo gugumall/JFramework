@@ -24,12 +24,11 @@ public class JHttpContext {
 	private String requestEncoding;
 	private Map requestHeaders;
 	private Map responseHeaders;
-	private Map cookies;
+	private Map<String, JHttpCookie> cookies;
 	private int retries;
 	private long retryInterval;
 	private String requestBody=null;
-	
-	private String sessionId="";
+	private boolean clearRequestHeadersOnFinish=true;
 
 	/**
 	 * 
@@ -43,6 +42,17 @@ public class JHttpContext {
 		retryInterval=0;
 		
 		requestHeaders.put("Accept-Encoding", "gzip, deflate");
+	}
+	
+	/**
+	 * 
+	 */
+	public JHttpContext clone() {
+		JHttpContext c=new JHttpContext();
+		c.addResponseHeaders(this.getResponseHeaders());
+		c.addCookies(this.getCookies());
+		c.setClearRequestHeadersOnFinish(this.clearRequestHeadersOnFinish);
+		return c;
 	}
 	
 	/**
@@ -204,6 +214,14 @@ public class JHttpContext {
 
 	/**
 	 * 
+	 * @param hs
+	 */
+	public void addRequestHeaders(Map hs) {
+		this.requestHeaders.putAll(hs);
+	}
+
+	/**
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -240,6 +258,14 @@ public class JHttpContext {
 
 	/**
 	 * 
+	 * @param hs
+	 */
+	public void addResponseHeaders(Map hs) {
+		this.responseHeaders.putAll(hs);
+	}
+
+	/**
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -252,9 +278,21 @@ public class JHttpContext {
 	 * 
 	 * @param name
 	 * @param value
+	 * @param version
+	 * @param domain
+	 * @param path
 	 */
-	public void addCookie(String name, String value) {
-		this.cookies.put(name.toLowerCase(), value);
+	public void addCookie(String name, String value, int version, String domain, String path) {
+		this.cookies.put(name.toLowerCase(), new JHttpCookie(name.toLowerCase(), value, version, domain, path));
+	}
+
+
+	/**
+	 * 
+	 * @param cs
+	 */
+	public void addCookies(Map cs) {
+		this.cookies.putAll(cs);
 	}
 
 	/**
@@ -262,8 +300,24 @@ public class JHttpContext {
 	 * @param name
 	 * @return
 	 */
-	public String getCookie(String name) {
-		return (String)this.cookies.get(name.toLowerCase());
+	public JHttpCookie getCookie(String name) {
+		return this.cookies.get(name.toLowerCase());
+	}
+
+	/**
+	 * 
+	 *
+	 */
+	public void clearCookies() {
+		this.cookies.clear();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Map getCookies() {
+		return this.cookies;
 	}
 	
 	/**
@@ -271,7 +325,8 @@ public class JHttpContext {
 	 * @return
 	 */
 	public String getSessionId() {
-		return getCookie("JSESSIONID");
+		JHttpCookie c=getCookie("JSESSIONID");
+		return c==null?null:c.getValue();
 	}
 
 	/**
@@ -306,6 +361,38 @@ public class JHttpContext {
 		return this.requestBody;
 	}
 	
+	/**
+	 * 
+	 * @param clearRequestHeadersOnFinish
+	 */
+	public void setClearRequestHeadersOnFinish(boolean clearRequestHeadersOnFinish) {
+		this.clearRequestHeadersOnFinish=clearRequestHeadersOnFinish;
+	}
+	
+	/**
+	 * 
+	 */
+	public void finish(){
+		if(responseStream!=null){
+		
+		}
+		if(request!=null){
+			
+		}
+		
+		if(responseText!=null){
+			responseText=null;
+		}
+		
+		if(requestBody!=null){
+			requestBody=null;
+		}
+		
+		if(this.clearRequestHeadersOnFinish) {
+			clearRequestHeader();
+		}
+	}
+	
 	
 	/**
 	 * 
@@ -330,6 +417,7 @@ public class JHttpContext {
 		}
 		clearRequestHeader();
 		clearResponseHeader();
+		clearCookies();
 	}
 	
 	/*
@@ -338,14 +426,23 @@ public class JHttpContext {
 	 */
 	public void finalize(){
 		if(responseStream!=null){
-//			try{
-//				responseStream.close();
-//			}catch(Exception e){}
-//			responseStream=null;
+			try{
+				responseStream.close();
+			}catch(Exception e){}
+			responseStream=null;
+		}
+		if(request!=null){
+			try{
+				request.releaseConnection();
+				request.abort();
+			}catch(Exception e){}
+			request=null;
 		}
 		if(responseText!=null){
 			responseText=null;
 		}
-		requestHeaders.clear();
+		clearRequestHeader();
+		clearResponseHeader();
+		clearCookies();
 	}
 }

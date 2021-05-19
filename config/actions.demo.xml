@@ -8,7 +8,10 @@
     		</log>
     	</action>
     	<action name="测试2" id="test2" method="test22">
-        	<log save-all-parameters="true"></log>
+        	<log save-all-parameters="true" save-request-body="false">
+        		<p>name</p>
+        		<p>id</p>
+        	</log>
 			<navigate condition="ok" type="forward">/demo/ok.jsp</navigate>
 			<navigate condition="err" type="redirect">/demo/err.jsp</navigate>
     	</action> 

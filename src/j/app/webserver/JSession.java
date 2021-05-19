@@ -20,11 +20,31 @@ public class JSession {
 	
 	private boolean isBackToGlobalNavigation=false;//是否根据全局导航配置进行跳转（而不是按对应<request>中定义的）
 	
+	/**
+	 * 
+	 */
+	private String requestBody=null;
+	
 	JSession(Action action){
 		this.action=action;
 	}
 	
 
+	/**
+	 * 
+	 * @param requestBody
+	 */
+	public void setRequestBody(String requestBody) {
+		this.requestBody=requestBody;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getRequestBody() {
+		return this.requestBody;
+	}
 	
 	/**
 	 * 动态设置返回URL
