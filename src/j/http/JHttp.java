@@ -13,11 +13,9 @@ import java.security.KeyStore;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -25,8 +23,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -72,22 +68,14 @@ import org.apache.http.impl.cookie.RFC6265CookieSpecProvider;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
 
-import com.ocr.OtherDemo.Tess4J;
-
-import j.Properties;
 import j.common.Global;
-import j.common.JArray;
-import j.common.JObject;
 import j.common.JProperties;
-import j.fs.JDFSFile;
 import j.sys.AppConfig;
 import j.sys.SysUtil;
 import j.util.ConcurrentMap;
 import j.util.JUtilCompressor;
 import j.util.JUtilInputStream;
-import j.util.JUtilJSON;
 import j.util.JUtilMath;
 import j.util.JUtilRandom;
 import j.util.JUtilString;
@@ -138,7 +126,7 @@ public class JHttp{
 			JHttp jhttp =instances[random];
 			if(jhttp==null){
 				try{
-					jhttp = createSelfSigned(Properties.getConfigPath()+"/server.jks","20081016",new String[] {"SSLv3","TLSv1","TLSv1.1","TLSv1.2"});
+					jhttp = createSelfSigned(JProperties.getConfigPath()+"/server.jks","20081016",new String[] {"SSLv3","TLSv1","TLSv1.1","TLSv1.2"});
 					
 					instances[random]=jhttp;
 				}catch(Exception e){
@@ -1226,50 +1214,6 @@ public class JHttp{
 	}
 	
 	
-	/**
-	 * 
-	 * @param sellerId
-	 * @param data
-	 * @return
-	 */
-	private static String getDatadigest(String sellerId, String data) {
-		System.out.println(data);
-		data+="31ada638f569948c3799b7ea5266f922";
-		
-		byte[] bytes=null;
-		try {
-			bytes=data.getBytes("UTF-8");
-		}catch(Exception e) {}
-		
-		return Base64.encodeBase64String(DigestUtils.md5(bytes));
-	}
-	
-	public static String getAccessToken(String mainDomain,String loginVia)throws Exception{
-		String key="WEIXIN.AccessTokens."+mainDomain+"."+loginVia;
-		synchronized(key.intern()) {
-			
-			
-			//参数配置文件中，参数AccessTokenUrl2表示基础接口地址：
-			//https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=SECRET
-			String url="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=SECRET";
-			url=url.replaceAll("APPID", "wxd381a7a449e1f7f7");
-			url=url.replaceAll("SECRET", "b0ace945a397b737b5ba3217b64432a0");
-	
-			String response=JHttp.getInstance().getResponse(null, null, url);
-			//System.out.println("getAccessToken:"+response);
-			
-			JSONObject resp=JUtilJSON.parse(response);
-			long expires_in=3600000;
-			String acessToken=JUtilJSON.string(resp, "access_token");
-			String _expires_in=JUtilJSON.string(resp, "expires_in");
-			if(JUtilMath.isLong(_expires_in) && Long.parseLong(_expires_in)>0) {
-				expires_in=Long.parseLong(_expires_in)*1000;
-			}
-			
-			return acessToken;
-		}
-	}
-	
 	public static String getGameDate(Timestamp time) {
 		if(time==null) time=new Timestamp(System.currentTimeMillis());
 		Timestamp line=Timestamp.valueOf(time.toString().substring(0,10)+" 07:00:00");
@@ -1277,20 +1221,6 @@ public class JHttp{
 		if(time.getTime()>=line.getTime()) return time.toString().substring(0,10);//>=7点算当天
 		else return JUtilTimestamp.addToTime(time, -1).toString().substring(0,10);//<7点算前一天
 	}
-	
-	public static final String[] animals=new String[] {
-			"鼠",
-			"牛",
-			"虎",
-			"兔",
-			"龙",
-			"蛇",
-			"马",
-			"羊",
-			"猴",
-			"鸡",
-			"狗",
-			"猪"	};
 	
 	/**
 	 * 测试
@@ -1304,249 +1234,9 @@ public class JHttp{
 			JHttpContext context=new JHttpContext();
 			context.setAllowedErrorCodes(new String[] {"200","301","302"});
 			context.setClearRequestHeadersOnFinish(false);
-			HttpClient client=http.createClient();
+			//HttpClient client=http.createClient();
 
-			String uid="kk6355c1";
-			String url="http://lqb.ck67890.com/";
-			if(!url.endsWith("/")) url+="/";
-			System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 尝试登录X2，使用线路：\r\n"+url);
-			
-			String dir=System.getProperty("user.dir");
-			http=JHttp.getInstance("F:\\work\\JFramework_v2.0\\config\\server.jks","20081016");
 
-			
-			context.addRequestHeader("User-Agent", "mozilla/5.0 (windows nt 10.0; win64; x64) applewebkit/537.36 (khtml, like gecko) chrome/90.0.4430.93 safari/537.36");
-			context.addRequestHeader("Upgrade-Insecure-Request", "1");
-
-			String resp=http.getResponse(context, client, url+"member/login");
-			if(resp.indexOf("id=\"userAuth\" value=\"")<0) {
-				System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 未获得userAuth -> \r\n"+resp);
-				System.exit(0);
-			}
-			
-			int start=resp.indexOf("id=\"userAuth\" value=\"")+"id=\"userAuth\" value=\"".length();
-			int end=resp.indexOf("\"", start);
-			String userAuth=resp.substring(start, end);
-			
-			String captcha=null;
-			if(resp.indexOf("name=\"captcha\"")>0) {//需要验证码
-				System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 破解验证码......");
-				String code="";
-				String codeSavedPath="f:/temp/cache/"+uid+"_code.jpg";
-				for(int i=0; i<10; i++) {
-					context.addRequestHeader("Referer", url+"member/login");
-					http.getStream(context, client, url+"captcha?tz="+(new Random()).nextDouble());
-					//System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 破解验证码 -> "+resp);
-					
-					JDFSFile.saveStream(context.getResponseStream(), codeSavedPath);
-					
-					try {Thread.sleep(100);}catch(Exception e) {}
-
-			        //OCR识别
-			        code = Tess4J.doOCR(codeSavedPath);
-					System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 破解验证码 -> "+code);
-			        
-			        code=JUtilString.replaceAll(code, " ", "");
-			        code=JUtilString.replaceAll(code, "\t", "");
-			        code=JUtilString.replaceAll(code, "\r", "");
-			        code=JUtilString.replaceAll(code, "\n", "");
-			        code=JUtilString.replaceAll(code, "\b", "");
-			        code=JUtilString.replaceAll(code, ",", "");
-			        code=JUtilString.replaceAll(code, ".", "");
-			        code=JUtilString.replaceAll(code, ")", "");
-			        code=JUtilString.replaceAll(code, "(", "");
-			        code=JUtilString.replaceAll(code, "[", "");
-			        code=JUtilString.replaceAll(code, "]", "");
-			        code=JUtilString.replaceAll(code, "‘", "");
-			        
-			        //成功识别
-			        if(code.length()==4&&JUtilMath.isInt(code)) {
-						System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 成功识别验证码："+code);
-			        }else {
-			        	captcha=null;
-			        }
-				}
-				
-				if(captcha==null) {
-					System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 成功破解失败！");
-					System.exit(0);
-				}
-			}
-			
-			Map paras=new HashMap();
-			paras.put("userAuth",userAuth);
-			paras.put("username",uid);
-			paras.put("password","As222222");
-			paras.put("x","26");
-			paras.put("y","36");
-	
-			resp=http.postResponse(context, client, url+"member/login", paras, "UTF-8");
-			String Location=context.getResponseHeader("Location");
-			if(Location==null || "".equals(Location)) Location=url+"member/welcome";
-			
-			resp=http.getResponse(context, client, Location, "UTF-8");			
-			if(resp.indexOf("同意")<0) {
-				System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 未正确获取用户条款页面 -> \r\n"+resp);
-				System.exit(0);
-			}
-
-			resp=http.getResponse(context, client, url+"member/", "UTF-8");
-			if(resp.indexOf("src=\"/member/top\"")<0) {
-				System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 登入失败 -> \r\n"+resp);
-				System.exit(0);
-			}else {
-				System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 登入成功！");
-			}
-			
-			//赔率
-			Map<String, String> odds=new HashMap();
-			for(int i=2; i<=5; i++) {
-				resp=http.getResponse(context, client, url+"realtime/shengxiaolian/"+(i-1)+"?_="+System.currentTimeMillis(), "UTF-8");
-				resp=JUtilString.decodeUnicode(resp);
-				
-				JSONObject _json=JUtilJSON.parse(resp);
-				JSONObject _data=JUtilJSON.object(_json, "data");
-				JSONObject _odds=JUtilJSON.object(_data, "odds");
-				if(_odds==null) {
-					System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+"["+uid+"] 获取赔率"+i+"失败 -> \r\n"+resp);
-					System.exit(0);
-				}
-				
-				System.out.println((new java.sql.Timestamp(System.currentTimeMillis()))+" -> "+i+"连肖赔率 -> "+_odds);
-				odds.put("string-"+i,_odds.toString());
-			}
-			
-			
-			//模拟下注件注单
-			List<Betting> bettings=new ArrayList();
-			Betting b1=new Betting();
-			b1.typeCode="MultiAnimals_2In7";
-			b1.selectUuid="MultiAnimals_2In7_Gou";
-			b1.sContent="jis:3f,y,2r,33,32,38,2t,32,38,y,1m,y,mon,18,mqy,y,18,y,2r,33,39,32,38,y,1m,y,1d,y,18,y,2x,32,3a,2p,30,2x,2s,1v,33,2s,2t,y,1m,y,32,39,30,30,y,18,y,2x,32,3a,2p,30,2x,2s,25,37,2v,y,1m,y,32,39,30,30,y,18,y,31,39,30,38,2x,28,33,37,37,2x,2q,2x,30,2x,38,2x,2t,37,y,1m,y,1y,y,18,y,37,2t,30,2t,2r,38,37,y,1m,2j,2l,3h";
-			
-			Betting b2=new Betting();
-			b2.typeCode="MultiAnimals_2In7";
-			b2.selectUuid="MultiAnimals_2In7_Zhu";
-			b2.sContent="jis:3f,y,2r,33,32,38,2t,32,38,y,1m,y,mqy,18,v8h,y,18,y,2r,33,39,32,38,y,1m,y,1d,y,18,y,2x,32,3a,2p,30,2x,2s,1v,33,2s,2t,y,1m,y,32,39,30,30,y,18,y,2x,32,3a,2p,30,2x,2s,25,37,2v,y,1m,y,32,39,30,30,y,18,y,31,39,30,38,2x,28,33,37,37,2x,2q,2x,30,2x,38,2x,2t,37,y,1m,y,1y,y,18,y,37,2t,30,2t,2r,38,37,y,1m,2j,2l,3h";
-			
-			Betting b3=new Betting();
-			b3.typeCode="MultiAnimals_2In7";
-			b3.selectUuid="MultiAnimals_2In7_Gou";
-			b3.sContent="jis:3f,y,2r,33,32,38,2t,32,38,y,1m,y,mon,18,v8h,y,18,y,2r,33,39,32,38,y,1m,y,1d,y,18,y,2x,32,3a,2p,30,2x,2s,1v,33,2s,2t,y,1m,y,32,39,30,30,y,18,y,2x,32,3a,2p,30,2x,2s,25,37,2v,y,1m,y,32,39,30,30,y,18,y,31,39,30,38,2x,28,33,37,37,2x,2q,2x,30,2x,38,2x,2t,37,y,1m,y,1y,y,18,y,37,2t,30,2t,2r,38,37,y,1m,2j,2l,3h";
-			
-			b1.betMoney=3;
-			b2.betMoney=3;
-			b3.betMoney=3;
-			
-			bettings.add(b1);
-			bettings.add(b2);
-			bettings.add(b3);
-			
-			Betting b0=null;
-			double amount=0;
-			List<String> groups=new ArrayList();
-			List<String> balls=new ArrayList();
-			List<String> _odds=new ArrayList();
-			
-			for(int i=0; i<bettings.size(); i++) {
-				Betting b=bettings.get(i);
-				if(!b.typeCode.startsWith("MultiAnimals_")) {
-					continue;
-				}
-				
-				long betMoney=Math.round(b.betMoney);
-				if(betMoney < 2) {
-					//return new TransferResult(true, "success", "小于最小单注，忽略该注单。","");
-					continue;
-				}
-				
-				JSONObject sContent=JUtilJSON.parse(JObject.intSequence2String(b.sContent));
-				String content=JUtilJSON.string(sContent, "content");
-				if(content==null) continue;
-				
-				b0=b;
-				
-				break;
-			}
-			
-			JSONObject _oddsString=null;
-			if(b0.typeCode.equals("MultiAnimals_2In7")) _oddsString=JUtilJSON.parse(odds.get("string-2"));
-			if(b0.typeCode.equals("MultiAnimals_3In7")) _oddsString=JUtilJSON.parse(odds.get("string-3"));
-			if(b0.typeCode.equals("MultiAnimals_4In7")) _oddsString=JUtilJSON.parse(odds.get("string-4"));
-			if(b0.typeCode.equals("MultiAnimals_5In7")) _oddsString=JUtilJSON.parse(odds.get("string-5"));
-			
-			for(int i=0; i<bettings.size(); i++) {
-				Betting b=bettings.get(i);
-				if(!b.typeCode.startsWith("MultiAnimals_")) {
-					continue;
-				}
-				
-				long betMoney=Math.round(b.betMoney);
-				if(betMoney < 2) {
-					//return new TransferResult(true, "success", "小于最小单注，忽略该注单。","");
-					continue;
-				}
-				
-				JSONObject sContent=JUtilJSON.parse(JObject.intSequence2String(b.sContent));
-				String content=JUtilJSON.string(sContent, "content");
-				if(content==null) continue;
-				
-				String[] choices=content.split(",");
-				List<String> _choices=new ArrayList();//按生肖顺序排列
-				for(int j=0; j<animals.length; j++) {
-					if(JUtilString.contain(choices, animals[j])) {
-						_choices.add(animals[j]);
-						if(!balls.contains(animals[j])) {
-							balls.add(animals[j]);
-						}
-					}
-				}
-				
-				//转繁体
-				for(int c=0; c<_choices.size(); c++) {
-					_choices.set(c, JUtilString.toZhTw(_choices.get(c)));
-				}
-				
-				String __choices=JArray.toString(_choices,",");
-				System.out.println("__choices -> "+__choices);
-				
-				String minOdds="0";
-				for(int j=0; j<_choices.size(); j++) {
-					String thisOdds=JUtilJSON.string(_oddsString, _choices.get(j));
-					if(Double.parseDouble(minOdds)<0.01
-							||Double.parseDouble(minOdds)>Double.parseDouble(thisOdds)) {
-						minOdds=thisOdds;
-					}
-				}
-				
-				groups.add(__choices+"|"+minOdds);
-				_odds.add(minOdds);
-				
-				amount+=betMoney;
-			}
-			for(int c=0; c<balls.size(); c++) {
-				balls.set(c, JUtilString.toZhTw(balls.get(c)));
-			}
-			
-			System.out.println("groups -> "+JArray.toString(groups," * "));
-			System.out.println("count -> "+groups.size());
-			System.out.println("amount -> "+Math.round(amount));
-			System.out.println("single_amount -> "+Math.round(b0.betMoney));
-			System.out.println("balls -> "+JArray.toString(balls,","));
-			System.out.println("odds -> "+JArray.toString(_odds,","));
-			
-			context.setRequestEncoding("UTF-8");
-			Map params=new HashMap();
-			params.put("groups[]",groups);
-			params.put("count",groups.size()+"");	
-			params.put("amount", ""+Math.round(amount));
-			params.put("single_amount", ""+Math.round(b0.betMoney));
-			params.put("balls",JArray.toString(balls,","));
-			params.put("odds",JArray.toString(_odds,","));
-			
-			resp=http.postResponse(context, client, url+"member/shengxiaolian/fushi", params, "UTF-8");
-			
-			System.out.println("模拟下注 -> "+resp);
 			
 			System.exit(0);
 		}catch(Exception e) {

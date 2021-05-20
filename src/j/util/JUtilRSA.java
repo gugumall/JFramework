@@ -2,6 +2,7 @@ package j.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Key;
@@ -26,7 +27,8 @@ import javax.crypto.Cipher;
 
 import org.apache.commons.codec.binary.Base64;
 
-import j.http.JHttp;
+import j.I18N.I18N;
+import j.fs.JDFSFile;
 import j.security.CertificateHelper;
 
 /**
@@ -403,33 +405,17 @@ public class JUtilRSA{
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception{
-		String[] pair=createKeyPair(1024);
-		System.out.println("public key:"+pair[0]);
-		System.out.println("private key:"+pair[1]);
+		long t1=System.currentTimeMillis();
+		System.out.println(t1);
+		String s=JDFSFile.read(new File("f:/temp/s.html"), "utf-8");
 		
-		String body="{ \"id\": \"WH-COC11055RA711503B-4YM959094A144403T\", \"create_time\": \"2018-04-16T21:21:49.000Z\", \"event_type\": \"CHECKOUT.ORDER.COMPLETED\", \"resource_type\": \"checkout-order\", \"resource_version\": \"2.0\", \"summary\": \"Checkout Order Completed\", \"resource\": { \"id\": \"5O190127TN364715T\", \"status\": \"COMPLETED\", \"intent\": \"CAPTURE\", \"gross_amount\": { \"currency_code\": \"USD\", \"value\": \"100.00\" }, \"payer\": { \"name\": { \"given_name\": \"John\", \"surname\": \"Doe\" }, \"email_address\": \"buyer@example.com\", \"payer_id\": \"QYR5Z8XDVJNXQ\" }, \"purchase_units\": [ { \"reference_id\": \"d9f80740-38f0-11e8-b467-0ed5f89f718b\", \"amount\": { \"currency_code\": \"USD\", \"value\": \"100.00\" }, \"payee\": { \"email_address\": \"seller@example.com\" }, \"shipping\": { \"method\": \"United States Postal Service\", \"address\": { \"address_line_1\": \"2211 N First Street\", \"address_line_2\": \"Building 17\", \"admin_area_2\": \"San Jose\", \"admin_area_1\": \"CA\", \"postal_code\": \"95131\", \"country_code\": \"US\" } }, \"payments\": { \"captures\": [ { \"id\": \"3C679366HH908993F\", \"status\": \"COMPLETED\", \"amount\": { \"currency_code\": \"USD\", \"value\": \"100.00\" }, \"seller_protection\": { \"status\": \"ELIGIBLE\", \"dispute_categories\": [ \"ITEM_NOT_RECEIVED\", \"UNAUTHORIZED_TRANSACTION\" ] }, \"final_capture\": true, \"seller_receivable_breakdown\": { \"gross_amount\": { \"currency_code\": \"USD\", \"value\": \"100.00\" }, \"paypal_fee\": { \"currency_code\": \"USD\", \"value\": \"3.00\" }, \"net_amount\": { \"currency_code\": \"USD\", \"value\": \"97.00\" } }, \"create_time\": \"2018-04-01T21:20:49Z\", \"update_time\": \"2018-04-01T21:20:49Z\", \"links\": [ { \"href\": \"https://api.paypal.com/v2/payments/captures/3C679366HH908993F\", \"rel\": \"self\", \"method\": \"GET\" }, { \"href\": \"https://api.paypal.com/v2/payments/captures/3C679366HH908993F/refund\", \"rel\": \"refund\", \"method\": \"POST\" } ] } ] } } ], \"create_time\": \"2018-04-01T21:18:49Z\", \"update_time\": \"2018-04-01T21:20:49Z\", \"links\": [ { \"href\": \"https://api.paypal.com/v2/checkout/orders/5O190127TN364715T\", \"rel\": \"self\", \"method\": \"GET\" } ] }, \"links\": [ { \"href\": \"https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-COC11055RA711503B-4YM959094A144403T\", \"rel\": \"self\", \"method\": \"GET\" }, { \"href\": \"https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-COC11055RA711503B-4YM959094A144403T/resend\", \"rel\": \"resend\", \"method\": \"POST\" } ], \"zts\": 1494957670, \"event_version\": \"1.0\" }";
-		long crc=crc32(body);
-		System.out.println("callback crc -> " +crc);
-		
-		String transmissionId="483fa030-92b4-11eb-87f7-855a176f5051";
-		String transmissionTime="2021-04-01T06:34:16Z";
-		String webhookId="WH-COC11055RA711503B-4YM959094A144403T";
-		
-		JHttp http=JHttp.getInstance();
-		
-		InputStream publicKeyIs=http.getStreamResponse(null, null, "https://api.paypal.com/v1/notifications/certs/CERT-360caa42-fca2a594-5edc0ebc");
-		
-		String expectedSignature = String.format("%s|%s|%s|%s", transmissionId, transmissionTime, webhookId, crc);
-		System.out.println("callback expectedSignature -> " +expectedSignature);
-		
-		
-		String sign="a4vNhYMDauBKsBT6KrxtVV1vzWHLns5wo63fNGmB4g7+vSdB/snu7nII3Q8zw7uXnGz4sSdPO6+gUPcV/6QexDqAJGIrq+oFNML/gBTJJMFdFgKCjxG7Ec7WTlT9qNizd0UXm4xq2QmtFXuicqwGCzq6g2H+riBNUbWAIW7PMM5O3KOvHvD7S7zLLdOsV2F2XDjnoWY9+l1UkxbCcstLFT22x/gpwbSEWS0e8uXvmf1YDZ5G2Of2v1n7v9NG1voibMTprmgY9KUjaED5pxMi/9AwTBnb8o5YXtPoWe0l54lkKb71W1BZ1wgToP718OXbX0zjzIa23T1wo8L8q/6pRw==";
-		System.out.println("decrypt:"+JUtilRSA.verify(expectedSignature, 
-				sign, 
-				publicKeyIs, 
-				"UTF-8", 
-				SHA256withRSA));
-		
+		for(int i=0; i<1000; i++) {
+			JUtilMD5.MD5EncodeToHex(s);
+		}
+
+		long t2=System.currentTimeMillis();
+		System.out.println(t2);
+		System.out.println((t2-t1)/10000d);
 		System.exit(0);
 	}
 }

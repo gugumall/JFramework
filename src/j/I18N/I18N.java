@@ -50,7 +50,7 @@ public class I18N extends JHandler implements Initializer,Runnable{
 	private static ConcurrentMap<String, I18NResource> I18NStringCollection=new ConcurrentMap();//多语言资源
 
 	public static ConcurrentMap languages=new ConcurrentMap();//可选语言
-	public static String defaultLanguage;
+	public static String defaultLanguage="zh-cn";
 	public static boolean enabled=false;
 	public static boolean cookieEnabled=false;
 	public static boolean showUnknownTag=false;
