@@ -1,19 +1,19 @@
-﻿1,建立数据库之前，在配置数据库时使用默认编码utf8
+﻿1,建立数据库之前，在配置数据库时使用默认编码utf8mb4
 
 2,建立数据库时指定编码，如：
 
 drop database if exists jframework;
-create database jframework default character set utf8 collate utf8_general_ci;
+create database jframework default character set utf8mb4 collate utf8mb4_general_ci;
 
 3,打开windows命令窗口，用如下命令导出数据：
-mysqldump -u root -p -h localhost --no-create-db --no-create-info --default-character-set=utf8 -B jframework> /usr/tmp/navigate.sql
-mysqldump -u root -p -h localhost --default-character-set=utf8 -B jframework> /usr/tmp/jframework.sql
-mysqldump -u root -p -h localhost --default-character-set=utf8 -B jshopx js_catalog> /usr/tmp/js_catalog.sql
-mysqldump -u root -p -h localhost --default-character-set=utf8 -B jshopx js_group> /usr/tmp/js_group.sql
+mysqldump -u root -p -h localhost --no-create-db --no-create-info --default-character-set=utf8mb4 -B jframework> /usr/tmp/navigate.sql
+mysqldump -u root -p -h localhost --default-character-set=utf8mb4 -B jframework> /usr/tmp/jframework.sql
+mysqldump -u root -p -h localhost --default-character-set=utf8mb4 -B jshopx js_catalog> /usr/tmp/js_catalog.sql
+mysqldump -u root -p -h localhost --default-character-set=utf8mb4 -B jshopx js_group> /usr/tmp/js_group.sql
 
 4,打开windows命令窗口，用如下命令导入数据：
 mysql -u root -p < /usr/tmp/juser.sql
-mysql --default-character-set=utf8 -u root -p < F:\work\JFramework_v2.0\doc\create_mysql.sql
-mysql --default-character-set=utf8 -u root -p < f:\work\JFramework_v2.0\doc\ips.sql
-mysql --default-character-set=utf8 -u root -p < f:\work\JFramework_v2.0\doc\regions_extra.sql
-mysql --default-character-set=utf8 -u root -p < f:\work\JFramework_v2.0\doc\regions.sql
+mysql --default-character-set=utf8mb4 -u root -p < F:\work\JFramework_v2.0\doc\create_mysql.sql
+mysql --default-character-set=utf8mb4 -u root -p < f:\work\JFramework_v2.0\doc\ips.sql
+mysql --default-character-set=utf8mb4 -u root -p < f:\work\JFramework_v2.0\doc\regions_extra.sql
+mysql --default-character-set=utf8mb4 -u root -p < f:\work\JFramework_v2.0\doc\regions.sql

@@ -58,6 +58,20 @@ public class ThreadRunner implements Runnable{
 	
 	/**
 	 * 
+	 * @param taskUuid
+	 * @return
+	 */
+	public boolean exists(String taskUuid){
+		for(int i=0;i<tasks.size();i++){
+			ThreadTask t=(ThreadTask)tasks.get(i);
+			if(t==null) continue;
+			if(taskUuid.equals(t.getUuid())) return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 
 	 * @param task
 	 */
 	public boolean addTask(ThreadTask task){

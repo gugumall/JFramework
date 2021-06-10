@@ -1,13 +1,9 @@
 package j.util;
 
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dom4j.Document;
@@ -775,6 +770,12 @@ public class JUtilBean {
 			Object bean=beans.get(b);
 			if(bean==null){
 				jsonString.append("{},");
+			}else if(bean instanceof java.lang.Double) {
+				jsonString.append("\""+JUtilMath.formatPrintPrecisionNoChange((Double)bean, (Double)bean, 0)+"\",");
+			}else if((bean instanceof java.lang.String)
+					||(bean instanceof java.lang.Number)
+					||(bean instanceof java.sql.Timestamp)) {
+				jsonString.append("\""+JUtilJSON.convertChars(bean.toString())+"\",");
 			}else{
 				jsonString.append(bean2Json(bean)+",");
 			}
@@ -896,7 +897,9 @@ public class JUtilBean {
 			Object val=datas.get(key);
 			
 			s.append("\""+key+"\":");
-			if(val instanceof List){
+			if(val instanceof Map){
+				s.append(map2Json((Map)val));
+			}else if(val instanceof List){
 				s.append(JUtilBean.beans2Json((List)val));
 			}else if(val instanceof String){
 				s.append("\""+JUtilJSON.convert(val.toString())+"\"");
@@ -1365,18 +1368,18 @@ public class JUtilBean {
 	public static void main(String[] args) throws Exception{
 		System.out.println("start");
 		try {
-			JUtilImage ui=new JUtilImage();
+			Map params=new LinkedHashMap();
+			params.put("total","4");
 			
-			InputStream is = new URL("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3058363057,1892331773&fm=15&gp=0.jpg").openStream();
-            BufferedImage sourceImg = ImageIO.read(is);
+			List amounts=new ArrayList();
+			amounts.add("2");
+			amounts.add("");
+			amounts.add("2");
+			amounts.add(new Double(2.55));
 			
+			params.put("amounts",amounts);
 			
-			BufferedImage original = new BufferedImage(1000, 1000,BufferedImage.TYPE_INT_RGB);
-			Graphics graphics=original.getGraphics();
-			graphics.drawImage(sourceImg, 0, 0, 1000, 1000, ui);//绘制图片
-			
-			// 生成二维码QRCode图片
-			ImageIO.write(original, JUtilImage.FORMAT_JPEG, new File("f:/temp/xxx.jpg"));
+			System.out.println(JUtilBean.map2Json(params));
 		} catch (Exception e) {
 			log.log(e,Logger.LEVEL_ERROR);
 		}

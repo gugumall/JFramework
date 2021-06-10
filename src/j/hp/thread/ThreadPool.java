@@ -125,6 +125,19 @@ public class ThreadPool{
 	 * @param task
 	 * @return
 	 */
+	public ThreadRunner exists(String taskUuid){
+		for(int i=0;i<this.threads.size();i++){
+			ThreadRunner runner=(ThreadRunner)this.threads.get(i);
+			if(runner.exists(taskUuid)) return runner;
+		}
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param task
+	 * @return
+	 */
 	synchronized public ThreadRunner addTask(ThreadTask task){
 		this.latestUsed=SysUtil.getNow();
 		

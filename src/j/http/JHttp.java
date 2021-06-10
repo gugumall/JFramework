@@ -1228,16 +1228,7 @@ public class JHttp{
 	 * @throws Exception
 	 */
 	public static void main(String[] args){
-		try {
-			JHttp http=JHttp.getInstance();
-			http.setRedirectsEnabled(false);
-			JHttpContext context=new JHttpContext();
-			context.setAllowedErrorCodes(new String[] {"200","301","302"});
-			context.setClearRequestHeadersOnFinish(false);
-			//HttpClient client=http.createClient();
-
-
-			
+		try {			
 			System.exit(0);
 		}catch(Exception e) {
 			System.out.println(SysUtil.getException(e));

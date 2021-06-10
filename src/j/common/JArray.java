@@ -141,6 +141,17 @@ public final class JArray {
 	 * @return
 	 */
 	public static String toString(List objects, String splitter) {
+		return toString(objects, splitter, false);
+	}
+	
+	/**
+	 * 
+	 * @param objects
+	 * @param splitter
+	 * @param quote
+	 * @return
+	 */
+	public static String toString(List objects, String splitter, boolean quote) {
 		if(objects==null) return null;
 		if(objects.isEmpty()) return "";
 		
@@ -148,7 +159,8 @@ public final class JArray {
 		
 		for(int i=0; i<objects.size(); i++) {
 			if(splitter!=null&&i>0) sb.append(splitter);
-			sb.append(objects.get(i)==null?"null":objects.get(i).toString());
+			if(!quote) sb.append(objects.get(i)==null?"null":objects.get(i).toString());
+			else sb.append(objects.get(i)==null?"null":("\""+objects.get(i).toString()+"\""));
 		}
 		
 		return sb.toString();
@@ -170,6 +182,17 @@ public final class JArray {
 	 * @return
 	 */
 	public static String toString(Object[] objects, String splitter) {
+		return toString(objects, splitter, false);
+	}
+	
+	/**
+	 * 
+	 * @param objects
+	 * @param splitter
+	 * @param quote
+	 * @return
+	 */
+	public static String toString(Object[] objects, String splitter, boolean quote) {
 		if(objects==null) return null;
 		if(objects.length==0) return "";
 		
@@ -177,7 +200,8 @@ public final class JArray {
 		
 		for(int i=0; i<objects.length; i++) {
 			if(splitter!=null&&i>0) sb.append(splitter);
-			sb.append(objects[i]==null?"null":objects[i].toString());
+			if(!quote) sb.append(objects[i]==null?"null":objects[i].toString());
+			else sb.append(objects[i]==null?"null":("\""+objects[i].toString()+"\""));
 		}
 		
 		return sb.toString();

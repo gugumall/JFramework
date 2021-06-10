@@ -22,10 +22,13 @@ public abstract class OCR{
 		if(provider==null||"".equals(provider)) return null;
 		
 		synchronized(providers) {
-			OCR ocr=providers.get(provider);
+			OCR ocr=providers.get(provider.toUpperCase());
 			if(ocr==null) {
 				if("BAIDU".equalsIgnoreCase(provider)) {
 					ocr=new OCRBaidu();
+					providers.put(provider.toUpperCase(), ocr);
+				}else if("TESS".equalsIgnoreCase(provider)) {
+					ocr=new OCRTess();
 					providers.put(provider.toUpperCase(), ocr);
 				}
 			}

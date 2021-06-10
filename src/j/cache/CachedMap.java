@@ -22,7 +22,7 @@ public class CachedMap{
 	public CachedMap(String cacheId) throws Exception{
 		super();
 		if(cacheId==null){
-			this.cacheId=""+(new Object()).hashCode();;
+			this.cacheId=""+(new Object()).hashCode();
 		}else{
 			this.cacheId=cacheId;
 		}
@@ -39,7 +39,7 @@ public class CachedMap{
 	public CachedMap(String nvwaObjectCode,String cacheId) throws Exception{
 		super();
 		if(cacheId==null){
-			this.cacheId=""+(new Object()).hashCode();;
+			this.cacheId=""+(new Object()).hashCode();
 		}else{
 			this.cacheId=cacheId;
 		}

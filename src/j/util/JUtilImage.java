@@ -127,6 +127,49 @@ public final class JUtilImage implements ImageObserver {
 		if (_quality >= 0 && _quality <= 1)
 			this.quality = _quality;
 	}
+	
+	/**
+	 * 
+	 * @param srcFile
+	 * @return
+	 */
+	public BufferedImage read(File srcFile) {
+		Image img = Toolkit.getDefaultToolkit().getImage(srcFile.getAbsolutePath());
+		img.flush();
+		img = new ImageIcon(img).getImage();
+
+		BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
+
+		Graphics2D g2d = bimage.createGraphics();
+		g2d.drawImage(img, 0, 0, this);
+		g2d.dispose();
+
+		return bimage;
+	}
+	
+	/**
+	 * 
+	 * @param srcFile
+	 * @return
+	 */
+	public void save(BufferedImage img, File destFile, String imageFormat) throws Exception{
+		// 如果父目录不存在，则创建目录
+		if (!destFile.getParentFile().exists()) {
+			destFile.getParentFile().mkdirs();
+		}
+		FileOutputStream os = new FileOutputStream(destFile); // 输出到文件流
+		ImageWriter writer = (ImageWriter) ImageIO.getImageWritersByFormatName(imageFormat).next();
+		ImageOutputStream ios = ImageIO.createImageOutputStream(os);
+		writer.setOutput(ios);
+		ImageWriteParam param = new JPEGImageWriteParam(Locale.getDefault());
+		param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+		param.setCompressionQuality(quality);
+		writer.write(null, new IIOImage(img, null, null), param);
+		writer.dispose();
+		ios.flush();
+		ios.close();
+		os.close();
+	}
 
 	/**
 	 * 将srcFile调整为newWidth*newHeight大小，并保存为destFile

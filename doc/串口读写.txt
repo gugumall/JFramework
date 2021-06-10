@@ -2,7 +2,6 @@ http://www.oracle.com/technetwork/java/index-jsp-141752.html
 
 http://docs.oracle.com/cd/E17802_01/products/products/javacomm/reference/api/javax/comm/package-summary.html
 
-http://llk.media.mit.edu/projects/cricket/software/javaSerial.zip
 http://mdubuc.freeshell.org/Jolt/javacomm20-win32.zip
 
 comm.jar¿½±´µ½c:\Program Files\Java\jre7\lib\ext;  

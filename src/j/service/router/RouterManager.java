@@ -176,7 +176,15 @@ public class RouterManager implements Runnable {
 					JRouter router=(JRouter)Nvwa.entrustCreate(routerConfig.getRelatedHttpHandlerPath(),routerConfig.getClassName(),true);	
 					router.setRouterConfig(routerConfig);
 
-					log.log(routerConfig.getName()+" start router container, the provider url is "+routerConfig.getRmi().getConfig("java.naming.provider.url"), -1);
+					
+					if(routerConfig.getRmi()!=null) {
+						log.log(routerConfig.getName()+" start router container, the rmi provider url is "+routerConfig.getRmi().getConfig("java.naming.provider.url"), -1);
+					}
+					
+					if(routerConfig.getHttp()!=null) {
+						log.log(routerConfig.getName()+" start router container, the http provider url is "+routerConfig.getHttp().getConfig("j.service.http"), -1);
+					}
+					
 					RouterContainer container=new RouterContainer(routerConfig,router);
 					routerContainers.put(routerConfig.getUuid(),container);
 					container.startup();
